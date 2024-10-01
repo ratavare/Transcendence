@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+<html>
+	<body>
+	<h1>Users:</h1>
+		{% if user_list %}
+		<ul>
+		{% for user in user_list%}
+			<li>{{ user.username }}</li>
+		{% endfor %}
+		</ul>
+		{% else %}
+		<p>No users.</p>
+		{% endif %}
+	</body>
+</html>
