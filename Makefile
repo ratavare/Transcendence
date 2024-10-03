@@ -7,7 +7,7 @@ all: build
 
 build:
 	@echo "$(GREEN)Docker Compose Starting!$(NC)"
-	@docker-compose -f docker-compose.yml up -d --build
+	@docker-compose -f docker-compose.yml up --build
 
 clean:
 	@echo "$(RED)Cleaning up containers and volumes...$(NC)"

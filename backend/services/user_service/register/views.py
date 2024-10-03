@@ -1,13 +1,12 @@
 from django.shortcuts import render, redirect
 from django.views import generic
 from django.contrib.auth.models import User
-from django.contrib.auth import login
 
 # Create your views here.
 
 from .forms import RegistrationForm
 
-def register(request):
+def registerView(request):
 	if request.method == "POST":
 		form = RegistrationForm(request.POST)
 		if form.is_valid():

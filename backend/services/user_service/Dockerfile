@@ -5,7 +5,7 @@ WORKDIR /backend
 COPY ./requirements.txt ./
 
 RUN pip install -r requirements.txt
-RUN pip install python-dotenv django-crispy-forms crispy-bootstrap5
+RUN pip install python-dotenv
 
 COPY . .
 

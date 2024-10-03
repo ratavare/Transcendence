@@ -1,5 +1,5 @@
 """
-URL configuration for mysite mysite.
+URL configuration for user_service project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangomysite.com/en/5.1/topics/http/urls/
@@ -24,5 +24,6 @@ from register import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', include("register.urls")),
+    path('login/', include("login.urls")),
     path('', RedirectView.as_view(url='register/', permanent=True)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

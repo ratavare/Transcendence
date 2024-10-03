@@ -1,19 +1,44 @@
 
 services:
-  backend:
-    build: ./backend
-    container_name: backend
+  # authentication_service:
+  #   build: ./backend/services/authentication_service
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8001:8000"
+  #   volumes:
+  #     - ./backend/services/user_service:/auth
+
+  # game_service:
+  #   build: ./backend/services/game_service
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8002:8000"
+  #   volumes:
+  #     - ./backend/services/game_service:/game
+
+  # statistics_service:
+  #   build: ./backend/services/statistics_service
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8003:8000"
+  #   volumes:
+  #     - ./backend/services/statistics_service:/stats
+
+  user_service:
+    build: ./backend/services/user_service
     depends_on:
       database:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - "8004:8000"
     volumes:
-      - ./backend:/backend
-    networks:
-      - transcendece_nw
-    # env_file:
-    #   - .env
+      - ./backend/services/user_service:/user
 
   database:
     image: postgres
@@ -31,12 +56,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - transcendece_nw
+    # networks:
+    #   - transcendece_nw
 
-networks:
-  transcendece_nw:
-    driver: bridge
+# networks:
+#   transcendece_nw:
+#     driver: bridge
 
 volumes:
   pgdata:
