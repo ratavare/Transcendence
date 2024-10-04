@@ -23,7 +23,7 @@ from register import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('register/', include("register.urls")),
+    path('', include("register.urls")),
     path('login/', include("login.urls")),
-    path('', RedirectView.as_view(url='register/', permanent=True)),
+    path('', RedirectView.as_view(url='api/', permanent=True)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
