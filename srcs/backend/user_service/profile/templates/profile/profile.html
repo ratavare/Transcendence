@@ -11,10 +11,18 @@
     <div class="container mt-5">
         <h1 class="mb-4">Profile</h1>
 
+        <!-- Change Username Form -->
+        <div class="mb-4">
+            <form action="{% url 'profile:change_username' %}" method="POST">
+                {% csrf_token %}
+				{{ form|crispy }}
+                <button type="submit" class="btn btn-primary">Change Username</button>
+            </form>
+        </div>
+
 		{% if user.has_usable_password %}
         <!-- Change Password Form -->
         <div class="mb-4">
-            <h2>Change Password</h2>
             <form action="{% url 'profile:change_password' %}" method="POST">
                 {% csrf_token %}
                 {{ form|crispy }}
@@ -25,7 +33,6 @@
 
         <!-- Account Deletion Form -->
         <div class="mb-4">
-            <h2>Delete Account</h2>
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                 Delete Account
             </button>

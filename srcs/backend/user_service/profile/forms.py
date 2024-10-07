@@ -1,7 +1,13 @@
 from django import forms
-from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.models import User
 
-class CreatePasswordForm(SetPasswordForm):
+class ChangeUsernameForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['new_password1', 'new_password2']
+        fields = ['username']
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("This username is already taken. Please choose another.")
+        return username
