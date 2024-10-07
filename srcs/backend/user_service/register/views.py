@@ -40,7 +40,8 @@ def registerView(request):
 		form = RegistrationForm(request.POST)
 		if form.is_valid():
 			form.save()
-			return redirect('register:user')
+			login(request, user)
+			return redirect('/')
 	else:
 		form = RegistrationForm()
 		
@@ -94,7 +95,7 @@ def auth(request):
 
 			login(request, user)
 
-			return redirect('login:loginSuccess') 
+			return redirect('/') 
 		else:
 			return render(request, 'error.html', {'error': 'Failed to fetch user info'})
 	else:

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'login.apps.LoginConfig',
 	'logout.apps.LogoutConfig',
+	'profile.apps.ProfileConfig',
     'register.apps.RegisterConfig',
     'django.contrib.admin',
     'django.contrib.auth',

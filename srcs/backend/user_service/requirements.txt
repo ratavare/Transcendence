@@ -5,3 +5,4 @@ crispy-bootstrap5
 djangorestframework
 requests
 python-dotenv
+Pillow

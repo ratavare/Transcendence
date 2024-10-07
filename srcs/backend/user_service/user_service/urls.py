@@ -26,5 +26,6 @@ urlpatterns = [
     path('', include("register.urls")),
     path('login/', include("login.urls")),
 	path('logout/', include("logout.urls")),
+	path('profile/', include("profile.urls")),
     path('', RedirectView.as_view(url='api/', permanent=True)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

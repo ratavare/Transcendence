@@ -1,16 +1,27 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>User List</title>
+	</head>
 	<body>
-	<h1>Users:</h1>
+		<h1>Users:</h1>
 		{% if user_list %}
-		<ul>
-		{% for user in user_list%}
-			<li>{{ user.username }}</li>
-		{% endfor %}
-		</ul>
+			<ul>
+				{% for user in user_list %}
+					<li>{{ user.username }}</li>
+				{% endfor %}
+			</ul>
 		{% else %}
-		<p>No users.</p>
+			<p>No users.</p>
+		{% endif %}
+
+		<h2>Logged In User:</h2>
+		{% if user.is_authenticated %}
+			<p>Logged in as: {{ user.username }}</p>
+		{% else %}
+			<p>No user is currently logged in.</p>
 		{% endif %}
 	</body>
 </html>

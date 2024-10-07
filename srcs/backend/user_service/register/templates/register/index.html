@@ -15,21 +15,27 @@
 					<a class="navbar-brand" href="http://localhost:8004/">Transcendance</a>
 				</div>
 				<ul class="nav navbar-nav navbar-right">
-					{% if user.is_authenticated %}
-						<!-- Dropdown for logged-in users -->
-						<li class="dropdown">
-							<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
-								<span class="glyphicon glyphicon-user"></span> 
-								<span class="caret"></span>
-							</a>
-							<ul class="dropdown-menu">
-								<li><a href="http://localhost:8004/profile">Profile</a></li>
-								<li><a href="http://localhost:8004/settings">Settings</a></li>
-								<li><a href="http://localhost:8004/logout">Logout</a></li>
-							</ul>
-						</li>
+					{% if user %}
+						{% if user.is_authenticated %}
+							<!-- Dropdown for logged-in users -->
+							<li class="dropdown">
+								<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+									<span class="glyphicon glyphicon-user"></span> 
+									<span class="caret"></span>
+								</a>
+								<ul class="dropdown-menu">
+									<li><a href="http://localhost:8004/profile">Profile</a></li>
+									<li><a href="#">Settings</a></li>
+									<li><a href="http://localhost:8004/logout">Logout</a></li>
+								</ul>
+							</li>
+						{% else %}
+							<!-- Links for users who are not logged in -->
+							<li><a href="http://localhost:8004/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+							<li><a href="http://localhost:8004/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+						{% endif %}
 					{% else %}
-						<!-- Links for users who are not logged in -->
+						<!-- Default when the 'user' context is missing or there are no users -->
 						<li><a href="http://localhost:8004/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
 						<li><a href="http://localhost:8004/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 					{% endif %}
