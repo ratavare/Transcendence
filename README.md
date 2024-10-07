@@ -24,3 +24,24 @@ python manage.py createsuperuser
 ```sh
 localhost:8000
 ```
+
+### Tips
+
+* Connection
+
+To start remote server do (there may be another and more efficient way):
+
+```sh
+ngrok http [PORT]
+```
+
+Don't forget to change redirect uri in intra.42 API config page
+
+Always remember to do:
+
+```sh
+docker exec -it transcendence-user_service-1 bash
+python manage.py migrate
+```
+
+after doing `make re`

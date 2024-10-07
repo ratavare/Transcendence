@@ -39,3 +39,11 @@ def change_username(request):
         form = ChangeUsernameForm(instance=request.user)
 
     return render(request, 'profile/change_username.html', {'form': form})
+
+@login_required
+def friends(request):
+	return render(request, 'profile/friends.html')
+
+@login_required
+def searchfriends(request):
+	return render(request, 'profile/searchfriends.html')

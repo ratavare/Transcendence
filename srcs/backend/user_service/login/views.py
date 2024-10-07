@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm
@@ -15,4 +17,9 @@ def loginView(request):
 	else:
 		form = AuthenticationForm()
 
-	return render(request, "login/login.html", {"form":form})
+	context = {
+        "form": form,
+        "url": os.getenv('URL'),
+    }
+
+	return render(request, "login/login.html", context)

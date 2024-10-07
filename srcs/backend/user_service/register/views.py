@@ -44,8 +44,13 @@ def registerView(request):
 			return redirect('/')
 	else:
 		form = RegistrationForm()
+
+	context = {
+        "form": form,
+        "url": os.getenv('URL'),
+    }
 		
-	return render(request, 'register/register.html', {"form":form})
+	return render(request, 'register/register.html', context)
 
 class UsersView(generic.ListView):
 	template_name = "register/user.html"
@@ -65,7 +70,7 @@ def auth(request):
 		'grant_type': 'authorization_code',
 		'client_id': os.getenv('CLIENT_ID'),
 		'client_secret': os.getenv('CLIENT_SECRET'),
-		'redirect_uri': 'http://localhost:8004/auth',
+		'redirect_uri': os.getenv('URL') + '/auth',
 		'code': auth_code,
 	}
 
@@ -102,4 +107,4 @@ def auth(request):
 		return render(request, 'error.html', {'error': 'Failed to obtain access token'})
 
 def indexView(request):
-	return render(request, 'register/index.html')
+	return render(request, 'register/index.html', {'url': os.getenv('URL')})
