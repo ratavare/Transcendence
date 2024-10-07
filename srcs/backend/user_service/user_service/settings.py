@@ -11,6 +11,10 @@ https://docs.djangomysite.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the mysite like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +29,7 @@ SECRET_KEY = 'django-insecure-3ez88!$-2nk6$u2y@=2_*@88vwaky2xsx3@$m5ej%-f#rfwn*a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "10.12.6.9"]
+ALLOWED_HOSTS = ["localhost"]
 
 
 # Application definition
@@ -33,6 +37,7 @@ ALLOWED_HOSTS = ["localhost", "10.12.6.9"]
 INSTALLED_APPS = [
     'rest_framework',
     'login.apps.LoginConfig',
+	'logout.apps.LogoutConfig',
     'register.apps.RegisterConfig',
     'django.contrib.admin',
     'django.contrib.auth',
