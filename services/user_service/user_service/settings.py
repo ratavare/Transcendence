@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "ed12-79-169-238-4.ngrok-free.app"]
 
-CSRF_TRUSTED_ORIGINS = [os.getenv('URL')]
+# CSRF_TRUSTED_ORIGINS = [os.getenv('URL')]
 
 # Application definition
 
