@@ -49,9 +49,9 @@ def registerView(request):
 		form = RegistrationForm()
 
 	context = {
-        "form": form,
-        "url": os.getenv('URL'),
-    }
+		"form": form,
+		"url": os.getenv('URL'),
+	}
 		
 	return render(request, 'register/register.html', context)
 
