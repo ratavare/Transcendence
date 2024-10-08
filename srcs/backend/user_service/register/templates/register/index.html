@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -43,5 +44,8 @@
 				</ul>
 			</div>
 		</nav>
+			{% include 'register/oi.html' %} 
+			{% include 'register/a.html' %} 
+		<script src="{% static 'js/engine.js' %}"></script>
 	</body>
 </html>
