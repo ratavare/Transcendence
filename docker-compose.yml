@@ -1,59 +1,17 @@
 
 services:
-  # authentication_service:
-  #   build: ./backend/services/authentication_service
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8001:8000"
-  #   volumes:
-  #     - ./backend/services/user_service:/auth
-
-  # game_service:
-  #   build: ./backend/services/game_service
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8002:8000"
-  #   volumes:
-  #     - ./backend/services/game_service:/game
-
-  # statistics_service:
-  #   build: ./backend/services/statistics_service
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8003:8000"
-  #   volumes:
-  #     - ./backend/services/statistics_service:/stats
-
   user_service:
     container_name: user
-    build: ./srcs/backend/user_service
+    build: ./services/user_service
     depends_on:
       database:
         condition: service_healthy
     ports:
       - "8004:8000"
     volumes:
-      - ./srcs/backend/user_service:/user
+      - ./services/user_service:/user
     networks:
       - transcendece_nw
-
-  # api_service:
-  #   build: ./backend/services/api_service
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8005:8000"
-  #   volumes:
-  #     - ./backend/services/api_service:/api
-  #   networks:
-  #     - transcendece_nw
 
   database:
     image: postgres
