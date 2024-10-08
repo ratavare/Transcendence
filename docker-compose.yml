@@ -42,17 +42,17 @@ services:
     networks:
       - transcendece_nw
 
-  # api_service:
-  #   build: ./backend/services/api_service
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8005:8000"
-  #   volumes:
-  #     - ./backend/services/api_service:/api
-  #   networks:
-  #     - transcendece_nw
+  remote_service:
+    build: ./backend/services/remote_service
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "8005:8000"
+    volumes:
+      - ./backend/services/remote_service:/remote
+    networks:
+      - transcendece_nw
 
   database:
     image: postgres
