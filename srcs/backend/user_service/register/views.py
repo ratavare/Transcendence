@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 
 from .forms import RegistrationForm
 from .serializers import UserRegisterSerializer
+from .models import Profile
 
 from django.http import HttpResponseForbidden
 
@@ -40,6 +41,8 @@ def registerView(request):
 		form = RegistrationForm(request.POST)
 		if form.is_valid():
 			user = form.save()
+			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
+			user.save()
 			login(request, user)
 			return redirect('/')
 	else:

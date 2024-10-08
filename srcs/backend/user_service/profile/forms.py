@@ -1,13 +1,25 @@
 from django import forms
 from django.contrib.auth.models import User
+from register.models import Profile
 
-class ChangeUsernameForm(forms.ModelForm):
+class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username']
+        
+    username = forms.CharField(required=False)
 
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-        if User.objects.filter(username=username).exists():
-            raise forms.ValidationError("This username is already taken. Please choose another.")
-        return username
+class BioForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio']
+
+class BirthDateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['birth_date']
+
+class EmailForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email']
