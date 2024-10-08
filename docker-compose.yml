@@ -31,6 +31,7 @@ services:
   #     - ./backend/services/statistics_service:/stats
 
   user_service:
+    container_name: user
     build: ./srcs/backend/user_service
     depends_on:
       database:

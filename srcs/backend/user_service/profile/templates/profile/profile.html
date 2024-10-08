@@ -30,11 +30,13 @@
                     {{ birth_date_form.birth_date|as_crispy_field }}
                     {{ email_form.email|as_crispy_field }}
 
+                    {% if user.has_usable_password %}
                     <div class="mb-4">
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
                             Change Password
                         </button>
                     </div>
+                    {% endif %}
 
                     <div class="mb-4">
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">

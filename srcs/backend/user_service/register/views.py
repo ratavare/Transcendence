@@ -97,6 +97,8 @@ def auth(request):
 
 			user, created = User.objects.get_or_create(username=username, email=email)
 
+			Profile.objects.create(user=user, profile_picture="/user/media/profile-PP.jpg")
+			
 			if created:
 				user.set_unusable_password()
 				user.save()
