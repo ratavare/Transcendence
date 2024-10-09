@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
+from django.http import JsonResponse
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -35,7 +36,20 @@ def apiRegisterView(request):
 		serializer = UserRegisterSerializer(users, many=True)
 		return Response(serializer.data)
 
-print('\033[93m' + "TESTESTESTESTESTEST" + '\033[0m')
+# def registerView(request):
+# 	if request.method == "POST":
+# 		form = RegistrationForm(request.POST)
+# 		if form.is_valid():
+# 			user = form.save()
+# 			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
+# 			user.save()
+# 			login(request, user)
+# 			return JsonResponse({'success': True})
+# 		else:
+# 			return JsonResponse({'error': form.errors}, status=400)
+# 	else:
+# 		return JsonResponse({'error': 'Invalid Request'}, status=400)
+
 def registerView(request):
 	if request.method == "POST":
 		form = RegistrationForm(request.POST)
@@ -50,7 +64,7 @@ def registerView(request):
 
 	context = {
 		"registerForm": form,
-		"url": 'localhost:8004/#/',
+		"url": 'localhost:8004/',
 	}
 		
 	return render(request, 'register/register.html', context)
@@ -114,7 +128,7 @@ def auth(request):
 def indexView(request):
 	
 	return render(request, 'register/index.html', {
-		'url': os.getenv('URL')  + "/#/",
+		'url': os.getenv('URL'),
 		'registerForm': RegistrationForm(),
 		'authenticForm': AuthenticationForm(),
 	})

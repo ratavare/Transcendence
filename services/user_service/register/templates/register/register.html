@@ -4,6 +4,7 @@
 	<h1 class="row justify-content-center">Create an Account</h1>
 	{% load crispy_forms_tags %}
 	{% block content %}
+	<!-- <form id="registerForm" onsubmit="submitForm(event)"> -->
 	<form method="POST">
 		{% csrf_token %}
 		<div class="form-group">
