@@ -25,27 +25,28 @@
 									<span class="caret"></span>
 								</a>
 								<ul class="dropdown-menu">
-									<li><a href="{{ url }}/profile">Profile</a></li>
-									<li><a href="{{ url }}/profile/friends">Friends</a></li>
+									<li><a href="{{ url }}/#/profile">Profile</a></li>
+									<li><a href="{{ url }}/#/profile/friends">Friends</a></li>
 									<li><a href="#">Settings</a></li>
-									<li><a href="{{ url }}/logout">Logout</a></li>
+									<li><a href="{{ url }}/#/logout">Logout</a></li>
 								</ul>
 							</li>
 						{% else %}
 							<!-- Links for users who are not logged in -->
-							<li><a href="{{ url }}/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-							<li><a href="{{ url }}/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+							<li><a href="{{ url }}/#/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+							<li><a href="{{ url }}/#/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 						{% endif %}
 					{% else %}
 						<!-- Default when the 'user' context is missing or there are no users -->
-						<li><a href="{{ url }}/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-						<li><a href="{{ url }}/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+						<li><a href="{{ url }}/#/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+						<li><a href="{{ url }}/#/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 					{% endif %}
 				</ul>
 			</div>
 		</nav>
-			{% include 'register/oi.html' %} 
-			{% include 'register/a.html' %} 
+			{% include 'register/register.html' with form=registerForm %}
+			{% include 'register/user.html' %}
+			{% include 'login/login.html' with form=authenticForm %}
 		<script src="{% static 'js/engine.js' %}"></script>
 	</body>
 </html>

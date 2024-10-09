@@ -5,6 +5,7 @@ from django.views import generic
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -14,8 +15,6 @@ from rest_framework.views import APIView
 from .forms import RegistrationForm
 from .serializers import UserRegisterSerializer
 from .models import Profile
-
-from django.http import HttpResponseForbidden
 
 @api_view(['POST', 'GET'])
 @permission_classes((permissions.AllowAny,))
@@ -36,6 +35,7 @@ def apiRegisterView(request):
 		serializer = UserRegisterSerializer(users, many=True)
 		return Response(serializer.data)
 
+print('\033[93m' + "TESTESTESTESTESTEST" + '\033[0m')
 def registerView(request):
 	if request.method == "POST":
 		form = RegistrationForm(request.POST)
@@ -44,13 +44,13 @@ def registerView(request):
 			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
 			user.save()
 			login(request, user)
-			return redirect('/')
+			return redirect('register/user.html')
 	else:
 		form = RegistrationForm()
 
 	context = {
-		"form": form,
-		"url": os.getenv('URL'),
+		"registerForm": form,
+		"url": 'localhost:8004/#/',
 	}
 		
 	return render(request, 'register/register.html', context)
@@ -112,4 +112,9 @@ def auth(request):
 		return render(request, 'error.html', {'error': 'Failed to obtain access token'})
 
 def indexView(request):
-	return render(request, 'register/index.html', {'url': os.getenv('URL')})
+	
+	return render(request, 'register/index.html', {
+		'url': os.getenv('URL')  + "/#/",
+		'registerForm': RegistrationForm(),
+		'authenticForm': AuthenticationForm(),
+	})

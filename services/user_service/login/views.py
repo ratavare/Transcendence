@@ -18,8 +18,8 @@ def loginView(request):
 		form = AuthenticationForm()
 
 	context = {
-        "form": form,
-        "url": os.getenv('URL'),
-    }
+		"authenticForm": form,
+		"url": os.getenv('URL'),
+	}
 
 	return render(request, "login/login.html", context)
