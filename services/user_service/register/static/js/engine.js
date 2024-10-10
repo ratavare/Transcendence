@@ -41,7 +41,7 @@ function setPage(name)
 	pageActive?.remove();
 	const page = l.get(name) || Array.from(pages).find(page => page.getAttribute('default'));
 	if (page)
-		{ 
+	{
 		const newPage = document.createElement('page-element');
 		newPage.innerHTML = page.innerHTML;
 		const newScript = document.createElement('script');

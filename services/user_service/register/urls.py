@@ -9,5 +9,5 @@ urlpatterns = [
 	path("api/register/", views.apiRegisterView, name="apiRegister"),
 	path("register/", views.registerView, name="register"),
 	path('user/', views.UsersView.as_view(), name="user"),
-	path('auth/', views.auth, name="auth"),
+	path('auth/', views.auth, name="auth_"),
 ]

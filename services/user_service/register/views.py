@@ -6,7 +6,9 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
+
 from django.http import JsonResponse
+import json
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -16,6 +18,12 @@ from rest_framework.views import APIView
 from .forms import RegistrationForm
 from .serializers import UserRegisterSerializer
 from .models import Profile
+
+class color:
+	RED = '\033[91m'
+	YELLOW = '\033[93m'
+	GREEN = '\033[92m'
+	NC = '\033[0m'
 
 @api_view(['POST', 'GET'])
 @permission_classes((permissions.AllowAny,))
@@ -36,38 +44,46 @@ def apiRegisterView(request):
 		serializer = UserRegisterSerializer(users, many=True)
 		return Response(serializer.data)
 
-# def registerView(request):
-# 	if request.method == "POST":
-# 		form = RegistrationForm(request.POST)
-# 		if form.is_valid():
-# 			user = form.save()
-# 			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
-# 			user.save()
-# 			login(request, user)
-# 			return JsonResponse({'success': True})
-# 		else:
-# 			return JsonResponse({'error': form.errors}, status=400)
-# 	else:
-# 		return JsonResponse({'error': 'Invalid Request'}, status=400)
-
 def registerView(request):
-	if request.method == "POST":
+	print(color.YELLOW + 'TESTESTESTESTESTEST' + color.NC)
+	if request.method == 'POST':
+		print(color.GREEN + 'TESTESTESTESTESTEST' + color.NC)
 		form = RegistrationForm(request.POST)
 		if form.is_valid():
 			user = form.save()
 			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
 			user.save()
 			login(request, user)
-			return redirect('register/user.html')
-	else:
-		form = RegistrationForm()
+			return JsonResponse({'status': 'success', 'username': user.username})
+		return JsonResponse({'status': 'error', 'errors': form.errors})
 
+	form = RegistrationForm()
 	context = {
 		"registerForm": form,
 		"url": 'localhost:8004/',
 	}
-		
+
 	return render(request, 'register/register.html', context)
+
+# def registerView(request):
+# 	print(color.YELLOW + 'TESTESTESTESTESTEST' + color.NC)
+# 	if request.method == "POST":
+# 		print(color.GREEN + 'TESTESTESTESTESTEST' + color.NC)
+		
+# 		if form.is_valid():
+# 			user = form.save()
+# 			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
+# 			user.save()
+# 			login(request, user)
+# 			return redirect('register/user.html')
+# 	else:
+# 		form = RegistrationForm()
+
+# 	context = {
+# 		"registerForm": form,
+# 		"url": 'localhost:8004/',
+# 	}
+# 	return render(request, 'register/register.html', context)
 
 class UsersView(generic.ListView):
 	template_name = "register/user.html"
@@ -76,18 +92,13 @@ class UsersView(generic.ListView):
 	def get_queryset(self):
 		return User.objects.all()	
 
-def auth(request):
-	auth_code = request.GET.get('code')
-
-	if not auth_code:
-		return render(request, 'register/index.html')
-
+def auth(request, auth_code):
 	token_url = "https://api.intra.42.fr/oauth/token"
 	payload = {
 		'grant_type': 'authorization_code',
 		'client_id': os.getenv('CLIENT_ID'),
 		'client_secret': os.getenv('CLIENT_SECRET'),
-		'redirect_uri': os.getenv('URL') + '/auth',
+		'redirect_uri': os.getenv('URL'),
 		'code': auth_code,
 	}
 
@@ -119,16 +130,25 @@ def auth(request):
 
 			login(request, user)
 
-			return redirect('/') 
+			return render(request, 'register/index.html', {
+				'url': os.getenv('URL'),
+				'registerForm': RegistrationForm(),
+				'authenticForm': AuthenticationForm(),
+			})
 		else:
 			return render(request, 'error.html', {'error': 'Failed to fetch user info'})
 	else:
 		return render(request, 'error.html', {'error': 'Failed to obtain access token'})
 
 def indexView(request):
-	
-	return render(request, 'register/index.html', {
-		'url': os.getenv('URL'),
-		'registerForm': RegistrationForm(),
-		'authenticForm': AuthenticationForm(),
-	})
+
+	auth_code = request.GET.get('code')
+
+	if not auth_code:
+		return render(request, 'register/index.html', {
+			'url': os.getenv('URL'),
+			'registerForm': RegistrationForm(),
+			'authenticForm': AuthenticationForm(),
+		})
+
+	return auth(request, auth_code)

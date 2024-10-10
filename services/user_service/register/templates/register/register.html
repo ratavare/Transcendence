@@ -4,8 +4,7 @@
 	<h1 class="row justify-content-center">Create an Account</h1>
 	{% load crispy_forms_tags %}
 	{% block content %}
-	<!-- <form id="registerForm" onsubmit="submitForm(event)"> -->
-	<form method="POST">
+	<form method="POST" id="registerForm">
 		{% csrf_token %}
 		<div class="form-group">
 			<div class="row justify-content-center">
@@ -16,16 +15,17 @@
 				</div>
 			</div>
 		</div>
-		<p align="center">
-			<button type="submit" class="btn btn-success" >Register</button>
-		</p>
 	</form>
+	<p align="center">
+		<button type="submit" class="btn btn-success" onclick="sendForm()">Register</button>
+	</p>
 	<p align="center">or</p>
 	<p align="center">
-		<a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725&redirect_uri={{ url }}/auth&response_type=code" class="btn btn-primary">
+		<a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725&redirect_uri={{ url }}&response_type=code" class="btn btn-primary">
 			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/42_Logo.svg/800px-42_Logo.svg.png" style="height: 1em; vertical-align: middle; margin-right: 5px;"> 
 			Register with 42 Intra
 		</a>
 	</p>
+	<script src="{% static 'js/register.js' %}"></script>
 	{% endblock %}
 </page-element>
