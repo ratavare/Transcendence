@@ -21,17 +21,12 @@ for (const page of pages) {
 }
 
 window.addEventListener('load', function(event) {
-	console.log('pages: \n', pages);
 	const url = window.location.href.split('#/')[1];
-	console.log('load: ', url);
 	setPage(url);
-   
-	
 });
 
 window.addEventListener('popstate', function(event) {
 	const url = window.location.href.split('#/')[1];
-	console.log('popstate', url);
 	setPage(url);
 });
 
@@ -44,11 +39,17 @@ function setPage(name)
 	{
 		const newPage = document.createElement('page-element');
 		newPage.innerHTML = page.innerHTML;
+
 		const newScript = document.createElement('script');
 		newScript.src = "static/js/" + name + ".js";
+		newScript.onload = function(){
+			console.log(`${name}.js loaded successfully`);
+		};
 		newPage.appendChild(newScript);
+		console.log(newScript);
+		console.log(newPage);
 		document.body.appendChild(newPage);
-		console.log('setPage; ', name);
+		console.log('setPage: ', name);
 		pageActive = newPage;
 	}
 }

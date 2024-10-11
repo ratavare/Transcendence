@@ -60,7 +60,7 @@ def registerView(request):
 	form = RegistrationForm()
 	context = {
 		"registerForm": form,
-		"url": 'localhost:8004/',
+		"url": 'localhost:8004/#/register',
 	}
 
 	return render(request, 'register/register.html', context)
