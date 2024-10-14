@@ -2,19 +2,19 @@
 <!DOCTYPE html>
 <page-element lang="en" page="register">
 	<h1 class="row justify-content-center">Create an Account</h1>
-	<!-- {% load crispy_forms_tags %}
-	{% block content %} -->
+	{% load crispy_forms_tags %}
+	{% block content %}
 	<form method="POST" id="registerForm">
 		{% csrf_token %}
 		<div class="form-group">
 			<div class="row justify-content-center">
 				<div class="col-6">
-					<input type="text" id="id_username" name="username" required>
+					<!-- <input type="text" id="id_username" name="username" required>
 					<input type="password" id="id_password1" name="password1" required>
-					<input type="password" id="id_password2" name="password2" required>
-					<!-- {{ registerForm.username|as_crispy_field }}
+					<input type="password" id="id_password2" name="password2" required> -->
+					{{ registerForm.username|as_crispy_field }}
 					{{ registerForm.password1|as_crispy_field }}
-					{{ registerForm.password2|as_crispy_field }} -->
+					{{ registerForm.password2|as_crispy_field }}
 				</div>
 			</div>
 		</div>
@@ -27,5 +27,5 @@
 			Register with 42 Intra
 		</a>
 	</p>
-	<!-- {% endblock %} -->
+	{% endblock %}
 </page-element>

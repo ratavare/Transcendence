@@ -16,7 +16,7 @@ document.addEventListener('submit', async function(event) {
 		console.log('key: ', key, ' | value: ', value);
 
 	try {
-		const response = await fetch('#/register/', {
+		const response = await fetch('register/', {
 			method: 'POST',
 			headers: {
 				"X-CSRFToken": getCookie('csrftoken'),
@@ -27,6 +27,9 @@ document.addEventListener('submit', async function(event) {
 		
 		const data = await response.json();
 		console.log("Response data: ", data);
+		if (data.status == "success") {
+			window.location.href = '/#/index/'
+		}
 	} catch (error) {
 		console.error("Error submitting form:", error);
 	}

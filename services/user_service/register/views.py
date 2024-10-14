@@ -80,7 +80,7 @@ def registerView(request):
 # 		form = RegistrationForm()
 
 # 	context = {
-# 		"registerForm": form,
+# 		"registerForm": form,ear
 # 		"url": 'localhost:8004/',
 # 	}
 # 	return render(request, 'register/register.html', context)

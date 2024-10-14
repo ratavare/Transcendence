@@ -45,7 +45,7 @@
 			</div>
 		</nav>
 			{% include 'register/register.html' with form=registerForm user=user %}
-		<!-- {% include 'login/login.html' with form=authenticForm user=user%} -->
+			{% include 'login/login.html' with form=authenticForm user=user%}
 		<script src="{% static 'js/engine.js' %}"></script>
 	</body>
 </html>
