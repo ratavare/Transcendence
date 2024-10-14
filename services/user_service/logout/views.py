@@ -1,10 +1,8 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
 from django.contrib.auth import logout
-
-def logoutSuccessView(request):
-	return render(request, 'logout/logoutSuccess.html')
+from django.http import JsonResponse
 
 def logoutView(request):
-	logout(request)
-	return redirect('/')
+	if request.method == 'POST':
+		logout(request)
+		return JsonResponse({'status': 'success'});
+	return JsonResponse({'status': 'error', 'message': 'Invalid Request'}, status=400);

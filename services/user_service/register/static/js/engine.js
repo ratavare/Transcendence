@@ -29,7 +29,6 @@ window.addEventListener('popstate', function(event) {
 	setPage(url);
 });
 
-
 function setPage(name)
 {
 	pageActive?.remove();
@@ -52,32 +51,3 @@ function setPage(name)
 		pageActive = newPage;
 	}
 }
-
-// window.addEventListener('hashchange', function(event) {
-	//     console.log('hashchange', event);
-	// });
-	
-	// const html = pageOi.innerHTML;
-	
-	// const newPage = document.createElement('div');
-	// newPage.innerHTML = html;
-	// const newScript = document.createElement('script');
-	// newScript.src = pageOi.querySelector('script').src;
-	// newPage.appendChild(newScript);
-	// document.body.appendChild(newPage);
-	// console.log('engine.js ', pageOi);
-
-// let form = document.getElementById("registerForm");
-// console.log('Dom Content Loaded');
-// if (form){
-// 	console.log("Form found!");
-// 	console.log(form);
-// 	form.addEventListener('submit', function(e){
-// 		e.preventDefault();
-// 		console.log("Form submitted!");
-// 		formSubmit();
-// 	});
-// } else {
-// 	console.log('Form not found');
-// }
-

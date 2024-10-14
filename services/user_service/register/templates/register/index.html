@@ -44,8 +44,14 @@
 				</ul>
 			</div>
 		</nav>
+			<div id = "easter-egg" hidden="true">
+				<p>Easter Egg 14/10/2024</p>
+				<img src="/user/media/easter-egg.png">
+				<img src="https://i.seadn.io/gae/gI7SnOY9Upv4skFj6CoLbszEQUOhRtazugsRkK3jJq9icQff4Q3ltjgHebMm93cvbGv7YG1VV75b4swZKuvKsA29x63Luy-MjGp1?auto=format&dpr=1&w=5">
+			</div>
 			{% include 'register/register.html' with form=registerForm user=user %}
-			{% include 'login/login.html' with form=authenticForm user=user%}
+			{% include 'login/login.html' with form=authenticForm user=user %}
+			{% include 'logout/logout.html' %}
 		<script src="{% static 'js/engine.js' %}"></script>
 	</body>
 </html>

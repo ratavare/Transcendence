@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm
 
+from django.http import JsonResponse
+
 def loginSuccessView(request):
 	return render(request, 'login/loginSuccess.html')
 
@@ -13,7 +15,7 @@ def loginView(request):
 		if form.is_valid():
 			user = form.get_user()
 			login(request, user)
-			return redirect('/')
+			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
 	else:
 		form = AuthenticationForm()
 

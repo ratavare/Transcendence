@@ -29,8 +29,7 @@ SECRET_KEY = 'django-insecure-3ez88!$-2nk6$u2y@=2_*@88vwaky2xsx3@$m5ej%-f#rfwn*a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# , "109c-62-28-170-40.ngrok-free.app"
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["localhost", "10.12.7.11"]
 
 CSRF_TRUSTED_ORIGINS = [os.getenv('URL')]
 
@@ -151,3 +150,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

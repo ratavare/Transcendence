@@ -1,14 +1,12 @@
 import os, requests
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views import generic
-from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 
 from django.http import JsonResponse
-import json
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -45,17 +43,15 @@ def apiRegisterView(request):
 		return Response(serializer.data)
 
 def registerView(request):
-	print(color.YELLOW + 'TESTESTESTESTESTEST' + color.NC)
 	if request.method == 'POST':
-		print(color.GREEN + 'TESTESTESTESTESTEST' + color.NC)
 		form = RegistrationForm(request.POST)
 		if form.is_valid():
 			user = form.save()
 			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
 			user.save()
 			login(request, user)
-			return JsonResponse({'status': 'success', 'username': user.username})
-		return JsonResponse({'status': 'error', 'errors': form.errors})
+			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
+		return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
 	form = RegistrationForm()
 	context = {
@@ -64,26 +60,6 @@ def registerView(request):
 	}
 
 	return render(request, 'register/register.html', context)
-
-# def registerView(request):
-# 	print(color.YELLOW + 'TESTESTESTESTESTEST' + color.NC)
-# 	if request.method == "POST":
-# 		print(color.GREEN + 'TESTESTESTESTESTEST' + color.NC)
-		
-# 		if form.is_valid():
-# 			user = form.save()
-# 			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
-# 			user.save()
-# 			login(request, user)
-# 			return redirect('register/user.html')
-# 	else:
-# 		form = RegistrationForm()
-
-# 	context = {
-# 		"registerForm": form,ear
-# 		"url": 'localhost:8004/',
-# 	}
-# 	return render(request, 'register/register.html', context)
 
 class UsersView(generic.ListView):
 	template_name = "register/user.html"
