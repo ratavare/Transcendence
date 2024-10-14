@@ -1,5 +1,4 @@
 
-
 class PageElement extends HTMLElement {
 	constructor() {
 		super();
@@ -67,3 +66,18 @@ function setPage(name)
 	// newPage.appendChild(newScript);
 	// document.body.appendChild(newPage);
 	// console.log('engine.js ', pageOi);
+
+// let form = document.getElementById("registerForm");
+// console.log('Dom Content Loaded');
+// if (form){
+// 	console.log("Form found!");
+// 	console.log(form);
+// 	form.addEventListener('submit', function(e){
+// 		e.preventDefault();
+// 		console.log("Form submitted!");
+// 		formSubmit();
+// 	});
+// } else {
+// 	console.log('Form not found');
+// }
+
