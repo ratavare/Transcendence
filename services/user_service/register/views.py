@@ -106,7 +106,7 @@ def auth(request, auth_code):
 
 			login(request, user)
 
-			return render(request, 'register/index.html', {
+			return render(request, 'index/index.html', {
 				'url': os.getenv('URL'),
 				'registerForm': RegistrationForm(),
 				'authenticForm': AuthenticationForm(),
@@ -115,16 +115,3 @@ def auth(request, auth_code):
 			return render(request, 'error.html', {'error': 'Failed to fetch user info'})
 	else:
 		return render(request, 'error.html', {'error': 'Failed to obtain access token'})
-
-def indexView(request):
-
-	auth_code = request.GET.get('code')
-
-	if not auth_code:
-		return render(request, 'register/index.html', {
-			'url': os.getenv('URL'),
-			'registerForm': RegistrationForm(),
-			'authenticForm': AuthenticationForm(),
-		})
-
-	return auth(request, auth_code)

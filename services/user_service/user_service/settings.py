@@ -37,6 +37,7 @@ CSRF_TRUSTED_ORIGINS = [os.getenv('URL')]
 
 INSTALLED_APPS = [
     'rest_framework',
+	'index.apps.IndexConfig',
     'login.apps.LoginConfig',
 	'logout.apps.LogoutConfig',
 	'profile.apps.ProfileConfig',

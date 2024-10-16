@@ -23,7 +23,8 @@ from register import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include("register.urls")),
+	path('', include('index.urls')),
+    path('register/', include("register.urls")),
     path('login/', include("login.urls")),
 	path('logout/', include("logout.urls")),
 	path('profile/', include("profile.urls")),
