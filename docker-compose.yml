@@ -1,5 +1,20 @@
 
 services:
+  remote_service:
+    container_name: remote
+    build: ./services/remote_service
+    depends_on:
+      database:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./services/remote_service:/remote
+    networks:
+      - transcendece_nw
+
   user_service:
     container_name: user
     build: ./services/user_service

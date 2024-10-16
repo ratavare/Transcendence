@@ -19,22 +19,20 @@ function getCookie(name) {
 }
 
 async function myFetch(viewUrl, myData){
-	try {
-		const response = await fetch(viewUrl + '/' , {
-			method: 'POST',
-			headers: {
-				"X-CSRFToken": getCookie('csrftoken'),
-				"Accept": "application/json",
-			},
-			body: myData,
-		})
-		
-		const data = await response.json();
-		console.log("Response data: ", data);
-		if (data.status == "success") {
-			window.location.href = ''
+	return fetch(viewUrl , {
+		method: 'POST',
+		headers: {
+			"X-CSRFToken": getCookie('csrftoken'),
+			"Accept": "application/json",
+		},
+		body: myData,
+	}).then(async (response) => {
+		console.log("pk: ", response?.ok);
+		if (response.ok)
+		{
+			const data = await response.json();
+			return (data);
 		}
-	} catch (error) {
-		console.error("Error submitting form:", error);
-	}
+		return(undefined)
+	})
 }
