@@ -1,22 +1,32 @@
 {% load static %}
-<!DOCTYPE html>
-<page-element lang="en" name="register">
-	<h1 class="row justify-content-center">Create an Account</h1>
-	{% load crispy_forms_tags %}
-	{% block content %}
-	<form method="POST" id="form-register">
+<page-element name="register">
+
+	<form method="POST" id="form-register">	
+
 		{% csrf_token %}
-		<div class="form-group">
-			<div class="row justify-content-center">
-				<div class="col-6">
-					<p>
-						new forms
-					</p>
+		<div class="form-group row" align="center">		
+			<h1 class="row justify-content-center">Create an Account</h1>
+			<div class="text-center" style="width: 100%;display: flex;flex-direction: column;align-items: center;">
+				<div class="col-xs-7">
+					{{form.dasd }}
+					<label for="id-username" class="form-label">Username</label>
+					<input type="username" id="id-username" class="form-control">
+					<div id="legend-username" class="form-text">Write you username.</div>
+				</div>
+				<div class="col-xs-7">
+					<label for="id-password1" class="form-label">Password</label>
+					<input type="password1" id="id-password1" class="form-control">
+					<div id="legend-password1" class="form-text">Write your password.</div>
+				</div>
+				<div class="col-xs-7">
+					<label for="id-password2" class="form-label">Password Confirmation</label>
+					<input type="password2" id="id-password2" class="form-control">
+					<div id="legend-password2" class="form-text">Rewrite your password.</div>
 				</div>
 			</div>
 		</div>
 		<p align="center">
-			<input type="submit">Register</button>
+			<input type="submit" class="btn btn-success"></button>
 		</p>
 	</form>
 	<p align="center">or</p>
@@ -26,5 +36,4 @@
 			Register with 42 Intra
 		</a>
 	</p>
-	{% endblock %}
 </page-element>

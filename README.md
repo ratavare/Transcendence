@@ -1,8 +1,6 @@
 
 ## Django, PostgreSQL, Bootstrap simple setup
 
-Simple web page that creates an user and displays all users created.
-
 ### Setup
 
 * Docker build
@@ -10,9 +8,9 @@ Simple web page that creates an user and displays all users created.
 make build
 ```
 
-* Access backend container
+* Access user container
 ```sh
-docker exec -it backend/ bash
+docker exec -it [container] bash
 ```
 
 * Django admin creation
@@ -22,7 +20,7 @@ python manage.py createsuperuser
 
 * Access web page
 ```sh
-localhost:8000
+localhost:8004
 ```
 
 ### Tips
@@ -40,7 +38,7 @@ Don't forget to change redirect uri in intra.42 API config page
 Always remember to do:
 
 ```sh
-docker exec -it transcendence-user_service-1 bash
+docker exec -it [container] bash
 python manage.py migrate
 ```
 
