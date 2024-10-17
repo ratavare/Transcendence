@@ -14,6 +14,6 @@ formRegister?.addEventListener('submit', function(event) {
 		console.log('key: ', key, ' | value: ', value);
 
 	myFetch('register/', formData).then(data => {
-		seturl('/');
+		seturl('/home');
 	});
 });

@@ -16,6 +16,7 @@ window.addEventListener('load', function(event) {
 window.addEventListener('popstate', function(event) {
 	const url = window.location.href.split('#/')[1];
 	setPage(url);
+	setNav()
 });
 
 function setPage(name)

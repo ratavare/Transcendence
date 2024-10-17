@@ -2,15 +2,15 @@
 const formLogin = document.getElementById('form-login');
 
 console.log(formLogin);
-// formLogin.addEventListener('submit', async function(event) {
+formLogin?.addEventListener('submit', function(event) {
 
-// 	event.preventDefault();
+	event.preventDefault();
 
-// 	let formData = new FormData(event.target);
-// 	for (const [key, value] of formData)
-// 		console.log('key: ', key, ' | value: ', value);
+	let formData = new FormData(event.target);
+	for (const [key, value] of formData)
+		console.log('key: ', key, ' | value: ', value);
 
-// 	myFetch('login/', formData).then(data => {
-// 		seturl('/');
-// 	})
-// });
+	myFetch('login/', formData).then(data => {
+		seturl('/home');
+	})
+});

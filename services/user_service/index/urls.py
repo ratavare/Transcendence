@@ -23,4 +23,6 @@ from . import views
 urlpatterns = [
 	path('', views.indexView, name="index"),
 	path('admin/', admin.site.urls),
+	path('register/', views.registerView),
+	path('login', views.loginView),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

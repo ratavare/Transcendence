@@ -17,6 +17,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 from rest_framework.views import APIView
 
+from .forms import RegistrationForm
+from .models import Profile
+
 # from .serializers import UserRegisterSerializer
 
 def indexView(request):
@@ -29,6 +32,26 @@ def indexView(request):
 		})
 
 	return auth(request, auth_code)
+
+def registerView(request):
+	if request.method == 'POST':
+		form = RegistrationForm(request.POST)
+		if form.is_valid():
+			user = form.save()
+			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
+			user.save()
+			login(request, user)
+			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
+		return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+def loginView(request):
+	if request.method == 'POST':
+		form = AuthenticationForm(request.POST)
+		if form.is_valid():
+			user = form.save()
+			login(request, user)
+			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
+		return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
 class color:
 	RED = '\033[91m'
