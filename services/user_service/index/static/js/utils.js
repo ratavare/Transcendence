@@ -19,6 +19,7 @@ function getCookie(name) {
 }
 
 async function myFetch(viewUrl, myData){
+	console.log("myData: ", myData);
 	return fetch(viewUrl , {
 		method: 'POST',
 		headers: {
@@ -28,6 +29,7 @@ async function myFetch(viewUrl, myData){
 		body: myData,
 	}).then(async (response) => {
 		console.log("pk: ", response?.ok);
+		console.log("status: ", response);
 		if (response.ok)
 		{
 			const data = await response.json();
@@ -35,4 +37,34 @@ async function myFetch(viewUrl, myData){
 		}
 		return(undefined)
 	})
+}
+
+function updateNavBarLogin()
+{
+	// Clear existing navbar items
+    const navbarRight = document.querySelector('.navbar-nav.navbar-right');
+    navbarRight.innerHTML = '';
+
+    // Create dropdown for logged-in user
+    const dropdown = `
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                <span class="glyphicon glyphicon-user"></span> 
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#/profile">Profile</a></li>
+                <li><a href="#/profile/friends">Friends</a></li>
+                <li><a href="#">Settings</a></li>
+                <li><a href="#/logout">Logout</a></li>
+            </ul>
+        </li>
+    `;
+    
+    // Add the new dropdown to the navbar
+    navbarRight.innerHTML += dropdown;
+
+    // Optionally, display a welcome message or username
+    const welcomeMessage = document.createElement('li');
+    navbarRight.insertBefore(welcomeMessage, navbarRight.firstChild);
 }

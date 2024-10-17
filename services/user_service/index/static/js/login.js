@@ -1,16 +1,20 @@
 
 const formLogin = document.getElementById('form-login');
 
-console.log(formLogin);
-formLogin?.addEventListener('submit', function(event) {
+formLogin?.addEventListener('submit', async function(event) {
 
 	event.preventDefault();
 
-	let formData = new FormData(event.target);
-	for (const [key, value] of formData)
+	const formData = new FormData(event.target);
+	for await (const [key, value] of formData)
 		console.log('key: ', key, ' | value: ', value);
 
 	myFetch('login/', formData).then(data => {
+		if (data === undefined)
+			console.log("Login failed");
+		else
+			console.log("Login successful");
 		seturl('/home');
+		updateNavBarLogin();
 	})
 });

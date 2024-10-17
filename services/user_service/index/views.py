@@ -7,7 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 
 from django.shortcuts import render
 from django.views import generic
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 
 from django.http import JsonResponse
@@ -16,6 +16,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 from rest_framework.views import APIView
+
+import logging
 
 from .forms import RegistrationForm
 from .models import Profile
@@ -43,15 +45,21 @@ def registerView(request):
 			login(request, user)
 			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
 		return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+	return JsonResponse({'status': 'error', 'errors': 'errors'}, status=400)
 
 def loginView(request):
 	if request.method == 'POST':
-		form = AuthenticationForm(request.POST)
+		form = AuthenticationForm(request, data=request.POST)
 		if form.is_valid():
-			user = form.save()
+			user = form.get_user()
 			login(request, user)
 			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
-		return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+		return JsonResponse({'status': 'error1', 'errors': form.errors}, status=400)
+	return JsonResponse({'status': 'error2', 'errors': 'errors'}, status=400)
+
+def logoutView(request):
+	logout(request)
+	return JsonResponse({'status': 'success'}, status=200)
 
 class color:
 	RED = '\033[91m'
