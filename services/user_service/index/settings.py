@@ -38,6 +38,7 @@ CSRF_TRUSTED_ORIGINS = [os.getenv('URL')]
 INSTALLED_APPS = [
     'rest_framework',
 	'index.apps.IndexConfig',
+	'profile.apps.ProfileConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

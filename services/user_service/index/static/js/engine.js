@@ -9,15 +9,17 @@ for (const page of pages) {
 }
 
 window.addEventListener('load', function(event) {
-	const url = window.location.href.split('#/')[1];
-	setPage(url);
-	setNav(url);
+	const url = window.location.href.split('/');
+	const x = (url.length) - 1;
+	setPage(url[x]);
+	setNav(window.location.href.split('#/')[1]);
 });
 
 window.addEventListener('popstate', function(event) {
-	const url = window.location.href.split('#/')[1];
-	setPage(url);
-	setNav(url);
+	const url = window.location.href.split('/');
+	const x = (url.length) - 1;
+	setPage(url[x]);
+	setNav(window.location.href.split('#/')[1]);
 });
 
 // chage the nav bar to show or not depending on the url (the navar to show will have the same name as the url)
@@ -51,6 +53,7 @@ function setPage(name)
 			newPage.setAttribute("name", name);
 			const newScript = document.createElement('script');
 			newScript.src = "static/js/" + name + ".js";
+			console.log('URL2: ', newScript.src);
 			newScript.onload = function(){
 				console.log(`${name}.js loaded successfully`);
 			};

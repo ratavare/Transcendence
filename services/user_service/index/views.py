@@ -1,28 +1,20 @@
-import os
-import requests
-from django.shortcuts import render
+import requests, os, logging
 
+from django.views import generic
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.models import User
+from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 
 
-from django.shortcuts import render
-from django.views import generic
-from django.contrib.auth import login, logout
-from django.contrib.auth.models import User
-
-from django.http import JsonResponse
-
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 from rest_framework.views import APIView
-
-import logging
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 
 from .forms import RegistrationForm
 from .models import Profile
-
-# from .serializers import UserRegisterSerializer
 
 def indexView(request):
 
@@ -66,25 +58,6 @@ class color:
 	YELLOW = '\033[93m'
 	GREEN = '\033[92m'
 	NC = '\033[0m'
-
-# @api_view(['POST', 'GET'])
-# @permission_classes((permissions.AllowAny,))
-# def apiRegisterView(request):
-# 	if request.method == "POST":
-# 		form = RegistrationForm(request.POST)
-# 		if form.is_valid():
-# 			serializer = UserRegisterSerializer(data={
-# 				'username': form.cleaned_data['username'],
-# 				'email': form.cleaned_data['email'],
-# 				'password': form.cleaned_data['password1']})
-# 			if serializer.is_valid():
-# 				serializer.save()
-# 				return Response(serializer.data, status=201)
-# 			return Response(serializer.errors, status=400)
-# 	elif request.method == "GET":
-# 		users = User.objects.all()
-# 		serializer = UserRegisterSerializer(users, many=True)
-# 		return Response(serializer.data)
 
 def auth(request, auth_code):
 	token_url = "https://api.intra.42.fr/oauth/token"
