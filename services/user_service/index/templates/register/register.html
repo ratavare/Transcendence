@@ -1,31 +1,31 @@
 {% load static %}
 <page-element name="register">
 	<form method="POST" id="form-register">	
-    {% csrf_token %}
-    <div class="form-group row" align="center">		
-        <h1 class="row justify-content-center">Create an Account</h1>
-        <div class="text-center" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-            <div class="col-xs-7">
-                <label for="id-username" class="form-label">Username</label>
-                <input type="text" id="id-username" name="username" class="form-control">
-                <div id="legend-username" class="form-text">Write your username.</div>
-            </div>
-            <div class="col-xs-7">
-                <label for="id-password1" class="form-label">Password</label>
-                <input type="password" id="id-password1" name="password1" class="form-control">
-                <div id="legend-password1" class="form-text">Write your password.</div>
-            </div>
-            <div class="col-xs-7">
-                <label for="id-password2" class="form-label">Password Confirmation</label>
-                <input type="password" id="id-password2" name="password2" class="form-control">
-                <div id="legend-password2" class="form-text">Rewrite your password.</div>
-            </div>
-        </div>
-    </div>
-    <p align="center">
-        <input type="submit" class="btn btn-success">
-    </p>
-</form>
+		{% csrf_token %}
+		<div class="form-group row" align="center">		
+			<h1 class="row justify-content-center">Create an Account</h1>
+			<div class="text-center" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+				<div class="col-xs-7">
+					<label for="id-username" class="form-label">Username</label>
+					<input type="text" id="id-username" name="username" class="form-control">
+					<div id="legend-username" class="form-text">Write your username.</div>
+				</div>
+				<div class="col-xs-7">
+					<label for="id-password1" class="form-label">Password</label>
+					<input type="password" id="id-password1" name="password1" class="form-control">
+					<div id="legend-password1" class="form-text">Write your password.</div>
+				</div>
+				<div class="col-xs-7">
+					<label for="id-password2" class="form-label">Password Confirmation</label>
+					<input type="password" id="id-password2" name="password2" class="form-control">
+					<div id="legend-password2" class="form-text">Rewrite your password.</div>
+				</div>
+			</div>
+		</div>
+		<p align="center">
+			<input type="submit" class="btn btn-success">
+		</p>
+	</form>
 
 	<p align="center">or</p>
 	<p align="center">

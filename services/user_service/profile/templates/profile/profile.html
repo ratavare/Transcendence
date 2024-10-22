@@ -4,18 +4,17 @@
 		<div class="form-group row" align="center">	
 			<h1 class="mb-4">Profile</h1>
 			<div class="col-auto" margin="1">
-				<img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 100px; height: 100px;">
 				<label class="position-absolute" style="cursor: pointer;">
 					<input type="file" accept="image/*" style="display: none;" onchange="this.form.submit();">
 					<span class="bi bi-pencil"></span> <!-- Add pencil icon for changing profile picture -->
 				</label>
 			</div>
 			<form method="POST" id="form-profile" class="d-inline">
+				{% csrf_token %}
 				<div class="text-center" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-					{% csrf_token %}
 					<div class="col-xs-7">
 						<label for="id-username" class="form-label">Username</label>
-						<input type="text" id="id-username" name="username" class="form-control">
+						<input type="text" id="id-username" name="username" class="form-control" placeholder="{{ request.user.username }}">
 						<div id="legend-username" class="form-text">Write your username.</div>
 					</div>
 					<div class="col-xs-7">
@@ -34,71 +33,26 @@
 						<div id="legend-email" class="form-text">Write your email.</div>
 					</div>
 				</div>
-				{% if user.has_usable_password %}
-				<div class="mb-4">
-					<button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-						Change Password_
-					</button>
-				</div>
+				<!-- {% if user.has_usable_password %}
+					<form method="POST" id="changePasswordForm">
+						{% csrf_token %}
+						<div class="col-xs-7">
+							<label for="id-password" class="form-label">Password</label>
+							<input type="password" id="id-password" name="password" class="form-control">
+							<div id="legend-password" class="form-text">Write your password.</div>
+						</div>
+					</form>
 				{% endif %}
 
 				<div class="mb-4">
 					<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
 						Delete Account_
 					</button>
-				</div>
+				</div> -->
 
 				<!-- Save Changes button that only appears if fields have changed -->
 				<button type="submit" class="btn btn-primary float-end hidden" id="saveChangesButton">Save Changes</button>
 			</form>
-		</div>
-
-		<!-- Change Password Modal -->
-		<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div class="modal-body">
-						<form method="POST" id="changePasswordForm">
-							{% csrf_token %}
-							<div class="col-xs-7">
-								<label for="id-password" class="form-label">Email</label>
-								<input type="password" id="id-password" name="password" class="form-control">
-								<div id="legend-password" class="form-text">Write your email.</div>
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-						<button type="button" class="btn btn-primary" onclick="document.getElementById('changePasswordForm').submit();">Save Changes</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Delete Confirmation Modal -->
-		<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="deleteModalLabel">Confirm Account Deletion</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div class="modal-body">
-						Are you sure you want to delete your account? This action is irreversible and all your data will be lost.
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-						<form class="delete-form" method="POST">
-							{% csrf_token %}
-							<button type="submit" class="btn btn-danger">Delete Account</button>
-						</form>
-					</div>
-				</div>
-			</div>
 		</div>
 	</div>
 </page-element>

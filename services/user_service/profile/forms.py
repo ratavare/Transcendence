@@ -1,25 +1,15 @@
 from django import forms
 from django.contrib.auth.models import User
-from register.models import Profile
+from .models import Profile
 
-class UserForm(forms.ModelForm):
-	class Meta:
-		model = User
-		fields = ['username']
-		
-	username = forms.CharField(required=False)
-
-class BioForm(forms.ModelForm):
+class ProfileForm(forms.ModelForm):
 	class Meta:
 		model = Profile
-		fields = ['bio']
+		fields =['bio', 'birth_date', 'email', 'username']
 
-class BirthDateForm(forms.ModelForm):
-	class Meta:
-		model = Profile
-		fields = ['birth_date']
-
-class EmailForm(forms.ModelForm):
-	class Meta:
-		model = User
-		fields = ['email']
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.fields['bio'].required = False
+		self.fields['birth_date'].required = False
+		self.fields['email'].required = False
+		self.fields['username'].required = False

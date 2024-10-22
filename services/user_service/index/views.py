@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 
 from .forms import RegistrationForm
-from .models import Profile
+from profile.models import Profile
 
 def indexView(request):
 
@@ -32,7 +32,7 @@ def registerView(request):
 		form = RegistrationForm(request.POST)
 		if form.is_valid():
 			user = form.save()
-			Profile.objects.create(user=user, profile_picture="/user/media/profile-pp.jpg")
+			Profile.objects.create(username=user)
 			user.save()
 			login(request, user)
 			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
@@ -89,7 +89,7 @@ def auth(request, auth_code):
 
 			user, created = User.objects.get_or_create(username=username, email=email)
 
-			Profile.objects.create(user=user, profile_picture="/user/media/profile-PP.jpg")
+			Profile.objects.create(user=user)
 			
 			if created:
 				user.set_unusable_password()
