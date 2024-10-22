@@ -1,15 +1,20 @@
-from django.contrib.auth import update_session_auth_hash, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import PasswordChangeForm
-from django.shortcuts import render, redirect
-from .forms import ProfileForm
-from .models import Profile
+import logging
 from django.http import JsonResponse
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash, logout
+from .forms import UpdateUserForm
 
 # @POST
 @login_required
 def profileView(request):
-	profile = ProfileForm(request.POST, instance=request.user.profile)
+	if request.method == 'POST':
+		userForm = UpdateUserForm(request.POST, instance=request)
+		if userForm.is_valid():
+			userForm.save()
+			return JsonResponse({'status': 'success'}, status=200)
+	return JsonResponse({'status': 'error'}, status=400)
+			
 	# user_form = UserForm(request.POST, instance=request.user)
 	# bio_form = BioForm(request.POST, instance=request.user.profile)
 	# birth_date_form = BirthDateForm(request.POST, instance=request.user.profile)
@@ -19,13 +24,6 @@ def profileView(request):
 	# return JsonResponse({'userform':user_form}, status=200)
 	# if user_form.is_valid():
 	# 	user_form.save()
-	
-	if profile.is_valid():
-		if profile.cleaned_data['username']:
-			request.user = profile.cleaned_data['username']
-			request.user.save()
-			profile.save()
-
 	# if profile_form.is_valid():
 	# 	profile_form.save()
 
@@ -52,7 +50,6 @@ def profileView(request):
 	
 	# # Redirect or render the same page with success messages if needed
 	
-	return JsonResponse({'status': 'success'}, status=200)
 
 def account_delete(request):
 	if request.method == 'POST':

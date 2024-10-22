@@ -13,7 +13,7 @@ formProfile?.addEventListener('submit', async function(event) {
 	for await (const [key, value] of formData)
 		console.log('key', key, '| value: ', value);
 
-	myFetch('profile/profile/', formData).then(data => {
+	myFetch('profile/', formData).then(data => {
 		if (data === undefined)
 			console.log("Profile change failed");
 		else
