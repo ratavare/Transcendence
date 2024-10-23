@@ -28,7 +28,6 @@ async function myFetch(viewUrl, myData){
 		},
 		body: myData,
 	}).then(async (response) => {
-		console.log("pk: ", response?.ok);
 		console.log("status: ", response);
 		if (response.ok)
 		{

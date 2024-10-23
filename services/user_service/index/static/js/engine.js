@@ -13,6 +13,7 @@ window.addEventListener('load', function(event) {
 	const x = (url.length) - 1;
 	setPage(url[x]);
 	setNav(window.location.href.split('#/')[1]);
+	logoutFunc()
 });
 
 window.addEventListener('popstate', function(event) {
@@ -20,6 +21,7 @@ window.addEventListener('popstate', function(event) {
 	const x = (url.length) - 1;
 	setPage(url[x]);
 	setNav(window.location.href.split('#/')[1]);
+	logoutFunc()
 });
 
 // chage the nav bar to show or not depending on the url (the navar to show will have the same name as the url)
@@ -47,21 +49,18 @@ function setPage(name)
 	{
 		name = page.getAttribute("name") || name;
 		console.log("setPage: ", name);
-
-			const newPage = document.createElement('page-element');
-			newPage.innerHTML = page.innerHTML;
-			newPage.setAttribute("name", name);
-			const newScript = document.createElement('script');
-			newScript.src = "static/js/" + name + ".js";
-			console.log('URL2: ', newScript.src);
-			newScript.onload = function(){
-				console.log(`${name}.js loaded successfully`);
-			};
-			newPage.appendChild(newScript);
-			document.body.appendChild(newPage);
-			newPage.style.display = page.display;
-			console.log('setPage: ', name);
-			pageActive = newPage;
+		const newPage = document.createElement('page-element');
+		newPage.innerHTML = page.innerHTML;
+		newPage.setAttribute("name", name);
+		const newScript = document.createElement('script');
+		newScript.src = "static/js/" + name + ".js";
+		newScript.onload = function(){
+			console.log(`${name}.js loaded successfully`);
+		};
+		newPage.appendChild(newScript);
+		document.body.appendChild(newPage);
+		newPage.style.display = page.display;
+		pageActive = newPage;
 	}
 	else
 		pageActive = undefined;
