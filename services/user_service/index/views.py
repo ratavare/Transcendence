@@ -37,7 +37,7 @@ def registerView(request):
 			login(request, user)
 			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
 		return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
-	return JsonResponse({'status': 'error', 'errors': 'errors'}, status=400)
+	return JsonResponse({'status': 'error1'}, status=400)
 
 def loginView(request):
 	if request.method == 'POST':
@@ -47,7 +47,7 @@ def loginView(request):
 			login(request, user)
 			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
 		return JsonResponse({'status': 'error1', 'errors': form.errors}, status=400)
-	return JsonResponse({'status': 'error2', 'errors': 'errors'}, status=400)
+	return JsonResponse({'status': 'error2'}, status=400)
 
 def logoutView(request):
 	logout(request)

@@ -3,17 +3,29 @@ from django.http import JsonResponse
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash, logout
-from .forms import UpdateUserForm
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from .forms import UpdateProfileForm
+from .models import Profile
+
+logging.basicConfig(level=logging.DEBUG)
 
 # @POST
 @login_required
 def profileView(request):
+	profile = get_object_or_404(Profile, user=request.user)
 	if request.method == 'POST':
-		userForm = UpdateUserForm(request.POST, instance=request)
-		if userForm.is_valid():
+		userForm = UpdateProfileForm(request.POST, instance=profile)
+		try:
+			request.user.username = request.POST.get('username')
+			request.user.email = request.POST.get('email')
+			request.user.save()
+			userForm.full_clean()
 			userForm.save()
-			return JsonResponse({'status': 'success'}, status=200)
-	return JsonResponse({'status': 'error'}, status=400)
+		except ValidationError as e:
+			logging.error('Errors: ***** %s *****', e)
+			return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+		return JsonResponse({'status': 'success'}, status=200)
 			
 	# user_form = UserForm(request.POST, instance=request.user)
 	# bio_form = BioForm(request.POST, instance=request.user.profile)
@@ -27,7 +39,7 @@ def profileView(request):
 	# if profile_form.is_valid():
 	# 	profile_form.save()
 
-	# 	return JsonResponse({'status': 'puta'}, status=200)
+	# 	return JsonResponse({'status': 'error'}, status=200)
 
 	# # Check if the user wants to change their bio
 	# if bio_form.is_valid() and bio_form.cleaned_data['bio']:
