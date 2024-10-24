@@ -23,10 +23,23 @@ services:
         condition: service_healthy
     env_file:
       - .env
-    ports:
-      - "8004:8000"
+    # ports:
+    #   - "8004:8000"
     volumes:
       - ./services/user_service:/user
+    networks:
+      - transcendece_nw
+
+  nginx:
+    build: ./services/nginx
+    container_name: nginx
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+    ports:
+      - "8004:80"
+      # - "8005:443"
+    depends_on:
+      - user_service
     networks:
       - transcendece_nw
 

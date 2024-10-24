@@ -155,5 +155,23 @@ REST_FRAMEWORK = {
     ]
 }
 
+# Ensure SECURE_SSL_REDIRECT is set to True to redirect HTTP to HTTPS
+SECURE_SSL_REDIRECT = True
+
+# Ensure HSTS settings are configured
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Ensure cookies are only sent over HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Optionally, set SECURE_BROWSER_XSS_FILTER to True to enable the XSS filter in the browser
+SECURE_BROWSER_XSS_FILTER = True
+
+# Optionally, set SECURE_CONTENT_TYPE_NOSNIFF to True to prevent the browser from guessing the content type
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
