@@ -16,6 +16,8 @@ from rest_framework.decorators import api_view, permission_classes
 from .forms import RegistrationForm
 from profile.models import Profile
 
+logging.basicConfig(level=logging.DEBUG)
+
 def indexView(request):
 
 	auth_code = request.GET.get('code')
@@ -23,6 +25,8 @@ def indexView(request):
 	if not auth_code:
 		return render(request, 'index/index.html', {
 			'url': os.getenv('URL'),
+			'registerForm': RegistrationForm,
+			'loginForm': AuthenticationForm,
 		})
 
 	return auth(request, auth_code)
@@ -32,7 +36,6 @@ def registerView(request):
 		form = RegistrationForm(request.POST)
 		if form.is_valid():
 			user = form.save()
-			Profile.objects.create(username=user)
 			user.save()
 			login(request, user)
 			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
