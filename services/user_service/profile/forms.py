@@ -7,4 +7,4 @@ class UpdateProfileForm(forms.ModelForm):
 
 	class Meta:
 		model = Profile
-		fields =['email', 'bio', 'birth_date']
+		fields =['bio', 'birth_date']

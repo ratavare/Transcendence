@@ -1,17 +1,10 @@
 import requests, os, logging
 
-from django.views import generic
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
-
-
-from rest_framework import permissions
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
 
 from .forms import RegistrationForm
 from profile.models import Profile
@@ -91,8 +84,6 @@ def auth(request, auth_code):
 			email = user_info.get('email')
 
 			user, created = User.objects.get_or_create(username=username, email=email)
-
-			Profile.objects.create(user=user)
 			
 			if created:
 				user.set_unusable_password()
