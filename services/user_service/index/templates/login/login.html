@@ -5,17 +5,7 @@
 		{% csrf_token %}
 		<div class="text-center" style="width: 100%;display: flex;flex-direction: column;align-items: center;">
 			<h1 class="row justify-content-center">Login!</h1>
-			{{loginForm}|crispy}
-			<!-- <div class="col-xs-7">
-				<label for="id-username" class="form-label">Username</label>
-				<input type="username" id="id-username" name="username" class="form-control">
-				<div id="legend-username" class="form-text">Write you username.</div>
-			</div>
-			<div class="col-xs-7">
-				<label for="id-password" class="form-label">Password</label>
-				<input type="password" id="id-password1" name="password" class="form-control">
-				<div id="legend-password" class="form-text">Write your password.</div>
-			</div> -->
+			{{ loginForm | crispy }}
 		</div>
 		<p align="center">
 			<input type="submit" class="btn btn-success"></input>
