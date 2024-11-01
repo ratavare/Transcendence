@@ -29,11 +29,10 @@ def registerView(request):
 		form = RegistrationForm(request.POST)
 		if form.is_valid():
 			user = form.save()
-			user.save()
 			login(request, user)
-			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
-		return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
-	return JsonResponse({'status': 'error1'}, status=400)
+			return JsonResponse({'status': 'success'}, status=200)
+		return JsonResponse({'status': 'error', 'errors': form.errors}, status=409)
+	return JsonResponse({'status': 'error'}, status=400)
 
 def loginView(request):
 	if request.method == 'POST':

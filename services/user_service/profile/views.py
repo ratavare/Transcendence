@@ -16,15 +16,20 @@ def profileView(request):
 		user = request.user
 		profile = get_object_or_404(Profile, user=user)
 		profileForm = UpdateProfileForm(request.POST, instance=profile)
+		username = request.POST.get('username')
+		email = request.POST.get('email')
+
+		user.username = username;
+		user.email = email;
+
 		try:
-			user.username = request.POST.get('username')
-			user.email = request.POST.get('email')
 			user.save()
-			profileForm.full_clean()
-			profileForm.save()
-		except ValidationError as e:
-			logging.error('Errors: ***** %s *****', e)
-			return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+			if profileForm.is_valid():
+				profileForm.save()
+			else:
+				raise ValidationError(profileForm.errors)
+		except Exception as e:
+			return JsonResponse({'status': 'error', 'errors': str(e)}, status=409)
 		return JsonResponse({'status': 'success'}, status=200)
 
 def account_delete(request):

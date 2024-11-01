@@ -10,7 +10,14 @@ formRegister?.addEventListener('submit', function(event) {
 		console.log('key: ', key, ' | value: ', value);
 
 	myFetch('register/', formData).then(data => {
-		seturl('/home');
-		updateNavBarLogin();
-	});
+		if (data.status === "success") {
+			console.log("Registration successful");
+			seturl('/home');
+			updateNavBarLogin();
+		} else {
+			const messages = Object.values(data.errors)
+			console.log("Registration Failed. Reasons: ", messages);
+			messages.forEach(alert);
+		}
+	})
 });

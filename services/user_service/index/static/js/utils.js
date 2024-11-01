@@ -27,15 +27,14 @@ async function myFetch(viewUrl, myData){
 			"Accept": "application/json",
 		},
 		body: myData,
-	}).then(async (response) => {
-		console.log("status: ", response);
-		if (response.ok)
-		{
-			const data = await response.json();
-			return (data);
-		}
-		return(undefined)
 	})
+	.then(async (response) => {
+		console.log("status: ", response);
+		const data = await response.json();
+		console.log("Data:", data);
+		return (data);
+	})
+	.catch(error => console.log("Error: ", error));
 }
 
 function updateNavBarLogin()

@@ -40,7 +40,6 @@ function setNav(name)
 function setPage(name)
 {
 	if (pageActive && pageActive.getAttribute("name") == name) {
-		console.log(" ta foda!!");
 		return ;
 	}
 	pageActive?.remove();

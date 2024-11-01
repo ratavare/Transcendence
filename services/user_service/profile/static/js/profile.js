@@ -5,7 +5,6 @@ formProfile?.addEventListener('input', function() {
 	saveChangesButton.classList.remove('hidden');
 });
 
-
 formProfile?.addEventListener('submit', async function(event) {
 	event.preventDefault();
 
@@ -14,11 +13,13 @@ formProfile?.addEventListener('submit', async function(event) {
 		console.log('key', key, '| value: ', value);
 
 	myFetch('profile/', formData).then(data => {
-		if (data === undefined)
-			console.log("Profile change failed");
-		else
+		console.log("Profile: ", data);
+		if (data.status === "success") {
 			console.log("Profile change successful");
-			console.log("Data: ", data);
-		seturl('/home');	
+			seturl('/home');
+		} else {
+			console.log("Profile change failed. Reason:", data.errors);
+			alert("Profile change failed. Reason:", data.errors);
+		}
 	})
 });
