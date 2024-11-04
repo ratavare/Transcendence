@@ -7,6 +7,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 
 from .forms import RegistrationForm
+from profile.forms import UpdateProfileForm
 from profile.models import Profile
 
 logging.basicConfig(level=logging.DEBUG)
@@ -20,6 +21,7 @@ def indexView(request):
 			'url': os.getenv('URL'),
 			'registerForm': RegistrationForm,
 			'loginForm': AuthenticationForm,
+			'updateProfileForm': UpdateProfileForm,
 		})
 
 	return auth(request, auth_code)

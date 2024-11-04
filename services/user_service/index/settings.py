@@ -36,17 +36,17 @@ CSRF_TRUSTED_ORIGINS = [os.getenv('URL')]
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework',
+	'rest_framework',
 	'index.apps.IndexConfig',
 	'profile.apps.ProfileConfig',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'crispy_forms',
-    'crispy_bootstrap5',
+	'django.contrib.admin',
+	'django.contrib.auth',
+	'django.contrib.contenttypes',
+	'django.contrib.sessions',
+	'django.contrib.messages',
+	'django.contrib.staticfiles',
+	'crispy_forms',
+	'crispy_bootstrap5',
 ]
 
 CHANNEL_LAYERS = {
@@ -56,31 +56,31 @@ CHANNEL_LAYERS = {
 }
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'django.middleware.security.SecurityMiddleware',
+	'django.contrib.sessions.middleware.SessionMiddleware',
+	'django.middleware.common.CommonMiddleware',
+	'django.middleware.csrf.CsrfViewMiddleware',
+	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	'django.contrib.messages.middleware.MessageMiddleware',
+	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'index.urls'
 
 TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
+	{
+		'BACKEND': 'django.template.backends.django.DjangoTemplates',
+		'DIRS': [],
+		'APP_DIRS': True,
+		'OPTIONS': {
+			'context_processors': [
+				'django.template.context_processors.debug',
+				'django.template.context_processors.request',
+				'django.contrib.auth.context_processors.auth',
+				'django.contrib.messages.context_processors.messages',
+			],
+		},
+	},
 ]
 
 WSGI_APPLICATION = 'index.wsgi.application'
@@ -95,14 +95,14 @@ WSGI_APPLICATION = 'index.wsgi.application'
 # load_dotenv()
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres_user',
-        'PASSWORD': 'postgres_password',
-        'HOST': 'database',
-        'PORT': '5432',
-    }
+	'default': {
+		'ENGINE': 'django.db.backends.postgresql',
+		'NAME': 'postgres',
+		'USER': 'postgres_user',
+		'PASSWORD': 'postgres_password',
+		'HOST': 'database',
+		'PORT': '5432',
+	}
 }
 
 
@@ -110,18 +110,18 @@ DATABASES = {
 # https://docs.djangomysite.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+	{
+		'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+	},
+	{
+		'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+	},
+	{
+		'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+	},
+	{
+		'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+	},
 ]
 
 
@@ -136,6 +136,13 @@ USE_I18N = True
 
 USE_TZ = True
 
+DATE_INPUT_FORMAT = [
+	'%Y-%m-%d',
+	'%Y/%m/%d',
+	'%y/%m/%d'
+]
+
+USE_L10N = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangomysite.com/en/5.1/howto/static-files/
@@ -150,9 +157,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+	'DEFAULT_PERMISSION_CLASSES': [
+		'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+	]
 }
 
 MEDIA_URL = '/media/'

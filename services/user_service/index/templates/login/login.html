@@ -3,14 +3,16 @@
 <page-element name="login" >
 	<form method="POST" id="form-login">
 		{% csrf_token %}
-		<div class="text-center" style="width: 100%;display: flex;flex-direction: column;align-items: center;">
-			<h1 class="row justify-content-center">Login!</h1>
-			{{ loginForm | crispy }}
+		<div class="form-group row" align="center">
+			<div class="text-center" style="width: 100%;display: flex;flex-direction: column;align-items: center;">
+				<h1 class="row justify-content-center">Login!</h1>
+				{{ loginForm | crispy }}
+			</div>
 		</div>
-		<p align="center">
-			<input type="submit" class="btn btn-success"></input>
-		</p>
-	</form>
+			<p align="center">
+				<input type="submit" class="btn btn-success"></input>
+			</p>
+		</form>
 
 	<p align="center">or</p>
 	<p align="center">

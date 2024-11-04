@@ -8,20 +8,20 @@ for (const page of pages) {
 	l.set(page.getAttribute('name'), page);
 }
 
-window.addEventListener('load', function(event) {
+window.addEventListener('load', () => {
 	const url = window.location.href.split('/');
 	const x = (url.length) - 1;
 	setPage(url[x]);
 	setNav(window.location.href.split('#/')[1]);
-	logoutFunc()
+	logoutFunc();
 });
 
-window.addEventListener('popstate', function(event) {
+window.addEventListener('popstate', () => {
 	const url = window.location.href.split('/');
 	const x = (url.length) - 1;
 	setPage(url[x]);
 	setNav(window.location.href.split('#/')[1]);
-	logoutFunc()
+	logoutFunc();
 });
 
 // chage the nav bar to show or not depending on the url (the navar to show will have the same name as the url)

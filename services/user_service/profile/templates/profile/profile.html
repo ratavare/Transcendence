@@ -1,38 +1,24 @@
+{% load static %}
+{% load crispy_forms_tags %}
 <page-element name="profile">
 	<title>Profile</title>
 	<div class="container mt-5">
 		<div class="form-group row" align="center">	
 			<h1 class="mb-4">Profile</h1>
-			<div class="col-auto" margin="1">
+			<!-- <div class="col-auto" margin="1">
 				<label class="position-absolute" style="cursor: pointer;">
 					<input type="file" accept="image/*" style="display: none;" onchange="this.form.submit();">
-					<span class="bi bi-pencil"></span> <!-- Add pencil icon for changing profile picture -->
+					<span class="bi bi-pencil"></span>
 				</label>
-			</div>
+			</div> -->
 			<form method="POST" id="form-profile" class="d-inline">
 				{% csrf_token %}
-				<div class="text-center" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-					<div class="col-xs-7">
-						<label for="id-username" class="form-label">Username</label>
-						<input type="text" id="id-username" name="username" class="form-control" placeholder="{{ request.user.username }}">
-						<div id="legend-username" class="form-text">Write your username.</div>
-					</div>
-					<div class="col-xs-7">
-						<label for="id-bio" class="form-label">Bio</label>
-						<input type="text" id="id-bio" name="bio" class="form-control">
-						<div id="legend-bio" class="form-text">Write your bio.</div>
-					</div>
-					<div class="col-xs-7">
-						<label for="id-date" class="form-label">Date</label>
-						<input type="date" id="id-date" name="date" class="form-control">
-						<div id="legend-date" class="form-text">Input your birth date.</div>
-					</div>
-					<div class="col-xs-7">
-						<label for="id-email" class="form-label">Email</label>
-						<input type="email" id="id-email" name="email" class="form-control">
-						<div id="legend-email" class="form-text">Write your email.</div>
+				<div class="form-group row" align="center">		
+					<div class="text-center" style="width: 100%; display: flex; flex-direction: column; align-items: center;" id="form-center">
+						{{ updateProfileForm | crispy }}
 					</div>
 				</div>
+
 				<!-- {% if user.has_usable_password %}
 					<form method="POST" id="changePasswordForm">
 						{% csrf_token %}
