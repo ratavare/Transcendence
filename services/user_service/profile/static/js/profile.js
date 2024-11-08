@@ -24,11 +24,8 @@ formProfile?.addEventListener('submit', async function(event) {
 	})
 });
 
-window.addEventListener("load", () => {
-	getProfile();
-})
-
 window.addEventListener("popstate", () => {
+	console.log("Getting profile from db...");
 	getProfile();
 })
 
@@ -43,7 +40,7 @@ async function getProfile(){
 			}
 			const data = await response.json();
 			const form = document.getElementById('form-center');
-			console.log("Data.form: ", data.form);
+			// console.log("Data.form: ", data.form);
 			if (data.form){
 				form.innerHTML = data.form
 			} else {

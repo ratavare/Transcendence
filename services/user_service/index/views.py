@@ -92,10 +92,8 @@ def auth(request, auth_code):
 
 			login(request, user)
 
-			return render(request, 'index/index.html', {
-				'url': os.getenv('URL'),
-			})
+			return JsonResponse({'status': 'success'}, status=200)
 		else:
-			return render(request, 'error.html', {'error': 'Failed to fetch user info'})
+			return JsonResponse({'error': 'Failed to fetch user info'}, status=400)
 	else:
-		return render(request, 'error.html', {'error': 'Failed to obtain access token'})
+		return JsonResponse({'error': 'Failed to obtain access token'}, status=400)

@@ -14,6 +14,9 @@ window.addEventListener('load', () => {
 	setPage(url[x]);
 	setNav(window.location.href.split('#/')[1]);
 	logoutFunc();
+	if(window.location.hash == '#/profile')
+		getProfile();
+
 });
 
 window.addEventListener('popstate', () => {
