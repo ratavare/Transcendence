@@ -14,7 +14,7 @@ clean:
 	@docker-compose -f docker-compose.yml down --volumes --rmi all
 
 pyclean:
-	@find . -type d -name __pycache__ -exec rm -r {} \+
+	@sudo find . -type d -name __pycache__ -exec rm -r {} \+
 
 fclean: clean pyclean
 	@echo "$(RED)System pruning...$(NC)"

@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "10.12.7.11"]
 
-CSRF_TRUSTED_ORIGINS = [os.getenv('URL')]
+# CSRF_TRUSTED_ORIGINS = [os.getenv('URL')]
 
 # Application definition
 

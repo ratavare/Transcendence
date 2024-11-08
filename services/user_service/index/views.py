@@ -18,7 +18,7 @@ def indexView(request):
 
 	if not auth_code:
 		return render(request, 'index/index.html', {
-			'url': os.getenv('URL'),
+			'url': "http://localhost:8004",
 			'registerForm': RegistrationForm,
 			'loginForm': AuthenticationForm,
 			'updateProfileForm': UpdateProfileForm,
