@@ -24,10 +24,17 @@ formProfile?.addEventListener('submit', async function(event) {
 	})
 });
 
+
 window.addEventListener("popstate", () => {
 	console.log("Getting profile from db...");
 	getProfile();
 })
+
+window.addEventListener('load', () => {
+	console.log("Page Loaded aSbdagkajdjkd");
+	getProfile();
+})
+
 
 async function getProfile(){
 	console.log("Current hash:", window.location.hash);

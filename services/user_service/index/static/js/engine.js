@@ -14,9 +14,6 @@ window.addEventListener('load', () => {
 	setPage(url[x]);
 	setNav(window.location.href.split('#/')[1]);
 	logoutFunc();
-	if(window.location.hash == '#/profile')
-		getProfile();
-
 });
 
 window.addEventListener('popstate', () => {
@@ -26,6 +23,14 @@ window.addEventListener('popstate', () => {
 	setNav(window.location.href.split('#/')[1]);
 	logoutFunc();
 });
+
+window.addEventListener('DOMContentLoaded', () => {
+	const url = window.location.href.split('/');
+	const x = (url.length) - 1;
+	setPage(url[x]);
+	setNav(window.location.href.split('#/')[1]);
+	logoutFunc();
+})
 
 // chage the nav bar to show or not depending on the url (the navar to show will have the same name as the url)
 function setNav(name)
@@ -55,8 +60,10 @@ function setPage(name)
 		newPage.innerHTML = page.innerHTML;
 		newPage.setAttribute("name", name);
 		const newScript = document.createElement('script');
+		console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 		newScript.src = "static/js/" + name + ".js";
 		newScript.onload = function(){
+			console.log(newScript.src);
 			console.log(`${name}.js loaded successfully`);
 		};
 		newPage.appendChild(newScript);
