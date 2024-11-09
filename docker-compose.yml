@@ -12,17 +12,17 @@ services:
     networks:
       - transcendence_nw
 
-  # user_management:
-  #   container_name: user_management
-  #   build: ./services/user_management
-  #   restart: on-failure
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-  #   volumes:
-  #     - ./services/user_management:/user_management
-  #   networks:
-  #     - transcendence_nw
+  user_management:
+    container_name: user_management
+    build: ./services/user_management
+    restart: on-failure
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./services/user_management:/user_management
+    networks:
+      - transcendence_nw
 
 
   nginx:
@@ -32,8 +32,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
-      # user_management:
-      #   condition: service_started
+      user_management:
+        condition: service_started
       user_service:
         condition: service_started
     ports:
