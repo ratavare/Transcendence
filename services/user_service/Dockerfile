@@ -1,6 +1,6 @@
 FROM python:latest
 
-WORKDIR /user
+WORKDIR /frontend
 
 COPY . .
 

@@ -3,19 +3,49 @@ services:
   user_service:
     container_name: user
     build: ./services/user_service
+    restart: on-failure
     depends_on:
       database:
         condition: service_healthy
-    ports:
-      - "8004:8000"
     volumes:
-      - ./services/user_service:/user
+      - ./services/user_service:/frontend
     networks:
-      - transcendece_nw
+      - transcendence_nw
+
+  # user_management:
+  #   container_name: user_management
+  #   build: ./services/user_management
+  #   restart: on-failure
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ./services/user_management:/user_management
+  #   networks:
+  #     - transcendence_nw
+
+
+  nginx:
+    container_name: nginx
+    build: ./services/nginx
+    restart: on-failure
+    depends_on:
+      database:
+        condition: service_healthy
+      # user_management:
+      #   condition: service_started
+      user_service:
+        condition: service_started
+    ports:
+      - "8000:80"
+    networks:
+      - transcendence_nw
+  
 
   database:
     image: postgres
     container_name: postgresql
+    restart: on-failure
     environment:
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_USER: postgres_user
@@ -30,10 +60,10 @@ services:
       timeout: 5s
       retries: 5
     networks:
-    - transcendece_nw
+    - transcendence_nw
 
 networks:
-  transcendece_nw:
+  transcendence_nw:
     driver: bridge
 
 volumes:
