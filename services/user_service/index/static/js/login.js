@@ -1,7 +1,5 @@
-if (typeof formLogin === "undefined") {
-	const formLogin = document.getElementById('form-login');
-	
-	formLogin?.addEventListener('submit', async function(event) {
+{
+	document.getElementById('form-login')?.addEventListener('submit', async function(event) {
 	
 		event.preventDefault();
 	

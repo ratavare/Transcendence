@@ -8,6 +8,7 @@ for (const page of pages) {
 	l.set(page.getAttribute('name'), page);
 }
 
+
 window.addEventListener('load', () => {
 	const url = window.location.href.split('/');
 	const x = (url.length) - 1;
@@ -39,10 +40,16 @@ function setNav(name)
 
 function setPage(name)
 {
-	if (pageActive && pageActive.getAttribute("name") == name) {
+	if (pageActive && pageActive.getAttribute("name") == name)
 		return ;
-	}
-	pageActive?.remove();
+    // if (pageActive)
+    // {
+    //     for (const script of pageActive.querySelectorAll('script'))
+    //         script.remove();
+    //     pageActive.remove();
+    // }
+    pageActive?.remove();
+	
 	const page = l.get(name) || Array.from(pages).find(page => page.getAttribute('default'));
 	if (page)
 	{
