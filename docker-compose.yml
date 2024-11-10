@@ -1,20 +1,20 @@
 
 services:
-  user_service:
-    container_name: user
-    build: ./services/user_service
+  frontend:
+    container_name: frontend
+    build: ./services/frontend
     restart: on-failure
     depends_on:
       database:
         condition: service_healthy
     volumes:
-      - ./services/user_service:/frontend
+      - ./services/frontend:/frontend
     networks:
       - transcendence_nw
 
   user_management:
     container_name: user_management
-    build: ./services/user_management
+    build: ./services/backend/user_management
     restart: on-failure
     depends_on:
       database:
@@ -34,7 +34,7 @@ services:
         condition: service_healthy
       user_management:
         condition: service_started
-      user_service:
+      frontend:
         condition: service_started
     ports:
       - "8000:443"

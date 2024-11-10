@@ -1,5 +1,5 @@
 """
-ASGI config for user_service project.
+ASGI config for frontend project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

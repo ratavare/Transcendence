@@ -1,5 +1,5 @@
 """
-WSGI config for user_service project.
+WSGI config for frontend project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

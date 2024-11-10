@@ -1,5 +1,5 @@
 """
-URL configuration for user_service project.
+URL configuration for frontend project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangomysite.com/en/5.1/topics/http/urls/
