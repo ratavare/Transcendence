@@ -37,7 +37,7 @@ services:
       user_service:
         condition: service_started
     ports:
-      - "8000:80"
+      - "8000:443"
     networks:
       - transcendence_nw
   
