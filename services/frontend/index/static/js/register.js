@@ -7,7 +7,7 @@
         for (const [key, value] of formData)
             console.log('key: ', key, ' | value: ', value);
 
-        myFetch('register/', formData).then(data => {
+        myFetch('https://localhost:8443/user_auth/register/', formData).then(data => {
             if (data.status === "success") {
                 console.log("Registration successful");
                 seturl('/home');
@@ -16,7 +16,9 @@
                 const messages = Object.values(data.errors)
                 console.log("Registration Failed. Reasons: ", messages);
                 messages.forEach(alert);
-            }
-        })
+			}
+        }).catch(error => {
+			console.log('EERROR:', error);
+		})
     });
 }

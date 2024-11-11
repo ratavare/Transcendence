@@ -1,16 +1,16 @@
-import requests, os, logging
+import requests, os
 
 from django.shortcuts import render
-from django.http import JsonResponse
+
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login
 
 from .forms import RegistrationForm
-from profile.forms import UpdateProfileForm
-from profile.models import Profile
 
-logging.basicConfig(level=logging.DEBUG)
+# from django.contrib.auth.forms import AuthenticationForm
+# from .forms import RegistrationForm
+# from user_profile.forms import UpdateProfileForm
+# from user_profile.models import Profile
 
 def indexView(request):
 
@@ -18,43 +18,10 @@ def indexView(request):
 
 	if not auth_code:
 		return render(request, 'index/index.html', {
-			'url': "http://localhost:8004",
 			'registerForm': RegistrationForm,
-			'loginForm': AuthenticationForm,
-			'updateProfileForm': UpdateProfileForm,
 		})
 
 	return auth(request, auth_code)
-
-def registerView(request):
-	if request.method == 'POST':
-		form = RegistrationForm(request.POST)
-		if form.is_valid():
-			user = form.save()
-			login(request, user)
-			return JsonResponse({'status': 'success'}, status=200)
-		return JsonResponse({'status': 'error', 'errors': form.errors}, status=409)
-	return JsonResponse({'status': 'error'}, status=400)
-
-def loginView(request):
-	if request.method == 'POST':
-		form = AuthenticationForm(request, data=request.POST)
-		if form.is_valid():
-			user = form.get_user()
-			login(request, user)
-			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
-		return JsonResponse({'status': 'error1', 'errors': form.errors}, status=400)
-	return JsonResponse({'status': 'error2'}, status=400)
-
-def logoutView(request):
-	logout(request)
-	return JsonResponse({'status': 'success'}, status=200)
-
-class color:
-	RED = '\033[91m'
-	YELLOW = '\033[93m'
-	GREEN = '\033[92m'
-	NC = '\033[0m'
 
 def auth(request, auth_code):
 	token_url = "https://api.intra.42.fr/oauth/token"

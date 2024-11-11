@@ -19,6 +19,7 @@ function getCookie(name) {
 }
 
 async function myFetch(viewUrl, myData){
+	console.log('url:', viewUrl);
 	console.log("myData: ", myData);
 	return fetch(viewUrl , {
 		method: 'POST',
