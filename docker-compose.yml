@@ -20,7 +20,7 @@ services:
       database:
         condition: service_healthy
     volumes:
-      - ./services/user_management:/user_management
+      - ./services/backend/user_management:/user_management
     networks:
       - transcendence_nw
 
@@ -37,14 +37,15 @@ services:
       frontend:
         condition: service_started
     ports:
-      - "8000:443"
+      - "8080:80"
+      - "8443:443"
     networks:
       - transcendence_nw
   
 
   database:
     image: postgres
-    container_name: postgresql
+    container_name: postgres
     restart: on-failure
     environment:
       POSTGRES_PASSWORD: postgres_password

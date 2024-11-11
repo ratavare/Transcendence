@@ -17,4 +17,5 @@ RUN openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \
     -subj "/C=PT/ST=Lisbon/L=Lisbon/O=42 School/OU=hcorrea-/CN=hcorrea-/"
 
 # Expose ports
+EXPOSE 443
 EXPOSE 80
