@@ -13,10 +13,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost"]
 
-# CSRF_TRUSTED_ORIGINS = ['https://localhost:8443']
-# Application definition
+CSRF_TRUSTED_ORIGINS = ["https://localhost:8443"]
 
 INSTALLED_APPS = [
+	'profile.apps.ProfileConfig',
 	'index.apps.IndexConfig',
 	'django.contrib.admin',
 	'django.contrib.auth',
@@ -64,15 +64,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'index.wsgi.application'
 
-
 # Database
-# https://docs.djangomysite.com/en/5.1/ref/settings/#databases
-
-# import os
-# from dotenv import load_dotenv
-
-# load_dotenv()
-
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql',
@@ -86,8 +78,6 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangomysite.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
 	{
 		'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -105,8 +95,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangomysite.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -124,15 +112,11 @@ DATE_INPUT_FORMAT = [
 USE_L10N = False
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangomysite.com/en/5.1/howto/static-files/
-
 STATIC_URL = 'static/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # Default primary key field type
-# https://docs.djangomysite.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'

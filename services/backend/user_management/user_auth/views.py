@@ -1,20 +1,13 @@
-import requests, os, logging
 
-from django.shortcuts import render
 from django.http import JsonResponse
-from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 
 from .forms import RegistrationForm
-from user_profile.forms import UpdateProfileForm
-from user_profile.models import Profile
 
-from django.views.decorators.csrf import csrf_exempt
+# import logging
+# logging.basicConfig(level=logging.DEBUG)
 
-logging.basicConfig(level=logging.DEBUG)
-
-@csrf_exempt
 def registerView(request):
 	if request.method == 'POST':
 		form = RegistrationForm(request.POST)
@@ -23,6 +16,8 @@ def registerView(request):
 			login(request, user)
 			return JsonResponse({'status': 'success'}, status=200)
 		return JsonResponse({'status': 'error', 'errors': form.errors}, status=409)
+	elif request.method == 'GET':
+		return JsonResponse({'test':"GET"}, status=200);
 	return JsonResponse({'status': 'error'}, status=400)
 
 def loginView(request):

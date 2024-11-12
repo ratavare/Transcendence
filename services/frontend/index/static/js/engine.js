@@ -42,12 +42,6 @@ function setPage(name)
 {
 	if (pageActive && pageActive.getAttribute("name") == name)
 		return ;
-    // if (pageActive)
-    // {
-    //     for (const script of pageActive.querySelectorAll('script'))
-    //         script.remove();
-    //     pageActive.remove();
-    // }
     pageActive?.remove();
 	
 	const page = l.get(name) || Array.from(pages).find(page => page.getAttribute('default'));
