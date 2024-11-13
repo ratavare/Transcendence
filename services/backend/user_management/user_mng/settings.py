@@ -16,7 +16,6 @@ CSRF_TRUSTED_ORIGINS = ["https://localhost:8443"]
 
 # Application definition
 INSTALLED_APPS = [
-	'user_mng',
 	'user_auth.apps.UserAuthConfig',
 	'user_profile.apps.UserProfileConfig',
     'django.contrib.admin',

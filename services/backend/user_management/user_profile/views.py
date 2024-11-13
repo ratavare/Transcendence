@@ -1,6 +1,7 @@
 import logging
 from django.http import JsonResponse
-# from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import logout
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
@@ -11,9 +12,13 @@ from crispy_forms.utils import render_crispy_form
 logging.basicConfig(level=logging.DEBUG)
 
 # @login_required
+@csrf_exempt
 def profileView(request):
-	user = request.user
-	profile = get_object_or_404(Profile, user=user)
+	try:
+		user=request.user
+		profile = Profile.objects.get(user=user)
+	except Profile.DoesNotExist:
+			return JsonResponse({'error': 'Profile Not Found'})
 	if request.method == 'POST':
 		profileForm = UpdateProfileForm(request.POST, instance=profile)
 		username = request.POST.get('username')
