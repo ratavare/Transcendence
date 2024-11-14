@@ -2,11 +2,12 @@
 from django.http import JsonResponse
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import User
 
 from .forms import RegistrationForm
 
-# import logging
-# logging.basicConfig(level=logging.DEBUG)
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 def registerView(request):
 	if request.method == 'POST':
@@ -33,3 +34,17 @@ def loginView(request):
 def logoutView(request):
 	logout(request)
 	return JsonResponse({'status': 'success'}, status=200)
+
+def userSearchView(request):
+	if request.method == 'POST':
+		userSearched = request.POST.get('username')
+		
+		# gets all users that contain 'userSearched'; Not sensitive to case
+		all_users = User.objects.filter(username__icontains=userSearched)
+		
+		users = []
+		for user in all_users:
+			users.append({'username': user.username})
+
+		return JsonResponse({'users': users}, status=200)
+	return JsonResponse({"error": "Wrong Method"}, status=400)

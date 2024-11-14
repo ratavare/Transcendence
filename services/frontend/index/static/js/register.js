@@ -7,7 +7,8 @@
 		// for (const [key, value] of formData)
 		// 	console.log('key: ', key, ' | value: ', value);
 		const url = 'https://localhost:8443/user_auth/register/';
-		myFetch(url, formData).then(data => {
+		myFetch(url, formData)
+		.then(data => {
 			if (data.status === "success") {
 				console.log("Registration successful");
 				seturl('/home');

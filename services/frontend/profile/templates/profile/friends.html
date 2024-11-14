@@ -3,21 +3,27 @@
 		<title>Friends</title>
 		<div class="row">
 			<div class="col-md-4">
-				<h3>Total Friends:</h3>
-				<h3>Online Friends:</h3>
+				<h3>Total Friends: {{ total_friends }}</h3>
 			</div>
+		</div>
+		<div class="row">
 			<div class="col-md-4">
-				<form method="GET">
-					<div class="input-group mb-3">
-						<input type="text" class="form-control" placeholder="Search friends by nickname" name="q">
-						<div class="input-group-append">
-							<button class="btn btn-outline-secondary" type="submit">Search</button>
+				<h3>Add a friend:</h3>
+				<form method="GET" id="form-users">
+					<div class="topnav">
+						<div class="input-group mb-3">
+							<input type="text" placeholder="Search.." name="username">
+							<input class="btn btn-outline-secondary" type="submit"></button>
 						</div>
 					</div>
 				</form>
-			</div>
-			<div class="col-md-4">
-				<h3>Friend Requests</h3>
+				<div id="user-search-result">
+					<h3>Users:</h3>
+					<!-- <div class="card mb-3 p-3">
+						<h5 class="card-title"></h5>
+						<button class="btn btn-secondary btn-sm"></button>
+					</div> -->
+				</div>
 			</div>
 		</div>
 	</div>
