@@ -19,7 +19,7 @@ class Profile(models.Model):
 class Friendships(models.Model):
 	from_user = models.ForeignKey(User, related_name="friend_resquest_sent", on_delete=models.CASCADE)
 	to_user = models.ForeignKey(User, related_name="friend_request_received", on_delete=models.CASCADE)
-	statys = models.CharField(choices=STATUS_CHOICES, default="requested")
+	status = models.CharField(choices=STATUS_CHOICES, default="requested")
 	created = models.DateTimeField(datetime.now)
 
 	class Meta:

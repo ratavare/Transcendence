@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 from .forms import UpdateProfileForm
-from .models import Profile
+from .models import Profile, Friendships
 from crispy_forms.utils import render_crispy_form
 
 logging.basicConfig(level=logging.DEBUG)
@@ -45,6 +45,13 @@ def profileView(request):
 		form_html = render_crispy_form(profileForm)
 		return JsonResponse({'form': form_html}, status=200)
 	return JsonResponse({'error': "Test"}, status=400)
+
+
+def friendRequestSend(request):
+	source = request.POST.get('source')
+	destination = request.POST.get('destination')
+	newRequest = Friendships(source, destination)
+	JsonResponse({'newRequest': newRequest})
 
 # def account_delete(request):
 # 	if request.method == 'POST':

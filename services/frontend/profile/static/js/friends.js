@@ -1,4 +1,20 @@
 
+async function sendFriendRequest(dest, src) {
+	myFetch();
+}
+
+function buttonConfigure(users)
+{
+	const friends = userListDiv.querySelectorAll('li');
+	friends?.forEach(item => {
+		const button = item.querySelector('button')
+		const dest = item.querySelector('p').textContent;
+		button.addEventListener('click', () => {
+			sendFriendRequest(dest, src);
+		});
+	});
+}
+
 function putUsers(users)
 {
 	const previousList = userListDiv.querySelector('ul');
@@ -7,21 +23,27 @@ function putUsers(users)
 	userList.classList.add("list-group");
 	users.forEach(user => {
 		const userItemList = document.createElement('li');
-		userItemList.textContent = user.username;
 		userItemList.classList.add("list-group-item");
 		userItemList.style = 'display: flex;align-items: center;justify-content: space-around';
 	
+		const usernameP = document.createElement('p');
+		usernameP.textContent = user.username;
+
 		const friendRequestButton = document.createElement('button');
 		friendRequestButton.classList.add("btn", "btn-secondary", "col", "pull-right");
 		friendRequestButton.textContent = "Send Friend Request";
+		friendRequestButton.type = 'submit';
 		friendRequestButton.style.display = 'flex';
 
+		userItemList.appendChild(usernameP);
 		userItemList.appendChild(friendRequestButton);
 		userList.appendChild(userItemList);
 
 	});
 	userListDiv.appendChild(userList);
 	userListDiv.style.display = 'block';
+
+	buttonConfigure(users);
 }
 
 const userListDiv = document.getElementById('user-search-result');
