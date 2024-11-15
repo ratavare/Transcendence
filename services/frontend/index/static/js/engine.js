@@ -1,5 +1,6 @@
 
 let pageActive = undefined;
+let pageName = undefined;
 const pages = document.querySelectorAll('page-element');
 const l = new Map();
 for (const page of pages) {
@@ -28,6 +29,7 @@ window.addEventListener('popstate', () => {
 // chage the nav bar to show or not depending on the url (the navar to show will have the same name as the url)
 function setNav(name)
 {
+	console.log('TEST');
 	const navs = document.querySelectorAll('nav-element');
 	for (const nav of navs) {
 		console.log("nav: ", nav.getAttribute('name'), ". name: ", name);
@@ -38,16 +40,39 @@ function setNav(name)
 	}
 }
 
-function setPage(name)
+async function setPage(name)
 {
+	if (pageName == name)
+		return;
+	pageName = name;
 	if (pageActive && pageActive.getAttribute("name") == name)
 		return ;
-    pageActive?.remove();
-	
+	pageActive?.remove();
+	console.log("setPage: " , name)
 	const page = l.get(name) || Array.from(pages).find(page => page.getAttribute('default'));
 	if (page)
 	{
 		name = page.getAttribute("name") || name;
+		const authenticated =  page.getAttribute("authenticated") || "true";
+		if (authenticated == "true")
+		{
+			const result = await getProfile();
+			if (result == false)
+			{
+				pageActive = undefined;
+				seturl('/login');
+				return ;
+			}
+		}
+		else {
+			const result = await getProfile();
+			if (result)
+			{
+				pageActive = undefined;
+				seturl('/home')
+				return ;
+			}
+		}
 		console.log("setPage: ", name);
 		const newPage = document.createElement('page-element');
 		newPage.innerHTML = page.innerHTML;
@@ -65,3 +90,21 @@ function setPage(name)
 	else
 		pageActive = undefined;
 }
+
+async function getProfile(){
+	return await fetch('https://localhost:8443/user_profile/profile/').then(async (response) => 
+		{
+			if(!response.ok) {
+				return false;
+			}
+			const data = await response.json();
+			window.user = data;
+			return true;
+	}).catch((e) => {
+		return false;
+	}
+
+	);
+}
+
+window.getProfile = getProfile;

@@ -44,7 +44,10 @@ def userSearchView(request):
 		
 		users = []
 		for user in all_users:
+			if user.username == 'root' or user == request.user:
+				continue
 			users.append({'username': user.username})
-
+		if not users:
+			return JsonResponse({'error': 'No users found!'}, status=400)
 		return JsonResponse({'users': users}, status=200)
 	return JsonResponse({"error": "Wrong Method"}, status=400)
