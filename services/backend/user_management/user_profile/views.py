@@ -5,18 +5,20 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 from .forms import UpdateProfileForm
 from .models import Profile, Friendships
+import json
 from crispy_forms.utils import render_crispy_form
 
 logging.basicConfig(level=logging.DEBUG)
 
-# @login_required
+@login_required
 @csrf_exempt
 def profileView(request):
 	try:
 		user=request.user
 		profile = Profile.objects.get(user=user)
+  	
 	except Profile.DoesNotExist:
-			return JsonResponse({'error': 'Profile Not Found'})
+		return JsonResponse({'error': 'Profile Not Found'})
 	if request.method == 'POST':
 		profileForm = UpdateProfileForm(request.POST, instance=profile)
 		username = request.POST.get('username')
@@ -41,9 +43,7 @@ def profileView(request):
 			'bio': profile.bio,
 			'birth_date':profile.birth_date,
 		}
-		profileForm = UpdateProfileForm(initial=initial_data)
-		form_html = render_crispy_form(profileForm)
-		return JsonResponse({'form': form_html}, status=200)
+		return JsonResponse(initial_data, status=200)
 	return JsonResponse({'error': "Test"}, status=400)
 
 

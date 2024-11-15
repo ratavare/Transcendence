@@ -1,21 +1,12 @@
 
 async function getProfile(){
 	try {
-		const fetch_url = 'https://localhost:8443/user_profile/profile/';
-		console.log("Fetch url:", fetch_url);
-		const response = await fetch(fetch_url);
-		if(!response.ok) {
-			throw new Error("Response not ok: ", response.status);
-		}
-		const data = await response.json();
-		console.log("Data: ", data);
-		console.log("Data.form: ", data.form);
 		const form = document.getElementById('form-center');
-		if (data.form){
-			form.innerHTML = data.form
-		} else {
-			throw new Error("Form error");
-		}
+		const inputs = form.querySelectorAll('input');
+		inputs[0].value = window.user.username;
+		inputs[1].value = window.user.email;
+		inputs[2].value = window.user.bio;
+		inputs[3].value = window.user.birth_date;
 	} catch (error) {
 		console.error("Fetch error: ", error);
 	}
@@ -33,8 +24,6 @@ async function getProfile(){
 		event.preventDefault();
 	
 		const formData = new FormData(event.target);
-		// for await (const [key, value] of formData)
-		// 	console.log('key', key, '| value: ', value);
 		const fetch_url = 'https://localhost:8443/user_profile/profile/';
 		myFetch(fetch_url, formData).then(data => {
 			console.log("Profile: ", data);
