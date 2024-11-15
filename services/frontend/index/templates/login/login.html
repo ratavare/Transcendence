@@ -1,6 +1,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
-<page-element name="login" >
+<page-element name="login" authenticated="false" >
+	{% include 'nav/navbar.html' %}
 	<form method="POST" id="form-login">
 		{% csrf_token %}
 		<div class="form-group row" align="center">

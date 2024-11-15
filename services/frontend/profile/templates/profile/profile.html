@@ -1,5 +1,6 @@
 {% load crispy_forms_tags %}
 <page-element name="profile">
+	{% include 'nav/navbar.html' with authenticated="true" %}
 	<title>Profile</title>
 	<div class="container mt-5">
 		<div class="form-group row" align="center">	
