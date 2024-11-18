@@ -1,0 +1,7 @@
+Django==5.1.1
+psycopg
+djangorestframework
+requests
+python-dotenv
+
+websockets
