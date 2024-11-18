@@ -41,20 +41,6 @@ services:
       - "8443:443"
     networks:
       - transcendence_nw
-  
-
-  nginx:
-    build: ./services/nginx
-    container_name: nginx
-    volumes:
-      - ./letsencrypt:/etc/letsencrypt
-    ports:
-      - "8004:80"
-      # - "8005:443"
-    depends_on:
-      - user_service
-    networks:
-      - transcendece_nw
 
   database:
     image: postgres
