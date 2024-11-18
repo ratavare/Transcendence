@@ -3,8 +3,8 @@ from . import views
 
 app_name = "user_auth"
 urlpatterns = [
-	path('register/', views.registerView, name='register'),
-	path('login/', views.loginView, name='login'),
-	path('logout/', views.logoutView, name='logout'),
-	path('user_search/', views.userSearchView, name='user_search'),
+	path('register/', views.registerView),
+	path('login/', views.loginView),
+	path('logout/', views.logoutView),
+	path('user_search/', views.userSearchView),
 ]

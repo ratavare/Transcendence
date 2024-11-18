@@ -30,7 +30,7 @@ function putUsers(users)
 		usernameP.textContent = user.username;
 
 		const friendRequestButton = document.createElement('button');
-		friendRequestButton.classList.add("btn", "btn-secondary", "col", "pull-right");
+		friendRequestButton.classList.add("btn", "col", "pull-right", "btn-success", "btn-xs");
 		friendRequestButton.textContent = "Send Friend Request";
 		friendRequestButton.type = 'submit';
 		friendRequestButton.style.display = 'flex';
@@ -60,7 +60,8 @@ userListDiv.style.display = 'none';
 		const fetch_url = 'https://localhost:8443/user_auth/user_search/';
 		myFetch(fetch_url, formData)
 		.then(data => {
-			putUsers(data.users);
+			if (data.users)
+				putUsers(data.users);
 			
 		}).catch(error => {
 			console.log(error);

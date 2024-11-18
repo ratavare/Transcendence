@@ -1,4 +1,3 @@
-
 let pageActive = undefined;
 let pageName = undefined;
 const pages = document.querySelectorAll('page-element');
@@ -14,7 +13,6 @@ window.addEventListener('load', () => {
 	const url = window.location.href.split('/');
 	const x = (url.length) - 1;
 	setPage(url[x]);
-	setNav(window.location.href.split('#/')[1]);
 	logoutFunc();
 });
 
@@ -22,26 +20,13 @@ window.addEventListener('popstate', () => {
 	const url = window.location.href.split('/');
 	const x = (url.length) - 1;
 	setPage(url[x]);
-	setNav(window.location.href.split('#/')[1]);
 	logoutFunc();
 });
 
-// chage the nav bar to show or not depending on the url (the navar to show will have the same name as the url)
-function setNav(name)
-{
-	console.log('TEST');
-	const navs = document.querySelectorAll('nav-element');
-	for (const nav of navs) {
-		console.log("nav: ", nav.getAttribute('name'), ". name: ", name);
-		if (nav.getAttribute('name') == name)
-			nav.style.display = 'block';
-		else
-			nav.style.display = 'none';
-	}
-}
-
 async function setPage(name)
 {
+	if (name == '')
+		name = 'home'
 	if (pageName == name)
 		return;
 	pageName = name;

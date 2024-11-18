@@ -39,6 +39,8 @@ def userSearchView(request):
 	if request.method == 'POST':
 		userSearched = request.POST.get('username')
 		
+		if not userSearched:
+			return JsonResponse({'error': 'No users found!'}, status=404)
 		# gets all users that contain 'userSearched'; Not sensitive to case
 		all_users = User.objects.filter(username__icontains=userSearched)
 		
@@ -48,6 +50,6 @@ def userSearchView(request):
 				continue
 			users.append({'username': user.username})
 		if not users:
-			return JsonResponse({'error': 'No users found!'}, status=400)
+			return JsonResponse({'error': 'No users found!'}, status=404)
 		return JsonResponse({'users': users}, status=200)
 	return JsonResponse({"error": "Wrong Method"}, status=400)
