@@ -18,7 +18,7 @@ def indexView(request):
 	auth_code = request.GET.get('code')
 
 	if not auth_code:
-		return render(request, 'index/index.html', {
+		return render(request, 'index.html', {
 			'registerForm': RegistrationForm,
 			'loginForm': AuthenticationForm,
 			'updateProfileForm': UpdateProfileForm,
