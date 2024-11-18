@@ -1,5 +1,5 @@
 
-async function getProfile(){
+async function fillProfile(){
 	try {
 		const form = document.getElementById('form-center');
 		const inputs = form.querySelectorAll('input');
@@ -38,4 +38,4 @@ async function getProfile(){
 	});
 }
 
-getProfile();
+fillProfile();

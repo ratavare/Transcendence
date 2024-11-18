@@ -8,11 +8,6 @@ from django.contrib.auth import login
 from .forms import RegistrationForm, UpdateProfileForm
 from django.contrib.auth.forms import AuthenticationForm
 
-# from django.contrib.auth.forms import AuthenticationForm
-# from .forms import RegistrationForm
-# from user_profile.forms import UpdateProfileForm
-# from user_profile.models import Profile
-
 def indexView(request):
 
 	auth_code = request.GET.get('code')

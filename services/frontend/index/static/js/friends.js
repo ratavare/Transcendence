@@ -47,7 +47,7 @@ function putUsers(users)
 }
 
 const userListDiv = document.getElementById('user-search-result');
-userListDiv.style.display = 'none';
+userListDiv?.style.display = 'none';
 
 {
 	const formUsers = document.getElementById('form-users');
