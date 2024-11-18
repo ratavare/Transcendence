@@ -16,7 +16,6 @@ ALLOWED_HOSTS = ["localhost"]
 CSRF_TRUSTED_ORIGINS = ["https://localhost:8443"]
 
 INSTALLED_APPS = [
-	'profile.apps.ProfileConfig',
 	'index.apps.IndexConfig',
 	'django.contrib.admin',
 	'django.contrib.auth',
