@@ -1,0 +1,28 @@
+<page-element name="friends">
+	{% include 'navbar.html' with authenticated="true" %}
+	<div class="container mt-5">
+		<title>Friends</title>
+		<div class="row">
+			<div class="col-md-4">
+				<h3>Total Friends:</h3>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-4">
+				<h3>Add a friend:</h3>
+				<form method="GET" id="form-users">
+					<div class="topnav">
+						<div class="input-group mb-3">
+							<input type="text" placeholder="Search.." name="username">
+							<input class="btn btn-outline-secondary" type="submit"></button>
+						</div>
+					</div>
+				</form>
+				<div class="row row-cols-2">
+					<div id="user-search-result">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</page-element>

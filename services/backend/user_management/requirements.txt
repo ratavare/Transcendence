@@ -1,0 +1,8 @@
+Django==5.1.1
+psycopg
+django-crispy-forms
+crispy-bootstrap5
+djangorestframework
+requests
+python-dotenv
+Pillow

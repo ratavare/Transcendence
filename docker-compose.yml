@@ -1,56 +1,68 @@
 
 services:
-  remote_service:
-    container_name: remote
-    build: ./services/remote_service
+  frontend:
+    container_name: frontend
+    build: ./services/frontend
+    restart: on-failure
     depends_on:
       database:
         condition: service_healthy
-    env_file:
-      - .env
-    ports:
-      - "8003:8000"
     volumes:
-      - ./services/remote_service:/remote
+      - ./services/frontend:/frontend
     networks:
-      - transcendece_nw
+      - transcendence_nw
 
-  user_service:
-    container_name: user
-    build: ./services/user_service
+  user_management:
+    container_name: user_management
+    build: ./services/backend/user_management
+    restart: on-failure
     depends_on:
       database:
         condition: service_healthy
-    env_file:
-      - .env
-    ports:
-      - "8004:8000"
     volumes:
-      - ./services/user_service:/user
+      - ./services/backend/user_management:/user_management
     networks:
-      - transcendece_nw
+      - transcendence_nw
+
+
+  nginx:
+    container_name: nginx
+    build: ./services/nginx
+    restart: on-failure
+    depends_on:
+      database:
+        condition: service_healthy
+      user_management:
+        condition: service_started
+      frontend:
+        condition: service_started
+    ports:
+      - "8080:80"
+      - "8443:443"
+    networks:
+      - transcendence_nw
+  
 
   database:
     image: postgres
-    container_name: postgresql
+    container_name: postgres
+    restart: on-failure
     environment:
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_USER: postgres_user
       POSTGRES_NAME: postgresql
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres_user"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-    - transcendece_nw
+    - transcendence_nw
 
 networks:
-  transcendece_nw:
+  transcendence_nw:
     driver: bridge
 
 volumes:

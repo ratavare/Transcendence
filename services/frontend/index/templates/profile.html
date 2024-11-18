@@ -1,0 +1,20 @@
+{% load crispy_forms_tags %}
+<page-element name="profile">
+	{% include 'navbar.html' with authenticated="true" %}
+	<title>Profile</title>
+	<div class="container mt-5">
+		<div class="form-group row" align="center">	
+			<h1 class="mb-4">Profile</h1>
+			<form method="POST" id="form-profile" class="d-inline">
+				{% csrf_token %}
+				<div class="form-group row" align="center">		
+					<div class="text-center" style="width: 100%; display: flex; flex-direction: column; align-items: center;" id="form-center">
+						{{ updateProfileForm | crispy }}
+					</div>
+				</div>
+				<!-- Save Changes button that only appears if fields have changed -->
+				<button type="submit" class="btn btn-primary float-end hidden" id="saveChangesButton">Save Changes</button>
+			</form>
+		</div>
+	</div>
+</page-element>
