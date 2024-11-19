@@ -49,8 +49,8 @@ async function setPage(name)
 {
 	if (name == '' || name == '#') {
 		name = 'home'
-        seturl('/home')
-    }
+		seturl('/home')
+	}
 	if (pageName == name)
 		return;
 	pageName = name;
@@ -71,6 +71,8 @@ async function setPage(name)
 		newPage.setAttribute("name", name);
 		const newScript = document.createElement('script');
 		newScript.src = "static/js/" + name + ".js";
+		if (name == 'pong')
+			newScript.type = "module";
 		newScript.onload = function(){
 			console.log(`${name}.js loaded successfully`);
 		};
