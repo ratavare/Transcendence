@@ -1,16 +1,34 @@
 
 async function sendFriendRequest(dest, src) {
-	myFetch();
+	fetch('https://localhost:8443/user_profile/friend-request-send/', {
+		method: 'POST',
+		headers: {
+			"X-CSRFToken": getCookie('csrftoken'),
+			"Accept": "application/json",
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			"dest":dest,
+			"src":src
+		})
+	})
+	.then(response => response.json())
+	.then(data => {
+		console.log(data);
+	})
+	.catch(error => {
+		console.error("Error:", error);
+	});
 }
 
-function buttonConfigure(users)
+function buttonConfigure()
 {
 	const friends = userListDiv.querySelectorAll('li');
 	friends?.forEach(item => {
 		const button = item.querySelector('button')
 		const dest = item.querySelector('p').textContent;
 		button.addEventListener('click', () => {
-			sendFriendRequest(dest, src);
+			sendFriendRequest(dest, window.user.username);
 		});
 	});
 }
@@ -43,11 +61,11 @@ function putUsers(users)
 	userListDiv.appendChild(userList);
 	userListDiv.style.display = 'block';
 
-	buttonConfigure(users);
+	buttonConfigure();
 }
 
 const userListDiv = document.getElementById('user-search-result');
-userListDiv?.style.display = 'none';
+userListDiv.style.display = 'none';
 
 {
 	const formUsers = document.getElementById('form-users');

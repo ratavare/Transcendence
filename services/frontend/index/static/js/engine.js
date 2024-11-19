@@ -47,8 +47,10 @@ async function checkRedirection(page)
 
 async function setPage(name)
 {
-	if (name == '')
+	if (name == '' || name == '#') {
 		name = 'home'
+        seturl('/home')
+    }
 	if (pageName == name)
 		return;
 	pageName = name;
