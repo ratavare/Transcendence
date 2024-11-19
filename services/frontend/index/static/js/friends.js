@@ -1,6 +1,6 @@
 
 async function sendFriendRequest(dest, src) {
-	fetch('https://localhost:8443/user_profile/friend-request-send/', {
+	fetch('https://localhost:8443/user_friends/friend-request-send/', {
 		method: 'POST',
 		headers: {
 			"X-CSRFToken": getCookie('csrftoken'),
