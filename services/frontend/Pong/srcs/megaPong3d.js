@@ -2,9 +2,9 @@ import * as THREE from '../three.js-master/build/three.module.js';
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 
 // Constants
-const PADDLE_SPEED = 10;
-const AIPADDLE_SPEED = 10;
-const CUBE_INITIAL_SPEED = 10;
+const PADDLE_SPEED = 15;
+const AIPADDLE_SPEED = 15;
+const CUBE_INITIAL_SPEED = 15;
 const SHAKE_INTENSITY = 10;
 const SHAKE_DURATION = 10;
 const PADDLE_COLOR = 0x008000;
@@ -25,6 +25,8 @@ let paddle1Speed = 0;
 let paddle2Speed = 0;
 let gamePaused = false;
 let beginGame = false;
+let sphereData = [];
+let startTime = Date.now();
 
 // Scene Setup
 const canvas = document.getElementById('canvas');
@@ -33,7 +35,7 @@ renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8);
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 10000);
 const controls = new OrbitControls(camera, renderer.domElement);
 camera.position.set(0, 500, 0);
 controls.update();
@@ -66,10 +68,10 @@ scene.add(cube);
 const cubeBoundingBox = new THREE.Box3().setFromObject(cube);
 
 // Paddles and Table
-const table1 = makeParalellepiped(-1300, 0, 500, 2500, 100, 100, TABLE_COLOR);
-const table2 = makeParalellepiped(-1300, 0, -600, 2500, 100, 100, TABLE_COLOR);
-const paddle1 = makeParalellepiped(-800, 0, -100, 1, 10, 200, PADDLE_COLOR);
-const paddle2 = makeParalellepiped(800, 0, -100, 1, 10, 200, PADDLE_COLOR);
+const table1 = makeParalellepiped(-1300, 0, 500, 2700, 100, 100, TABLE_COLOR);
+const table2 = makeParalellepiped(-1300, 0, -600, 2700, 100, 100, TABLE_COLOR);
+const paddle1 = makeParalellepiped(-800, 0, -50, 10, 30, 100, PADDLE_COLOR);
+const paddle2 = makeParalellepiped(800, 0, -50, 10, 30, 100, PADDLE_COLOR);
 
 scene.add(table1);
 scene.add(table2);
@@ -166,13 +168,14 @@ function increaseSpeed()
     cubeSpeedx += (cubeSpeedx > 0) ? 0.4 : -0.4;
 }
 
-function checkIntersections() 
+function checkIntersections()
 {
   cubeBoundingBox.setFromObject(cube);
 
   if (cubeBoundingBox.intersectsBox(table1BoundingBox) || cubeBoundingBox.intersectsBox(table2BoundingBox)) 
   {
     cubeSpeedz *= -1;
+    cube.position.z += cubeSpeedz;
   }
 
   if (cubeBoundingBox.intersectsBox(paddle1BoundingBox)) 
@@ -181,6 +184,8 @@ function checkIntersections()
     shakeDuration = SHAKE_DURATION;
     increaseSpeed();
     adjustCubeDirection(paddle1);
+    cube.position.x += cubeSpeedx;
+    cube.position.z += cubeSpeedz;
   }
 
   if (cubeBoundingBox.intersectsBox(paddle2BoundingBox)) 
@@ -189,6 +194,8 @@ function checkIntersections()
     shakeDuration = SHAKE_DURATION;
     increaseSpeed();
     adjustCubeDirection(paddle2);
+    cube.position.x += cubeSpeedx;
+    cube.position.z += cubeSpeedz;
   }
 
   if (paddle1BoundingBox.intersectsBox(table1BoundingBox) || paddle1BoundingBox.intersectsBox(table2BoundingBox)) 
@@ -205,7 +212,7 @@ function adjustCubeDirection(paddle)
 {
   const relativeIntersectZ = (paddle.position.z + (paddle.geometry.parameters.depth / 2)) - cube.position.z;
   const normalizedIntersectZ = (relativeIntersectZ / (paddle.geometry.parameters.depth / 2)) - 1;
-  cubeSpeedz = normalizedIntersectZ * 10; // Adjust the multiplier as needed
+  cubeSpeedz = normalizedIntersectZ * 20; // Adjust the multiplier as needed
 }
 
 function respawnCube(player) 
@@ -258,10 +265,6 @@ function moveCube()
   cubeBoundingBox.setFromObject(cube);
 }
 
-let sphereData = [];
-
-let startTime = Date.now();
-
 function saveSphereData() 
 {
   let time = 0;
@@ -279,9 +282,6 @@ function saveSphereData()
   }
   console.log('Time: ' + time + ' Position: ' + position.x + ', ' + position.z + ' Speed: ' + speed.x + ', ' + speed.z);
 }
-
-saveSphereData();
-setInterval(saveSphereData, 1000);
 
 function calculateTrajectory()  
 {
@@ -323,8 +323,8 @@ function calculateTrajectory()
 
 function paddle1AI(paddle) 
 {
-  const topWallZ = -390;
-  const bottomWallZ = 390;
+  const topWallZ = -440;
+  const bottomWallZ = 440;
 
   // Calculate the final position of the cube using the calculateTrajectory function
   let finalPosition = calculateTrajectory();
@@ -359,29 +359,56 @@ function paddle1AI(paddle)
   }
 }
 
-function animate()
-{
-  if (player1Score < 7 && player2Score < 7)
-  {
+// Function to detect ball proximity
+function isBallCloseToPaddle(ball, paddle, threshold) {
+  const distance = ball.position.distanceTo(paddle.position);
+  console.log(`Distance to paddle: ${distance}`); // Debug log
+  return distance < threshold;
+}
+
+// Function to handle swatting animation
+function swatPaddle(paddle) {
+  // Example swatting animation: move paddle up and down
+  const swatSpeed = 100; // in milliseconds
+  const swatHeight = 5; // height to move the paddle
+  const originalPosition = paddle.position.y;
+
+  // Move paddle up
+  paddle.position.y += swatHeight;
+  console.log('Swatting up!'); // Debug log
+
+  // Move paddle down after a short delay
+  setTimeout(() => {
+    paddle.position.y = originalPosition;
+    console.log('Swatting down!'); // Debug log
+  }, swatSpeed);
+}
+
+// Modify the animate function to include swatting animation logic
+function animate() {
+  if (player1Score < 7 && player2Score < 7) {
     renderer.render(scene, camera);
-    if (!gamePaused && beginGame)
-    {
+    if (!gamePaused && beginGame) {
       movePaddles();
       paddle1AI(paddle1);
       checkIntersections();
       moveCube();
       applyCameraShake();
+
+      // Check if the ball is close to the paddle and trigger swatting animation
+      if (isBallCloseToPaddle(cube, paddle1, 100)) {
+        console.log('Swatting!'); // Debug log
+        swatPaddle(paddle1);
+      }
     }
-  }
-  else if (player1Score == 7)
-  {
+  } else if (player1Score == 7) {
     document.getElementById('winner').innerHTML = 'Player 1 wins!';
-  }
-  else if (player2Score == 7)
-  {
+  } else if (player2Score == 7) {
     document.getElementById('winner').innerHTML = 'Player 2 wins!';
   }
 }
 
+saveSphereData();
+setInterval(saveSphereData, 1000);
 handlePaddleControls();
 renderer.setAnimationLoop(animate);
