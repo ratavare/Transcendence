@@ -21,7 +21,7 @@ async function sendFriendRequest(dest, src) {
 	});
 }
 
-function buttonConfigure()
+function sendButtonConfigure()
 {
 	const friends = userListDiv.querySelectorAll('li');
 	friends?.forEach(item => {
@@ -61,11 +61,16 @@ function putUsers(users)
 	userListDiv.appendChild(userList);
 	userListDiv.style.display = 'block';
 
-	buttonConfigure();
+	sendButtonConfigure();
+}
+
+const friendsListDiv = document.getElementById('user-friends');
+
+{
+	
 }
 
 const userListDiv = document.getElementById('user-search-result');
-userListDiv.style.display = 'none';
 
 {
 	const formUsers = document.getElementById('form-users');
