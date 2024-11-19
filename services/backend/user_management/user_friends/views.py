@@ -24,3 +24,6 @@ def sendFriendRequest(request):
 			return JsonResponse({'newRequest': serializer.data}, status=200)
 		except User.DoesNotExist:
 			return JsonResponse({'error': 'User(s) not found'}, status=404)
+
+def acceptFriendRequest(request):
+	pass
