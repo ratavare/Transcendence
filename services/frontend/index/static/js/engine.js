@@ -57,7 +57,6 @@ async function setPage(name)
 	if (pageActive && pageActive.getAttribute("name") == name)
 		return ;
 	pageActive?.remove();
-	console.log("setPage: " , name)
 	const page = l.get(name) || Array.from(pages).find(page => page.getAttribute('default'));
 	if (page)
 	{
@@ -67,7 +66,6 @@ async function setPage(name)
 		if (redirection)
 			return ;
 		
-		console.log("setPage: ", name);
 		const newPage = document.createElement('page-element');
 		newPage.innerHTML = page.innerHTML;
 		newPage.setAttribute("name", name);
