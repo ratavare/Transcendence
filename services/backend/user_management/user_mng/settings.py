@@ -112,7 +112,6 @@ REST_FRAMEWORK = {
 		'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
 	]
 }
-<<<<<<< HEAD:services/user_service/index/settings.py
 
 # Ensure SECURE_SSL_REDIRECT is set to True to redirect HTTP to HTTPS
 SECURE_SSL_REDIRECT = True
@@ -131,8 +130,3 @@ SECURE_BROWSER_XSS_FILTER = True
 
 # Optionally, set SECURE_CONTENT_TYPE_NOSNIFF to True to prevent the browser from guessing the content type
 SECURE_CONTENT_TYPE_NOSNIFF = True
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-=======
->>>>>>> test_structure:services/backend/user_management/user_mng/settings.py
