@@ -18,5 +18,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-	path('api/game/', views.gameView),
+	path('api/game/', views.gameApiView),
 ]
