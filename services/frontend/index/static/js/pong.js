@@ -92,26 +92,22 @@ function makeParalellepiped(x, y, z, dx, dy, dz, color)
   return box;
 }
 
-function handlePaddleControls() 
+function handlePaddleControls()
 {
   document.addEventListener('keydown', (event) => 
   {
     switch (event.key) 
     {
       case 'w':
-        beginGame = true;
         paddle1Speed = -PADDLE_SPEED;
         break;
       case 's':
-        beginGame = true;
         paddle1Speed = PADDLE_SPEED;
         break;
       case 'ArrowUp':
-        beginGame = true;
         paddle2Speed = -PADDLE_SPEED;
         break;
       case 'ArrowDown':
-        beginGame = true;
         paddle2Speed = PADDLE_SPEED;
         break;
       case 'p':
@@ -239,13 +235,13 @@ function cubeOutofBounds()
 {
   if (cube.position.x > 1000)
   {
-    console.log('z is ' + cube.position.z + ' x is ' + cube.position.x);
+    // console.log('z is ' + cube.position.z + ' x is ' + cube.position.x);
     respawnCube(1);
     player1Score++;
     document.getElementById('player1score').innerHTML = player1Score;
   } else if (cube.position.x < -1000)
   {
-    console.log('z is ' + cube.position.z + ' x is ' + cube.position.x); 
+    // console.log('z is ' + cube.position.z + ' x is ' + cube.position.x); 
     respawnCube(2);
     player2Score++;
     document.getElementById('player2score').innerHTML = player2Score;
@@ -280,7 +276,7 @@ function saveSphereData()
   {
     sphereData[0] = { time: time, position: position, speed: speed };
   }
-  console.log('Time: ' + time + ' Position: ' + position.x + ', ' + position.z + ' Speed: ' + speed.x + ', ' + speed.z);
+//   console.log('Time: ' + time + ' Position: ' + position.x + ', ' + position.z + ' Speed: ' + speed.x + ', ' + speed.z);
 }
 
 function calculateTrajectory()  
@@ -362,7 +358,7 @@ function paddle1AI(paddle)
 // Function to detect ball proximity
 function isBallCloseToPaddle(ball, paddle, threshold) {
   const distance = ball.position.distanceTo(paddle.position);
-  console.log(`Distance to paddle: ${distance}`); // Debug log
+//   console.log(`Distance to paddle: ${distance}`); // Debug log
   return distance < threshold;
 }
 
@@ -375,12 +371,12 @@ function swatPaddle(paddle) {
 
   // Move paddle up
   paddle.position.y += swatHeight;
-  console.log('Swatting up!'); // Debug log
+//   console.log('Swatting up!'); // Debug log
 
   // Move paddle down after a short delay
   setTimeout(() => {
     paddle.position.y = originalPosition;
-    console.log('Swatting down!'); // Debug log
+    // console.log('Swatting down!'); // Debug log
   }, swatSpeed);
 }
 
@@ -397,7 +393,7 @@ function animate() {
 
       // Check if the ball is close to the paddle and trigger swatting animation
       if (isBallCloseToPaddle(cube, paddle1, 100)) {
-        console.log('Swatting!'); // Debug log
+        // console.log('Swatting!'); // Debug log
         swatPaddle(paddle1);
       }
     }
@@ -407,6 +403,32 @@ function animate() {
     document.getElementById('winner').innerHTML = 'Player 2 wins!';
   }
 }
+
+function sendMessage(message) {
+	socket.send(JSON.stringify({
+		'message': message
+	}));
+}
+
+document.getElementById('startBtn').onclick = () => {
+	beginGame = true;
+}
+
+const socket = new WebSocket('wss://localhost:8443/ws/');
+	
+socket.onopen = () => {
+	console.log('Websocket is open!');
+	sendMessage('Hello Server!')
+}
+
+socket.onmessage = function(event) {
+	const data = JSON.parse(event.data);
+	console.log("Data:", data);
+}
+
+socket.onclose = () => {
+	console.error('Socket closed unexpectedly');
+};
 
 saveSphereData();
 setInterval(saveSphereData, 1000);

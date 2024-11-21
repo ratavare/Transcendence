@@ -19,8 +19,24 @@
 			position: absolute;
 		}
 
-		nav {
+		.canvas-container{
+			position: relative;
+			margin: 0;
+			width: 900px;
+			height: 600px;
+		}
+		#canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+			left:10%;
+			top:10%;
+        }
+
+		#startBtn {
 			position: absolute;
+			left:103%;
+			top: 120%;
 		}
 	
 		#player1score {
@@ -31,11 +47,12 @@
 			right: 35%;
 		} 
 	</style>
-	<div id="abc">
-		<h1>Pong Game</h1>
-		<h2 id="player1score">0</h2>
-		<h2 id="player2score">0</h2>
-		<h2 id="winner"></h2>
-		<canvas id="canvas" width="900" height="600" display=""></canvas>
+	<h1>Pong Game</h1>
+	<h2 id="player1score">0</h2>
+	<h2 id="player2score">0</h2>
+	<h2 id="winner"></h2>
+	<div class="canvas-container">
+		<canvas id='canvas' width='900px' height='600px'></canvas>
+		<button id='startBtn'>Start Game!</button> 
 	</div>
 </page-element>
