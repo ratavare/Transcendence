@@ -14,7 +14,7 @@ const CUBE_COLOR = 0x00ff00;
 const POINT_LIGHT_INTENSITY = 1000000;
 const POINT_LIGHT_DISTANCE = 1000;
 const AMBIENT_LIGHT_INTENSITY = 3;
-const socket = new WebSocket('wss://localhost:8443/ws/');
+const socket = new WebSocket(`wss://localhost:8443/ws/test/`);
 
 // Variables
 let player1Score = 0;
@@ -95,92 +95,96 @@ function makeParalellepiped(x, y, z, dx, dy, dz, color)
 
 function handlePaddleControls() 
 {
-    document.addEventListener('keydown', (event) => 
-    {
-        let message = null;
-        switch (event.key) 
-        {
-            case 'w':
-                message = { type: 'move', paddle: 1, speed: -PADDLE_SPEED };
+	document.addEventListener('keydown', (event) => 
+	{
+		let payload = null;
+		switch (event.key) 
+		{
+			case 'w':
+				payload = { paddle: 1, speed: -PADDLE_SPEED };
 				beginGame = true;
-                break;
-            case 's':
-                message = { type: 'move', paddle: 1, speed: PADDLE_SPEED };
+				break;
+			case 's':
+				payload = { paddle: 1, speed: PADDLE_SPEED };
 				beginGame = true;
-                break;
-            case 'ArrowUp':
-                message = { type: 'move', paddle: 2, speed: -PADDLE_SPEED };
+				break;
+			case 'ArrowUp':
+				payload = { paddle: 2, speed: -PADDLE_SPEED };
 				beginGame = true;
-                break;
-            case 'ArrowDown':
-                message = { type: 'move', paddle: 2, speed: PADDLE_SPEED };
+				break;
+			case 'ArrowDown':
+				payload = { paddle: 2, speed: PADDLE_SPEED };
 				beginGame = true;
-                break;
-            case 'p':
-                gamePaused = !gamePaused;
-                break;
-        }
-        if (message) 
-        {
-            sendMessage('paddleMove', message);
-        }
-    });
+				break;
+			case 'p':
+				gamePaused = !gamePaused;
+				break;
+		}
+		if (payload) 
+		{
+			sendPayload('move', payload);
+		}
+	});
 
-    document.addEventListener('keyup', (event) => 
-    {
-        let message = null;
-        switch (event.key) 
-        {
-            case 'w':
-            case 's':
-                message = { type: 'move', paddle: 1, speed: 0 };
-                break;
-            case 'ArrowUp':
-            case 'ArrowDown':
-                message = { type: 'move', paddle: 2, speed: 0 };
-                break;
-        }
-        if (message) 
-        {
-            sendMessage('paddleMove', message);
-        }
-    });
+	document.addEventListener('keyup', (event) => 
+	{
+		let payload = null;
+		switch (event.key) 
+		{
+			case 'w':
+			case 's':
+				payload = { paddle: 1, speed: 0 };
+				break;
+			case 'ArrowUp':
+			case 'ArrowDown':
+				payload = { paddle: 2, speed: 0 };
+				break;
+		}
+		if (payload) 
+		{
+			sendPayload('move', payload);
+		}
+	});
 }
 
 function updatePaddlePositions(paddleData) 
 {
 	console.log('updatePaddlePositions');
-	if (paddleData.message.paddle == 1)
+	if (paddleData.payload.paddle == 1)
 	{
-		paddle1Speed = paddleData.message.speed;
+		paddle1Speed = paddleData.payload.speed;
 	}
-	else if (paddleData.message.paddle == 2)
+	else if (paddleData.payload.paddle == 2)
 	{
-		paddle2Speed = paddleData.message.speed;
+		paddle2Speed = paddleData.payload.speed;
 	}
-    paddle1BoundingBox.setFromObject(paddle1);
-    paddle2BoundingBox.setFromObject(paddle2);
+	paddle1BoundingBox.setFromObject(paddle1);
+	paddle2BoundingBox.setFromObject(paddle2);
 }
 
 socket.onmessage = function(event) 
 {
-    // console.log('Received message:', event.data);
-    const data = JSON.parse(event.data);
-    console.log("Parsed data:", data);
-	if (data.message.type === 'move')
-    {
-        updatePaddlePositions(data);
-    }
+	// console.log('Received message:', event.data);
+	const data = JSON.parse(event.data);
+	console.log("Parsed data:", data);
+	if (data.type === 'move')
+	{
+		updatePaddlePositions(data);
+	}
+	if (data.type === 'message')
+	{
+		console.log("Data:", data);
+	}
 }
 
-function sendMessage(type, message) 
+function sendPayload(type, payload) 
 {
-    console.log(`Sending message: type=${type}, message=${JSON.stringify(message)}`);
-    socket.send(JSON.stringify(
-    {
-        'type': type,
-        'message': message
-    }));
+	// console.log(`Sending payload: type=${type}, payload=${JSON.stringify(payload)}`);
+	socket.send(JSON.stringify(
+	{
+		type: type,
+		payload: payload
+	}));
 }
 
 function movePaddles()
@@ -195,24 +199,24 @@ function applyCameraShake()
 {
   if (shakeDuration > 0) 
   {
-    const shakeX = (Math.random() - 0.5) * SHAKE_INTENSITY;
-    const shakeY = (Math.random() - 0.5) * SHAKE_INTENSITY;
-    const shakeZ = (Math.random() - 0.5) * SHAKE_INTENSITY;
-    camera.position.x += shakeX;
-    camera.position.y += shakeY;
-    camera.position.z += shakeZ;
-    shakeDuration--;
+	const shakeX = (Math.random() - 0.5) * SHAKE_INTENSITY;
+	const shakeY = (Math.random() - 0.5) * SHAKE_INTENSITY;
+	const shakeZ = (Math.random() - 0.5) * SHAKE_INTENSITY;
+	camera.position.x += shakeX;
+	camera.position.y += shakeY;
+	camera.position.z += shakeZ;
+	shakeDuration--;
   }
   if (shakeDuration == 0)   
   {
-    camera.position.set(0, 500, 0);
+	camera.position.set(0, 500, 0);
   }
 }
 
 function increaseSpeed()
 {
   if (cubeSpeedx < 20 && cubeSpeedx > -20)
-    cubeSpeedx += (cubeSpeedx > 0) ? 0.4 : -0.4;
+	cubeSpeedx += (cubeSpeedx > 0) ? 0.4 : -0.4;
 }
 
 function checkIntersections()
@@ -221,37 +225,37 @@ function checkIntersections()
 
   if (cubeBoundingBox.intersectsBox(table1BoundingBox) || cubeBoundingBox.intersectsBox(table2BoundingBox)) 
   {
-    cubeSpeedz *= -1;
-    cube.position.z += cubeSpeedz;
+	cubeSpeedz *= -1;
+	cube.position.z += cubeSpeedz;
   }
 
   if (cubeBoundingBox.intersectsBox(paddle1BoundingBox)) 
   {
-    cubeSpeedx *= -1;
-    shakeDuration = SHAKE_DURATION;
-    increaseSpeed();
-    adjustCubeDirection(paddle1);
-    cube.position.x += cubeSpeedx;
-    cube.position.z += cubeSpeedz;
+	cubeSpeedx *= -1;
+	shakeDuration = SHAKE_DURATION;
+	increaseSpeed();
+	adjustCubeDirection(paddle1);
+	cube.position.x += cubeSpeedx;
+	cube.position.z += cubeSpeedz;
   }
 
   if (cubeBoundingBox.intersectsBox(paddle2BoundingBox)) 
   {
-    cubeSpeedx *= -1;
-    shakeDuration = SHAKE_DURATION;
-    increaseSpeed();
-    adjustCubeDirection(paddle2);
-    cube.position.x += cubeSpeedx;
-    cube.position.z += cubeSpeedz;
+	cubeSpeedx *= -1;
+	shakeDuration = SHAKE_DURATION;
+	increaseSpeed();
+	adjustCubeDirection(paddle2);
+	cube.position.x += cubeSpeedx;
+	cube.position.z += cubeSpeedz;
   }
 
   if (paddle1BoundingBox.intersectsBox(table1BoundingBox) || paddle1BoundingBox.intersectsBox(table2BoundingBox)) 
   {
-    paddle1.position.z -= paddle1Speed;
+	paddle1.position.z -= paddle1Speed;
   }
   if (paddle2BoundingBox.intersectsBox(table1BoundingBox) || paddle2BoundingBox.intersectsBox(table2BoundingBox)) 
   {
-    paddle2.position.z -= paddle2Speed;
+	paddle2.position.z -= paddle2Speed;
   }
 }
 
@@ -266,19 +270,19 @@ function respawnCube(player)
 {
   if (player == 1)
   {
-    cube.position.set(200, 0, 0);
-    cubeSpeedx = CUBE_INITIAL_SPEED;
-    cubeSpeedz = 0;
-    beginGame = false;
-    pointLight.position.copy(cube.position);
+	cube.position.set(200, 0, 0);
+	cubeSpeedx = CUBE_INITIAL_SPEED;
+	cubeSpeedz = 0;
+	beginGame = false;
+	pointLight.position.copy(cube.position);
   }
   else if (player == 2)
   {
-    cube.position.set(-200, 0, 0);
-    cubeSpeedx = -CUBE_INITIAL_SPEED;
-    cubeSpeedz = 0;
-    beginGame = false;
-    pointLight.position.copy(cube.position);
+	cube.position.set(-200, 0, 0);
+	cubeSpeedx = -CUBE_INITIAL_SPEED;
+	cubeSpeedz = 0;
+	beginGame = false;
+	pointLight.position.copy(cube.position);
   }
 }
 
@@ -286,16 +290,16 @@ function cubeOutofBounds()
 {
   if (cube.position.x > 1000)
   {
-    // console.log('z is ' + cube.position.z + ' x is ' + cube.position.x);
-    respawnCube(1);
-    player1Score++;
-    document.getElementById('player1score').innerHTML = player1Score;
+	// console.log('z is ' + cube.position.z + ' x is ' + cube.position.x);
+	respawnCube(1);
+	player1Score++;
+	document.getElementById('player1score').innerHTML = player1Score;
   } else if (cube.position.x < -1000)
   {
-    // console.log('z is ' + cube.position.z + ' x is ' + cube.position.x); 
-    respawnCube(2);
-    player2Score++;
-    document.getElementById('player2score').innerHTML = player2Score;
+	// console.log('z is ' + cube.position.z + ' x is ' + cube.position.x); 
+	respawnCube(2);
+	player2Score++;
+	document.getElementById('player2score').innerHTML = player2Score;
   }
 }
 
@@ -312,111 +316,111 @@ function moveCube()
   cubeBoundingBox.setFromObject(cube);
 }
 
-function saveSphereData() 
-{
-  let time = 0;
-  let position = { x: cube.position.x, z: cube.position.z };
-  let speed = { x: cubeSpeedx, z: cubeSpeedz };
-  time = Date.now() - startTime;
+// function saveSphereData() 
+// {
+//   let time = 0;
+//   let position = { x: cube.position.x, z: cube.position.z };
+//   let speed = { x: cubeSpeedx, z: cubeSpeedz };
+//   time = Date.now() - startTime;
 
-  if (sphereData.length == 0) 
-  {
-    sphereData.push({ time: time, position: position, speed: speed });
-  }
-  else
-  {
-    sphereData[0] = { time: time, position: position, speed: speed };
-  }
-//   console.log('Time: ' + time + ' Position: ' + position.x + ', ' + position.z + ' Speed: ' + speed.x + ', ' + speed.z);
-}
+//   if (sphereData.length == 0) 
+//   {
+// 	sphereData.push({ time: time, position: position, speed: speed });
+//   }
+//   else
+//   {
+// 	sphereData[0] = { time: time, position: position, speed: speed };
+//   }
+// //   console.log('Time: ' + time + ' Position: ' + position.x + ', ' + position.z + ' Speed: ' + speed.x + ', ' + speed.z);
+// }
 
-function calculateTrajectory()  
-{
-  let data = sphereData[0];
+// function calculateTrajectory()  
+// {
+//   let data = sphereData[0];
 
-  let finalAngle = Math.atan2(data.speed['z'], data.speed['x']);
-  finalAngle = finalAngle * (180 / Math.PI);
+//   let finalAngle = Math.atan2(data.speed['z'], data.speed['x']);
+//   finalAngle = finalAngle * (180 / Math.PI);
 
-  let distance = 0;
-  let finalPosition = { x: 0, z: 0 };
+//   let distance = 0;
+//   let finalPosition = { x: 0, z: 0 };
 
-	if (data.speed['x'] > 0) 
-	{
-		distance = 800 - data.position['x'];
-		finalPosition['x'] = 800;
-	} 
-	else if (data.speed['x'] < 0) 
-	{
-		distance = -800 - data.position['x'];
-		finalPosition['x'] = -800;
-	}
+// 	if (data.speed['x'] > 0) 
+// 	{
+// 		distance = 800 - data.position['x'];
+// 		finalPosition['x'] = 800;
+// 	} 
+// 	else if (data.speed['x'] < 0) 
+// 	{
+// 		distance = -800 - data.position['x'];
+// 		finalPosition['x'] = -800;
+// 	}
 
-  // Calculate the distance along the z axis using trigonometric functions
-  let angleRadians = Math.atan2(data.speed['z'], data.speed['x']);
-  let zDistance = distance * Math.tan(angleRadians);
-  finalPosition['z'] = data.position['z'] + zDistance;
+//   // Calculate the distance along the z axis using trigonometric functions
+//   let angleRadians = Math.atan2(data.speed['z'], data.speed['x']);
+//   let zDistance = distance * Math.tan(angleRadians);
+//   finalPosition['z'] = data.position['z'] + zDistance;
 
-  // Handle wall bounces
-  const topWallZ = -500;
-  const bottomWallZ = 500;
+//   // Handle wall bounces
+//   const topWallZ = -500;
+//   const bottomWallZ = 500;
 
-	while (finalPosition['z'] < topWallZ || finalPosition['z'] > bottomWallZ) 
-	{
-		if (finalPosition['z'] < topWallZ) 
-		{
-			finalPosition['z'] = topWallZ + (topWallZ - finalPosition['z']);
-		} 
-		else if (finalPosition['z'] > bottomWallZ) 
-		{
-			finalPosition['z'] = bottomWallZ - (finalPosition['z'] - bottomWallZ);
-		}
-	}
+// 	while (finalPosition['z'] < topWallZ || finalPosition['z'] > bottomWallZ) 
+// 	{
+// 		if (finalPosition['z'] < topWallZ) 
+// 		{
+// 			finalPosition['z'] = topWallZ + (topWallZ - finalPosition['z']);
+// 		} 
+// 		else if (finalPosition['z'] > bottomWallZ) 
+// 		{
+// 			finalPosition['z'] = bottomWallZ - (finalPosition['z'] - bottomWallZ);
+// 		}
+// 	}
 
-  return finalPosition;
-}
+//   return finalPosition;
+// }
 
-function paddle1AI(paddle) 
-{
-  const topWallZ = -440;
-  const bottomWallZ = 440;
+// function paddle1AI(paddle) 
+// {
+//   const topWallZ = -440;
+//   const bottomWallZ = 440;
 
-  // Calculate the final position of the cube using the calculateTrajectory function
-  let finalPosition = calculateTrajectory();
+//   // Calculate the final position of the cube using the calculateTrajectory function
+//   let finalPosition = calculateTrajectory();
 
-  // Ensure the paddle moves towards the final position of the cube
-  if (cubeSpeedx < 0) 
-  {
-    if (paddle.position.z > finalPosition['z'])
-  {
-      // Move paddle up
-      if (paddle.position.z - AIPADDLE_SPEED < topWallZ) 
-      {
-        paddle.position.z = topWallZ;
-      }
-      else if (paddle.position.z - AIPADDLE_SPEED >= finalPosition['z'])
-      {
-        paddle.position.z -= AIPADDLE_SPEED;
-      }
-    } 
-    else if (paddle.position.z < finalPosition['z']) 
-    {
-      // Move paddle down
-      if (paddle.position.z + AIPADDLE_SPEED > bottomWallZ)
-      {
-        paddle.position.z = bottomWallZ;
-      } 
-      else if (paddle.position.z + AIPADDLE_SPEED <= finalPosition['z']) 
-      {
-        paddle.position.z += AIPADDLE_SPEED;
-      }
-    }
-  }
-}
+//   // Ensure the paddle moves towards the final position of the cube
+//   if (cubeSpeedx < 0) 
+//   {
+// 	if (paddle.position.z > finalPosition['z'])
+//   {
+// 	  // Move paddle up
+// 	  if (paddle.position.z - AIPADDLE_SPEED < topWallZ) 
+// 	  {
+// 		paddle.position.z = topWallZ;
+// 	  }
+// 	  else if (paddle.position.z - AIPADDLE_SPEED >= finalPosition['z'])
+// 	  {
+// 		paddle.position.z -= AIPADDLE_SPEED;
+// 	  }
+// 	} 
+// 	else if (paddle.position.z < finalPosition['z']) 
+// 	{
+// 	  // Move paddle down
+// 	  if (paddle.position.z + AIPADDLE_SPEED > bottomWallZ)
+// 	  {
+// 		paddle.position.z = bottomWallZ;
+// 	  } 
+// 	  else if (paddle.position.z + AIPADDLE_SPEED <= finalPosition['z']) 
+// 	  {
+// 		paddle.position.z += AIPADDLE_SPEED;
+// 	  }
+// 	}
+//   }
+// }
 
 // Modify the animate function to include swatting animation logic
 function animate() 
 {
-  	if (player1Score <= 7 && player2Score <= 7) 
+	if (player1Score <= 7 && player2Score <= 7) 
 	{
 		renderer.render(scene, camera);
 		if (paddle1Speed != 0 || paddle2Speed != 0)
@@ -440,30 +444,25 @@ function animate()
 	}
 }
 
-function pingServer() 
+document.getElementById('startBtn').onclick = () => 
 {
-    sendMessage('ping', 'Ping');
+	beginGame = true;
+	sendPayload('beginGame', {
+		beginGame: true
+	})
 }
 
-// document.getElementById('startBtn').onclick = () => 
-// {
-//     beginGame = true;
-//     pingServer(); // Ping the server when the game starts
-// }
-    
 socket.onopen = () => 
 {
-    console.log('WebSocket is open!');
-    sendMessage('message', 'Hello Server!');
-    pingServer(); // Ping the server when the connection opens
+	sendPayload('message', `Welcome to the server ${window.user.username}!!`);
 }
 
 socket.onclose = () => 
 {
-    console.error('Socket closed unexpectedly');
+	console.error('Socket closed unexpectedly');
 };
 
-saveSphereData();
-setInterval(saveSphereData, 1000);
+// saveSphereData();
+// setInterval(saveSphereData, 1000);
 handlePaddleControls();
 renderer.setAnimationLoop(animate);

@@ -2,42 +2,61 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+lobbies = {}
+
 class Consumer(AsyncWebsocketConsumer):
-	lobbies = {}
 
 	async def connect(self):
-		self.room_group_name = 'test'
+		self.lobby_id = self.scope["url_route"]["kwargs"]["lobby_id"]
+		self.user_id = self.channel_name
 
-		await self.channel_layer.group_add(
-			self.room_group_name,
-			self.channel_name
-		)
+		if self.lobby_id not in lobbies:
+			lobbies[self.lobby_id] = []
 
-		await self.accept()
-		await self.send(text_data=json.dumps({
-			"message": self.room_group_name,
-		}))
-	
+		if len(lobbies[self.lobby_id]) < 2:
+			lobbies[self.lobby_id].append(self.user_id)
+			await self.channel_layer.group_add(
+				self.lobby_id,
+				self.channel_name
+			)
+			await self.accept()
+		else:
+			await self.close()
+
 	async def disconnect(self, close_code):
-		await self.channel_layer.group_discard(
-			self.room_group_name,
-			self.channel_name
-		)
-	
+		if self.lobby_id in lobbies and self.user_id in lobbies[self.lobby_id]:
+			lobbies[self.lobby_id].remove(self.user_id)
+			if not lobbies[self.lobby_id]:
+				del lobbies[self.lobby_id]
+			await self.channel_layer.group_discard(
+				self.lobby_id,
+				self.channel_name
+			)
+		
 	async def receive(self, text_data):
 		data = json.loads(text_data)
-		message_type = data.get('type')
-		message = data.get('message')
+		send_type = data.get('type')
+		payload = data.get('payload')
 
+		if 'type' in data and 'payload' in data:
+			self.groupSend(send_type, payload)
+		else:
+			await self.send(json.dumps({
+				'error': 'Type and Payload are required!'
+			}))
+
+	async def groupSend(self, send_type, payload):
 		await self.channel_layer.group_send(
-			self.room_group_name, {
-				'type': 'chat_message',
-				'message': message,
-		})
+				self.lobby_id,
+				{
+					'type': 'sendLobby',
+					'send_type': send_type,
+					'payload': payload
+				}
+			)
 
-	async def chat_message(self, event):
-		message = event['message']
-
-		await self.send(text_data=json.dumps({
-			"message": message,
+	async def sendLobby(self, event):
+		await self.send(json.dumps({
+			'type': event['send_type'],
+			'payload': event['payload']
 		}))
