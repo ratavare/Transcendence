@@ -27,6 +27,7 @@ let paddle2Speed = 0;
 let gamePaused = false;
 let beginGame = false;
 let sphereData = [];
+let sphereMsg = [];
 let startTime = Date.now();
 
 // Scene Setup
@@ -102,28 +103,36 @@ function handlePaddleControls()
         {
             case 'w':
                 message = { type: 'move', paddle: 1, speed: -PADDLE_SPEED };
-				beginGame = true;
                 break;
             case 's':
                 message = { type: 'move', paddle: 1, speed: PADDLE_SPEED };
-				beginGame = true;
                 break;
             case 'ArrowUp':
                 message = { type: 'move', paddle: 2, speed: -PADDLE_SPEED };
-				beginGame = true;
                 break;
             case 'ArrowDown':
                 message = { type: 'move', paddle: 2, speed: PADDLE_SPEED };
-				beginGame = true;
                 break;
             case 'p':
                 gamePaused = !gamePaused;
                 break;
+			case 'ArrowLeft':
+				beginGame = true;
+				message = { type: 'begin', game: true };
+				break;
+			case 'd':
+				beginGame = true;
+				message = { type: 'begin', game: true };
+				break;
         }
-        if (message) 
+        if (message.type === 'move') 
         {
             sendMessage('paddleMove', message);
         }
+		else if (message.type === 'begin')
+		{
+			sendMessage('beginGame', message);
+		}
     });
 
     document.addEventListener('keyup', (event) => 
@@ -140,7 +149,7 @@ function handlePaddleControls()
                 message = { type: 'move', paddle: 2, speed: 0 };
                 break;
         }
-        if (message) 
+        if (message)
         {
             sendMessage('paddleMove', message);
         }
@@ -162,6 +171,15 @@ function updatePaddlePositions(paddleData)
     paddle2BoundingBox.setFromObject(paddle2);
 }
 
+function updateCubePosition(cubeData) 
+{
+	console.log('updateCubePosition');
+	cube.position.x = cubeData.message.position.x;
+	cube.position.z = cubeData.message.position.z;
+	cubeSpeedx = cubeData.message.speed.x;
+	cubeSpeedz = cubeData.message.speed.z;
+}
+
 socket.onmessage = function(event) 
 {
     // console.log('Received message:', event.data);
@@ -171,6 +189,14 @@ socket.onmessage = function(event)
     {
         updatePaddlePositions(data);
     }
+	else if (data.message.type === 'cube')
+	{
+		updateCubePosition(data);
+	}
+	else if (data.message.type === 'begin')
+	{
+		beginGame = data.message.game;
+	}
 }
 
 function sendMessage(type, message) 
@@ -185,10 +211,16 @@ function sendMessage(type, message)
 
 function movePaddles()
 {
-  paddle1.position.z += paddle1Speed;
-  paddle2.position.z += paddle2Speed;
-  paddle1BoundingBox.setFromObject(paddle1);
-  paddle2BoundingBox.setFromObject(paddle2);
+	if (paddle1.position.z + paddle1Speed > -460 && paddle1.position.z + paddle1Speed < 460)
+	{
+		paddle1.position.z += paddle1Speed;
+	}
+	if (paddle2.position.z + paddle2Speed > -460 && paddle2.position.z + paddle2Speed < 460)
+	{
+		paddle2.position.z += paddle2Speed;
+	}
+	paddle1BoundingBox.setFromObject(paddle1);
+	paddle2BoundingBox.setFromObject(paddle2);
 }
 
 function applyCameraShake() 
@@ -215,6 +247,14 @@ function increaseSpeed()
     cubeSpeedx += (cubeSpeedx > 0) ? 0.4 : -0.4;
 }
 
+function sendCubeData()
+{
+	let message;
+
+	message = { type: 'cube', position: { x: cube.position.x, z: cube.position.z }, speed: { x: cubeSpeedx, z: cubeSpeedz } };
+	sendMessage('cube', message);
+}
+
 function checkIntersections()
 {
   cubeBoundingBox.setFromObject(cube);
@@ -233,6 +273,7 @@ function checkIntersections()
     adjustCubeDirection(paddle1);
     cube.position.x += cubeSpeedx;
     cube.position.z += cubeSpeedz;
+	sendCubeData();
   }
 
   if (cubeBoundingBox.intersectsBox(paddle2BoundingBox)) 
@@ -243,15 +284,7 @@ function checkIntersections()
     adjustCubeDirection(paddle2);
     cube.position.x += cubeSpeedx;
     cube.position.z += cubeSpeedz;
-  }
-
-  if (paddle1BoundingBox.intersectsBox(table1BoundingBox) || paddle1BoundingBox.intersectsBox(table2BoundingBox)) 
-  {
-    paddle1.position.z -= paddle1Speed;
-  }
-  if (paddle2BoundingBox.intersectsBox(table1BoundingBox) || paddle2BoundingBox.intersectsBox(table2BoundingBox)) 
-  {
-    paddle2.position.z -= paddle2Speed;
+	sendCubeData();
   }
 }
 
@@ -301,15 +334,17 @@ function cubeOutofBounds()
 
 function moveCube()
 {
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-  cube.position.x += cubeSpeedx;
-  cube.position.z += cubeSpeedz;
-  pointLight.position.copy(cube.position);
+	if (beginGame == false)
+	{
+		return;
+	}
+	cube.position.x += cubeSpeedx;
+	cube.position.z += cubeSpeedz;
+	pointLight.position.copy(cube.position);
 
-  cubeOutofBounds();
+	cubeOutofBounds();
 
-  cubeBoundingBox.setFromObject(cube);
+	cubeBoundingBox.setFromObject(cube);
 }
 
 function saveSphereData() 
@@ -377,8 +412,8 @@ function calculateTrajectory()
 
 function paddle1AI(paddle) 
 {
-  const topWallZ = -440;
-  const bottomWallZ = 440;
+  const topWallZ = -460;
+  const bottomWallZ = 460;
 
   // Calculate the final position of the cube using the calculateTrajectory function
   let finalPosition = calculateTrajectory();
@@ -419,12 +454,10 @@ function animate()
   	if (player1Score <= 7 && player2Score <= 7) 
 	{
 		renderer.render(scene, camera);
-		if (paddle1Speed != 0 || paddle2Speed != 0)
-			beginGame = true;
-		if (!gamePaused && beginGame && player1Score < 7 && player2Score < 7) 
+		if (!gamePaused && player1Score < 7 && player2Score < 7) 
 		{
 			movePaddles();
-			// paddle1AI(paddle1);
+			paddle1AI(paddle1);
 			checkIntersections();
 			moveCube();
 			// applyCameraShake();
@@ -438,11 +471,6 @@ function animate()
 			document.getElementById('winner').innerHTML = 'Player 2 wins!';
 		}
 	}
-}
-
-function pingServer() 
-{
-    sendMessage('ping', 'Ping');
 }
 
 // document.getElementById('startBtn').onclick = () => 
