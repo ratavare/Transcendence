@@ -102,15 +102,19 @@ function handlePaddleControls()
         {
             case 'w':
                 message = { type: 'move', paddle: 1, speed: -PADDLE_SPEED };
+				beginGame = true;
                 break;
             case 's':
                 message = { type: 'move', paddle: 1, speed: PADDLE_SPEED };
+				beginGame = true;
                 break;
             case 'ArrowUp':
                 message = { type: 'move', paddle: 2, speed: -PADDLE_SPEED };
+				beginGame = true;
                 break;
             case 'ArrowDown':
                 message = { type: 'move', paddle: 2, speed: PADDLE_SPEED };
+				beginGame = true;
                 break;
             case 'p':
                 gamePaused = !gamePaused;
@@ -415,10 +419,12 @@ function animate()
   	if (player1Score <= 7 && player2Score <= 7) 
 	{
 		renderer.render(scene, camera);
+		if (paddle1Speed != 0 || paddle2Speed != 0)
+			beginGame = true;
 		if (!gamePaused && beginGame && player1Score < 7 && player2Score < 7) 
 		{
 			movePaddles();
-			paddle1AI(paddle1);
+			// paddle1AI(paddle1);
 			checkIntersections();
 			moveCube();
 			// applyCameraShake();
@@ -439,11 +445,11 @@ function pingServer()
     sendMessage('ping', 'Ping');
 }
 
-document.getElementById('startBtn').onclick = () => 
-{
-    beginGame = true;
-    pingServer(); // Ping the server when the game starts
-}
+// document.getElementById('startBtn').onclick = () => 
+// {
+//     beginGame = true;
+//     pingServer(); // Ping the server when the game starts
+// }
     
 socket.onopen = () => 
 {
