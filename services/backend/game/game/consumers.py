@@ -1,7 +1,6 @@
 
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from asgiref.sync import async_to_sync
 
 class Consumer(AsyncWebsocketConsumer):
 	lobbies = {}
@@ -27,6 +26,7 @@ class Consumer(AsyncWebsocketConsumer):
 	
 	async def receive(self, text_data):
 		data = json.loads(text_data)
+		message_type = data.get('type')
 		message = data.get('message')
 
 		await self.channel_layer.group_send(
@@ -39,5 +39,5 @@ class Consumer(AsyncWebsocketConsumer):
 		message = event['message']
 
 		await self.send(text_data=json.dumps({
-			"message": self.room_group_name,
+			"message": message,
 		}))

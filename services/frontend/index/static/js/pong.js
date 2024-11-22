@@ -14,6 +14,7 @@ const CUBE_COLOR = 0x00ff00;
 const POINT_LIGHT_INTENSITY = 1000000;
 const POINT_LIGHT_DISTANCE = 1000;
 const AMBIENT_LIGHT_INTENSITY = 3;
+const socket = new WebSocket('wss://localhost:8443/ws/');
 
 // Variables
 let player1Score = 0;
@@ -92,47 +93,93 @@ function makeParalellepiped(x, y, z, dx, dy, dz, color)
   return box;
 }
 
-function handlePaddleControls()
+function handlePaddleControls() 
 {
-  document.addEventListener('keydown', (event) => 
-  {
-    switch (event.key) 
+    document.addEventListener('keydown', (event) => 
     {
-      case 'w':
-        paddle1Speed = -PADDLE_SPEED;
-        break;
-      case 's':
-        paddle1Speed = PADDLE_SPEED;
-        break;
-      case 'ArrowUp':
-        paddle2Speed = -PADDLE_SPEED;
-        break;
-      case 'ArrowDown':
-        paddle2Speed = PADDLE_SPEED;
-        break;
-      case 'p':
-        gamePaused = !gamePaused;
-        break;
-    }
-  });
+        let message = null;
+        switch (event.key) 
+        {
+            case 'w':
+                message = { type: 'move', paddle: 1, speed: -PADDLE_SPEED };
+                break;
+            case 's':
+                message = { type: 'move', paddle: 1, speed: PADDLE_SPEED };
+                break;
+            case 'ArrowUp':
+                message = { type: 'move', paddle: 2, speed: -PADDLE_SPEED };
+                break;
+            case 'ArrowDown':
+                message = { type: 'move', paddle: 2, speed: PADDLE_SPEED };
+                break;
+            case 'p':
+                gamePaused = !gamePaused;
+                break;
+        }
+        if (message) 
+        {
+            sendMessage('paddleMove', message);
+        }
+    });
 
-  document.addEventListener('keyup', (event) => 
-  {
-    switch (event.key) 
+    document.addEventListener('keyup', (event) => 
     {
-      case 'w':
-      case 's':
-        paddle1Speed = 0;
-        break;
-      case 'ArrowUp':
-      case 'ArrowDown':
-        paddle2Speed = 0;
-        break;
-    }
-  });
+        let message = null;
+        switch (event.key) 
+        {
+            case 'w':
+            case 's':
+                message = { type: 'move', paddle: 1, speed: 0 };
+                break;
+            case 'ArrowUp':
+            case 'ArrowDown':
+                message = { type: 'move', paddle: 2, speed: 0 };
+                break;
+        }
+        if (message) 
+        {
+            sendMessage('paddleMove', message);
+        }
+    });
 }
 
-function movePaddles() 
+function updatePaddlePositions(paddleData) 
+{
+	console.log('updatePaddlePositions');
+	if (paddleData.message.paddle == 1)
+	{
+		paddle1Speed = paddleData.message.speed;
+	}
+	else if (paddleData.message.paddle == 2)
+	{
+		paddle2Speed = paddleData.message.speed;
+	}
+    paddle1BoundingBox.setFromObject(paddle1);
+    paddle2BoundingBox.setFromObject(paddle2);
+}
+
+socket.onmessage = function(event) 
+{
+    // console.log('Received message:', event.data);
+    const data = JSON.parse(event.data);
+    console.log("Parsed data:", data);
+	if (data.message.type === 'move')
+    {
+        updatePaddlePositions(data);
+    }
+}
+
+function sendMessage(type, message) 
+{
+    console.log(`Sending message: type=${type}, message=${JSON.stringify(message)}`);
+    socket.send(JSON.stringify(
+    {
+        'type': type,
+        'message': message
+    }));
+}
+
+function movePaddles()
 {
   paddle1.position.z += paddle1Speed;
   paddle2.position.z += paddle2Speed;
@@ -374,9 +421,9 @@ function animate()
 			paddle1AI(paddle1);
 			checkIntersections();
 			moveCube();
-			applyCameraShake();
+			// applyCameraShake();
 		}
-		else if (player1Score == 7) 
+		else if (player1Score == 7)
 		{
 			document.getElementById('winner').innerHTML = 'Player 1 wins!';
 		}
@@ -387,30 +434,27 @@ function animate()
 	}
 }
 
-function sendMessage(message) {
-	socket.send(JSON.stringify({
-		'message': message
-	}));
+function pingServer() 
+{
+    sendMessage('ping', 'Ping');
 }
 
-document.getElementById('startBtn').onclick = () => {
-	beginGame = true;
+document.getElementById('startBtn').onclick = () => 
+{
+    beginGame = true;
+    pingServer(); // Ping the server when the game starts
+}
+    
+socket.onopen = () => 
+{
+    console.log('WebSocket is open!');
+    sendMessage('message', 'Hello Server!');
+    pingServer(); // Ping the server when the connection opens
 }
 
-const socket = new WebSocket('wss://localhost:8443/ws/');
-	
-socket.onopen = () => {
-	console.log('Websocket is open!');
-	sendMessage('Hello Server!')
-}
-
-socket.onmessage = function(event) {
-	const data = JSON.parse(event.data);
-	console.log("Data:", data);
-}
-
-socket.onclose = () => {
-	console.error('Socket closed unexpectedly');
+socket.onclose = () => 
+{
+    console.error('Socket closed unexpectedly');
 };
 
 saveSphereData();
