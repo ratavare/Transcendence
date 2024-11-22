@@ -293,13 +293,16 @@ function calculateTrajectory()
   let distance = 0;
   let finalPosition = { x: 0, z: 0 };
 
-  if (data.speed['x'] > 0) {
-    distance = 800 - data.position['x'];
-    finalPosition['x'] = 800;
-  } else if (data.speed['x'] < 0) {
-    distance = -800 - data.position['x'];
-    finalPosition['x'] = -800;
-  }
+	if (data.speed['x'] > 0) 
+	{
+		distance = 800 - data.position['x'];
+		finalPosition['x'] = 800;
+	} 
+	else if (data.speed['x'] < 0) 
+	{
+		distance = -800 - data.position['x'];
+		finalPosition['x'] = -800;
+	}
 
   // Calculate the distance along the z axis using trigonometric functions
   let angleRadians = Math.atan2(data.speed['z'], data.speed['x']);
@@ -310,13 +313,17 @@ function calculateTrajectory()
   const topWallZ = -500;
   const bottomWallZ = 500;
 
-  while (finalPosition['z'] < topWallZ || finalPosition['z'] > bottomWallZ) {
-    if (finalPosition['z'] < topWallZ) {
-      finalPosition['z'] = topWallZ + (topWallZ - finalPosition['z']);
-    } else if (finalPosition['z'] > bottomWallZ) {
-      finalPosition['z'] = bottomWallZ - (finalPosition['z'] - bottomWallZ);
-    }
-  }
+	while (finalPosition['z'] < topWallZ || finalPosition['z'] > bottomWallZ) 
+	{
+		if (finalPosition['z'] < topWallZ) 
+		{
+			finalPosition['z'] = topWallZ + (topWallZ - finalPosition['z']);
+		} 
+		else if (finalPosition['z'] > bottomWallZ) 
+		{
+			finalPosition['z'] = bottomWallZ - (finalPosition['z'] - bottomWallZ);
+		}
+	}
 
   return finalPosition;
 }
@@ -359,53 +366,29 @@ function paddle1AI(paddle)
   }
 }
 
-// Function to detect ball proximity
-function isBallCloseToPaddle(ball, paddle, threshold) {
-  const distance = ball.position.distanceTo(paddle.position);
-  console.log(`Distance to paddle: ${distance}`); // Debug log
-  return distance < threshold;
-}
-
-// Function to handle swatting animation
-function swatPaddle(paddle) {
-  // Example swatting animation: move paddle up and down
-  const swatSpeed = 100; // in milliseconds
-  const swatHeight = 5; // height to move the paddle
-  const originalPosition = paddle.position.y;
-
-  // Move paddle up
-  paddle.position.y += swatHeight;
-  console.log('Swatting up!'); // Debug log
-
-  // Move paddle down after a short delay
-  setTimeout(() => {
-    paddle.position.y = originalPosition;
-    console.log('Swatting down!'); // Debug log
-  }, swatSpeed);
-}
-
 // Modify the animate function to include swatting animation logic
-function animate() {
-  if (player1Score < 7 && player2Score < 7) {
-    renderer.render(scene, camera);
-    if (!gamePaused && beginGame) {
-      movePaddles();
-      paddle1AI(paddle1);
-      checkIntersections();
-      moveCube();
-      applyCameraShake();
-
-      // Check if the ball is close to the paddle and trigger swatting animation
-      if (isBallCloseToPaddle(cube, paddle1, 100)) {
-        console.log('Swatting!'); // Debug log
-        swatPaddle(paddle1);
-      }
-    }
-  } else if (player1Score == 7) {
-    document.getElementById('winner').innerHTML = 'Player 1 wins!';
-  } else if (player2Score == 7) {
-    document.getElementById('winner').innerHTML = 'Player 2 wins!';
-  }
+function animate() 
+{
+  	if (player1Score <= 7 && player2Score <= 7) 
+	{
+		renderer.render(scene, camera);
+		if (!gamePaused && beginGame && player1Score < 7 && player2Score < 7) 
+		{
+			movePaddles();
+			paddle1AI(paddle1);
+			checkIntersections();
+			moveCube();
+			applyCameraShake();
+		}
+		else if (player1Score == 7) 
+		{
+			document.getElementById('winner').innerHTML = 'Player 1 wins!';
+		}
+		else if (player2Score == 7) 
+		{
+			document.getElementById('winner').innerHTML = 'Player 2 wins!';
+		}
+	}
 }
 
 saveSphereData();
