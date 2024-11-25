@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 	path('user_auth/', include('user_auth.urls')),
 	path('user_profile/', include('user_profile.urls')),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
