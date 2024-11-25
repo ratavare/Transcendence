@@ -14,7 +14,6 @@ const CUBE_COLOR = 0x00ff00;
 const POINT_LIGHT_INTENSITY = 1000000;
 const POINT_LIGHT_DISTANCE = 1000;
 const AMBIENT_LIGHT_INTENSITY = 3;
-const socket = new WebSocket(`wss://localhost:8443/ws/test/`);
 
 // Variables
 let player1Score = 0;
@@ -160,31 +159,6 @@ function updatePaddlePositions(paddleData)
 	}
 	paddle1BoundingBox.setFromObject(paddle1);
 	paddle2BoundingBox.setFromObject(paddle2);
-}
-
-socket.onmessage = function(event) 
-{
-	// console.log('Received message:', event.data);
-	const data = JSON.parse(event.data);
-	console.log("Parsed data:", data);
-	if (data.type === 'move')
-	{
-		updatePaddlePositions(data);
-	}
-	if (data.type === 'message')
-	{
-		console.log("Data:", data);
-	}
-}
-
-function sendPayload(type, payload) 
-{
-	// console.log(`Sending payload: type=${type}, payload=${JSON.stringify(payload)}`);
-	socket.send(JSON.stringify(
-	{
-		type: type,
-		payload: payload
-	}));
 }
 
 function movePaddles()
@@ -436,25 +410,65 @@ function animate()
 		else if (player1Score == 7)
 		{
 			document.getElementById('winner').innerHTML = 'Player 1 wins!';
+			startBtn.style.display = 'block';
 		}
 		else if (player2Score == 7) 
 		{
 			document.getElementById('winner').innerHTML = 'Player 2 wins!';
+			startBtn.style.display = 'block';
 		}
 	}
 }
 
-document.getElementById('startBtn').onclick = () => 
+// ************************************* WEBSOCKET FUCNTIONS ************************************************
+
+const socket = new WebSocket(`wss://localhost:8443/ws/test/`);
+
+function sendPayload(type, payload) 
 {
+	socket.send(JSON.stringify({
+		type: type,
+		payload: payload
+	}));
+}
+
+socket.onmessage = function(event) 
+{
+	const data = JSON.parse(event.data);
+	console.log("Parsed data:", data);
+	switch(data.type)
+	{
+		case 'move':
+			updatePaddlePositions(data);
+			break;
+		case 'connect':
+			console.log(`User ID: ${data.payload.id} | `, data.payload.connectMessage);
+			break;
+		case 'beginGame':
+			beginGame = data.payload
+			break;
+		case 'message':
+			console.log(data.payload);
+			break;
+	}
+}
+
+const startBtn = document.getElementById('startBtn');
+startBtn.onclick = () => {
 	beginGame = true;
 	sendPayload('beginGame', {
 		beginGame: true
-	})
+	});
+	startBtn.style.display = 'none';
 }
 
 socket.onopen = () => 
 {
-	sendPayload('message', `Welcome to the server ${window.user.username}!!`);
+	console.log(window.user.id);
+	sendPayload('connect', {
+		id: window.user.id,
+		connectMessage: `Welcome to the server ${window.user.username}!!`,
+	});
 }
 
 socket.onclose = () => 

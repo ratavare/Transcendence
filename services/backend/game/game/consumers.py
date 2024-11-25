@@ -11,17 +11,17 @@ class Consumer(AsyncWebsocketConsumer):
 		self.user_id = self.channel_name
 
 		if self.lobby_id not in lobbies:
-			lobbies[self.lobby_id] = []
+			lobbies[self.lobby_id] = set()
 
-		if len(lobbies[self.lobby_id]) < 2:
-			lobbies[self.lobby_id].append(self.user_id)
-			await self.channel_layer.group_add(
-				self.lobby_id,
-				self.channel_name
-			)
-			await self.accept()
-		else:
+		if len(lobbies[self.lobby_id]) >= 2:
+			await self.sendMessage('message','Connection Rejected')
 			await self.close()
+			return
+
+		lobbies[self.lobby_id].add(self.user_id)
+		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
+		await self.accept()
+		await self.sendMessage('message','Connection Accepted')
 
 	async def disconnect(self, close_code):
 		if self.lobby_id in lobbies and self.user_id in lobbies[self.lobby_id]:
@@ -34,16 +34,13 @@ class Consumer(AsyncWebsocketConsumer):
 			)
 		
 	async def receive(self, text_data):
-		data = json.loads(text_data)
-		send_type = data.get('type')
-		payload = data.get('payload')
-
-		if 'type' in data and 'payload' in data:
-			self.groupSend(send_type, payload)
-		else:
-			await self.send(json.dumps({
-				'error': 'Type and Payload are required!'
-			}))
+		try:
+			data = json.loads(text_data)
+			send_type = data.get('type')
+			payload = data.get('payload')
+			await self.groupSend(send_type, payload)
+		except:
+			await self.sendMessage('message', 'Type and Payload keys are required!')
 
 	async def groupSend(self, send_type, payload):
 		await self.channel_layer.group_send(
@@ -56,7 +53,7 @@ class Consumer(AsyncWebsocketConsumer):
 			)
 
 	async def sendLobby(self, event):
-		await self.send(json.dumps({
-			'type': event['send_type'],
-			'payload': event['payload']
-		}))
+		await self.sendMessage(event['send_type'], event['payload'])
+
+	async def sendMessage(self, send_type, payload):
+		await self.send(text_data=json.dumps({'type': send_type, 'payload': payload}))

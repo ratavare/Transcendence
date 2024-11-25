@@ -1,0 +1,15 @@
+<page-element name="lobby">
+	{% include 'navbar.html' with authenticated="true" %}
+	<div class="container mt-5">
+		<form method="GET" id="search-lobby-form">
+			<input id="searchLobby" placeholder="Search for a lobby..">
+			<input class="btn btn-outline-secondary" type="submit">
+		</form>
+	</div>
+	<div class="container mt-5">
+		<form method="POST" id="create-lobby-form">
+			<input placeholder="Create a lobby.." name="lobby_id">
+			<input class="btn btn-outline-secondary" type="submit">
+		</form>
+	</div>
+</page-element>

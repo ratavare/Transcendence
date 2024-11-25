@@ -44,6 +44,7 @@ def profileView(request):
 			'email': user.email,
 			'bio': profile.bio,
 			'birth_date':profile.birth_date,
+			'id': user.pk,
 		}
 		return JsonResponse(initial_data, status=200)
 	return JsonResponse({'error': "Test"}, status=400)
