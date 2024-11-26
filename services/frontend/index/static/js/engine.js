@@ -61,6 +61,7 @@ async function setPage(name)
 	if (page)
 	{
 		name = page.getAttribute("name") || name;
+		console.log("name:", name);
 		
 		const redirection = await checkRedirection(page);
 		if (redirection)

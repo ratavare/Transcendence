@@ -1,8 +1,8 @@
 from django.urls import path
-from . import views
+from .views import createOrGetLobby, joinLobby
 
 app_name = "lobby"
 urlpatterns = [
-	path('create-lobby/', views.createLobbyView),
-	path('<str:lobby_id>/', views.joinLobbyView),
+	path('lobbies/', createOrGetLobby.as_view()),
+	path('lobbies/<str:lobby_id>/', joinLobby.as_view()),
 ]

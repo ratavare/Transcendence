@@ -1,20 +1,36 @@
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from .models import Lobby
+from rest_framework.views import APIView
+from lobby.models import Lobby
 
-@csrf_exempt
-def createLobbyView(request):
-	if request.method == 'POST':
+class createOrGetLobby(APIView):
+
+	@csrf_exempt
+	def post(self, request):
 		try:
-			lobby_id = request.POST.get('lobby_id')
-			newLobby = Lobby.objects.create(lobby_id=lobby_id)
+			id = request.POST.get('lobby_id')
+			newLobby = Lobby.objects.create(lobby_id=id)	
 			newLobby.save()
 		except:
-			return JsonResponse({'error': 'Lobby ID invalid/not found'}, status=404)
-		return JsonResponse({'lobby_id': lobby_id}, status=200)
-	return JsonResponse({'error': 'wrong method'}, status=400)
+			return JsonResponse({'error': 'lobby already exists'}, status=200)
+		return JsonResponse({'lobby_id': id}, status=200)
+	
+	@csrf_exempt
+	def get(self, request):
+		lobbies = Lobby.objects.all()
+		if not lobbies:
+			return JsonResponse({'Error': 'No lobbies found'}, status=404)
+		all_lobbies = []
+		for lobby in lobbies:
+			all_lobbies.append({'lobby_id': lobby.lobby_id})
+		return JsonResponse({'lobbies': all_lobbies}, status=200)
 
-@csrf_exempt
-def joinLobbyView(request):
-	return JsonResponse({'status': 'success'}, status=200)
+class joinLobby(APIView):
+
+	@csrf_exempt
+	def post(self, request, lobby_id):
+		selectedLobby = Lobby.objects.filter(lobby_id)
+		if not selectedLobby:
+			return JsonResponse({'error': 'Lobby does not exist'}, status=400)
+		return JsonResponse({'status': 'success'}, status=200)
