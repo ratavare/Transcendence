@@ -8,7 +8,6 @@ for (const page of pages) {
 	l.set(page.getAttribute('name'), page);
 }
 
-
 window.addEventListener('load', () => {
 	const url = window.location.href.split('/');
 	const x = (url.length) - 1;
@@ -23,10 +22,35 @@ window.addEventListener('popstate', () => {
 	logoutFunc();
 });
 
+// Fetches current user's profile from backend and redirects (or not) based on the page and on the success of the fetch
+async function checkRedirection(page)
+{
+	const authenticated =  page.getAttribute("authenticated") || "true";
+	const result = await getProfile();
+	if (authenticated == "true")
+	{
+		if (result == false) {
+			pageActive = undefined;
+			seturl('/login');
+			return true;
+		}
+	}
+	else {
+		if (result) {
+			pageActive = undefined;
+			seturl('/home')
+			return true;
+		}
+	}
+	return false;
+}
+
 async function setPage(name)
 {
-	if (name == '')
+	if (name == '' || name == '#') {
 		name = 'home'
+        seturl('/home')
+    }
 	if (pageName == name)
 		return;
 	pageName = name;
@@ -38,26 +62,11 @@ async function setPage(name)
 	if (page)
 	{
 		name = page.getAttribute("name") || name;
-		const authenticated =  page.getAttribute("authenticated") || "true";
-		if (authenticated == "true")
-		{
-			const result = await getProfile();
-			if (result == false)
-			{
-				pageActive = undefined;
-				seturl('/login');
-				return ;
-			}
-		}
-		else {
-			const result = await getProfile();
-			if (result)
-			{
-				pageActive = undefined;
-				seturl('/home')
-				return ;
-			}
-		}
+		
+		const redirection = await checkRedirection(page);
+		if (redirection)
+			return ;
+		
 		console.log("setPage: ", name);
 		const newPage = document.createElement('page-element');
 		newPage.innerHTML = page.innerHTML;
@@ -77,19 +86,16 @@ async function setPage(name)
 }
 
 async function getProfile(){
-	return await fetch('https://localhost:8443/user_profile/profile/').then(async (response) => 
-		{
-			if(!response.ok) {
-				return false;
-			}
-			const data = await response.json();
-			window.user = data;
-			return true;
+	return await fetch('https://localhost:8443/user_profile/profile/').then(async (response) => {
+		if(!response.ok) {
+			return false;
+		}
+		const data = await response.json();
+		window.user = data;
+		return true;
 	}).catch((e) => {
 		return false;
-	}
-
-	);
+	});
 }
 
 window.getProfile = getProfile;

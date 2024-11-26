@@ -1,12 +1,14 @@
 import logging
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 from .forms import UpdateProfileForm
 from .models import Profile, Friendships
-import json
+from .serializers import FriendshipSerializer
 from crispy_forms.utils import render_crispy_form
+import json
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -48,10 +50,25 @@ def profileView(request):
 
 
 def friendRequestSend(request):
-	source = request.POST.get('source')
-	destination = request.POST.get('destination')
-	newRequest = Friendships(source, destination)
-	JsonResponse({'newRequest': newRequest})
+	if request.method == 'POST':
+		data = json.loads(request.body)
+
+		source = data.get('src')
+		destination = data.get('dest')
+
+		try:
+			source_user = User.objects.get(username=source)
+			destination_user = User.objects.get(username=destination)
+
+			existing_request = Friendships.objects.filter(from_user=source_user, to_user=destination_user).exists()
+			if (existing_request):
+				return JsonResponse({'message': "Friendship request already exists"}, status=400)
+			newRequest = Friendships(from_user=source_user, to_user=destination_user)
+			newRequest.save()
+			serializer = FriendshipSerializer(newRequest)
+			return JsonResponse({'newRequest': serializer.data}, status=200)
+		except User.DoesNotExist:
+			return JsonResponse({'error': 'User(s) not found'}, status=404)
 
 # def account_delete(request):
 # 	if request.method == 'POST':
