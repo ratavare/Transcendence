@@ -87,16 +87,17 @@ async function setPage(name)
 }
 
 async function getProfile(){
-	return await fetch('https://localhost:8443/user_profile/profile/').then(async (response) => {
+	try {
+		const response = await fetch('https://localhost:8443/user_profile/profile/');
 		if(!response.ok) {
 			return false;
 		}
 		const data = await response.json();
 		window.user = data;
 		return true;
-	}).catch((e) => {
-		return false;
-	});
+	} catch {
+		return false
+	}
 }
 
 window.getProfile = getProfile;

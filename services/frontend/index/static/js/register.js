@@ -1,22 +1,20 @@
 {
 	const formRegister = document.getElementById("form-register");
 
-	formRegister?.addEventListener('submit', function(event) {
+	formRegister?.addEventListener('submit', async function(event) {
 		event.preventDefault();
 		let formData = new FormData(event.target);
 	
-		myFetch('https://localhost:8443/user_auth/register/', formData)
-		.then(data => {
-			if (data.status === "success") {
-				console.log("Registration successful");
-				seturl('/home');
-			} else {
-				const messages = Object.values(data.errors)
-				console.log("Registration Failed. Reasons: ", messages);
-				messages.forEach(alert);
-			}
-		}).catch(error => {
-			console.log('EERROR:', error);
-		})
+		try {
+			const data = await myFetch('https://localhost:8443/user_auth/register/', formData)
+			console.log("Registration successful", data);
+			seturl('/home');
+	
+		} catch(error) {
+			console.log('register.js: ', error);
+			const messages = Object.values(error)
+			console.log("Registration Failed. Reasons: ", messages);
+			messages.forEach(alert);
+		}
 	});
 }

@@ -19,7 +19,7 @@ function getCookie(name) {
 }
 
 async function myFetch(viewUrl, myData){
-	return fetch(viewUrl , {
+	const response = await fetch(viewUrl , {
 		method: 'POST',
 		headers: {
 			"X-CSRFToken": getCookie('csrftoken'),
@@ -27,11 +27,8 @@ async function myFetch(viewUrl, myData){
 		},
 		body: myData,
 	})
-	.then(async (response) => {
-		if (!response.ok)
-			throw new Error("Response not ok!");
-		const data = await response.json();
-		return (data);
-	})
-	.catch(error => console.log("Error: ", error));
+	const data = await response.json();
+	if (!response.ok)
+		throw data.error;
+	return data;
 }
