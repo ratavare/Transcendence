@@ -5,7 +5,6 @@
 		const formData = new FormData(event.target);
 
 		try {
-			
 			const response = await fetch('https://localhost:8443/user_auth/login/' , {
 				method: 'POST',
 				body: formData,

@@ -1,8 +1,12 @@
 
 async function logoutFunc() {
-	const url = 'https://localhost:8443/user_auth/logout/';
 	if (location.hash === "#/logout")
-		myFetch(url).then(() => {
+	{
+		try {
+			await myFetch('https://localhost:8443/user_auth/logout/');
 			seturl('/login');
-		})
+		} catch(error) {
+			console.log(error);
+		}
+	}
 }

@@ -1,13 +1,13 @@
 
-function joinLobby(lobby_id)
+async function joinLobby(lobby_id)
 {
-	myFetch(`https://localhost:8443/lobby/lobbies/${lobby_id}`, window.user)
-	.then(data => {
+	try {
+		const data = await myFetch(`https://localhost:8443/lobby/lobbies/${lobby_id}`, window.user)
 		console.log(data);
 		seturl(`/lobbies/${lobby_id}`)
-	})
-	.catch(error => console.log(error));
-
+	} catch (error) {
+		console.log(error);
+	}
 }
 
 function buttonConfigure()
@@ -54,13 +54,17 @@ function putLobbylist(lobbies)
 	buttonConfigure()
 }
 
-function getLobbies()
+async function getLobbies()
 {
-	fetch('https://localhost:8443/lobby/lobbies/')
-	.then(async (response) => {
+	try {
+		const response = await fetch('https://localhost:8443/lobby/lobbies/')
 		const data = await response.json();
+		if (!response.ok)
+			throw data.error;
 		putLobbylist(data.lobbies)
-	}).catch(error => console.log(error))
+	} catch(error) {
+		console.log(error)
+	}
 }
 
 {
@@ -71,11 +75,12 @@ function getLobbies()
 
 		const formData = new FormData(event.target);
 
-		myFetch('https://localhost:8443/lobby/lobbies/', formData)
-		.then(data => seturl(`/lobbies/${data.lobby_id}`))
-		.catch(error => {
+		try {
+			const data = myFetch('https://localhost:8443/lobby/lobbies/', formData)
+			seturl(`/lobbies/${data.lobby_id}`)
+		} catch(error) {
 			console.log(error);
-		})
+		}
 	});
 }
 
