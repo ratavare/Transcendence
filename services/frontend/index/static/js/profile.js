@@ -24,17 +24,15 @@ async function fillProfile(){
 		event.preventDefault();
 	
 		const formData = new FormData(event.target);
-		const fetch_url = 'https://localhost:8443/user_profile/profile/';
-		myFetch(fetch_url, formData).then(data => {
-			console.log("Profile: ", data);
-			if (data.status === "success") {
-				console.log("Profile change successful");
-				seturl('/home');
-			} else {
-				console.log("Profile change failed. Reason:", data.errors);
-				alert("Profile change failed. Reason:", data.errors);
-			}
-		})
+
+		try {
+			await myFetch('https://localhost:8443/user_profile/profile/', formData)
+			console.log("Profile change successful");
+			seturl('/home');
+		} catch(error) {
+			console.log("Profile change failed. Reason:", error);
+			alert("Profile change failed. Reason:", error);
+		}
 	});
 }
 

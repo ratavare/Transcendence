@@ -32,7 +32,7 @@ def profileView(request):
 			else:
 				raise ValidationError(profileForm.errors)
 		except Exception as e:
-			return JsonResponse({'status': 'error', 'errors': str(e)}, status=409)
+			return JsonResponse({'error': str(e)}, status=409)
 		return JsonResponse({'status': 'success'}, status=200)
 	elif request.method == 'GET':
 		initial_data = {
