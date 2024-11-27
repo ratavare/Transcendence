@@ -8,18 +8,25 @@ for (const page of pages) {
 	l.set(page.getAttribute('name'), page);
 }
 
-window.addEventListener('load', () => {
+function setPageUrl()
+{
+	const canvas = document.getElementById('canvas');
+	canvas?.remove();
 	const url = window.location.href.split('/');
 	const x = (url.length) - 1;
-	setPage(url[x]);
+	if (url[x - 1] == 'lobbies')
+		setPage('pong');
+	else
+		setPage(url[x]);
 	logoutFunc();
+}
+
+window.addEventListener('load', () => {
+	setPageUrl();
 });
 
 window.addEventListener('popstate', () => {
-	const url = window.location.href.split('/');
-	const x = (url.length) - 1;
-	setPage(url[x]);
-	logoutFunc();
+	setPageUrl();
 });
 
 // Fetches current user's profile from backend and redirects (or not) based on the page and on the success of the fetch
