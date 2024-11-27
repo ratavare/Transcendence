@@ -15,11 +15,11 @@ def registerView(request):
 		if form.is_valid():
 			user = form.save()
 			login(request, user)
-			return JsonResponse({'status': 'Registration Successful'}, status=200)
+			return JsonResponse({'message': 'Registration Successful'}, status=200)
 		return JsonResponse({'error': form.errors}, status=409)
 	elif request.method == 'GET':
 		return JsonResponse({'test':"GET"}, status=200);
-	return JsonResponse({'status': 'error'}, status=400)
+	return JsonResponse({'error': 'error'}, status=400)
 
 def loginView(request):
 	if request.method == 'POST':
@@ -27,9 +27,9 @@ def loginView(request):
 		if form.is_valid():
 			user = form.get_user()
 			login(request, user)
-			return JsonResponse({'status': 'success', 'username': user.username}, status=200)
-		return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
-	return JsonResponse({'status': 'error'}, status=400)
+			return JsonResponse({'message': 'Login Successful', 'username': user.username}, status=200)
+		return JsonResponse({'error': form.errors}, status=400)
+	return JsonResponse({'error': 'error'}, status=400)
 
 def logoutView(request):
 	logout(request)

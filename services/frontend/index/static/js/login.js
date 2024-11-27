@@ -3,17 +3,20 @@
 	
 		event.preventDefault();
 		const formData = new FormData(event.target);
-		return fetch('https://localhost:8443/user_auth/login/' , {
-			method: 'POST',
-			body: formData,
-		}).then(response => {
+
+		try {
+			
+			const response = await fetch('https://localhost:8443/user_auth/login/' , {
+				method: 'POST',
+				body: formData,
+			});
+			const data = await response.json();
 			if (!response.ok)
-				console.log("Login failed");
-			else
-			{	
-				console.log("Login successful");
-				seturl('/home');
-			}
-		})
+				throw data.error;
+			console.log(data.message);
+			seturl('/home');
+		} catch (error) {
+			console.log(error);
+		}
 	});
 }
