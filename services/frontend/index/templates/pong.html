@@ -1,0 +1,58 @@
+<page-element name="pong">
+	{% include 'navbar.html' with authenticated="true" %}
+	<style>
+		h1 {
+			color: firebrick;
+			font-family: 'Courier New', Courier, monospace;
+			text-align: center;
+			font-size: 2rem;
+			top: 0px;
+			position: relative;
+		}
+	
+		h2 {
+			color: firebrick;
+			font-family: 'Courier New', Courier, monospace;
+			text-align: center;
+			font-size: 2rem;
+			bottom: 0px;
+			position: absolute;
+		}
+
+		.canvas-container{
+			position: relative;
+			margin: 0;
+			width: 900px;
+			height: 600px;
+		}
+		#canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+			left:10%;
+			top:10%;
+        }
+
+		#startBtn {
+			position: absolute;
+			left:103%;
+			top: 120%;
+		}
+	
+		#player1score {
+			left: 35%;
+		}
+	
+		#player2score {
+			right: 35%;
+		} 
+	</style>
+	<h1>Pong Game</h1>
+	<h2 id="player1score">0</h2>
+	<h2 id="player2score">0</h2>
+	<h2 id="winner"></h2>
+	<div class="canvas-container">
+		<canvas id='canvas' width='900px' height='600px'></canvas>
+		<button id='startBtn'>Start Game!</button> 
+	</div>
+</page-element>

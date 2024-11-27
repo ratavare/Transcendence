@@ -49,30 +49,31 @@ async function setPage(name)
 {
 	if (name == '' || name == '#') {
 		name = 'home'
-        seturl('/home')
-    }
+		seturl('/home')
+	}
 	if (pageName == name)
 		return;
 	pageName = name;
 	if (pageActive && pageActive.getAttribute("name") == name)
 		return ;
 	pageActive?.remove();
-	console.log("setPage: " , name)
 	const page = l.get(name) || Array.from(pages).find(page => page.getAttribute('default'));
 	if (page)
 	{
 		name = page.getAttribute("name") || name;
+		console.log("name:", name);
 		
 		const redirection = await checkRedirection(page);
 		if (redirection)
 			return ;
 		
-		console.log("setPage: ", name);
 		const newPage = document.createElement('page-element');
 		newPage.innerHTML = page.innerHTML;
 		newPage.setAttribute("name", name);
 		const newScript = document.createElement('script');
 		newScript.src = "static/js/" + name + ".js";
+		if (name == 'pong')
+			newScript.type = "module";
 		newScript.onload = function(){
 			console.log(`${name}.js loaded successfully`);
 		};
