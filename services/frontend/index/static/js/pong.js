@@ -4,13 +4,13 @@ import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitCon
 // Constants
 const PADDLE_SPEED = 15;
 const AIPADDLE_SPEED = 15;
-const CUBE_INITIAL_SPEED = 15;
+const BALL_INITIAL_SPEED = 0;
 const SHAKE_INTENSITY = 10;
 const SHAKE_DURATION = 10;
 const PADDLE_COLOR = 0x008000;
 const TABLE_COLOR = 0x800080;
 const PLANE_COLOR = 0x000000;
-const CUBE_COLOR = 0x00ff00;
+const BALL_COLOR = 0x00ff00;
 const POINT_LIGHT_INTENSITY = 1000000;
 const POINT_LIGHT_DISTANCE = 1000;
 const AMBIENT_LIGHT_INTENSITY = 3;
@@ -18,8 +18,10 @@ const AMBIENT_LIGHT_INTENSITY = 3;
 // Variables
 let player1Score = 0;
 let player2Score = 0;
-let cubeSpeedx = CUBE_INITIAL_SPEED;
-let cubeSpeedz = 0;
+let ballSpeedx = 0;
+let ballSpeedz = 0;
+let ballRotationX = 0;
+let ballRotationY = 0;
 let shakeDuration = 0;
 let paddle1Speed = 0;
 let paddle2Speed = 0;
@@ -62,10 +64,10 @@ scene.add(pointLight);
 
 // Cube
 const sphereGeometry = new THREE.SphereGeometry(10, 32, 32);
-const sphereMaterial = new THREE.MeshStandardMaterial({ color: CUBE_COLOR });
-const cube = new THREE.Mesh(sphereGeometry, sphereMaterial);
-scene.add(cube);
-const cubeBoundingBox = new THREE.Box3().setFromObject(cube);
+const sphereMaterial = new THREE.MeshStandardMaterial({ color: BALL_COLOR });
+const ball = new THREE.Mesh(sphereGeometry, sphereMaterial);
+scene.add(ball);
+const ballBoundingBox = new THREE.Box3().setFromObject(ball);
 
 // Paddles and Table
 const table1 = makeParalellepiped(-1300, 0, 500, 2700, 100, 100, TABLE_COLOR);
@@ -101,19 +103,16 @@ function handlePaddleControls()
 		{
 			case 'w':
 				payload = { paddle: 1, speed: -PADDLE_SPEED };
-				beginGame = true;
 				break;
 			case 's':
 				payload = { paddle: 1, speed: PADDLE_SPEED };
-				beginGame = true;
 				break;
 			case 'ArrowUp':
 				payload = { paddle: 2, speed: -PADDLE_SPEED };
-				beginGame = true;
+
 				break;
 			case 'ArrowDown':
 				payload = { paddle: 2, speed: PADDLE_SPEED };
-				beginGame = true;
 				break;
 			case 'p':
 				gamePaused = !gamePaused;
@@ -169,58 +168,58 @@ function movePaddles()
   paddle2BoundingBox.setFromObject(paddle2);
 }
 
-function applyCameraShake() 
-{
-  if (shakeDuration > 0) 
-  {
-	const shakeX = (Math.random() - 0.5) * SHAKE_INTENSITY;
-	const shakeY = (Math.random() - 0.5) * SHAKE_INTENSITY;
-	const shakeZ = (Math.random() - 0.5) * SHAKE_INTENSITY;
-	camera.position.x += shakeX;
-	camera.position.y += shakeY;
-	camera.position.z += shakeZ;
-	shakeDuration--;
-  }
-  if (shakeDuration == 0)   
-  {
-	camera.position.set(0, 500, 0);
-  }
-}
+// function applyCameraShake() 
+// {
+//   if (shakeDuration > 0) 
+//   {
+// 	const shakeX = (Math.random() - 0.5) * SHAKE_INTENSITY;
+// 	const shakeY = (Math.random() - 0.5) * SHAKE_INTENSITY;
+// 	const shakeZ = (Math.random() - 0.5) * SHAKE_INTENSITY;
+// 	camera.position.x += shakeX;
+// 	camera.position.y += shakeY;
+// 	camera.position.z += shakeZ;
+// 	shakeDuration--;
+//   }
+//   if (shakeDuration == 0)   
+//   {
+// 	camera.position.set(0, 500, 0);
+//   }
+// }
 
 function increaseSpeed()
 {
-  if (cubeSpeedx < 20 && cubeSpeedx > -20)
-	cubeSpeedx += (cubeSpeedx > 0) ? 0.4 : -0.4;
+  if (ballSpeedx < 20 && ballSpeedx > -20)
+	ballSpeedx += (ballSpeedx > 0) ? 0.4 : -0.4;
 }
 
 function checkIntersections()
 {
-  cubeBoundingBox.setFromObject(cube);
+  ballBoundingBox.setFromObject(ball);
 
-  if (cubeBoundingBox.intersectsBox(table1BoundingBox) || cubeBoundingBox.intersectsBox(table2BoundingBox)) 
+  if (ballBoundingBox.intersectsBox(table1BoundingBox) || ballBoundingBox.intersectsBox(table2BoundingBox)) 
   {
-	cubeSpeedz *= -1;
-	cube.position.z += cubeSpeedz;
+	ballSpeedz *= -1;
+	ball.position.z += ballSpeedz;
   }
 
-  if (cubeBoundingBox.intersectsBox(paddle1BoundingBox)) 
+  if (ballBoundingBox.intersectsBox(paddle1BoundingBox)) 
   {
-	cubeSpeedx *= -1;
+	ballSpeedx *= -1;
 	shakeDuration = SHAKE_DURATION;
 	increaseSpeed();
 	adjustCubeDirection(paddle1);
-	cube.position.x += cubeSpeedx;
-	cube.position.z += cubeSpeedz;
+	ball.position.x += ballSpeedx;
+	ball.position.z += ballSpeedz;
   }
 
-  if (cubeBoundingBox.intersectsBox(paddle2BoundingBox)) 
+  if (ballBoundingBox.intersectsBox(paddle2BoundingBox)) 
   {
-	cubeSpeedx *= -1;
+	ballSpeedx *= -1;
 	shakeDuration = SHAKE_DURATION;
 	increaseSpeed();
 	adjustCubeDirection(paddle2);
-	cube.position.x += cubeSpeedx;
-	cube.position.z += cubeSpeedz;
+	ball.position.x += ballSpeedx;
+	ball.position.z += ballSpeedz;
   }
 
   if (paddle1BoundingBox.intersectsBox(table1BoundingBox) || paddle1BoundingBox.intersectsBox(table2BoundingBox)) 
@@ -235,42 +234,42 @@ function checkIntersections()
 
 function adjustCubeDirection(paddle) 
 {
-  const relativeIntersectZ = (paddle.position.z + (paddle.geometry.parameters.depth / 2)) - cube.position.z;
+  const relativeIntersectZ = (paddle.position.z + (paddle.geometry.parameters.depth / 2)) - ball.position.z;
   const normalizedIntersectZ = (relativeIntersectZ / (paddle.geometry.parameters.depth / 2)) - 1;
-  cubeSpeedz = normalizedIntersectZ * 20; // Adjust the multiplier as needed
+  ballSpeedz = normalizedIntersectZ * 20; // Adjust the multiplier as needed
 }
 
 function respawnCube(player) 
 {
   if (player == 1)
   {
-	cube.position.set(200, 0, 0);
-	cubeSpeedx = CUBE_INITIAL_SPEED;
-	cubeSpeedz = 0;
+	ball.position.set(200, 0, 0);
+	ballSpeedx = BALL_INITIAL_SPEED;
+	ballSpeedz = 0;
 	beginGame = false;
-	pointLight.position.copy(cube.position);
+	pointLight.position.copy(ball.position);
   }
   else if (player == 2)
   {
-	cube.position.set(-200, 0, 0);
-	cubeSpeedx = -CUBE_INITIAL_SPEED;
-	cubeSpeedz = 0;
+	ball.position.set(-200, 0, 0);
+	ballSpeedx = -BALL_INITIAL_SPEED;
+	ballSpeedz = 0;
 	beginGame = false;
-	pointLight.position.copy(cube.position);
+	pointLight.position.copy(ball.position);
   }
 }
 
-function cubeOutofBounds()
+function ballOutofBounds()
 {
-  if (cube.position.x > 1000)
+  if (ball.position.x > 1000)
   {
-	// console.log('z is ' + cube.position.z + ' x is ' + cube.position.x);
+	// console.log('z is ' + ball.position.z + ' x is ' + ball.position.x);
 	respawnCube(1);
 	player1Score++;
 	document.getElementById('player1score').innerHTML = player1Score;
-  } else if (cube.position.x < -1000)
+  } else if (ball.position.x < -1000)
   {
-	// console.log('z is ' + cube.position.z + ' x is ' + cube.position.x); 
+	// console.log('z is ' + ball.position.z + ' x is ' + ball.position.x); 
 	respawnCube(2);
 	player2Score++;
 	document.getElementById('player2score').innerHTML = player2Score;
@@ -279,22 +278,30 @@ function cubeOutofBounds()
 
 function moveCube()
 {
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-  cube.position.x += cubeSpeedx;
-  cube.position.z += cubeSpeedz;
-  pointLight.position.copy(cube.position);
+  ball.rotation.x += ballRotationX;
+  ball.rotation.y += ballRotationY;
+  ball.position.x += ballSpeedx;
+  ball.position.z += ballSpeedz;
+  pointLight.position.copy(ball.position);
 
-  cubeOutofBounds();
+  ballOutofBounds();
 
-  cubeBoundingBox.setFromObject(cube);
+  ballBoundingBox.setFromObject(ball);	
+}
+
+function updateBall(ballData)
+{
+	ballRotationX = ballData.ballRotationX
+	ballRotationY = ballData.ballRotationY
+	ballSpeedx = ballData.ballSpeedX
+	ballSpeedz = ballData.ballSpeedZ
 }
 
 // function saveSphereData() 
 // {
 //   let time = 0;
-//   let position = { x: cube.position.x, z: cube.position.z };
-//   let speed = { x: cubeSpeedx, z: cubeSpeedz };
+//   let position = { x: ball.position.x, z: ball.position.z };
+//   let speed = { x: ballSpeedx, z: ballSpeedz };
 //   time = Date.now() - startTime;
 
 //   if (sphereData.length == 0) 
@@ -358,11 +365,11 @@ function moveCube()
 //   const topWallZ = -440;
 //   const bottomWallZ = 440;
 
-//   // Calculate the final position of the cube using the calculateTrajectory function
+//   // Calculate the final position of the ball using the calculateTrajectory function
 //   let finalPosition = calculateTrajectory();
 
-//   // Ensure the paddle moves towards the final position of the cube
-//   if (cubeSpeedx < 0) 
+//   // Ensure the paddle moves towards the final position of the ball
+//   if (ballSpeedx < 0) 
 //   {
 // 	if (paddle.position.z > finalPosition['z'])
 //   {
@@ -458,6 +465,9 @@ socket.onmessage = function(event)
 		case 'message':
 			console.log(data.payload);
 			break;
+		case 'state':
+			updateBall(data.payload);
+			break;
 	}
 }
 
@@ -472,7 +482,21 @@ startBtn.onclick = () => {
 
 socket.onopen = () => 
 {
-	console.log(window.user.id);
+	ballBoundingBox.setFromObject(ball);
+	const ballBoxJson = {
+		min: ballBoundingBox.min.toArray(),
+		max: ballBoundingBox.max.toArray(),
+	};
+	const paddleBoxJson = {
+		min: paddle1BoundingBox.min.toArray(),
+		max: paddle1BoundingBox.max.toArray(),
+	};
+
+	console.log('USER ID:', window.user.id);
+	sendPayload('componentsInit', {
+		ball: ballBoxJson,
+		paddle: paddleBoxJson,
+	});
 	sendPayload('connect', {
 		id: window.user.id,
 		connectMessage: `Welcome to the ${lobby_id} lobby ${window.user.username}!!`,
