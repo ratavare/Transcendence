@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 
 EXPOSE 8001
 
-ENTRYPOINT [ "python", "manage.py", "runserver", "0.0.0.0:8001"]
+CMD [ "sh", "script.sh" ]
