@@ -43,8 +43,13 @@ camera.position.set(0, 500, 0);
 controls.update();
 
 // Helpers
-const gridHelper = new THREE.GridHelper(10000, 100, 0x808080);
-scene.add(gridHelper);
+// const gridHelper = new THREE.GridHelper(10000, 100, 0x808080);
+// scene.add(gridHelper);
+
+// Axes
+
+const axesHelper = new THREE.AxesHelper(1000);
+scene.add(axesHelper);
 
 // Plane
 const planeGeometry = new THREE.PlaneGeometry(3000, 2000);
@@ -63,7 +68,7 @@ const pointLight = new THREE.PointLight(0xffffff, POINT_LIGHT_INTENSITY, POINT_L
 scene.add(pointLight);
 
 // Cube
-const sphereGeometry = new THREE.SphereGeometry(20, 32, 32);
+const sphereGeometry = new THREE.SphereGeometry(10, 32, 32);
 const sphereMaterial = new THREE.MeshStandardMaterial({ color: BALL_COLOR });
 const ball = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(ball);
@@ -145,28 +150,39 @@ function handlePaddleControls()
 	});
 }
 
-function updatePaddlePositions(paddleData) 
+function updatePaddlePositions(payloadData) 
 {
-	console.log('updatePaddlePositions');
-	if (paddleData.payload.paddle == 1)
-	{
-		paddle1Speed = paddleData.payload.speed;
-	}
-	else if (paddleData.payload.paddle == 2)
-	{
-		paddle2Speed = paddleData.payload.speed;
-	}
-	paddle1BoundingBox.setFromObject(paddle1);
-	paddle2BoundingBox.setFromObject(paddle2);
+	paddle1.position.z += payloadData.paddle1Speed;
+	paddle2.position.z += payloadData.paddle1Speed;
 }
 
-function movePaddles()
-{
-  paddle1.position.z += paddle1Speed;
-  paddle2.position.z += paddle2Speed;
-  paddle1BoundingBox.setFromObject(paddle1);
-  paddle2BoundingBox.setFromObject(paddle2);
-}
+// function movePaddles()
+// {
+// 	paddle1.position.z += paddle1Speed;
+// 	paddle2.position.z += paddle2Speed;
+// 	paddle1BoundingBox.setFromObject(paddle1);
+// 	paddle2BoundingBox.setFromObject(paddle2);
+// }
+
+	// console.log('updatePaddlePositions');
+	// if (paddleData.payload.paddle == 1)
+	// {
+		// paddle1Speed = paddleData.payload.speed;
+	// }
+	// else if (paddleData.payload.paddle == 2)
+	// {
+		// paddle2Speed = paddleData.payload.speed;
+	// }
+	// paddle1BoundingBox.setFromObject(paddle1);
+	// paddle2BoundingBox.setFromObject(paddle2);
+
+// function movePaddles()
+// {
+//   paddle1.position.z += paddle1Speed;
+//   paddle2.position.z += paddle2Speed;
+//   paddle1BoundingBox.setFromObject(paddle1);
+//   paddle2BoundingBox.setFromObject(paddle2);
+// }
 
 // function applyCameraShake() 
 // {
@@ -202,7 +218,7 @@ function checkIntersections()
 	ball.position.z += ballSpeedz;
   }
 
-  if (ballBoundingBox.intersectsBox(paddle1BoundingBox)) 
+  if (ballBoundingBox.intersectsBox(paddle1BoundingBox))
   {
 	console.log(ballBoundingBox, paddle1BoundingBox)
 	ballSpeedx *= -1;
@@ -213,7 +229,7 @@ function checkIntersections()
 	ball.position.z += ballSpeedz;
   }
 
-  if (ballBoundingBox.intersectsBox(paddle2BoundingBox)) 
+  if (ballBoundingBox.intersectsBox(paddle2BoundingBox))
   {
 	ballSpeedx *= -1;
 	shakeDuration = SHAKE_DURATION;
@@ -227,20 +243,20 @@ function checkIntersections()
   {
 	paddle1.position.z -= paddle1Speed;
   }
-  if (paddle2BoundingBox.intersectsBox(table1BoundingBox) || paddle2BoundingBox.intersectsBox(table2BoundingBox)) 
+  if (paddle2BoundingBox.intersectsBox(table1BoundingBox) || paddle2BoundingBox.intersectsBox(table2BoundingBox))
   {
 	paddle2.position.z -= paddle2Speed;
   }
 }
 
-function adjustCubeDirection(paddle) 
+function adjustCubeDirection(paddle)
 {
   const relativeIntersectZ = (paddle.position.z + (paddle.geometry.parameters.depth / 2)) - ball.position.z;
   const normalizedIntersectZ = (relativeIntersectZ / (paddle.geometry.parameters.depth / 2)) - 1;
   ballSpeedz = normalizedIntersectZ * 20; // Adjust the multiplier as needed
 }
 
-function respawnCube(player) 
+function respawnCube(player)
 {
   if (player == 1)
   {
@@ -405,7 +421,8 @@ function animate()
 			beginGame = true;
 		if (!gamePaused && beginGame && player1Score < 7 && player2Score < 7) 
 		{
-			movePaddles();
+			// updatePaddlePositions();
+			// movePaddles();
 			// paddle1AI(paddle1);
 			// checkIntersections();
 			moveCube();
@@ -450,9 +467,9 @@ socket.onmessage = function(event)
 	// console.log("Parsed data:", data);
 	switch(data.type)
 	{
-		case 'move':
-			updatePaddlePositions(data);
-			break;
+		// case 'move':
+		// 	updatePaddlePositions(data);
+		// 	break;
 		case 'connect':
 			console.log(`User ID: ${data.payload.id} | `, data.payload.connectMessage);
 			break;
@@ -464,6 +481,7 @@ socket.onmessage = function(event)
 			break;
 		case 'state':
 			updateBall(data.payload);
+			updatePaddlePositions(data.payload);
 			break;
 	}
 }
