@@ -63,7 +63,7 @@ const pointLight = new THREE.PointLight(0xffffff, POINT_LIGHT_INTENSITY, POINT_L
 scene.add(pointLight);
 
 // Cube
-const sphereGeometry = new THREE.SphereGeometry(10, 32, 32);
+const sphereGeometry = new THREE.SphereGeometry(20, 32, 32);
 const sphereMaterial = new THREE.MeshStandardMaterial({ color: BALL_COLOR });
 const ball = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(ball);
@@ -102,7 +102,7 @@ function handlePaddleControls()
 		switch (event.key) 
 		{
 			case 'w':
-				payload = { paddle: 1, speed: -PADDLE_SPEED };
+				payload = { paddle: 1, speed: -PADDLE_SPEED};
 				break;
 			case 's':
 				payload = { paddle: 1, speed: PADDLE_SPEED };
@@ -204,6 +204,7 @@ function checkIntersections()
 
   if (ballBoundingBox.intersectsBox(paddle1BoundingBox)) 
   {
+	console.log(ballBoundingBox, paddle1BoundingBox)
 	ballSpeedx *= -1;
 	shakeDuration = SHAKE_DURATION;
 	increaseSpeed();
@@ -278,8 +279,6 @@ function ballOutofBounds()
 
 function moveCube()
 {
-  ball.rotation.x += ballRotationX;
-  ball.rotation.y += ballRotationY;
   ball.position.x += ballSpeedx;
   ball.position.z += ballSpeedz;
   pointLight.position.copy(ball.position);
@@ -291,8 +290,6 @@ function moveCube()
 
 function updateBall(ballData)
 {
-	ballRotationX = ballData.ballRotationX
-	ballRotationY = ballData.ballRotationY
 	ballSpeedx = ballData.ballSpeedX
 	ballSpeedz = ballData.ballSpeedZ
 }
@@ -410,7 +407,7 @@ function animate()
 		{
 			movePaddles();
 			// paddle1AI(paddle1);
-			checkIntersections();
+			// checkIntersections();
 			moveCube();
 			// applyCameraShake();
 		}
@@ -450,7 +447,7 @@ function sendPayload(type, payload)
 socket.onmessage = function(event) 
 {
 	const data = JSON.parse(event.data);
-	console.log("Parsed data:", data);
+	// console.log("Parsed data:", data);
 	switch(data.type)
 	{
 		case 'move':
@@ -492,10 +489,11 @@ socket.onopen = () =>
 		max: paddle1BoundingBox.max.toArray(),
 	};
 
-	console.log('USER ID:', window.user.id);
+	// console.log('USER ID:', window.user.id);
 	sendPayload('componentsInit', {
 		ball: ballBoxJson,
 		paddle: paddleBoxJson,
+		depth: paddle1.geometry.parameters.depth,
 	});
 	sendPayload('connect', {
 		id: window.user.id,

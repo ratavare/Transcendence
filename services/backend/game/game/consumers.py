@@ -7,7 +7,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 lobbies = {}
 PADDLE_SPEED = 15;
 AIPADDLE_SPEED = 15;
-BALL_INITIAL_SPEED = 15;
+BALL_INITIAL_SPEED = -15;
 SHAKE_INTENSITY = 10;
 SHAKE_DURATION = 10;
 PADDLE_COLOR = 0x008000;
@@ -18,21 +18,28 @@ POINT_LIGHT_INTENSITY = 1000000;
 POINT_LIGHT_DISTANCE = 1000;
 AMBIENT_LIGHT_INTENSITY = 3;
 
+def myPrint(p):
+	print(p, flush=True)
+	
+
 class Paddle():
 	def __init__(self):
 		self.speed = 0
-		self.positionZ = 0
-		self.paddleBindingBox = []
+		self.positionX = -800
+		self.positionZ = -50
+		self.paddleBindingBox = {}
+		self.width = 10
+		self.length = 100
+		self.depth = 0
 
 class Ball:
 	def __init__(self):
+		self.diameter = 10
 		self.speedX = BALL_INITIAL_SPEED
 		self.speedZ = 0
-		self.rotationX = 0
-		self.rotationY = 0
 		self.positionX = 200
 		self.positionZ = 0
-		self.ballBindingBox = []
+		self.ballBindingBox = {}
 
 class Pong:
 	def __init__(self):
@@ -48,12 +55,44 @@ class Pong:
 		self.beginGame = False;
 		self.startTime = datetime.datetime.now()
 
-	def update_state(self):
-		# await self.checkIntersection()
-		self.ball.rotationX += 0.01
-		self.ball.rotationX += 0.01
+	async def update_state(self):
+		await self.checkIntersection()
 		self.ball.positionX += self.ball.speedX
 		self.ball.positionZ += self.ball.speedZ
+
+		self.ball.ballBindingBox = {
+			'min': [(self.ball.positionX - self.ball.diameter) / 2, (self.ball.positionZ - self.ball.diameter) / 2, 0],
+			'max': [(self.ball.positionX + self.ball.diameter) / 2, (self.ball.positionZ + self.ball.diameter) / 2, 0],
+		}
+
+		self.paddle1.paddleBindingBox = {
+			'min': [self.paddle1.positionZ - self.paddle1.width / 2, 0, 0],
+			'max': [self.paddle1.positionZ + self.paddle1.width / 2, 0, 0]
+		}
+	
+	async def checkIntersection(self):
+		myPrint(f"Ball: {self.ball.ballBindingBox}, Paddle: {self.paddle1.paddleBindingBox}")
+		intersect = self.intersections(self.ball.ballBindingBox, self.paddle1.paddleBindingBox)
+		if intersect:
+			self.ball.speedX *= -1
+			self.increaseSpeed()
+			self.adjustDirections()
+			self.ball.positionX += self.ball.speedX
+			self.ball.positionZ += self.ball.speedZ
+
+	def intersections(self, ball, paddle):
+		return	paddle['max'][0] >= ball['min'][0] and paddle['min'][0] <= ball['max'][0] and \
+				paddle['max'][1] >= ball['min'][1] and paddle['min'][1] <= ball['max'][1] and \
+				paddle['max'][2] >= ball['min'][2] and paddle['min'][2] <= ball['max'][2]
+
+	def adjustDirections(self):
+		realtiveIntersectZ = self.paddle1.positionZ + (self.paddle1.depth / 2) - self.ball.positionZ
+		normalizedIntersectZ = (realtiveIntersectZ / (self.paddle1.depth / 2)) - 1
+		self.ball.speedZ = normalizedIntersectZ * 20
+
+	def increaseSpeed(self):
+		if self.ball.speedX < 20 and self.ball.speedX > -20:
+			self.ball.speedX += 0.4 if self.ball.speedX > 0 else -0.4
 	
 class Consumer(AsyncWebsocketConsumer):
 
@@ -101,11 +140,14 @@ class Consumer(AsyncWebsocketConsumer):
 			data = json.loads(text_data)
 			send_type = data.get('type')
 			payload = data.get('payload')
-			await self.sendMessage('message', send_type + "123")
 
-			# if send_type == 'componentsInit':
-			# 	self.game.ball.ballBindingBox = payload['ball']
-			# 	self.game.paddle1.paddleBindingBox = payload['paddle']
+			if send_type == 'componentsInit':
+				self.game.ball.ballBindingBox = payload['ball']
+				self.game.paddle1.paddleBindingBox = payload['paddle']
+				self.game.paddle1.depth = payload['depth']
+			
+			if send_type == 'move':
+				self.game.paddle1.speed = payload['speed']
 	
 			if send_type == 'beginGame':
 				self.game_loop = asyncio.create_task(self.runLoop())
@@ -134,9 +176,9 @@ class Consumer(AsyncWebsocketConsumer):
 	async def runLoop(self):
 		try:
 			while True:
-				self.game.update_state()
+				await self.game.update_state()
 				await self.sendState()
-				await asyncio.sleep(1)
+				await asyncio.sleep(0.016)
 		except asyncio.CancelledError:
 			await self.sendMessage('message', 'Game End')
 
@@ -144,21 +186,5 @@ class Consumer(AsyncWebsocketConsumer):
 		payload = {
 			"ballSpeedX": self.game.ball.speedX,
 			"ballSpeedZ": self.game.ball.speedZ,
-			"ballRotationX": self.game.ball.rotationX,
-			"ballRotationY": self.game.ball.rotationY,
 		}
 		await self.groupSend("state", payload)
-
-# 	async def checkIntersection(self):
-# 		if intersections(self.game.ball.paddleBindingBox, self.game.paddle1.paddleBindingBox):
-# 			self.game.ball.speedX *= -1;
-# 			await self.increaseSpeed();
-
-# 	async def increaseSpeed(self):
-# 		if self.game.ball.speedX < 20 and self.game.ball.speedX > -20:
-# 			self.game.ball.speedX += 0.4 if self.game.ball.speedX > 0 else -0.4
-
-# def intersections(ball, paddle):
-# 	return ball.max.x >= paddle.min.x and ball.min.x <= paddle.max.x and \
-# 		ball.max.y >= paddle.min.y and ball.min.y <= paddle.max.y and \
-# 		ball.max.z >= paddle.min.z and ball.min.z <= paddle.max.z
