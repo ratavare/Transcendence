@@ -1,27 +1,35 @@
 async function sendFriendRequest(dest, src) {
-    const fetch_url = 'https://localhost:8443/user_profile/friend-request-send/';
-    const formData = new FormData();
-    formData.append('dest', dest);
-    formData.append('src', src);
-
-    myFetch(fetch_url, formData, true)
-    .then(data => {
-        console.log(data);
-    })
-    .catch(error => {
-        console.error("Error:", error);
-    });
+	fetch('https://localhost:8443/user_friends/friend-request-send/', {
+		method: 'POST',
+		headers: {
+			"X-CSRFToken": getCookie('csrftoken'),
+			"Accept": "application/json",
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			"dest":dest,
+			"src":src
+		})
+	})
+	.then(response => response.json())
+	.then(data => {
+		console.log(data);
+	})
+	.catch(error => {
+		console.error("Error:", error);
+	});
 }
 
-function buttonConfigure() {
-    const friends = userListDiv.querySelectorAll('li');
-    friends?.forEach(item => {
-        const button = item.querySelector('button');
-        const dest = item.querySelector('p').textContent;
-        button.addEventListener('click', () => {
-            sendFriendRequest(dest, window.user.username);
-        });
-    });
+function sendButtonConfigure()
+{
+	const friends = userListDiv.querySelectorAll('li');
+	friends?.forEach(item => {
+		const button = item.querySelector('button')
+		const dest = item.querySelector('p').textContent;
+		button.addEventListener('click', () => {
+			sendFriendRequest(dest, window.user.username);
+		});
+	});
 }
 
 function putUsers(users) {
@@ -50,11 +58,16 @@ function putUsers(users) {
     userListDiv.appendChild(userList);
     userListDiv.style.display = 'block';
 
-    buttonConfigure();
+	sendButtonConfigure();
+}
+
+const friendsListDiv = document.getElementById('user-friends');
+
+{
+	
 }
 
 const userListDiv = document.getElementById('user-search-result');
-userListDiv.style.display = 'none';
 
 {
     const formUsers = document.getElementById('form-users');

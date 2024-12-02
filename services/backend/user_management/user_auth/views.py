@@ -15,34 +15,28 @@ logging.basicConfig(level=logging.DEBUG)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def registerView(request):
-    form = RegistrationForm(request.POST)
-    if form.is_valid():
-        user = form.save()
-        login(request, user)
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'status': 'success',
-            'username': user.username,
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-        }, status=status.HTTP_200_OK)
-    return Response({'status': 'error', 'errors': form.errors}, status=status.HTTP_409_CONFLICT)
+	if request.method == 'POST':
+		form = RegistrationForm(request.POST)
+		if form.is_valid():
+			user = form.save()
+			login(request, user)
+			return JsonResponse({'message': 'Registration Successful'}, status=200)
+		return JsonResponse({'error': form.errors}, status=409)
+	elif request.method == 'GET':
+		return JsonResponse({'test':"GET"}, status=200);
+	return JsonResponse({'error': 'error'}, status=400)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def loginView(request):
-    form = AuthenticationForm(request, data=request.POST)
-    if form.is_valid():
-        user = form.get_user()
-        login(request, user)
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'status': 'success',
-            'username': user.username,
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-        }, status=status.HTTP_200_OK)
-    return Response({'status': 'error', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+	if request.method == 'POST':
+		form = AuthenticationForm(request, data=request.POST)
+		if form.is_valid():
+			user = form.get_user()
+			login(request, user)
+			return JsonResponse({'message': 'Login Successful', 'username': user.username}, status=200)
+		return JsonResponse({'error': form.errors}, status=400)
+	return JsonResponse({'error': 'error'}, status=400)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

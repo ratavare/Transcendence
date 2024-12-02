@@ -43,46 +43,17 @@ function getCookie(name) {
     return cookieValue;
 }
 
-async function myFetch(viewUrl, myData, method = 'POST', requireAuth = true) {
-    let accessToken = localStorage.getItem('access_token');
-    if (requireAuth && !accessToken) {
-        accessToken = await refreshToken();
-        if (!accessToken) {
-            console.error("No access token found. User might not be logged in.");
-            return;
-        }
-    }
-
-    const headers = {
-        "X-CSRFToken": getCookie('csrftoken'),
-        "Accept": "application/json",
-    };
-
-    if (requireAuth) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    let body = null;
-    if (myData) {
-        if (myData instanceof FormData) {
-            body = myData;
-            delete headers["Content-Type"];
-        } else {
-            headers["Content-Type"] = "application/json";
-            body = JSON.stringify(myData);
-        }
-    }
-
-    return fetch(viewUrl, {
-        method: method,
-        headers: headers,
-        body: body,
-    })
-    .then(async (response) => {
-        console.log("status: ", response);
-        const data = await response.json();
-        console.log("Data:", data);
-        return data;
-    })
-    .catch(error => console.log("Error: ", error));
+async function myFetch(viewUrl, myData){
+	const response = await fetch(viewUrl , {
+		method: 'POST',
+		headers: {
+			"X-CSRFToken": getCookie('csrftoken'),
+			"Accept": "application/json",
+		},
+		body: myData,
+	})
+	const data = await response.json();
+	if (!response.ok)
+		throw data.error;
+	return data;
 }

@@ -24,6 +24,16 @@ services:
     networks:
       - transcendence_nw
 
+  game:
+    container_name: game
+    build: ./services/backend/game
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./services/backend/game:/game
+    networks:
+      - transcendence_nw
 
   nginx:
     container_name: nginx
