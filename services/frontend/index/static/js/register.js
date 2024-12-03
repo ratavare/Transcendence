@@ -1,5 +1,5 @@
 {
-    const formRegister = document.getElementById("form-register");
+	const formRegister = document.getElementById("form-register");
 
 	formRegister?.addEventListener('submit', async function(event) {
 		event.preventDefault();

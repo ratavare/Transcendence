@@ -1,3 +1,4 @@
+
 async function logoutFunc() {
 	if (location.hash === "#/logout")
 	{

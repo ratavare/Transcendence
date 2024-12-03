@@ -1,19 +1,14 @@
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.contrib.auth import login, logout
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import User
+
 from .forms import RegistrationForm
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
 def registerView(request):
 	if request.method == 'POST':
 		form = RegistrationForm(request.POST)
@@ -26,8 +21,6 @@ def registerView(request):
 		return JsonResponse({'test':"GET"}, status=200);
 	return JsonResponse({'error': 'error'}, status=400)
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
 def loginView(request):
 	if request.method == 'POST':
 		form = AuthenticationForm(request, data=request.POST)
@@ -38,20 +31,25 @@ def loginView(request):
 		return JsonResponse({'error': form.errors}, status=400)
 	return JsonResponse({'error': 'error'}, status=400)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def logoutView(request):
-    logout(request)
-    return Response({'status': 'success'}, status=status.HTTP_200_OK)
+	logout(request)
+	return JsonResponse({'status': 'success'}, status=200)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def userSearchView(request):
-    userSearched = request.data.get('username')
-    if not userSearched:
-        return Response({'error': 'No users found!'}, status=status.HTTP_404_NOT_FOUND)
-    all_users = User.objects.filter(username__icontains=userSearched)
-    users = [{'username': user.username} for user in all_users if user.username != 'root' and user != request.user]
-    if not users:
-        return Response({'error': 'No users found!'}, status=status.HTTP_404_NOT_FOUND)
-    return Response({'users': users}, status=status.HTTP_200_OK)
+	if request.method == 'POST':
+		userSearched = request.POST.get('username')
+		
+		if not userSearched:
+			return JsonResponse({'error': 'No users found!'}, status=404)
+		# gets all users that contain 'userSearched'; Not sensitive to case
+		all_users = User.objects.filter(username__icontains=userSearched)
+		
+		users = []
+		for user in all_users:
+			if user.username == 'root' or user == request.user:
+				continue
+			users.append({'username': user.username})
+		if not users:
+			return JsonResponse({'error': 'No users found!'}, status=404)
+		return JsonResponse({'users': users}, status=200)
+	return JsonResponse({"error": "Wrong Method"}, status=400)

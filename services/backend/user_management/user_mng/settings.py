@@ -1,6 +1,5 @@
 
 from pathlib import Path
-from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,8 +27,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'crispy_forms',
 	'crispy_bootstrap5',
-	'rest_framework',
-    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -114,34 +111,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 REST_FRAMEWORK = {
 	'DEFAULT_PERMISSION_CLASSES': [
 		'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-	],
-	'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+	]
 }
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
-    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
-}
-
-# Ensure SECURE_SSL_REDIRECT is set to True to redirect HTTP to HTTPS
-SECURE_SSL_REDIRECT = True
-
-# Ensure HSTS settings are configured
-SECURE_HSTS_SECONDS = 31536000  # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-
-# Ensure cookies are only sent over HTTPS
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
-# Optionally, set SECURE_BROWSER_XSS_FILTER to True to enable the XSS filter in the browser
-SECURE_BROWSER_XSS_FILTER = True
-
-# Optionally, set SECURE_CONTENT_TYPE_NOSNIFF to True to prevent the browser from guessing the content type
-SECURE_CONTENT_TYPE_NOSNIFF = True
