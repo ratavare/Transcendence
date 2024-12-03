@@ -147,8 +147,8 @@ class Consumer(AsyncWebsocketConsumer):
 				self.game.paddle1.paddleBindingBox = {
 					'min': [-800, 0, self.game.paddle1.positionZ - self.game.paddle1.width / 2],
 					'max': [-790, 30, self.game.paddle1.positionZ + self.game.paddle1.width / 2]
-    			}
-	
+				}
+
 			if send_type == 'beginGame':
 				self.game_loop = asyncio.create_task(self.runLoop())
 

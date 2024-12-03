@@ -20,15 +20,13 @@ let player1Score = 0;
 let player2Score = 0;
 let ballSpeedx = 0;
 let ballSpeedz = 0;
-let ballRotationX = 0;
-let ballRotationY = 0;
 let shakeDuration = 0;
 let paddle1Speed = 0;
 let paddle2Speed = 0;
 let gamePaused = false;
 let beginGame = false;
-let sphereData = [];
-let startTime = Date.now();
+// let sphereData = [];
+// let startTime = Date.now();
 
 // Scene Setup
 const canvas = document.getElementById('canvas');
@@ -47,9 +45,9 @@ controls.update();
 // scene.add(gridHelper);
 
 // Axes
+// const axesHelper = new THREE.AxesHelper(1000);
+// scene.add(axesHelper);
 
-const axesHelper = new THREE.AxesHelper(1000);
-scene.add(axesHelper);
 
 // Plane
 const planeGeometry = new THREE.PlaneGeometry(3000, 2000);
@@ -89,6 +87,9 @@ const table1BoundingBox = new THREE.Box3().setFromObject(table1);
 const table2BoundingBox = new THREE.Box3().setFromObject(table2);
 const paddle1BoundingBox = new THREE.Box3().setFromObject(paddle1);
 const paddle2BoundingBox = new THREE.Box3().setFromObject(paddle2);
+
+const helper = new THREE.Box3Helper(paddle1BoundingBox, 0xff00ff);
+scene.add(helper);
 
 // Functions
 function makeParalellepiped(x, y, z, dx, dy, dz, color) 
@@ -154,6 +155,7 @@ function updatePaddlePositions(payloadData)
 {
 	paddle1.position.z += payloadData.paddle1Speed;
 	paddle2.position.z += payloadData.paddle1Speed;
+	paddle1BoundingBox.setFromObject(paddle1);
 }
 
 // function movePaddles()
