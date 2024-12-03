@@ -13,6 +13,12 @@
 			if (!response.ok)
 				throw data.error;
 			console.log(data.message);
+			if (data.access && data.refresh) {
+				console.log("Login successful");
+				
+				localStorage.setItem('access_token', data.access);
+				localStorage.setItem('refresh_token', data.refresh);
+			}
 			seturl('/home');
 		} catch (error) {
 			console.log(error);

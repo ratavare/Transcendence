@@ -7,7 +7,12 @@
 	
 		try {
 			const data = await myFetch('https://localhost:8443/user_auth/register/', formData)
-			console.log("Registration successful", data);
+			if (data.access && data.refresh) {
+				console.log("Registration successful", data);
+				
+				localStorage.setItem('access_token', data.access);
+				localStorage.setItem('refresh_token', data.refresh);
+			}
 			seturl('/home');
 	
 		} catch(error) {
