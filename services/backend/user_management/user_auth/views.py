@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 
 from .forms import RegistrationForm
 
@@ -21,6 +22,7 @@ def registerView(request):
 		return JsonResponse({'test':"GET"}, status=200);
 	return JsonResponse({'error': 'error'}, status=400)
 
+@csrf_exempt
 def loginView(request):
 	if request.method == 'POST':
 		form = AuthenticationForm(request, data=request.POST)
