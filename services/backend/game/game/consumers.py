@@ -59,15 +59,11 @@ class Pong:
 		await self.checkIntersection()
 		self.ball.positionX += self.ball.speedX
 		self.ball.positionZ += self.ball.speedZ
+		self.paddle1.positionZ += self.paddle1.speed
 
 		self.ball.ballBindingBox = {
 			'min': [(self.ball.positionX - self.ball.diameter) / 2, (self.ball.positionZ - self.ball.diameter) / 2, 0],
 			'max': [(self.ball.positionX + self.ball.diameter) / 2, (self.ball.positionZ + self.ball.diameter) / 2, 0],
-		}
-
-		self.paddle1.paddleBindingBox = {
-			'min': [self.paddle1.positionZ - self.paddle1.width / 2, 0, 0],
-			'max': [self.paddle1.positionZ + self.paddle1.width / 2, 0, 0]
 		}
 	
 	async def checkIntersection(self):
@@ -148,6 +144,10 @@ class Consumer(AsyncWebsocketConsumer):
 			
 			if send_type == 'move':
 				self.game.paddle1.speed = payload['speed']
+				self.game.paddle1.paddleBindingBox = {
+					'min': [-800, 0, self.game.paddle1.positionZ - self.game.paddle1.width / 2],
+					'max': [-790, 30, self.game.paddle1.positionZ + self.game.paddle1.width / 2]
+    			}
 	
 			if send_type == 'beginGame':
 				self.game_loop = asyncio.create_task(self.runLoop())
@@ -186,5 +186,6 @@ class Consumer(AsyncWebsocketConsumer):
 		payload = {
 			"ballSpeedX": self.game.ball.speedX,
 			"ballSpeedZ": self.game.ball.speedZ,
+			"paddle1Speed": self.game.paddle1.speed,
 		}
 		await self.groupSend("state", payload)
