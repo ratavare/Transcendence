@@ -33,7 +33,7 @@ function sendButtonConfigure()
 	});
 }
 
-function putUsers(users)
+function putPossibleFriends(users)
 {
 	const previousList = userListDiv.querySelector('ul');
 	previousList?.remove();
@@ -64,11 +64,45 @@ function putUsers(users)
 	sendButtonConfigure();
 }
 
+function getFriends() {
+	return fetch('https://localhost:8443/user_friends/get-friends/', {
+		method: 'POST',
+		headers: {
+			"X-CSRFToken": getCookie('csrftoken'),
+			"Accept": "application/json",
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({ user: window.user.username })
+	})
+	.then(response => {
+		return response.json();
+	})
+	.catch(error => {
+		console.error("Error fetching friends:", error);
+	});
+}
+
+// * MAIN SCRIPT *
+
 const friendsListDiv = document.getElementById('user-friends');
 
-{
-	
-}
+getFriends().then(response => {
+	if (response) {
+		console.log(response);
+		response.friends.forEach(friend => {
+			const friendList = document.createElement('ul');
+			const friendsP = document.createElement('p');
+			friendsP.textContent = friend.username;
+			friendList.appendChild(friendsP);
+			friendsListDiv.appendChild(friendList);
+		});
+	} else {
+		friendsListDiv.innerHTML = "<p>No friends found.</p>";
+	}
+}).catch(error => {
+		console.error("Error fetching friends:", error);
+		friendsListDiv.innerHTML = "<p>Error loading friends list.</p>";
+});
 
 const userListDiv = document.getElementById('user-search-result');
 
@@ -84,7 +118,7 @@ const userListDiv = document.getElementById('user-search-result');
 		myFetch(fetch_url, formData)
 		.then(data => {
 			if (data.users)
-				putUsers(data.users);
+				putPossibleFriends(data.users);
 			
 		}).catch(error => {
 			console.log(error);

@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from django.db import models
 from .models import Friendships
-from .serializers import FriendshipSerializer
+from .serializers import FriendshipSerializer, UserSerializer
 import json
 
 def sendFriendRequest(request):
@@ -25,5 +26,31 @@ def sendFriendRequest(request):
 		except User.DoesNotExist:
 			return JsonResponse({'error': 'User(s) not found'}, status=404)
 
+def getFriends(request):
+	if request.method == 'POST':
+		try:
+			data = json.loads(request.body)
+
+			username = data.get('user')
+			user = User.objects.get(username=username)
+
+			friendships = Friendships.objects.filter(
+			models.Q(from_user=user, status='accepted') |
+			models.Q(to_user=user, status='accepted'))
+
+			friends = []
+			for friendship in friendships:
+				if friendship.to_user == user:
+					friends.append(friendship.from_user)
+				else:
+					friends.append(friendship.to_user)
+			serializer = UserSerializer(friends, many=True)
+			return JsonResponse({'friends': serializer.data}, status=200)
+		
+		except User.DoesNotExist:
+			return JsonResponse({'error': 'User not found'}, status=404)
+		except Exception as e:
+			return JsonResponse({'error': str(e)}, status=500)
+	
 def acceptFriendRequest(request):
 	pass
