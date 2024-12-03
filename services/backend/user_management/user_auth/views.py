@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 
 from .forms import RegistrationForm
 
@@ -21,19 +22,23 @@ def registerView(request):
 		return JsonResponse({'test':"GET"}, status=200);
 	return JsonResponse({'error': 'error'}, status=400)
 
+@csrf_exempt
 def loginView(request):
 	if request.method == 'POST':
 		form = AuthenticationForm(request, data=request.POST)
 		if form.is_valid():
 			user = form.get_user()
 			login(request, user)
-			return JsonResponse({'message': 'Login Successful', 'username': user.username}, status=200)
+			return JsonResponse({'message': 'Login Successful'}, status=200)
 		return JsonResponse({'error': form.errors}, status=400)
-	return JsonResponse({'error': 'error'}, status=400)
+	return JsonResponse({'error': 'Unsupported method'}, status=400)
 
 def logoutView(request):
-	logout(request)
-	return JsonResponse({'status': 'success'}, status=200)
+	try:
+		logout(request)
+	except:
+		return JsonResponse({'status': 'success'}, status=200)
+	return JsonResponse({'error': 'Logout Unsuccessful'}, status=200)
 
 def userSearchView(request):
 	if request.method == 'POST':
