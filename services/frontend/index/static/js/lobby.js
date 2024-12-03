@@ -2,10 +2,24 @@
 async function joinLobby(lobby_id)
 {
 	try {
-		const data = await myFetch(`https://localhost:8443/lobby/lobbies/${lobby_id}`, window.user)
+		const response = await fetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/`, {
+			method: 'POST',
+			body: JSON.stringify(window.user),
+			headers: {
+				"X-CSRFToken": getCookie('csrftoken'),
+				"Accept": "application/json",
+				"Content-Type": "application/json"
+			},
+
+		});
+		const data = await response.json()
+		if (!response.ok)
+			throw data.error;
+	
 		console.log(data);
 		seturl(`/lobbies/${lobby_id}`)
 	} catch (error) {
+		seturl('/lobby');
 		console.log(error);
 	}
 }
@@ -70,15 +84,16 @@ async function getLobbies()
 {
 	const createLobbyForm = document.getElementById('create-lobby-form');
 
-	createLobbyForm?.addEventListener('submit', function(event) {
+	createLobbyForm?.addEventListener('submit', async function(event) {
 		event.preventDefault();
 
 		const formData = new FormData(event.target);
 
 		try {
-			const data = myFetch('https://localhost:8443/lobby/lobbies/', formData)
+			const data = await myFetch('https://localhost:8443/lobby/lobbies/', formData);
 			seturl(`/lobbies/${data.lobby_id}`)
 		} catch(error) {
+			seturl('/lobby');
 			console.log(error);
 		}
 	});
