@@ -166,17 +166,17 @@ function updatePaddlePositions(payloadData)
 // 	paddle2BoundingBox.setFromObject(paddle2);
 // }
 
-	// console.log('updatePaddlePositions');
-	// if (paddleData.payload.paddle == 1)
-	// {
-		// paddle1Speed = paddleData.payload.speed;
-	// }
-	// else if (paddleData.payload.paddle == 2)
-	// {
-		// paddle2Speed = paddleData.payload.speed;
-	// }
-	// paddle1BoundingBox.setFromObject(paddle1);
-	// paddle2BoundingBox.setFromObject(paddle2);
+// 	console.log('updatePaddlePositions');
+// 	if (paddleData.payload.paddle == 1)
+// 	{
+// 		paddle1Speed = paddleData.payload.speed;
+// 	}
+// 	else if (paddleData.payload.paddle == 2)
+// 	{
+// 		paddle2Speed = paddleData.payload.speed;
+// 	}
+// 	paddle1BoundingBox.setFromObject(paddle1);
+// 	paddle2BoundingBox.setFromObject(paddle2);
 
 // function movePaddles()
 // {
@@ -301,15 +301,20 @@ function moveCube()
   ball.position.z += ballSpeedz;
   pointLight.position.copy(ball.position);
 
-  ballOutofBounds();
+//   ballOutofBounds();
 
-  ballBoundingBox.setFromObject(ball);	
+//   ballBoundingBox.setFromObject(ball);	
 }
 
 function updateBall(ballData)
 {
-	ballSpeedx = ballData.ballSpeedX
-	ballSpeedz = ballData.ballSpeedZ
+	ball.position.x = ballData.ballPositionX;
+	ball.position.z = ballData.ballPositionZ;
+	
+	// ballOutofBounds();
+	
+	console.log(ballData.ballBoundingBox);
+	ballBoundingBox == ballData.ballBoundingBox;	
 }
 
 // function saveSphereData() 
@@ -423,11 +428,10 @@ function animate()
 			beginGame = true;
 		if (!gamePaused && beginGame && player1Score < 7 && player2Score < 7) 
 		{
-			// updatePaddlePositions();
 			// movePaddles();
 			// paddle1AI(paddle1);
 			// checkIntersections();
-			moveCube();
+			// moveCube();
 			// applyCameraShake();
 		}
 		else if (player1Score == 7)
