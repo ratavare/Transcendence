@@ -141,19 +141,20 @@ function handlePaddleControls()
 	document.addEventListener('keydown', (event) => 
 	{
 		let payload = null;
+		let payload2 = null;
 		switch (event.key) 
 		{
 			case 'w':
-				payload = { paddle: 1, speed1: -PADDLE_SPEED};
+				payload = { paddle: 1, direction1: -1};
 				break;
 			case 's':
-				payload = { paddle: 1, speed1: PADDLE_SPEED };
+				payload = { paddle: 1, direction1: 1};
 				break;
 			case 'ArrowUp':
-				payload = { paddle: 2, speed2: -PADDLE_SPEED };
+				payload2 = { paddle: 2, direction2: -1};
 				break;
 			case 'ArrowDown':
-				payload = { paddle: 2, speed2: PADDLE_SPEED };
+				payload2 = { paddle: 2, direction2: 1};
 				break;
 			case 'p':
 				gamePaused = !gamePaused;
@@ -163,25 +164,34 @@ function handlePaddleControls()
 		{
 			sendPayload('move', payload);
 		}
+		if (payload2) 
+		{
+			sendPayload('move2', payload2);
+		}
 	});
 
 	document.addEventListener('keyup', (event) => 
 	{
 		let payload = null;
+		let payload2 = null;
 		switch (event.key) 
 		{
 			case 'w':
 			case 's':
-				payload = { paddle: 1, speed1: 0 };
+				payload = { paddle: 1, direction1: 0 };
 				break;
 			case 'ArrowUp':
 			case 'ArrowDown':
-				payload = { paddle: 2, speed2: 0 };
+				payload2 = { paddle: 2, direction2: 0 };
 				break;
 		}
 		if (payload) 
 		{
 			sendPayload('move', payload);
+		}
+		if (payload2) 
+		{
+			sendPayload('move2', payload2);
 		}
 	});
 }
@@ -344,6 +354,8 @@ function updateBall(ballData)
 {
 	ball.position.x = ballData.ballPositionX;
 	ball.position.z = ballData.ballPositionZ;
+	pointLight.position.copy(ball.position);
+	// console.log('Ball Position: ', ball.position);
 	
 	// ballOutofBounds();
 	
