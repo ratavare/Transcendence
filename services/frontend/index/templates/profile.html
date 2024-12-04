@@ -5,16 +5,6 @@
 	<div class="container mt-5">
 		<div class="form-group row" align="center">	
 			<h1 class="mb-4">My Profile</h1>
-			<form method="POST" id="form-profile" class="d-inline">
-				{% csrf_token %}
-				<div class="form-group row" align="center">		
-					<div class="text-center" style="width: 100%; display: flex; flex-direction: column; align-items: center;" id="form-center">
-						{{ updateProfileForm | crispy }}
-					</div>
-				</div>
-				<!-- Save Changes button that only appears if fields have changed -->
-				<button type="submit" class="btn btn-primary float-end hidden" id="saveChangesButton">Save Changes</button>
-			</form>
 		</div>
 	</div>
 
@@ -113,13 +103,14 @@
 					</div>
 					<!-- Profile Edit Section (hidden initially) -->
 					<form method="POST" id="form-profile" class="d-inline">
+						{% csrf_token %}
 					<div class="card-body" id="profile-edit" style="display: none;">
 					  <div class="row mb-3">
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Username</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="name" class="form-control" placeholder="{{ request.user.username }}" id="username-edit">
+						  <input name="username" class="form-control" placeholder="{{ request.user.username }}" id="username-edit">
 						</div>
 					  </div>
 					  <hr><div class="row mb-3">
@@ -164,7 +155,7 @@
 						  <h6 class="mb-0">Birth Date</h6>
 						</div>
 						<div class="col-sm-9 text-secondary" id="birth-date-view">
-						  <input name="date" type="date" id="id-date"  class="form-control" placeholder="{{ request.user.birth_date }}">
+						  <input name="birth_date" type="date" id="id-date"  class="form-control" placeholder="{{ request.user.birth_date }}">
 						</div>
 					  </div>
 					  <hr>
@@ -173,13 +164,13 @@
 						  <h6 class="mb-0">Password</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="date" type="password" id="id-password"  class="form-control">
+						  <input name="password" type="password" id="id-password"  class="form-control">
 						</div>
 					  </div>
 					  <hr>
 					  <div class="row mb-3">
 						<div class="col-sm-12">
-						  <a class="btn btn-success " onclick="saveProfile()">Save Changes</a>
+						  <button type="submit" class="btn btn-success hidden" id="saveChangesButton">Save Changes</button>
 						</div>
 					  </div>
 					</div>

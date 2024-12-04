@@ -1,12 +1,6 @@
-
 async function fillProfile(){
 	try {
 		const form = document.getElementById('form-center');
-		const inputs = form.querySelectorAll('input');
-		inputs[0].value = window.user.username;
-		inputs[1].value = window.user.email;
-		inputs[2].value = window.user.bio;
-		inputs[3].value = window.user.birth_date;
 		document.getElementById('username').innerText = window.user.username;
         document.getElementById('fullname').innerText = window.user.full_name || "";
         document.getElementById('email').innerText = window.user.email;
@@ -35,30 +29,18 @@ function editProfile() {
 	document.getElementById('id-date').value = window.user.birth_date;
 }
 
-// Function to save changes and return to view mode
-async function saveProfile() {
-	const form = document.getElementById('form-profile');
-	const formData = new FormData(form);
-
-		try {
-			await myFetch('https://localhost:8443/user_profile/profile/', formData)
-			console.log("Profile change successful");
-			seturl('/home');
-		} catch(error) {
-			console.log("Profile change failed. Reason:", error);
-			alert("Profile change failed. Reason:", error);
-		}
-
-}
-
 {
 	const formProfile = document.getElementById('form-profile');
 	const saveChangesButton = document.getElementById('saveChangesButton');
 	
-	formProfile?.addEventListener('input', function() {
-		saveChangesButton.classList.remove('hidden');
-	});
-	
+	if (formProfile && saveChangesButton) {
+        saveChangesButton.classList.add('hidden');
+
+        formProfile.addEventListener('input', function () {
+            saveChangesButton.classList.remove('hidden');
+        });
+    }
+
 	formProfile?.addEventListener('submit', async function(event) {
 		event.preventDefault();
 	
@@ -73,6 +55,7 @@ async function saveProfile() {
 			alert("Profile change failed. Reason:", error);
 		}
 	});
+
 }
 
 fillProfile();
