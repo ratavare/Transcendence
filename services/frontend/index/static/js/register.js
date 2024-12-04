@@ -6,10 +6,10 @@
 		let formData = new FormData(event.target);
 	
 		try {
-			const data = await myFetch('https://localhost:8443/user_auth/register/', formData)
+			const data = await myFetch('https://localhost:8443/user_auth/register/', formData);
 			if (data.access && data.refresh) {
 				console.log("Registration successful", data);
-				
+
 				localStorage.setItem('access_token', data.access);
 				localStorage.setItem('refresh_token', data.refresh);
 			}

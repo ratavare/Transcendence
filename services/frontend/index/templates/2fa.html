@@ -1,0 +1,7 @@
+<page-element name="2fa">
+	{% include 'navbar.html' with authenticated="true" %}
+	<form id="form-2fa-setup">
+		<button type="submit">Activate 2FA</button>
+	</form>
+	<div id="qr-container"></div>
+</page-element>
