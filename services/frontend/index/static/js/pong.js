@@ -4,7 +4,7 @@ import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitCon
 // Constants
 const PADDLE_SPEED = 15;
 const AIPADDLE_SPEED = 15;
-const BALL_INITIAL_SPEED = 0;
+const BALL_INITIAL_SPEED = -10;
 const SHAKE_INTENSITY = 10;
 const SHAKE_DURATION = 10;
 const PADDLE_COLOR = 0x008000;
@@ -41,8 +41,8 @@ camera.position.set(0, 500, 0);
 controls.update();
 
 // Helpers
-// const gridHelper = new THREE.GridHelper(10000, 100, 0x808080);
-// scene.add(gridHelper);
+const gridHelper = new THREE.GridHelper(10000, 100, 0x808080);
+scene.add(gridHelper);
 
 // Axes
 // const axesHelper = new THREE.AxesHelper(1000);
@@ -72,26 +72,62 @@ const ball = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(ball);
 const ballBoundingBox = new THREE.Box3().setFromObject(ball);
 
-// Paddles and Table
-const table1 = makeParalellepiped(-1300, 0, 500, 2700, 100, 100, TABLE_COLOR);
-const table2 = makeParalellepiped(-1300, 0, -600, 2700, 100, 100, TABLE_COLOR);
-const paddle1 = makeParalellepiped(-800, 0, -50, 10, 30, 100, PADDLE_COLOR);
-const paddle2 = makeParalellepiped(800, 0, -50, 10, 30, 100, PADDLE_COLOR);
+let paddle1 = {};
+let paddle2 = {};
 
-scene.add(table1);
-scene.add(table2);
-scene.add(paddle1);
-scene.add(paddle2);
-
-const table1BoundingBox = new THREE.Box3().setFromObject(table1);
-const table2BoundingBox = new THREE.Box3().setFromObject(table2);
-const paddle1BoundingBox = new THREE.Box3().setFromObject(paddle1);
-const paddle2BoundingBox = new THREE.Box3().setFromObject(paddle2);
-
-const helper = new THREE.Box3Helper(paddle1BoundingBox, 0xff00ff);
-scene.add(helper);
 
 // Functions
+function createEnvironment(data)
+{
+	// Paddles and Table
+	console.log("DATA: ", data)
+	const table1 = makeParalellepiped(
+		data.floorPositionX,
+		data.floorPositionY,
+		data.floorPositionZ,
+		data.boundariesWidth,
+		data.boundariesDepth, 
+		data.boundariesHeight,
+		TABLE_COLOR
+	);
+	const table2 = makeParalellepiped(
+		data.ceilingPositionX,
+		data.ceilingPositionY,
+		data.ceilingPositionZ,
+		data.boundariesWidth,
+		data.boundariesDepth, 
+		data.boundariesHeight,
+		TABLE_COLOR
+	);
+	paddle1 = makeParalellepiped(
+		data.paddle1PositionX,
+		data.paddlePositionY,
+		data.paddle1PositionZ,
+		data.paddleWidth,
+		data.paddleDepth, 
+		data.paddleLength,
+		PADDLE_COLOR
+	);
+	paddle2 = makeParalellepiped(
+		data.paddle2PositionX,
+		data.paddlePositionY,
+		data.paddle2PositionZ,
+		data.paddleWidth,
+		data.paddleDepth, 
+		data.paddleLength,
+		PADDLE_COLOR
+	);
+	const paddle1BoundingBox = new THREE.Box3().setFromObject(paddle1);
+	const paddle2BoundingBox = new THREE.Box3().setFromObject(paddle2);
+	console.log('Ball Bounding Box', ballBoundingBox);
+	console.log('Paddle1 Box', paddle1BoundingBox);
+	console.log('Paddle2 Box', paddle2BoundingBox);
+	scene.add(table1);
+	scene.add(table2);
+	scene.add(paddle1);
+	scene.add(paddle2);
+}
+
 function makeParalellepiped(x, y, z, dx, dy, dz, color) 
 {
   const material = new THREE.MeshStandardMaterial({ color: color });
@@ -108,17 +144,16 @@ function handlePaddleControls()
 		switch (event.key) 
 		{
 			case 'w':
-				payload = { paddle: 1, speed: -PADDLE_SPEED};
+				payload = { paddle: 1, speed1: -PADDLE_SPEED};
 				break;
 			case 's':
-				payload = { paddle: 1, speed: PADDLE_SPEED };
+				payload = { paddle: 1, speed1: PADDLE_SPEED };
 				break;
 			case 'ArrowUp':
-				payload = { paddle: 2, speed: -PADDLE_SPEED };
-
+				payload = { paddle: 2, speed2: -PADDLE_SPEED };
 				break;
 			case 'ArrowDown':
-				payload = { paddle: 2, speed: PADDLE_SPEED };
+				payload = { paddle: 2, speed2: PADDLE_SPEED };
 				break;
 			case 'p':
 				gamePaused = !gamePaused;
@@ -137,11 +172,11 @@ function handlePaddleControls()
 		{
 			case 'w':
 			case 's':
-				payload = { paddle: 1, speed: 0 };
+				payload = { paddle: 1, speed1: 0 };
 				break;
 			case 'ArrowUp':
 			case 'ArrowDown':
-				payload = { paddle: 2, speed: 0 };
+				payload = { paddle: 2, speed2: 0 };
 				break;
 		}
 		if (payload) 
@@ -153,9 +188,8 @@ function handlePaddleControls()
 
 function updatePaddlePositions(payloadData) 
 {
-	paddle1.position.z += payloadData.paddle1Speed;
-	paddle2.position.z += payloadData.paddle1Speed;
-	paddle1BoundingBox.setFromObject(paddle1);
+	paddle1.position.z = payloadData.paddle1PositionZ;
+	paddle2.position.z = payloadData.paddle2PositionZ;
 }
 
 // function movePaddles()
@@ -278,33 +312,33 @@ function respawnCube(player)
   }
 }
 
-function ballOutofBounds()
-{
-  if (ball.position.x > 1000)
-  {
-	// console.log('z is ' + ball.position.z + ' x is ' + ball.position.x);
-	respawnCube(1);
-	player1Score++;
-	document.getElementById('player1score').innerHTML = player1Score;
-  } else if (ball.position.x < -1000)
-  {
-	// console.log('z is ' + ball.position.z + ' x is ' + ball.position.x); 
-	respawnCube(2);
-	player2Score++;
-	document.getElementById('player2score').innerHTML = player2Score;
-  }
-}
+// function ballOutofBounds()
+// {
+//   if (ball.position.x > 1000)
+//   {
+// 	// console.log('z is ' + ball.position.z + ' x is ' + ball.position.x);
+// 	respawnCube(1);
+// 	player1Score++;
+// 	document.getElementById('player1score').innerHTML = player1Score;
+//   } else if (ball.position.x < -1000)
+//   {
+// 	// console.log('z is ' + ball.position.z + ' x is ' + ball.position.x); 
+// 	respawnCube(2);
+// 	player2Score++;
+// 	document.getElementById('player2score').innerHTML = player2Score;
+//   }
+// }
 
-function moveCube()
-{
-  ball.position.x += ballSpeedx;
-  ball.position.z += ballSpeedz;
-  pointLight.position.copy(ball.position);
+// function moveCube()
+// {
+//   ball.position.x += ballSpeedx;
+//   ball.position.z += ballSpeedz;
+//   pointLight.position.copy(ball.position);
 
-//   ballOutofBounds();
+// //   ballOutofBounds();
 
-//   ballBoundingBox.setFromObject(ball);	
-}
+// //   ballBoundingBox.setFromObject(ball);	
+// }
 
 function updateBall(ballData)
 {
@@ -313,8 +347,8 @@ function updateBall(ballData)
 	
 	// ballOutofBounds();
 	
-	console.log(ballData.ballBoundingBox);
-	ballBoundingBox == ballData.ballBoundingBox;	
+	// console.log(ballData.ballBoundingBox);
+	ballBoundingBox == ballData.ballBoundingBox;
 }
 
 // function saveSphereData() 
@@ -423,6 +457,7 @@ function animate()
 {
 	if (player1Score <= 7 && player2Score <= 7) 
 	{
+		
 		renderer.render(scene, camera);
 		if (paddle1Speed != 0 || paddle2Speed != 0)
 			beginGame = true;
@@ -489,6 +524,10 @@ socket.onmessage = function(event)
 			updateBall(data.payload);
 			updatePaddlePositions(data.payload);
 			break;
+		case 'graphicsInit':
+			console.log('Graphics initialized');
+			createEnvironment(data.payload);
+			break;
 	}
 }
 
@@ -503,22 +542,6 @@ startBtn.onclick = () => {
 
 socket.onopen = () => 
 {
-	ballBoundingBox.setFromObject(ball);
-	const ballBoxJson = {
-		min: ballBoundingBox.min.toArray(),
-		max: ballBoundingBox.max.toArray(),
-	};
-	const paddleBoxJson = {
-		min: paddle1BoundingBox.min.toArray(),
-		max: paddle1BoundingBox.max.toArray(),
-	};
-
-	// console.log('USER ID:', window.user.id);
-	sendPayload('componentsInit', {
-		ball: ballBoxJson,
-		paddle: paddleBoxJson,
-		depth: paddle1.geometry.parameters.depth,
-	});
 	sendPayload('connect', {
 		id: window.user.id,
 		connectMessage: `Welcome to the ${lobby_id} lobby ${window.user.username}!!`,

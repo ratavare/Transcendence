@@ -5,43 +5,63 @@ import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 lobbies = {}
-PADDLE_SPEED = 15;
-AIPADDLE_SPEED = 15;
-BALL_INITIAL_SPEED = -15;
-SHAKE_INTENSITY = 10;
-SHAKE_DURATION = 10;
-PADDLE_COLOR = 0x008000;
-TABLE_COLOR = 0x800080;
-PLANE_COLOR = 0x000000;
-BALL_COLOR = 0x00ff00;
-POINT_LIGHT_INTENSITY = 1000000;
-POINT_LIGHT_DISTANCE = 1000;
-AMBIENT_LIGHT_INTENSITY = 3;
+PADDLE_SPEED = 15
+AIPADDLE_SPEED = 15
+BALL_INITIAL_SPEED = -10
+BALL_DIAMETER = 10
+BALL_RADIUS = BALL_DIAMETER / 2
+BOUNDARIES_WIDTH = 2700
+BOUNDARIES_HEIGHT = 100
+BOUNDARIES_DEPTH = 100
+FLOOR_POSITION_X = -1300
+FLOOR_POSITION_Y = 0
+FLOOR_POSITION_Z = 500
+CEILING_POSITION_X = -1300
+CEILING_POSITION_Y = 0
+CEILING_POSITION_Z = -600
+PADDLE1_POSITION_X = -810
+PADDLE1_POSITION_Z = 0
+PADDLE2_POSITION_X = 800
+PADDLE2_POSITION_Z = 0
+PADDLE_POSITION_Y = 0
+PADDLE_WIDTH = 10
+PADDLE_LENGTH = 100
+PADDLE_DEPTH = 30
+
 
 def myPrint(p):
 	print(p, flush=True)
 	
 
 class Paddle():
-	def __init__(self):
+	def __init__(self, positionX=0, positionZ=0):
 		self.speed = 0
-		self.positionX = -800
-		self.positionZ = -50
 		self.boundingBox = {}
-		self.width = 10
-		self.length = 100
-		self.depth = 0
+		self.width = PADDLE_WIDTH
+		self.length = PADDLE_LENGTH
+		self.depth = PADDLE_DEPTH
+		self.positionZ = positionZ
+		self.positionX = positionX
+		self.positionY = PADDLE_POSITION_Y
+		self.update_bounding_box()
+
+	def update_bounding_box(self):
+		self.boundingBox = {
+			'min': [self.positionX, 0, self.positionZ],
+			'max': [self.positionX  + self.width, self.positionY + self.depth, self.positionZ + self.length]
+		}
 
 class Ball:
 	def __init__(self):
-		self.diameter = 10
+		self.diameter = BALL_DIAMETER
 		self.speedX = BALL_INITIAL_SPEED
 		self.speedZ = 0
 		self.positionX = 0
 		self.positionZ = 0
-		self.boundingBox = {}
-
-
+		self.boundingBox = {
+			'min': [(self.positionX - self.diameter) / 2, (self.positionZ - self.diameter) / 2, 0],
+			'max': [(self.positionX + self.diameter) / 2, (self.positionZ + self.diameter) / 2, 0],
+		}
 
 class Pong:
 	def __init__(self):
@@ -49,10 +69,9 @@ class Pong:
 		self.player2Score = 0;
 
 		self.ball = Ball()
-		self.paddle1 = Paddle()
-		self.paddle2 = Paddle()
+		self.paddle1 = Paddle(positionX=PADDLE1_POSITION_X, positionZ=PADDLE1_POSITION_Z)
+		self.paddle2 = Paddle(positionX=PADDLE2_POSITION_X, positionZ=PADDLE2_POSITION_Z)
 	
-		self.shakeDuration = 0;
 		self.gamePaused = False;
 		self.beginGame = False;
 		self.startTime = datetime.datetime.now()
@@ -73,15 +92,18 @@ class Pong:
 
 	def outOfBounds(self):
 		if self.ball.positionX > 1000:
+			myPrint("Player 1 Scored")
 			self.player1Score += 1
 			self.respawnBall(1)
 		elif self.ball.positionX < -1000:
+			myPrint("Player 2 Scored")
 			self.player2Score += 1
 			self.respawnBall(2)
 
 	def move(self):
 		self.ball.positionX += self.ball.speedX
 		self.ball.positionZ += self.ball.speedZ
+		# self.outOfBounds()
 
 	def movePaddle(self):
 		self.paddle1.positionZ += self.paddle1.speed
@@ -98,12 +120,12 @@ class Pong:
 		}
 	
 	def checkIntersection(self):
-		table1 = {'min': [-1300, 0, 500], 'max': [1400, 100, 600]}
-		table2 = {'min': [-1300, 0, -600], 'max': [1400, 100, -500]}
-		if self.intersections(self.ball.boundingBox, table1) or self.intersections(self.ball.boundingBox, table2):
-			myPrint("HIT WALL")
-			self.ball.speedZ *= -1
-			self.ball.positionZ += self.ball.speedZ
+		# table1 = {'min': [-1300, 0, 500], 'max': [1400, 100, 600]}
+		# table2 = {'min': [-1300, 0, -600], 'max': [1400, 100, -500]}
+		# if self.intersections(self.ball.boundingBox, table1) or self.intersections(self.ball.boundingBox, table2):
+		# 	myPrint("HIT WALL")
+		# 	self.ball.speedZ *= -1
+		# 	self.ball.positionZ += self.ball.speedZ
 		if self.intersections(self.ball.boundingBox, self.paddle1.boundingBox):
 			myPrint("HIT PADDLE 1")
 			myPrint(self.ball.boundingBox)
@@ -113,15 +135,15 @@ class Pong:
 			self.adjustDirections()
 			self.ball.positionX += self.ball.speedX
 			self.ball.positionZ += self.ball.speedZ
-		# if self.intersections(self.ball.boundingBox, self.paddle2.boundingBox):
-		# 	myPrint("HIT PADDLE 2")
-		# 	myPrint(self.ball.boundingBox)
-		# 	myPrint(self.paddle1.boundingBox)
-		# 	self.ball.speedX *= -1
-		# 	self.increaseSpeed()
-		# 	self.adjustDirections()
-		# 	self.ball.positionX += self.ball.speedX
-		# 	self.ball.positionZ += self.ball.speedZ
+		if self.intersections(self.ball.boundingBox, self.paddle2.boundingBox):
+			myPrint("HIT PADDLE 2")
+			myPrint(self.ball.boundingBox)
+			myPrint(self.paddle1.boundingBox)
+			self.ball.speedX *= -1
+			self.increaseSpeed()
+			self.adjustDirections()
+			self.ball.positionX += self.ball.speedX
+			self.ball.positionZ += self.ball.speedZ
 
 	def intersections(self, ball, paddle):
 		return	paddle['max'][0] >= ball['min'][0] and paddle['min'][0] <= ball['max'][0] and \
@@ -141,8 +163,6 @@ class Consumer(AsyncWebsocketConsumer):
 
 	async def connect(self):
 		self.game = Pong()
-		self.paddle1 = Paddle()
-		self.paddle2 = Paddle()
 		self.lobby_id = self.scope["url_route"]["kwargs"]["lobby_id"]
 		self.user_id = self.channel_name
 
@@ -157,6 +177,7 @@ class Consumer(AsyncWebsocketConsumer):
 		lobbies[self.lobby_id].add(self.user_id)
 		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
 		self.game_loop = None
+		await self.graphicsInit()
 		await self.accept()
 		await self.sendMessage('message','Connection Accepted: Welcome!')
 
@@ -183,18 +204,14 @@ class Consumer(AsyncWebsocketConsumer):
 			data = json.loads(text_data)
 			send_type = data.get('type')
 			payload = data.get('payload')
-
-			if send_type == 'componentsInit':
-				self.game.ball.boundingBox = payload['ball']
-				self.game.paddle1.boundingBox = payload['paddle']
-				self.game.paddle1.depth = payload['depth']
 			
 			if send_type == 'move':
-				self.game.paddle1.speed = payload['speed']
-				self.game.paddle1.boundingBox = {
-					'min': [-800, 0, self.game.paddle1.positionZ],
-					'max': [-790, 30, self.game.paddle1.positionZ + self.game.paddle1.length],
-				}
+				self.game.paddle1.speed = payload['speed1']
+				self.game.paddle2.speed = payload['speed2']
+				self.game.paddle1.update_bounding_box()
+				self.game.paddle2.update_bounding_box()
+				myPrint(self.game.paddle1.boundingBox)
+
 			if send_type == 'beginGame':
 				self.game_loop = asyncio.create_task(self.runLoop())
 
@@ -232,7 +249,34 @@ class Consumer(AsyncWebsocketConsumer):
 		payload = {
 			"ballPositionX" : self.game.ball.positionX,
 			"ballPositionZ" : self.game.ball.positionZ,
-			"paddle1Speed": self.game.paddle1.speed,
-			"ballBoundingBox": self.game.ball.boundingBox
+			"paddle1PositionZ": self.game.paddle1.positionZ,
+			"paddle2PositionZ": self.game.paddle2.positionZ,
+			"ballBoundingBox": self.game.ball.boundingBox,
+			"paddle1BoundingBox": self.game.paddle1.boundingBox,
+			"paddle2BoundingBox": self.game.paddle2.boundingBox,
 		}
 		await self.groupSend("state", payload)
+
+	async def graphicsInit(self):
+		payload = {
+            "ballRadius": BALL_RADIUS,
+            "boundariesWidth": BOUNDARIES_WIDTH,
+            "boundariesHeight": BOUNDARIES_HEIGHT,
+            "boundariesDepth": BOUNDARIES_DEPTH,
+            "floorPositionX": FLOOR_POSITION_X,
+            "floorPositionY": FLOOR_POSITION_Y,
+            "floorPositionZ": FLOOR_POSITION_Z,
+            "ceilingPositionX": CEILING_POSITION_X,
+            "ceilingPositionY": CEILING_POSITION_Y,
+            "ceilingPositionZ": CEILING_POSITION_Z,
+            "paddle1PositionX": PADDLE1_POSITION_X,
+            "paddle1PositionZ": PADDLE1_POSITION_Z - 50,
+            "paddle2PositionX": PADDLE2_POSITION_X,
+            "paddlePositionY": PADDLE_POSITION_Y,
+            "paddle2PositionZ": PADDLE2_POSITION_Z - 50,
+            "paddleWidth": PADDLE_WIDTH,
+            "paddleLength": PADDLE_LENGTH,
+            "paddleDepth": PADDLE_DEPTH,
+        }
+
+		await self.groupSend("graphicsInit", payload)
