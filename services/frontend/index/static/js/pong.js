@@ -26,6 +26,7 @@ let paddle2Speed = 0;
 let gamePaused = false;
 let beginGame = false;
 let sphereData = [];
+let sphereMsg = [];
 let startTime = Date.now();
 
 // Scene Setup
@@ -94,6 +95,7 @@ function makeParalellepiped(x, y, z, dx, dy, dz, color)
 
 function handlePaddleControls() 
 {
+<<<<<<< HEAD
 	document.addEventListener('keydown', (event) => 
 	{
 		let payload = null;
@@ -144,6 +146,66 @@ function handlePaddleControls()
 			sendPayload('move', payload);
 		}
 	});
+=======
+    document.addEventListener('keydown', (event) => 
+    {
+        let message = null;
+        switch (event.key) 
+        {
+            case 'w':
+                message = { type: 'move', paddle: 1, speed: -PADDLE_SPEED };
+                break;
+            case 's':
+                message = { type: 'move', paddle: 1, speed: PADDLE_SPEED };
+                break;
+            case 'ArrowUp':
+                message = { type: 'move', paddle: 2, speed: -PADDLE_SPEED };
+                break;
+            case 'ArrowDown':
+                message = { type: 'move', paddle: 2, speed: PADDLE_SPEED };
+                break;
+            case 'p':
+                gamePaused = !gamePaused;
+                break;
+			case 'ArrowLeft':
+				beginGame = true;
+				message = { type: 'begin', game: true };
+				break;
+			case 'd':
+				beginGame = true;
+				message = { type: 'begin', game: true };
+				break;
+        }
+        if (message.type === 'move') 
+        {
+            sendMessage('paddleMove', message);
+        }
+		else if (message.type === 'begin')
+		{
+			sendMessage('beginGame', message);
+		}
+    });
+
+    document.addEventListener('keyup', (event) => 
+    {
+        let message = null;
+        switch (event.key) 
+        {
+            case 'w':
+            case 's':
+                message = { type: 'move', paddle: 1, speed: 0 };
+                break;
+            case 'ArrowUp':
+            case 'ArrowDown':
+                message = { type: 'move', paddle: 2, speed: 0 };
+                break;
+        }
+        if (message)
+        {
+            sendMessage('paddleMove', message);
+        }
+    });
+>>>>>>> d3510d08ba8ee2157a3d86c76e38882498950d45
 }
 
 function updatePaddlePositions(paddleData) 
@@ -157,16 +219,65 @@ function updatePaddlePositions(paddleData)
 	{
 		paddle2Speed = paddleData.payload.speed;
 	}
+<<<<<<< HEAD
 	paddle1BoundingBox.setFromObject(paddle1);
 	paddle2BoundingBox.setFromObject(paddle2);
+=======
+    paddle1BoundingBox.setFromObject(paddle1);
+    paddle2BoundingBox.setFromObject(paddle2);
+}
+
+function updateCubePosition(cubeData) 
+{
+	console.log('updateCubePosition');
+	cube.position.x = cubeData.message.position.x;
+	cube.position.z = cubeData.message.position.z;
+	cubeSpeedx = cubeData.message.speed.x;
+	cubeSpeedz = cubeData.message.speed.z;
+}
+
+socket.onmessage = function(event) 
+{
+    // console.log('Received message:', event.data);
+    const data = JSON.parse(event.data);
+    console.log("Parsed data:", data);
+	if (data.message.type === 'move')
+    {
+        updatePaddlePositions(data);
+    }
+	else if (data.message.type === 'cube')
+	{
+		updateCubePosition(data);
+	}
+	else if (data.message.type === 'begin')
+	{
+		beginGame = data.message.game;
+	}
+}
+
+function sendMessage(type, message) 
+{
+    console.log(`Sending message: type=${type}, message=${JSON.stringify(message)}`);
+    socket.send(JSON.stringify(
+    {
+        'type': type,
+        'message': message
+    }));
+>>>>>>> d3510d08ba8ee2157a3d86c76e38882498950d45
 }
 
 function movePaddles()
 {
-  paddle1.position.z += paddle1Speed;
-  paddle2.position.z += paddle2Speed;
-  paddle1BoundingBox.setFromObject(paddle1);
-  paddle2BoundingBox.setFromObject(paddle2);
+	if (paddle1.position.z + paddle1Speed > -460 && paddle1.position.z + paddle1Speed < 460)
+	{
+		paddle1.position.z += paddle1Speed;
+	}
+	if (paddle2.position.z + paddle2Speed > -460 && paddle2.position.z + paddle2Speed < 460)
+	{
+		paddle2.position.z += paddle2Speed;
+	}
+	paddle1BoundingBox.setFromObject(paddle1);
+	paddle2BoundingBox.setFromObject(paddle2);
 }
 
 function applyCameraShake() 
@@ -193,6 +304,14 @@ function increaseSpeed()
 	cubeSpeedx += (cubeSpeedx > 0) ? 0.4 : -0.4;
 }
 
+function sendCubeData()
+{
+	let message;
+
+	message = { type: 'cube', position: { x: cube.position.x, z: cube.position.z }, speed: { x: cubeSpeedx, z: cubeSpeedz } };
+	sendMessage('cube', message);
+}
+
 function checkIntersections()
 {
   cubeBoundingBox.setFromObject(cube);
@@ -205,16 +324,27 @@ function checkIntersections()
 
   if (cubeBoundingBox.intersectsBox(paddle1BoundingBox)) 
   {
+<<<<<<< HEAD
 	cubeSpeedx *= -1;
 	shakeDuration = SHAKE_DURATION;
 	increaseSpeed();
 	adjustCubeDirection(paddle1);
 	cube.position.x += cubeSpeedx;
 	cube.position.z += cubeSpeedz;
+=======
+    cubeSpeedx *= -1;
+    shakeDuration = SHAKE_DURATION;
+    increaseSpeed();
+    adjustCubeDirection(paddle1);
+    cube.position.x += cubeSpeedx;
+    cube.position.z += cubeSpeedz;
+	sendCubeData();
+>>>>>>> d3510d08ba8ee2157a3d86c76e38882498950d45
   }
 
   if (cubeBoundingBox.intersectsBox(paddle2BoundingBox)) 
   {
+<<<<<<< HEAD
 	cubeSpeedx *= -1;
 	shakeDuration = SHAKE_DURATION;
 	increaseSpeed();
@@ -230,6 +360,15 @@ function checkIntersections()
   if (paddle2BoundingBox.intersectsBox(table1BoundingBox) || paddle2BoundingBox.intersectsBox(table2BoundingBox)) 
   {
 	paddle2.position.z -= paddle2Speed;
+=======
+    cubeSpeedx *= -1;
+    shakeDuration = SHAKE_DURATION;
+    increaseSpeed();
+    adjustCubeDirection(paddle2);
+    cube.position.x += cubeSpeedx;
+    cube.position.z += cubeSpeedz;
+	sendCubeData();
+>>>>>>> d3510d08ba8ee2157a3d86c76e38882498950d45
   }
 }
 
@@ -279,15 +418,17 @@ function cubeOutofBounds()
 
 function moveCube()
 {
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-  cube.position.x += cubeSpeedx;
-  cube.position.z += cubeSpeedz;
-  pointLight.position.copy(cube.position);
+	if (beginGame == false)
+	{
+		return;
+	}
+	cube.position.x += cubeSpeedx;
+	cube.position.z += cubeSpeedz;
+	pointLight.position.copy(cube.position);
 
-  cubeOutofBounds();
+	cubeOutofBounds();
 
-  cubeBoundingBox.setFromObject(cube);
+	cubeBoundingBox.setFromObject(cube);
 }
 
 // function saveSphereData() 
@@ -397,12 +538,10 @@ function animate()
 	if (player1Score <= 7 && player2Score <= 7) 
 	{
 		renderer.render(scene, camera);
-		if (paddle1Speed != 0 || paddle2Speed != 0)
-			beginGame = true;
-		if (!gamePaused && beginGame && player1Score < 7 && player2Score < 7) 
+		if (!gamePaused && player1Score < 7 && player2Score < 7) 
 		{
 			movePaddles();
-			// paddle1AI(paddle1);
+			paddle1AI(paddle1);
 			checkIntersections();
 			moveCube();
 			// applyCameraShake();
