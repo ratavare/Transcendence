@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework import viewsets
+from .models import Lobby
 from lobby.models import Lobby
 from lobby.serializers import LobbySerializer
 
@@ -43,15 +44,3 @@ class createOrGetLobby(APIView):
 		for lobby in lobbies:
 			all_lobbies.append({'lobby_id': lobby.lobby_id})
 		return JsonResponse({'lobbies': all_lobbies}, status=200)
-
-from rest_framework import serializers, viewsets
-from .models import Lobby
-
-class LobbySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Lobby
-        fields = '__all__'
-
-class LobbyViewSet(viewsets.ModelViewSet):
-    queryset = Lobby.objects.all()
-    serializer_class = LobbySerializer

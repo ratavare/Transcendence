@@ -1,5 +1,5 @@
 import requests
-from django.db import models
+from django.db import models, connections
 from django.contrib.auth.models import User
 
 GAME_API_URL = "http://game:8002/lobby/api/"
@@ -15,7 +15,6 @@ class ProxyLobby(models.Model):
 		verbose_name_plural = "Lobbies"
 
 	def get_users(self):
-		from django.db import connections
 		with connections['default'].cursor() as cursor:
 			cursor.execute("""
 				SELECT auth_user.username
