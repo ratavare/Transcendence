@@ -32,13 +32,11 @@ def enable_2fa(request):
     # Ensure the user has a profile (if it's not auto-created)
     profile, created = Profile.objects.get_or_create(user=user)
 
-    # Generate a new secret if one doesn't already exist
-    if not profile.otp_secret:
-        profile.otp_secret = pyotp.random_base32()
-        profile.save()
+    # Generate a new secret
+    otp_secret = pyotp.random_base32()
 
     # Generate a TOTP provisioning URI
-    totp = pyotp.TOTP(profile.otp_secret)
+    totp = pyotp.TOTP(otp_secret)
     uri = totp.provisioning_uri(user.username, issuer_name="Transcendence")
 
     # Generate a QR code for the URI
@@ -48,7 +46,8 @@ def enable_2fa(request):
     buffer.seek(0)
     qr_base64 = base64.b64encode(buffer.read()).decode('utf-8')
 
-    return JsonResponse({'qr_code': qr_base64}, status=200)
+    # Return the QR code and the OTP secret (temporarily)
+    return JsonResponse({'qr_code': qr_base64, 'otp_secret': otp_secret}, status=200)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -68,10 +67,13 @@ def disable_2fa(request):
 def verify_otp(request):
     user = request.user
     otp = request.data.get('otp')
+    otp_secret = request.data.get('otp_secret')
     profile = getattr(user, 'profile', None)
-    if profile and profile.otp_secret:
-        totp = pyotp.TOTP(profile.otp_secret)
+    if profile and otp_secret:
+        totp = pyotp.TOTP(otp_secret)
         if totp.verify(otp):
+            profile.otp_secret = otp_secret
+            profile.save()
             return JsonResponse({'status': 'success'}, status=200)
     return JsonResponse({'status': 'error', 'error': 'Invalid OTP'}, status=400)
 

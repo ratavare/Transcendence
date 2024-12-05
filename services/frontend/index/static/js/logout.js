@@ -7,6 +7,8 @@ async function logoutFunc() {
 			localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
 			localStorage.removeItem('is_2fa_enabled');
+			localStorage.removeItem('otp_secret');
+			alert('Successfully Logged Out');
 			seturl('/login');
 		} catch(error) {
 			console.log(error);

@@ -12,6 +12,7 @@
 
 				localStorage.setItem('access_token', data.access);
 				localStorage.setItem('refresh_token', data.refresh);
+				alert('Successfully Registered');
 			}
 			seturl('/home');
 	
