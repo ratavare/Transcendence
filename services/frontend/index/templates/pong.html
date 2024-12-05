@@ -35,16 +35,18 @@
 
 		#startBtn {
 			position: absolute;
-			left:103%;
-			top: 120%;
+			left:50%;
+			top: 95%;
+			transform: translate(-50%, -50%);
+			text-align: center;
 		}
 	
 		#player1score {
-			left: 35%;
+			left: 25%;
 		}
 	
 		#player2score {
-			right: 35%;
+			right: 25%;
 		} 
 	</style>
 	<h1>Pong Game</h1>
@@ -53,6 +55,6 @@
 	<h2 id="winner"></h2>
 	<div class="canvas-container">
 		<canvas id='canvas' width='900px' height='600px'></canvas>
-		<button id='startBtn'>Start Game!</button> 
 	</div>
+	<button id='startBtn'>Start Game!</button> 
 </page-element>
