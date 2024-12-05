@@ -1,8 +1,7 @@
 document.getElementById('form-2fa-setup').addEventListener('submit', async function(event) {
     event.preventDefault();
     try {
-        const response = await myFetch('https://localhost:8443/user_auth/enable_2fa/');
-        const data = await response.json();
+        const data = await myFetch('https://localhost:8443/user_auth/enable_2fa/');
         if (data.qr_code) {
             document.getElementById('qr-container').innerHTML = `<img src="data:image/png;base64,${data.qr_code}" />`;
         } else {

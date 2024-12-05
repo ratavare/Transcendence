@@ -47,7 +47,7 @@ async function refreshAccessToken() {
 }
 
 async function myFetch(viewUrl, myData) {
-    const accessToken = localStorage.getItem('access');
+    const accessToken = localStorage.getItem('access_token');
 
     const headers = {
         "X-CSRFToken": getCookie('csrftoken'),
@@ -55,6 +55,7 @@ async function myFetch(viewUrl, myData) {
     };
 
     if (accessToken) {
+		console.log("BUT WHYYY");
         headers['Authorization'] = `Bearer ${accessToken}`;
     }
 

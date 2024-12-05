@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from user_profile.models import Profile
 
 # JWT
 from rest_framework.permissions import IsAuthenticated, AllowAny
