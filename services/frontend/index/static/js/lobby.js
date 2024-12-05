@@ -15,8 +15,6 @@ async function joinLobby(lobby_id)
 		const data = await response.json()
 		if (!response.ok)
 			throw data.error;
-	
-		console.log(data);
 		seturl(`/lobbies/${lobby_id}`)
 	} catch (error) {
 		seturl('/lobby');
@@ -90,10 +88,8 @@ async function getLobbies()
 		const formData = new FormData(event.target);
 
 		try {
-			const data = await myFetch('https://localhost:8443/lobby/lobbies/', formData);
-			// seturl(`/lobbies/${data.lobby_id}`)
-			console.log(data);
-			joinLobby(data.lobby_id);
+			const data = await myFetch('https://localhost:8443/lobby/lobbies/', formData)
+			joinLobby(data.lobby_id)
 		} catch(error) {
 			seturl('/lobby');
 			console.log(error);
@@ -102,7 +98,7 @@ async function getLobbies()
 }
 
 var lobbyListDiv = document.getElementById('lobby-list');
-lobbyListDiv.style.display = 'none'
+lobbyListDiv.style.display = 'none'	
 
 getLobbies();
 

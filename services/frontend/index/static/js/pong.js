@@ -80,7 +80,7 @@ let paddle2 = {};
 function createEnvironment(data)
 {
 	// Paddles and Table
-	console.log("DATA: ", data)
+	// console.log("DATA: ", data)
 	const table1 = makeParalellepiped(
 		data.floorPositionX,
 		data.floorPositionY,
@@ -117,11 +117,6 @@ function createEnvironment(data)
 		data.paddleLength,
 		PADDLE_COLOR
 	);
-	const paddle1BoundingBox = new THREE.Box3().setFromObject(paddle1);
-	const paddle2BoundingBox = new THREE.Box3().setFromObject(paddle2);
-	console.log('Ball Bounding Box', ballBoundingBox);
-	console.log('Paddle1 Box', paddle1BoundingBox);
-	console.log('Paddle2 Box', paddle2BoundingBox);
 	scene.add(table1);
 	scene.add(table2);
 	scene.add(paddle1);
@@ -136,57 +131,36 @@ function makeParalellepiped(x, y, z, dx, dy, dz, color)
   return box;
 }
 
-function handlePaddleControls() 
+function handlePaddleControls(player, upKey, downKey)
 {
 	document.addEventListener('keydown', (event) => 
 	{
-		let message = null;
+		let payload = null;
 		switch (event.key) 
 		{
-			case 'w':
-				payload = { paddle: 1, speed1: -PADDLE_SPEED};
+			case upKey:
+				payload = {speed: -PADDLE_SPEED };
 				break;
-			case 's':
-				payload = { paddle: 1, speed1: PADDLE_SPEED };
-				break;
-			case 'ArrowUp':
-				payload = { paddle: 2, speed2: -PADDLE_SPEED };
-				break;
-			case 'ArrowDown':
-				payload = { paddle: 2, speed2: PADDLE_SPEED };
-				break;
-			case 'p':
-				gamePaused = !gamePaused;
+			case downKey:
+				payload = {speed: PADDLE_SPEED };
 				break;
 		}
-		if (message.type === 'move') 
-		{
-			sendMessage('paddleMove', message);
-		}
-		else if (message.type === 'begin')
-		{
-			sendMessage('beginGame', message);
-		}
+		if (payload)
+			sendPayload(player, payload);
 	});
-
+	
 	document.addEventListener('keyup', (event) => 
 	{
 		let payload = null;
 		switch (event.key) 
 		{
-			case 'w':
-			case 's':
-				payload = { paddle: 1, speed1: 0 };
-				break;
-			case 'ArrowUp':
-			case 'ArrowDown':
-				payload = { paddle: 2, speed2: 0 };
+			case upKey:
+			case downKey:
+				payload = {speed: 0 };
 				break;
 		}
-		if (payload) 
-		{
-			sendPayload('move', payload);
-		}
+		if (payload)
+			sendPayload(player, payload);
 	});
 }
 
@@ -242,87 +216,79 @@ function updatePaddlePositions(payloadData)
 //   }
 // }
 
-function increaseSpeed()
-{
-  if (ballSpeedx < 20 && ballSpeedx > -20)
-	ballSpeedx += (ballSpeedx > 0) ? 0.4 : -0.4;
-}
+// function increaseSpeed()
+// {
+//   if (ballSpeedx < 20 && ballSpeedx > -20)
+// 	ballSpeedx += (ballSpeedx > 0) ? 0.4 : -0.4;
+// }
 
-function sendCubeData()
-{
-	let message;
+// function checkIntersections()
+// {
+//   ballBoundingBox.setFromObject(ball);
 
-	message = { type: 'cube', position: { x: cube.position.x, z: cube.position.z }, speed: { x: cubeSpeedx, z: cubeSpeedz } };
-	sendMessage('cube', message);
-}
+//   if (ballBoundingBox.intersectsBox(table1BoundingBox) || ballBoundingBox.intersectsBox(table2BoundingBox)) 
+//   {
+// 	ballSpeedz *= -1;
+// 	ball.position.z += ballSpeedz;
+//   }
 
-function checkIntersections()
-{
-  ballBoundingBox.setFromObject(ball);
+//   if (ballBoundingBox.intersectsBox(paddle1BoundingBox))
+//   {
+// 	console.log(ballBoundingBox, paddle1BoundingBox)
+// 	ballSpeedx *= -1;
+// 	shakeDuration = SHAKE_DURATION;
+// 	increaseSpeed();
+// 	adjustCubeDirection(paddle1);
+// 	ball.position.x += ballSpeedx;
+// 	ball.position.z += ballSpeedz;
+//   }
 
-  if (ballBoundingBox.intersectsBox(table1BoundingBox) || ballBoundingBox.intersectsBox(table2BoundingBox)) 
-  {
-	ballSpeedz *= -1;
-	ball.position.z += ballSpeedz;
-  }
+//   if (ballBoundingBox.intersectsBox(paddle2BoundingBox))
+//   {
+// 	ballSpeedx *= -1;
+// 	shakeDuration = SHAKE_DURATION;
+// 	increaseSpeed();
+// 	adjustCubeDirection(paddle2);
+// 	ball.position.x += ballSpeedx;
+// 	ball.position.z += ballSpeedz;
+//   }
 
-  if (ballBoundingBox.intersectsBox(paddle1BoundingBox))
-  {
-	console.log(ballBoundingBox, paddle1BoundingBox)
-	ballSpeedx *= -1;
-	shakeDuration = SHAKE_DURATION;
-	increaseSpeed();
-	adjustCubeDirection(paddle1);
-	ball.position.x += ballSpeedx;
-	ball.position.z += ballSpeedz;
-  }
+//   if (paddle1BoundingBox.intersectsBox(table1BoundingBox) || paddle1BoundingBox.intersectsBox(table2BoundingBox)) 
+//   {
+// 	paddle1.position.z -= paddle1Speed;
+//   }
+//   if (paddle2BoundingBox.intersectsBox(table1BoundingBox) || paddle2BoundingBox.intersectsBox(table2BoundingBox))
+//   {
+// 	paddle2.position.z -= paddle2Speed;
+//   }
+// }
 
-  if (ballBoundingBox.intersectsBox(paddle2BoundingBox))
-  {
-	ballSpeedx *= -1;
-	shakeDuration = SHAKE_DURATION;
-	increaseSpeed();
-	adjustCubeDirection(paddle2);
-	ball.position.x += ballSpeedx;
-	ball.position.z += ballSpeedz;
-  }
+// function adjustCubeDirection(paddle)
+// {
+//   const relativeIntersectZ = (paddle.position.z + (paddle.geometry.parameters.depth / 2)) - ball.position.z;
+//   const normalizedIntersectZ = (relativeIntersectZ / (paddle.geometry.parameters.depth / 2)) - 1;
+//   ballSpeedz = normalizedIntersectZ * 20; // Adjust the multiplier as needed
+// }
 
-  if (paddle1BoundingBox.intersectsBox(table1BoundingBox) || paddle1BoundingBox.intersectsBox(table2BoundingBox)) 
-  {
-	paddle1.position.z -= paddle1Speed;
-  }
-  if (paddle2BoundingBox.intersectsBox(table1BoundingBox) || paddle2BoundingBox.intersectsBox(table2BoundingBox))
-  {
-	paddle2.position.z -= paddle2Speed;
-  }
-}
-
-function adjustCubeDirection(paddle)
-{
-  const relativeIntersectZ = (paddle.position.z + (paddle.geometry.parameters.depth / 2)) - ball.position.z;
-  const normalizedIntersectZ = (relativeIntersectZ / (paddle.geometry.parameters.depth / 2)) - 1;
-  ballSpeedz = normalizedIntersectZ * 20; // Adjust the multiplier as needed
-}
-
-function respawnCube(player)
-{
-  if (player == 1)
-  {
-	ball.position.set(200, 0, 0);
-	ballSpeedx = BALL_INITIAL_SPEED;
-	ballSpeedz = 0;
-	beginGame = false;
-	pointLight.position.copy(ball.position);
-  }
-  else if (player == 2)
-  {
-	ball.position.set(-200, 0, 0);
-	ballSpeedx = -BALL_INITIAL_SPEED;
-	ballSpeedz = 0;
-	beginGame = false;
-	pointLight.position.copy(ball.position);
-  }
-}
+// function respawnCube(player)
+// {
+//   if (player == 1)
+//   {
+// 	ball.position.set(200, 0, 0);
+// 	ballSpeedx = BALL_INITIAL_SPEED;
+// 	ballSpeedz = 0;
+// 	beginGame = false;
+// 	pointLight.position.copy(ball.position);
+//   }
+//   else if (player == 2)
+//   {
+// 	ball.position.set(-200, 0, 0);
+// 	ballSpeedx = -BALL_INITIAL_SPEED;
+// 	ballSpeedz = 0;
+// 	beginGame = false;
+// 	pointLight.position.copy(ball.position);
+//   }
+// }
 
 // function ballOutofBounds()
 // {
@@ -469,17 +435,8 @@ function animate()
 {
 	if (player1Score <= 7 && player2Score <= 7) 
 	{
-		
 		renderer.render(scene, camera);
-		if (!gamePaused && player1Score < 7 && player2Score < 7) 
-		{
-			// movePaddles();
-			// paddle1AI(paddle1);
-			// checkIntersections();
-			// moveCube();
-			// applyCameraShake();
-		}
-		else if (player1Score == 7)
+		if (player1Score == 7)
 		{
 			document.getElementById('winner').innerHTML = 'Player 1 wins!';
 			startBtn.style.display = 'block';
@@ -494,7 +451,6 @@ function animate()
 
 // saveSphereData();
 // setInterval(saveSphereData, 1000);
-handlePaddleControls();
 renderer.setAnimationLoop(animate);
 
 // ************************************* WEBSOCKET FUCNTIONS ************************************************
@@ -538,6 +494,10 @@ socket.onmessage = function(event)
 			console.log('Graphics initialized');
 			createEnvironment(data.payload);
 			break;
+		case 'spectate':
+			updateBall(data.payload);
+		case 'btnVisibility':
+			startBtn.style.display = data.payload;
 	}
 }
 
@@ -547,18 +507,49 @@ startBtn.onclick = () => {
 	sendPayload('beginGame', {
 		beginGame: true
 	});
-	startBtn.style.display = 'none';
 }
 
-socket.onopen = () => 
+socket.onopen = async () => 
 {
 	sendPayload('connect', {
 		id: window.user.id,
 		connectMessage: `Welcome to the ${lobby_id} lobby ${window.user.username}!!`,
 	});
+	let playerId = await checkPlayer()
+	console.log("PLAYER ID: ", playerId);
+	if (playerId == 1)
+	{
+		console.log('PLAYER1')
+		handlePaddleControls('p1', 'w', 's');
+	}
+	else if (playerId == 2)
+	{
+		console.log('PLAYER2');
+		handlePaddleControls('p2', 'ArrowUp', 'ArrowDown');
+	}
+	else
+		console.log('SPECTATOR')
 }
 
 socket.onclose = () => 
 {
 	console.error('Socket closed unexpectedly');
 };
+
+
+// ************************************* FECTH FUCNTIONS ************************************************
+
+async function checkPlayer()
+{
+	try
+	{
+		const response = await fetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`);
+		const data = await response.json();
+		if (!response.ok)
+			throw data.error
+		console.log(data);
+		return (data.playerId)
+	} catch (error) {
+		console.log(error);
+	}
+}

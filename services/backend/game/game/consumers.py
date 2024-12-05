@@ -166,21 +166,29 @@ class Consumer(AsyncWebsocketConsumer):
 		self.lobby_id = self.scope["url_route"]["kwargs"]["lobby_id"]
 		self.user_id = self.channel_name
 
+		# Create lobby
 		if self.lobby_id not in lobbies:
 			lobbies[self.lobby_id] = set()
 
-		if len(lobbies[self.lobby_id]) >= 2:
-			await self.sendMessage('message','Connection Rejected: Lobby is full!')
-			await self.close()
-			return
+		# if len(lobbies[self.lobby_id]) >= 2:
+		# 	await self.sendMessage('message','Connection Rejected: Lobby is full!')
+		# 	await self.close()
+		# 	return
 
 		lobbies[self.lobby_id].add(self.user_id)
 		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
+		
 		self.game_loop = None
-		await self.graphicsInit()
+	
 		await self.accept()
-		await self.sendMessage('message','Connection Accepted: Welcome!')
-
+		await self.graphicsInit()
+		if len(lobbies[self.lobby_id]) < 2:
+			await self.sendMessage('message', f'Connection Accepted: Welcome {self.user_id}!')
+		# else:
+		# 	await self.groupSend('spectate', {
+		# 		'username': self.user_id,
+		# 		'lobby_id': self.lobby_id
+		# 	})
 
 	async def disconnect(self, close_code):
 		if self.game_loop:
@@ -194,6 +202,8 @@ class Consumer(AsyncWebsocketConsumer):
 			lobbies[self.lobby_id].remove(self.user_id)
 			if not lobbies[self.lobby_id]:
 				del lobbies[self.lobby_id]
+			else:
+				await self.groupSend('message', f'{self.user_id} left the lobby')
 			await self.channel_layer.group_discard(
 				self.lobby_id,
 				self.channel_name
@@ -205,15 +215,14 @@ class Consumer(AsyncWebsocketConsumer):
 			send_type = data.get('type')
 			payload = data.get('payload')
 			
-			if send_type == 'move':
-				self.game.paddle1.speed = payload['speed1']
-				self.game.paddle2.speed = payload['speed2']
-				self.game.paddle1.update_bounding_box()
-				self.game.paddle2.update_bounding_box()
-				myPrint(self.game.paddle1.boundingBox)
-
-			if send_type == 'beginGame':
-				self.game_loop = asyncio.create_task(self.runLoop())
+			match(send_type):
+				case 'p1':
+					self.game.paddle1.speed = payload['speed']
+				case 'p2':
+					self.game.paddle2.speed = payload['speed']
+				case 'beginGame':
+					self.game_loop = asyncio.create_task(self.runLoop())
+					await self.groupSend('btnVisibility', 'none')
 
 			await self.groupSend(send_type, payload)
 
@@ -222,13 +231,13 @@ class Consumer(AsyncWebsocketConsumer):
 
 	async def groupSend(self, send_type, payload):
 		await self.channel_layer.group_send(
-				self.lobby_id,
-				{
-					'type': 'sendLobby',
-					'send_type': send_type,
-					'payload': payload
-				}
-			)
+			self.lobby_id,
+			{
+				'type': 'sendLobby',
+				'send_type': send_type,
+				'payload': payload
+			}
+		)
 
 	async def sendLobby(self, event):
 		await self.sendMessage(event['send_type'], event['payload'])
@@ -259,24 +268,23 @@ class Consumer(AsyncWebsocketConsumer):
 
 	async def graphicsInit(self):
 		payload = {
-            "ballRadius": BALL_RADIUS,
-            "boundariesWidth": BOUNDARIES_WIDTH,
-            "boundariesHeight": BOUNDARIES_HEIGHT,
-            "boundariesDepth": BOUNDARIES_DEPTH,
-            "floorPositionX": FLOOR_POSITION_X,
-            "floorPositionY": FLOOR_POSITION_Y,
-            "floorPositionZ": FLOOR_POSITION_Z,
-            "ceilingPositionX": CEILING_POSITION_X,
-            "ceilingPositionY": CEILING_POSITION_Y,
-            "ceilingPositionZ": CEILING_POSITION_Z,
-            "paddle1PositionX": PADDLE1_POSITION_X,
-            "paddle1PositionZ": PADDLE1_POSITION_Z - 50,
-            "paddle2PositionX": PADDLE2_POSITION_X,
-            "paddlePositionY": PADDLE_POSITION_Y,
-            "paddle2PositionZ": PADDLE2_POSITION_Z - 50,
-            "paddleWidth": PADDLE_WIDTH,
-            "paddleLength": PADDLE_LENGTH,
-            "paddleDepth": PADDLE_DEPTH,
-        }
-
-		await self.groupSend("graphicsInit", payload)
+			"ballRadius": BALL_RADIUS,
+			"boundariesWidth": BOUNDARIES_WIDTH,
+			"boundariesHeight": BOUNDARIES_HEIGHT,
+			"boundariesDepth": BOUNDARIES_DEPTH,
+			"floorPositionX": FLOOR_POSITION_X,
+			"floorPositionY": FLOOR_POSITION_Y,
+			"floorPositionZ": FLOOR_POSITION_Z,
+			"ceilingPositionX": CEILING_POSITION_X,
+			"ceilingPositionY": CEILING_POSITION_Y,
+			"ceilingPositionZ": CEILING_POSITION_Z,
+			"paddle1PositionX": PADDLE1_POSITION_X,
+			"paddle1PositionZ": PADDLE1_POSITION_Z - 50,
+			"paddle2PositionX": PADDLE2_POSITION_X,
+			"paddlePositionY": PADDLE_POSITION_Y,
+			"paddle2PositionZ": PADDLE2_POSITION_Z - 50,
+			"paddleWidth": PADDLE_WIDTH,
+			"paddleLength": PADDLE_LENGTH,
+			"paddleDepth": PADDLE_DEPTH,
+		}
+		await self.sendMessage("graphicsInit", payload)
