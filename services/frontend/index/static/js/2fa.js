@@ -1,14 +1,11 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const is2FAEnabled = localStorage.getItem('is_2fa_enabled') === 'true';
-	console.log("fuck this" + is2FAEnabled);
-    if (is2FAEnabled) {
-        document.getElementById('form-2fa-setup').style.display = 'none';
-        document.getElementById('2fa-status').style.display = 'block';
-    } else {
-        document.getElementById('form-2fa-setup').style.display = 'block';
-        document.getElementById('2fa-status').style.display = 'none';
-    }
-});
+console.log("fuck this " + localStorage.getItem('is_2fa_enabled') === 'true');
+if (localStorage.getItem('is_2fa_enabled') === 'true') {
+	document.getElementById('form-2fa-setup').style.display = 'none';
+	document.getElementById('2fa-status').style.display = 'block';
+} else {
+	document.getElementById('form-2fa-setup').style.display = 'block';
+	document.getElementById('2fa-status').style.display = 'none';
+}
 
 document.getElementById('form-2fa-setup').addEventListener('submit', async function(event) {
     event.preventDefault();
