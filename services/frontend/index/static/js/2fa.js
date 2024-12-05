@@ -46,6 +46,13 @@ document.getElementById('verify-otp-button').addEventListener('click', async fun
     }
 });
 
+document.getElementById('cancel-2fa-button').addEventListener('click', function() {
+    document.getElementById('qr-container').innerHTML = '';
+    document.getElementById('setup-key-container').style.display = 'none';
+    document.getElementById('otp-container').style.display = 'none';
+    localStorage.removeItem('otp_secret');
+});
+
 document.getElementById('disable-2fa-button').addEventListener('click', async function() {
     try {
         const data = await myFetch('https://localhost:8443/user_auth/disable_2fa/', null, 'POST', true);
