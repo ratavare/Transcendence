@@ -95,58 +95,6 @@ function makeParalellepiped(x, y, z, dx, dy, dz, color)
 
 function handlePaddleControls() 
 {
-<<<<<<< HEAD
-	document.addEventListener('keydown', (event) => 
-	{
-		let payload = null;
-		switch (event.key) 
-		{
-			case 'w':
-				payload = { paddle: 1, speed: -PADDLE_SPEED };
-				beginGame = true;
-				break;
-			case 's':
-				payload = { paddle: 1, speed: PADDLE_SPEED };
-				beginGame = true;
-				break;
-			case 'ArrowUp':
-				payload = { paddle: 2, speed: -PADDLE_SPEED };
-				beginGame = true;
-				break;
-			case 'ArrowDown':
-				payload = { paddle: 2, speed: PADDLE_SPEED };
-				beginGame = true;
-				break;
-			case 'p':
-				gamePaused = !gamePaused;
-				break;
-		}
-		if (payload) 
-		{
-			sendPayload('move', payload);
-		}
-	});
-
-	document.addEventListener('keyup', (event) => 
-	{
-		let payload = null;
-		switch (event.key) 
-		{
-			case 'w':
-			case 's':
-				payload = { paddle: 1, speed: 0 };
-				break;
-			case 'ArrowUp':
-			case 'ArrowDown':
-				payload = { paddle: 2, speed: 0 };
-				break;
-		}
-		if (payload) 
-		{
-			sendPayload('move', payload);
-		}
-	});
-=======
     document.addEventListener('keydown', (event) => 
     {
         let message = null;
@@ -205,7 +153,6 @@ function handlePaddleControls()
             sendMessage('paddleMove', message);
         }
     });
->>>>>>> d3510d08ba8ee2157a3d86c76e38882498950d45
 }
 
 function updatePaddlePositions(paddleData) 
@@ -219,51 +166,8 @@ function updatePaddlePositions(paddleData)
 	{
 		paddle2Speed = paddleData.payload.speed;
 	}
-<<<<<<< HEAD
 	paddle1BoundingBox.setFromObject(paddle1);
 	paddle2BoundingBox.setFromObject(paddle2);
-=======
-    paddle1BoundingBox.setFromObject(paddle1);
-    paddle2BoundingBox.setFromObject(paddle2);
-}
-
-function updateCubePosition(cubeData) 
-{
-	console.log('updateCubePosition');
-	cube.position.x = cubeData.message.position.x;
-	cube.position.z = cubeData.message.position.z;
-	cubeSpeedx = cubeData.message.speed.x;
-	cubeSpeedz = cubeData.message.speed.z;
-}
-
-socket.onmessage = function(event) 
-{
-    // console.log('Received message:', event.data);
-    const data = JSON.parse(event.data);
-    console.log("Parsed data:", data);
-	if (data.message.type === 'move')
-    {
-        updatePaddlePositions(data);
-    }
-	else if (data.message.type === 'cube')
-	{
-		updateCubePosition(data);
-	}
-	else if (data.message.type === 'begin')
-	{
-		beginGame = data.message.game;
-	}
-}
-
-function sendMessage(type, message) 
-{
-    console.log(`Sending message: type=${type}, message=${JSON.stringify(message)}`);
-    socket.send(JSON.stringify(
-    {
-        'type': type,
-        'message': message
-    }));
->>>>>>> d3510d08ba8ee2157a3d86c76e38882498950d45
 }
 
 function movePaddles()
@@ -324,27 +228,16 @@ function checkIntersections()
 
   if (cubeBoundingBox.intersectsBox(paddle1BoundingBox)) 
   {
-<<<<<<< HEAD
 	cubeSpeedx *= -1;
 	shakeDuration = SHAKE_DURATION;
 	increaseSpeed();
 	adjustCubeDirection(paddle1);
 	cube.position.x += cubeSpeedx;
 	cube.position.z += cubeSpeedz;
-=======
-    cubeSpeedx *= -1;
-    shakeDuration = SHAKE_DURATION;
-    increaseSpeed();
-    adjustCubeDirection(paddle1);
-    cube.position.x += cubeSpeedx;
-    cube.position.z += cubeSpeedz;
-	sendCubeData();
->>>>>>> d3510d08ba8ee2157a3d86c76e38882498950d45
   }
 
   if (cubeBoundingBox.intersectsBox(paddle2BoundingBox)) 
   {
-<<<<<<< HEAD
 	cubeSpeedx *= -1;
 	shakeDuration = SHAKE_DURATION;
 	increaseSpeed();
@@ -360,15 +253,6 @@ function checkIntersections()
   if (paddle2BoundingBox.intersectsBox(table1BoundingBox) || paddle2BoundingBox.intersectsBox(table2BoundingBox)) 
   {
 	paddle2.position.z -= paddle2Speed;
-=======
-    cubeSpeedx *= -1;
-    shakeDuration = SHAKE_DURATION;
-    increaseSpeed();
-    adjustCubeDirection(paddle2);
-    cube.position.x += cubeSpeedx;
-    cube.position.z += cubeSpeedz;
-	sendCubeData();
->>>>>>> d3510d08ba8ee2157a3d86c76e38882498950d45
   }
 }
 
@@ -541,7 +425,7 @@ function animate()
 		if (!gamePaused && player1Score < 7 && player2Score < 7) 
 		{
 			movePaddles();
-			paddle1AI(paddle1);
+			// paddle1AI(paddle1);
 			checkIntersections();
 			moveCube();
 			// applyCameraShake();
