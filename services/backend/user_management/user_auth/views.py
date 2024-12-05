@@ -53,23 +53,19 @@ def enable_2fa(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def registerView(request):
-	if request.method == 'POST':
-		form = RegistrationForm(request.POST)
-		if form.is_valid():
-			user = form.save()
-			login(request, user)
-			refresh = RefreshToken.for_user(user)
+	form = RegistrationForm(request.POST)
+	if form.is_valid():
+		user = form.save()
+		login(request, user)
+		refresh = RefreshToken.for_user(user)
 
-			return JsonResponse({
-				'status': 'success',
-				'username': user.username,
-				'access': str(refresh.access_token),
-				'refresh': str(refresh),
-			}, status=200)
-		return JsonResponse({'error': form.errors}, status=409)
-	elif request.method == 'GET':
-		return JsonResponse({'test':"GET"}, status=200)
-	return JsonResponse({'error': 'error'}, status=400)
+		return JsonResponse({
+			'status': 'success',
+			'username': user.username,
+			'access': str(refresh.access_token),
+			'refresh': str(refresh),
+		}, status=200)
+	return JsonResponse({'error': form.errors}, status=409)
 
 @csrf_exempt
 @api_view(['POST'])

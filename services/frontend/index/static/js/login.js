@@ -5,11 +5,7 @@
 		const formData = new FormData(event.target);
 
 		try {
-			const response = await myFetch('https://localhost:8443/user_auth/login/' , formData);
-			const data = await response.json();
-			if (!response.ok)
-				throw data.error;
-			console.log(data.message);
+			const data = await myFetch('https://localhost:8443/user_auth/login/' , formData);
 			if (data.access && data.refresh) {
 				console.log("Login successful");
 
