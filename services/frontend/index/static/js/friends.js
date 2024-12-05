@@ -22,18 +22,9 @@ async function sendFriendRequest(dest, src) {
 
 function sendButtonConfigure()
 {
-	/* const friends = userListDiv.querySelectorAll('li');
-	friends?.forEach(item => {
-		const button = item.querySelector('button')
-		const dest = item.querySelector('p').textContent;
-		button.addEventListener('click', () => {
-			sendFriendRequest(dest, window.user.username);
-		});
-	}); */
-
 	document.querySelectorAll('.send-friend-request').forEach(button => {
         button.addEventListener('click', () => {
-            const dest = button.queryselector('h5').textContent; // Get destination username from data attribute
+            const dest = button.getAttribute('data-dest');
             sendFriendRequest(dest, window.user.username);
         });
     });
@@ -89,7 +80,7 @@ function putUsers(users)
 		<h5 class="fw-semibold mb-0">@${user.username}</h5>
 		</div>
 		<div class="px-2 py-2 bg-light text-center">
-		<button class="btn btn-success me-2 send-friend-request" onclick="handleFriendRequest('accept', '${user.username}')">Send Request</button>
+		<button class="btn btn-success me-2 send-friend-request" data-dest="${user.username}" >Send Request</button>
 		</div>
 		</div>
 		`;
