@@ -1,4 +1,3 @@
-
 async function sendFriendRequest(dest, src) {
 	fetch('https://localhost:8443/user_friends/friend-request-send/', {
 		method: 'POST',
@@ -82,7 +81,85 @@ function getFriends() {
 	});
 }
 
+function getFriendRequests() {
+	return fetch('https://localhost:8443/user_friends/friend-request/')
+	.then(response => {
+		return response.json();
+	})
+	.catch(error => {
+		console.error('Error fetching friend requests: ', error)
+	});
+}
+
+function handleFriendRequestButton(src, dest, intention) {
+	return fetch('https://localhost:8443/user_friends/handle-friend-request/' , {
+		method: 'POST',
+		headers: {
+			"X-CSRFToken": getCookie('csrftoken'),
+			"Accept": "application/json",
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			'dest':dest,
+			'src':src,
+			'intention':intention
+		})
+	})
+	.then(async response => {
+		const data = await response.json();
+		console.log(data);
+		return data;
+	})
+	.catch(error => {
+		console.error('Error: ', error.error);
+	})
+}
+
 // * MAIN SCRIPT *
+
+const friendRequestsDiv = document.getElementById('user-friend-requests')
+
+getFriendRequests().then(response => {
+	if (response) {
+		console.log(response);
+		response.friendRequests.forEach(friendRequest => {
+			const friendList = document.createElement('ul');
+			const friendsP = document.createElement('p');
+			friendsP.textContent = friendRequest.username;
+			friendList.appendChild(friendsP);
+			friendRequestsDiv.appendChild(friendList);
+
+			const declineButton = document.createElement('button');
+			declineButton.classList.add("btn", "col", "pull-right", "btn-danger", "btn-xs");
+			declineButton.textContent = "Decline";
+			declineButton.type = 'submit';
+			declineButton.style.display = 'flex';
+			friendRequestsDiv.appendChild(declineButton);
+
+			const acceptButton = document.createElement('button');
+			acceptButton.classList.add("btn", "col", "pull-right", "btn-success", "btn-xs");
+			acceptButton.textContent = "Accept";
+			acceptButton.type = 'submit';
+			acceptButton.style.display = 'flex';
+			friendRequestsDiv.appendChild(acceptButton);
+
+			const dest = friendList.querySelector('p').textContent;
+			declineButton.addEventListener('click', () => {
+				handleFriendRequestButton(dest ,window.user.username, 'decline')
+				window.location.reload()
+			})
+			acceptButton.addEventListener('click', () => {
+				handleFriendRequestButton(dest, window.user.username, 'accept')
+				window.location.reload()
+			})
+		});
+	} else {
+		friendRequestsDiv.innerHTML = "<p>No friends requests found.</p>";
+	}
+}).catch(error => {
+		console.error("Error fetching friends:", error);
+		friendRequestsDiv.innerHTML = "<p>Error loading friends list.</p>";
+});
 
 const friendsListDiv = document.getElementById('user-friends');
 
@@ -114,7 +191,7 @@ const userListDiv = document.getElementById('user-search-result');
 
 		const formData = new FormData(event.target);
 
-		const fetch_url = 'https://localhost:8443/user_auth/user_search/';
+		const fetch_url = 'https://localhost:8443/user_friends/user_search/';
 		myFetch(fetch_url, formData)
 		.then(data => {
 			if (data.users)
