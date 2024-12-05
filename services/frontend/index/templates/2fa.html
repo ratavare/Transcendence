@@ -1,7 +1,16 @@
 <page-element name="2fa">
-	{% include 'navbar.html' with authenticated="true" %}
-	<form id="form-2fa-setup">
-		<button type="submit">Activate 2FA</button>
-	</form>
-	<div id="qr-container"></div>
+    {% include 'navbar.html' with authenticated="true" %}
+    <form id="form-2fa-setup">
+        <p>2FA is disabled.</p>
+        <button type="submit">Activate 2FA</button>
+    </form>
+    <div id="qr-container"></div>
+    <div id="otp-container" style="display: none;">
+        <input type="text" id="otp-code" placeholder="Enter OTP code">
+        <button id="verify-otp-button">Verify OTP</button>
+    </div>
+    <div id="2fa-status" style="display: none;">
+        <p>2FA is enabled.</p>
+        <button id="disable-2fa-button">Disable 2FA</button>
+    </div>
 </page-element>

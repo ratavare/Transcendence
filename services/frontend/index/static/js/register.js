@@ -6,7 +6,7 @@
 		let formData = new FormData(event.target);
 	
 		try {
-			const data = await myFetch('https://localhost:8443/user_auth/register/', formData);
+			const data = await myFetch('https://localhost:8443/user_auth/register/', formData, 'POST', false);
 			if (data.access && data.refresh) {
 				console.log("Registration successful", data);
 

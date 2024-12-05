@@ -52,6 +52,31 @@ def enable_2fa(request):
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def disable_2fa(request):
+    user = request.user
+    profile = getattr(user, 'profile', None)
+    if profile:
+        profile.otp_secret = ''
+        profile.save()
+        return JsonResponse({'status': 'success'}, status=200)
+    return JsonResponse({'status': 'error', 'error': 'Profile not found'}, status=400)
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def verify_otp(request):
+    user = request.user
+    otp = request.data.get('otp')
+    profile = getattr(user, 'profile', None)
+    if profile and profile.otp_secret:
+        totp = pyotp.TOTP(profile.otp_secret)
+        if totp.verify(otp):
+            return JsonResponse({'status': 'success'}, status=200)
+    return JsonResponse({'status': 'error', 'error': 'Invalid OTP'}, status=400)
+
+@csrf_exempt
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def registerView(request):
 	form = RegistrationForm(request.POST)
@@ -78,7 +103,9 @@ def loginView(request):
 
         # Check if 2FA is enabled for the user
         profile = getattr(user, 'profile', None)
-        if profile and profile.otp_secret:
+        is_2fa_enabled = bool(profile and profile.otp_secret)
+
+        if is_2fa_enabled:
             otp = request.POST.get('otp')
             totp = pyotp.TOTP(profile.otp_secret)
 
@@ -94,6 +121,7 @@ def loginView(request):
             'username': user.username,
             'access': str(refresh.access_token),
             'refresh': str(refresh),
+            'is_2fa_enabled': is_2fa_enabled,
         }, status=200)
 
     return JsonResponse({'error': form.errors}, status=400)

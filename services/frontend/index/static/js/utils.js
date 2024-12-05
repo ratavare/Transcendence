@@ -19,7 +19,7 @@ function getCookie(name) {
 }
 
 async function refreshAccessToken() {
-    const refreshToken = localStorage.getItem('refresh');
+    const refreshToken = localStorage.getItem('refresh_token');
     
     if (!refreshToken) {
         console.error('No refresh token available.');
@@ -36,55 +36,66 @@ async function refreshAccessToken() {
 
     if (response.ok) {
         const { access } = await response.json();
-        localStorage.setItem('access', access);
+        localStorage.setItem('access_token', access);
         return access;
     } else {
         console.error('Failed to refresh access token');
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         return null;
     }
 }
 
-async function myFetch(viewUrl, myData) {
-    const accessToken = localStorage.getItem('access_token');
+async function myFetch(viewUrl, myData, method = 'POST', requireAuth = true) {
+    let accessToken = localStorage.getItem('access_token');
+    if (requireAuth && !accessToken) {
+        accessToken = await refreshAccessToken();
+        if (!accessToken) {
+            console.error("No access token found. User might not be logged in.");
+            return;
+        }
+    }
 
     const headers = {
         "X-CSRFToken": getCookie('csrftoken'),
         "Accept": "application/json",
     };
 
-    if (accessToken) {
-		console.log("BUT WHYYY");
-        headers['Authorization'] = `Bearer ${accessToken}`;
+    if (requireAuth) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+
+    let body = null;
+    if (myData) {
+        if (myData instanceof FormData) {
+            body = myData;
+            delete headers["Content-Type"];
+        } else {
+            headers["Content-Type"] = "application/json";
+            body = JSON.stringify(myData);
+        }
     }
 
     const response = await fetch(viewUrl, {
-        method: 'POST',
+        method: method,
         headers: headers,
-        body: myData,
+        body: body,
     });
 
     const data = await response.json();
 
-    if (response.status === 401 && accessToken) {
+    if (response.status === 401 && requireAuth) {
         const newAccessToken = await refreshAccessToken();
         
         if (newAccessToken) {
             headers['Authorization'] = `Bearer ${newAccessToken}`;
             const retryResponse = await fetch(viewUrl, {
-                method: 'POST',
-                headers,
-                body: myData,
+                method: method,
+                headers: headers,
+                body: body,
             });
-            const retryData = await retryResponse.json();
-
-            if (!retryResponse.ok) {
-                throw retryData.error || 'Unknown error during retry';
-            }
-            return retryData;
-        } else
-            throw data.error || 'Unable to refresh token';
+            return retryResponse.json();
+        }
     }
 
     if (!response.ok) {

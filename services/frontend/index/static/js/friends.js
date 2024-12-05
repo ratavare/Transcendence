@@ -81,7 +81,7 @@ const userListDiv = document.getElementById('user-search-result');
 		const formData = new FormData(event.target);
 
 		const fetch_url = 'https://localhost:8443/user_auth/user_search/';
-		myFetch(fetch_url, formData)
+		myFetch(fetch_url, formData, 'POST', true)
 		.then(data => {
 			if (data.users)
 				putUsers(data.users);
