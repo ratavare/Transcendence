@@ -1,4 +1,3 @@
-
 async function sendFriendRequest(dest, src) {
 	fetch('https://localhost:8443/user_friends/friend-request-send/', {
 		method: 'POST',
@@ -21,7 +20,7 @@ async function sendFriendRequest(dest, src) {
 	});
 }
 
-function sendButtonConfigure()
+function sendButtonConfigure(userListDiv)
 {
 	const friends = userListDiv.querySelectorAll('li');
 	friends?.forEach(item => {
@@ -33,7 +32,7 @@ function sendButtonConfigure()
 	});
 }
 
-function putUsers(users)
+function putPossibleFriends(users, userListDiv)
 {
 	const previousList = userListDiv.querySelector('ul');
 	previousList?.remove();
@@ -61,18 +60,157 @@ function putUsers(users)
 	userListDiv.appendChild(userList);
 	userListDiv.style.display = 'block';
 
-	sendButtonConfigure();
+	sendButtonConfigure(userListDiv);
 }
 
-const friendsListDiv = document.getElementById('user-friends');
-
-{
-	
+function getFriends() {
+	return fetch('https://localhost:8443/user_friends/get-friends/')
+	.then(response => {
+		return response.json();
+	})
+	.catch(error => {
+		console.error("Error fetching friends:", error);
+	});
 }
 
-const userListDiv = document.getElementById('user-search-result');
+function getFriendRequests() {
+	return fetch('https://localhost:8443/user_friends/get-friend-requests/')
+	.then(response => {
+		return response.json();
+	})
+	.catch(error => {
+		console.error('Error fetching friend requests: ', error)
+	});
+}
+
+function handleFriendRequestButton(src, dest, intention) {
+	return fetch('https://localhost:8443/user_friends/handle-friend-request/' , {
+		method: 'POST',
+		headers: {
+			"X-CSRFToken": getCookie('csrftoken'),
+			"Accept": "application/json",
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			'dest':dest,
+			'src':src,
+			'intention':intention
+		})
+	})
+	.then(async response => {
+		const data = await response.json();
+		console.log(data);
+		return data;
+	})
+	.catch(error => {
+		console.error('Error: ', error.error);
+	})
+}
+
+function deleteFriend(src, dest) {
+	return fetch('https://localhost:8443/user_friends/delete-friend/' , {
+		method: 'POST',
+		headers: {
+			"X-CSRFToken": getCookie('csrftoken'),
+			"Accept": "application/json",
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			'dest':dest,
+			'src':src,
+		})
+	})
+	.then(async response => {
+		const data = await response.json();
+		console.log(data);
+		return data;
+	})
+	.catch(error => {
+		console.error('Error: ', error.error);
+	})
+}
+
+// * MAIN SCRIPT *
+{
+	const friendRequestsDiv = document.getElementById('user-friend-requests')
+
+	getFriendRequests().then(response => {
+		if (response) {
+			console.log(response);
+			response.friendRequests.forEach(friendRequest => {
+				const friendList = document.createElement('ul');
+				const friendsP = document.createElement('p');
+				friendsP.textContent = friendRequest.username;
+				friendList.appendChild(friendsP);
+				friendRequestsDiv.appendChild(friendList);
+
+				const declineButton = document.createElement('button');
+				declineButton.classList.add("btn", "col", "pull-right", "btn-danger", "btn-xs");
+				declineButton.textContent = "Decline";
+				declineButton.type = 'submit';
+				declineButton.style.display = 'flex';
+				friendRequestsDiv.appendChild(declineButton);
+
+				const acceptButton = document.createElement('button');
+				acceptButton.classList.add("btn", "col", "pull-right", "btn-success", "btn-xs");
+				acceptButton.textContent = "Accept";
+				acceptButton.type = 'submit';
+				acceptButton.style.display = 'flex';
+				friendRequestsDiv.appendChild(acceptButton);
+
+				const dest = friendList.querySelector('p').textContent;
+				declineButton.addEventListener('click', () => {
+					handleFriendRequestButton(dest ,window.user.username, 'decline')
+					// window.location.reload()
+				})
+				acceptButton.addEventListener('click', () => {
+					handleFriendRequestButton(dest, window.user.username, 'accept')
+					// window.location.reload()
+				})
+			});
+		} else {
+			friendRequestsDiv.innerHTML = "<p>No friends requests found.</p>";
+		}
+	}).catch(error => {
+			console.error("Error fetching friends:", error);
+			friendRequestsDiv.innerHTML = "<p>Error loading friends list.</p>";
+	});
+}
+{
+	const friendsListDiv = document.getElementById('user-friends');
+
+	getFriends().then(response => {
+		if (response) {
+			console.log(response);
+			response.friends.forEach(friend => {
+				const friendList = document.createElement('ul');
+				const friendsP = document.createElement('p');
+				friendsP.textContent = friend.username;
+				friendList.appendChild(friendsP);
+				friendsListDiv.appendChild(friendList);
+				const button = document.createElement('button');
+				button.classList.add("btn", "col", "pull-right", "btn-danger", "btn-xs");
+				button.textContent = "Remove friend :(";
+				button.type = 'submit';
+				button.style.display = 'flex';
+				friendsListDiv.appendChild(button);
+				button.addEventListener('click', () => {
+					const dest = friendList.querySelector('p').textContent;
+					deleteFriend(window.user.username, dest);
+					// window.location.reload()
+				})
+			});
+		} else {
+			friendsListDiv.innerHTML = "<p>No friends found.</p>";
+		}
+	}).catch(error => {
+			console.error("Error fetching friends:", error);
+			friendsListDiv.innerHTML = "<p>Error loading friends list.</p>";
+	});
+}
 
 {
+	const userListDiv = document.getElementById('user-search-result');
 	const formUsers = document.getElementById('form-users');
 
 	formUsers?.addEventListener('submit', function(event) {
@@ -84,7 +222,7 @@ const userListDiv = document.getElementById('user-search-result');
 		myFetch(fetch_url, formData, 'POST', true)
 		.then(data => {
 			if (data.users)
-				putUsers(data.users);
+				putPossibleFriends(data.users, userListDiv);
 			
 		}).catch(error => {
 			console.log(error);

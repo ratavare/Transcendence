@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
+from rest_framework import viewsets
+from .models import Lobby
 from lobby.models import Lobby
 from lobby.serializers import LobbySerializer
 
@@ -15,6 +17,7 @@ class createOrGetLobby(APIView):
 				username = request.data.get('username')
 				user = User.objects.get(username=username)
 				selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
+				selectedLobby.save()
 				selectedLobby.users.add(user)
 				serilizer = LobbySerializer(selectedLobby)
 				return JsonResponse({'data': serilizer.data}, status=200)
