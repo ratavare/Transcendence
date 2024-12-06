@@ -74,7 +74,7 @@ function getFriends() {
 }
 
 function getFriendRequests() {
-	return fetch('https://localhost:8443/user_friends/friend-request/')
+	return fetch('https://localhost:8443/user_friends/get-friend-requests/')
 	.then(response => {
 		return response.json();
 	})

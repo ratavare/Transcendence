@@ -6,7 +6,7 @@ urlpatterns = [
 	path('user_search/', views.userSearchView),
 	path('friend-request-send/', views.sendFriendRequest),
 	path('get-friends/', views.getFriends),
-	path('friend-request/', views.friendRequest),
+	path('get-friend-requests/', views.getfriendRequests),
 	path('handle-friend-request/', views.handleFriendRequest),
     path('delete-friend/', views.deleteFriend),
 ]

@@ -63,7 +63,7 @@ def getFriends(request):
 			return JsonResponse({'error': str(e)}, status=500)
 
 @login_required
-def friendRequest(request):
+def getfriendRequests(request):
 	if request.method == 'GET':
 		try:
 			user = request.user.id
