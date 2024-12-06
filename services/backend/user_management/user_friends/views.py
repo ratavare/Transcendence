@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import models
+from django.db.models import Q
 from .models import Friendships
 from .serializers import FriendshipSerializer, UserSerializer
 import json
@@ -33,18 +34,37 @@ def sendFriendRequest(request):
 
 			source = data.get('src')
 			destination = data.get('dest')
-
 			source_user = User.objects.get(username=source)
 			destination_user = User.objects.get(username=destination)
-			existing_request = Friendships.objects.filter(from_user=source_user, to_user=destination_user).exists()
-			if (existing_request):
-				return JsonResponse({'message': "Friendship request already exists"}, status=400)
-			newRequest = Friendships(from_user=source_user, to_user=destination_user)
-			newRequest.save()
-			serializer = FriendshipSerializer(newRequest)
+
+			existing_request = Friendships.objects.filter(
+				Q(from_user=source_user, to_user=destination_user) |
+				Q(from_user=destination_user, to_user=source_user)
+			).first()
+
+			if existing_request:
+				if existing_request.status == 'requested' and existing_request.from_user == destination_user:
+					existing_request.status = 'accepted'
+					Friendships.objects.create(
+						from_user=source_user,
+						to_user=destination_user,
+						status='accepted'
+					)
+					existing_request.save()
+					return JsonResponse({'success': 'Friendship accepted due to reverse request.'}, status=200)
+				return JsonResponse({'message': "Friendship already exists or is pending."}, status=400)
+
+			new_request = Friendships.objects.create(from_user=source_user, to_user=destination_user, status='requested')
+			serializer = FriendshipSerializer(new_request)
 			return JsonResponse({'newRequest': serializer.data}, status=200)
+
 		except User.DoesNotExist:
 			return JsonResponse({'error': 'User(s) not found'}, status=404)
+		except Exception as e:
+			return JsonResponse({'error': str(e)}, status=500)
+
+	return JsonResponse({'error': 'Invalid request method.'}, status=400)
+
 
 @login_required
 def getFriends(request):
