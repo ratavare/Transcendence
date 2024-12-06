@@ -43,13 +43,6 @@ class Paddle():
 		self.positionZ = positionZ
 		self.positionX = positionX
 		self.positionY = PADDLE_POSITION_Y
-		self.update_bounding_box()
-
-	def update_bounding_box(self):
-		self.boundingBox = {
-			'min': [self.positionX, 0, self.positionZ],
-			'max': [self.positionX  + self.width, self.positionY + self.depth, self.positionZ + self.length]
-		}
 
 class Ball:
 	def __init__(self):
@@ -58,10 +51,6 @@ class Ball:
 		self.speedZ = 0
 		self.positionX = 0
 		self.positionZ = 0
-		self.boundingBox = {
-			'min': [(self.positionX - self.diameter) / 2, (self.positionZ - self.diameter) / 2, 0],
-			'max': [(self.positionX + self.diameter) / 2, (self.positionZ + self.diameter) / 2, 0],
-		}
 
 class Pong:
 	def __init__(self):
@@ -113,42 +102,12 @@ class Pong:
 		self.movePaddle()
 		self.checkIntersection()
 		self.move()
-
-		self.ball.boundingBox = {
-			'min': [(self.ball.positionX - self.ball.diameter) / 2, (self.ball.positionZ - self.ball.diameter) / 2, 0],
-			'max': [(self.ball.positionX + self.ball.diameter) / 2, (self.ball.positionZ + self.ball.diameter) / 2, 0],
-		}
 	
 	def checkIntersection(self):
-		# table1 = {'min': [-1300, 0, 500], 'max': [1400, 100, 600]}
-		# table2 = {'min': [-1300, 0, -600], 'max': [1400, 100, -500]}
-		# if self.intersections(self.ball.boundingBox, table1) or self.intersections(self.ball.boundingBox, table2):
-		# 	myPrint("HIT WALL")
-		# 	self.ball.speedZ *= -1
-		# 	self.ball.positionZ += self.ball.speedZ
-		if self.intersections(self.ball.boundingBox, self.paddle1.boundingBox):
-			myPrint("HIT PADDLE 1")
-			myPrint(self.ball.boundingBox)
-			myPrint(self.paddle1.boundingBox)
-			self.ball.speedX *= -1
-			self.increaseSpeed()
-			self.adjustDirections()
-			self.ball.positionX += self.ball.speedX
-			self.ball.positionZ += self.ball.speedZ
-		if self.intersections(self.ball.boundingBox, self.paddle2.boundingBox):
-			myPrint("HIT PADDLE 2")
-			myPrint(self.ball.boundingBox)
-			myPrint(self.paddle1.boundingBox)
-			self.ball.speedX *= -1
-			self.increaseSpeed()
-			self.adjustDirections()
-			self.ball.positionX += self.ball.speedX
-			self.ball.positionZ += self.ball.speedZ
+		pass
 
 	def intersections(self, ball, paddle):
-		return	paddle['max'][0] >= ball['min'][0] and paddle['min'][0] <= ball['max'][0] and \
-				paddle['max'][1] >= ball['min'][1] and paddle['min'][1] <= ball['max'][1] and \
-				paddle['max'][2] >= ball['min'][2] and paddle['min'][2] <= ball['max'][2]
+		pass
 
 	def adjustDirections(self):
 		realtiveIntersectZ = self.paddle1.positionZ + (self.paddle1.depth / 2) - self.ball.positionZ
@@ -220,9 +179,8 @@ class Consumer(AsyncWebsocketConsumer):
 					self.game.paddle1.speed = payload['speed']
 				case 'p2':
 					self.game.paddle2.speed = payload['speed']
-				case 'beginGame':
+				case 'ready':
 					self.game_loop = asyncio.create_task(self.runLoop())
-					await self.groupSend('btnVisibility', 'none')
 
 			await self.groupSend(send_type, payload)
 

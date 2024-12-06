@@ -12,7 +12,6 @@ def lobbyView(request, lobby_id=None):
 		if lobby_id:
 			try:
 				body = json.loads(request.body)
-				print('UUUUUUUUUUUUUUSER: ',body.get('username'), flush=True)
 				username = body.get('username')
 				user = User.objects.get(username=username)
 				selectedLobby = Lobby.objects.get(lobby_id=lobby_id)

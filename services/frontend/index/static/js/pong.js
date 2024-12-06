@@ -131,17 +131,19 @@ function makeParalellepiped(x, y, z, dx, dy, dz, color)
   return box;
 }
 
-function handlePaddleControls(player, upKey, downKey)
+function handlePaddleControls(player)
 {
 	document.addEventListener('keydown', (event) => 
 	{
 		let payload = null;
 		switch (event.key) 
 		{
-			case upKey:
+			case 'w':
+			case 'ArrowUp':
 				payload = {speed: -PADDLE_SPEED };
 				break;
-			case downKey:
+			case 's':
+			case 'ArrowDown':
 				payload = {speed: PADDLE_SPEED };
 				break;
 		}
@@ -154,8 +156,10 @@ function handlePaddleControls(player, upKey, downKey)
 		let payload = null;
 		switch (event.key) 
 		{
-			case upKey:
-			case downKey:
+			case 'w':
+			case 's':
+			case 'ArrowUp':
+			case 'ArrowDown':
 				payload = {speed: 0 };
 				break;
 		}
@@ -439,12 +443,12 @@ function animate()
 		if (player1Score == 7)
 		{
 			document.getElementById('winner').innerHTML = 'Player 1 wins!';
-			startBtn.style.display = 'block';
+			readyBtn.style.display = 'block';
 		}
 		else if (player2Score == 7) 
 		{
 			document.getElementById('winner').innerHTML = 'Player 2 wins!';
-			startBtn.style.display = 'block';
+			readyBtn.style.display = 'block';
 		}
 	}
 }
@@ -480,9 +484,6 @@ socket.onmessage = function(event)
 		case 'connect':
 			console.log(`User ID: ${data.payload.id} | `, data.payload.connectMessage);
 			break;
-		case 'beginGame':
-			beginGame = data.payload
-			break;
 		case 'message':
 			console.log(data.payload);
 			break;
@@ -497,36 +498,27 @@ socket.onmessage = function(event)
 		case 'spectate':
 			updateBall(data.payload);
 		case 'btnVisibility':
-			startBtn.style.display = data.payload;
+			
 	}
 }
 
-const startBtn = document.getElementById('startBtn');
-startBtn.onclick = () => {
-	beginGame = true;
-	sendPayload('beginGame', {
-		beginGame: true
-	});
+const readyBtn = document.getElementById('readyBtn');
+readyBtn.onclick = () => {
+	sendPayload('ready', true);
+	readyBtn.style.display = data.payload;
 }
 
 socket.onopen = async () => 
 {
 	sendPayload('connect', {
 		id: window.user.id,
-		connectMessage: `Welcome to the ${lobby_id} lobby ${window.user.username}!!`,
+		connectMessage: `Welcome to the [${lobby_id}] lobby [${window.user.username}]!!`,
 	});
 	let playerId = await checkPlayer()
-	console.log("PLAYER ID: ", playerId);
 	if (playerId == 1)
-	{
-		console.log('PLAYER1')
-		handlePaddleControls('p1', 'w', 's');
-	}
+		handlePaddleControls('p1');
 	else if (playerId == 2)
-	{
-		console.log('PLAYER2');
-		handlePaddleControls('p2', 'ArrowUp', 'ArrowDown');
-	}
+		handlePaddleControls('p2');
 	else
 		console.log('SPECTATOR')
 }
