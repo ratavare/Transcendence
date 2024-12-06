@@ -136,6 +136,7 @@ function handlePaddleControls(player)
 	document.addEventListener('keydown', (event) => 
 	{
 		let payload = null;
+		let payload2 = null;
 		switch (event.key) 
 		{
 			case 'w':
@@ -154,6 +155,7 @@ function handlePaddleControls(player)
 	document.addEventListener('keyup', (event) => 
 	{
 		let payload = null;
+		let payload2 = null;
 		switch (event.key) 
 		{
 			case 'w':
@@ -326,6 +328,8 @@ function updateBall(ballData)
 {
 	ball.position.x = ballData.ballPositionX;
 	ball.position.z = ballData.ballPositionZ;
+	pointLight.position.copy(ball.position);
+	// console.log('Ball Position: ', ball.position);
 	
 	// ballOutofBounds();
 	
