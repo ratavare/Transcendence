@@ -122,7 +122,7 @@ function deleteFriend(src, dest) {
 	})
 	.then(async response => {
 		const data = await response.json();
-		console.log(data.sucess);
+		console.log(data);
 		return data;
 	})
 	.catch(error => {
@@ -165,7 +165,7 @@ function deleteFriend(src, dest) {
 				})
 				acceptButton.addEventListener('click', () => {
 					handleFriendRequestButton(dest, window.user.username, 'accept')
-					window.location.reload()
+					// window.location.reload()
 				})
 			});
 		} else {
@@ -197,7 +197,7 @@ function deleteFriend(src, dest) {
 				button.addEventListener('click', () => {
 					const dest = friendList.querySelector('p').textContent;
 					deleteFriend(window.user.username, dest);
-					window.location.reload()
+					// window.location.reload()
 				})
 			});
 		} else {
