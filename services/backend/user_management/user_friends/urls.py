@@ -8,4 +8,5 @@ urlpatterns = [
 	path('get-friends/', views.getFriends),
 	path('friend-request/', views.friendRequest),
 	path('handle-friend-request/', views.handleFriendRequest),
+    path('delete-friend/', views.deleteFriend),
 ]
