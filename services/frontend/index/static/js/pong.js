@@ -497,15 +497,16 @@ socket.onmessage = function(event)
 			break;
 		case 'spectate':
 			updateBall(data.payload);
-		case 'btnVisibility':
-			
 	}
 }
 
 const readyBtn = document.getElementById('readyBtn');
 readyBtn.onclick = () => {
-	sendPayload('ready', true);
-	readyBtn.style.display = data.payload;
+	readyBtn.style.display = 'none';
+	if (playerId == 1)
+		sendPayload('ready', {player: 'p1'});
+	if (playerId == 2)
+		sendPayload('ready', {player: 'p2'});
 }
 
 socket.onopen = async () => 
@@ -514,7 +515,6 @@ socket.onopen = async () =>
 		id: window.user.id,
 		connectMessage: `Welcome to the [${lobby_id}] lobby [${window.user.username}]!!`,
 	});
-	let playerId = await checkPlayer()
 	if (playerId == 1)
 		handlePaddleControls('p1');
 	else if (playerId == 2)
@@ -533,8 +533,7 @@ socket.onclose = () =>
 
 async function checkPlayer()
 {
-	try
-	{
+	try {
 		const response = await fetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`);
 		const data = await response.json();
 		if (!response.ok)
@@ -545,3 +544,5 @@ async function checkPlayer()
 		console.log(error);
 	}
 }
+
+const playerId = await checkPlayer()

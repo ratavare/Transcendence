@@ -32,9 +32,9 @@ def lobbyView(request, lobby_id=None):
 
 	if request.method == 'GET':
 		if lobby_id:
-			lobby = Lobby.get(lobby_id=lobby_id)
+			lobby = Lobby.objects.get(lobby_id=lobby_id)
 			serializer = LobbySerializer(lobby)
-			return JsonResponse({'lobby:', serializer.data}, status=200)
+			return JsonResponse({'lobby': serializer.data}, status=200)
 		else:
 			lobbies = Lobby.objects.all()
 			if not lobbies:
@@ -77,4 +77,4 @@ def checkPlayer(request, lobby_id, player):
 		elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
 			return JsonResponse({'playerId': '2'}, status=200)
 		return JsonResponse({'playerId': '3'}, status=404)
-	return JsonResponse({'error': 'User does not exist in lobby'}, status=404) 	
+	return JsonResponse({'error': 'User does not exist in lobby'}, status=404)

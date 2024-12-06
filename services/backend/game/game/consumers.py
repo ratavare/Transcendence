@@ -143,11 +143,6 @@ class Consumer(AsyncWebsocketConsumer):
 		await self.graphicsInit()
 		if len(lobbies[self.lobby_id]) < 2:
 			await self.sendMessage('message', f'Connection Accepted: Welcome {self.user_id}!')
-		# else:
-		# 	await self.groupSend('spectate', {
-		# 		'username': self.user_id,
-		# 		'lobby_id': self.lobby_id
-		# 	})
 
 	async def disconnect(self, close_code):
 		if self.game_loop:
@@ -180,6 +175,7 @@ class Consumer(AsyncWebsocketConsumer):
 				case 'p2':
 					self.game.paddle2.speed = payload['speed']
 				case 'ready':
+					
 					self.game_loop = asyncio.create_task(self.runLoop())
 
 			await self.groupSend(send_type, payload)
@@ -218,9 +214,6 @@ class Consumer(AsyncWebsocketConsumer):
 			"ballPositionZ" : self.game.ball.positionZ,
 			"paddle1PositionZ": self.game.paddle1.positionZ,
 			"paddle2PositionZ": self.game.paddle2.positionZ,
-			"ballBoundingBox": self.game.ball.boundingBox,
-			"paddle1BoundingBox": self.game.paddle1.boundingBox,
-			"paddle2BoundingBox": self.game.paddle2.boundingBox,
 		}
 		await self.groupSend("state", payload)
 
