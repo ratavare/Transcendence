@@ -95,7 +95,7 @@ async function setPage(name)
 
 async function getProfile(){
 	try {
-		const response = await fetch('https://localhost:8443/user_profile/profile/');
+		const response = await fetch('https://localhost:8443/user_profile/profile/'); // TODO: Add Authorization header 
 		if(!response.ok) {
 			return false;
 		}

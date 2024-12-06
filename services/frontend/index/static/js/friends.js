@@ -1,5 +1,5 @@
 async function sendFriendRequest(dest, src) {
-	fetch('https://localhost:8443/user_friends/friend-request-send/', {
+	fetch('https://localhost:8443/user_friends/friend-request-send/', { // TODO: Add Authorization header
 		method: 'POST',
 		headers: {
 			"X-CSRFToken": getCookie('csrftoken'),
@@ -64,7 +64,7 @@ function putPossibleFriends(users, userListDiv)
 }
 
 function getFriends() {
-	return fetch('https://localhost:8443/user_friends/get-friends/')
+	return fetch('https://localhost:8443/user_friends/get-friends/') // TODO: Add Authorization header
 	.then(response => {
 		return response.json();
 	})
@@ -74,7 +74,7 @@ function getFriends() {
 }
 
 function getFriendRequests() {
-	return fetch('https://localhost:8443/user_friends/get-friend-requests/')
+	return fetch('https://localhost:8443/user_friends/get-friend-requests/') // TODO: Add Authorization header
 	.then(response => {
 		return response.json();
 	})
@@ -84,7 +84,7 @@ function getFriendRequests() {
 }
 
 function handleFriendRequestButton(src, dest, intention) {
-	return fetch('https://localhost:8443/user_friends/handle-friend-request/' , {
+	return fetch('https://localhost:8443/user_friends/handle-friend-request/' , { // TODO: Add Authorization header
 		method: 'POST',
 		headers: {
 			"X-CSRFToken": getCookie('csrftoken'),
@@ -108,7 +108,7 @@ function handleFriendRequestButton(src, dest, intention) {
 }
 
 function deleteFriend(src, dest) {
-	return fetch('https://localhost:8443/user_friends/delete-friend/' , {
+	return fetch('https://localhost:8443/user_friends/delete-friend/' , { // TODO: Add Authorization header
 		method: 'POST',
 		headers: {
 			"X-CSRFToken": getCookie('csrftoken'),
