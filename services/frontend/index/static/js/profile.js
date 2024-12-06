@@ -47,7 +47,7 @@ function editProfile() {
 		const formData = new FormData(event.target);
 
 		try {
-			await myFetch('https://localhost:8443/user_profile/profile/', formData)
+			await myFetch('https://localhost:8443/user_profile/profile/', formData, 'POST', true)
 			console.log("Profile change successful");
 			seturl('/home');
 		} catch(error) {

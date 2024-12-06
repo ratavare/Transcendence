@@ -420,9 +420,17 @@ function animate()
 	}
 }
 
+// saveSphereData();
+// setInterval(saveSphereData, 1000);
+handlePaddleControls();
+renderer.setAnimationLoop(animate);
+
 // ************************************* WEBSOCKET FUCNTIONS ************************************************
 
-const socket = new WebSocket(`wss://localhost:8443/ws/test/`);
+const url = window.location.href.split('/');
+const lobby_id = url[url.length - 1];
+
+const socket = new WebSocket(`wss://localhost:8443/ws/${lobby_id}/`);
 
 function sendPayload(type, payload) 
 {
@@ -467,7 +475,7 @@ socket.onopen = () =>
 	console.log(window.user.id);
 	sendPayload('connect', {
 		id: window.user.id,
-		connectMessage: `Welcome to the server ${window.user.username}!!`,
+		connectMessage: `Welcome to the ${lobby_id} lobby ${window.user.username}!!`,
 	});
 }
 
@@ -475,8 +483,3 @@ socket.onclose = () =>
 {
 	console.error('Socket closed unexpectedly');
 };
-
-// saveSphereData();
-// setInterval(saveSphereData, 1000);
-handlePaddleControls();
-renderer.setAnimationLoop(animate);
