@@ -64,12 +64,16 @@ function putUsers(users)
 	if (membersCount) {
 		membersCount.textContent = users.length;
 	}
+
+	const nousers = document.getElementById('no-users');
+	if (nousers) {
+		nousers.remove();
+	}
 	
 	const membersContainer = document.createElement('div');
 	membersContainer.classList.add("row");
 	membersContainer.id = 'friends-list2';
 	
-	/* 	const membersContainer = document.getElementById("friends-list2"); // Update to match your HTML structure */	
 	users.forEach(user => {
 		const card = document.createElement("div");
 		card.className = "col-sm-6 col-lg-4";
@@ -107,7 +111,6 @@ const userListDiv2 = document.getElementById('search-results');
 	formUsers?.addEventListener('submit', function(event) {
 		const previousList = document.getElementById('friends-list2');
 		if (previousList) {
-			console.log("check 0", previousList);
 			previousList.remove();
 		}
 		
@@ -127,6 +130,11 @@ const userListDiv2 = document.getElementById('search-results');
 			if (membersCount) {
 				membersCount.textContent = "0";
 			}
+			const results = document.getElementById("search-results");
+			const nousers = document.createElement('p');
+			nousers.id = 'no-users';
+			nousers.innerHTML = "No users found";
+			results.appendChild(nousers);
 		})
 	});
 }
