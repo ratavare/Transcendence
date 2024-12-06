@@ -5,25 +5,25 @@ import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 lobbies = {}
-PADDLE_SPEED = 15
+PADDLE_SPEED = 20
 AIPADDLE_SPEED = 15
-BALL_INITIAL_SPEED = -10
+BALL_INITIAL_SPEED = 10
 BALL_DIAMETER = 10
 BALL_RADIUS = BALL_DIAMETER / 2
 BOUNDARIES_WIDTH = 2700
 BOUNDARIES_HEIGHT = 100
 BOUNDARIES_DEPTH = 100
 FLOOR_POSITION_X = -1300
-FLOOR_POSITION_Y = 0
+FLOOR_POSITION_Y = -50
 FLOOR_POSITION_Z = 500
 CEILING_POSITION_X = -1300
-CEILING_POSITION_Y = 0
+CEILING_POSITION_Y = -50
 CEILING_POSITION_Z = -600
 PADDLE1_POSITION_X = -810
 PADDLE1_POSITION_Z = 0
 PADDLE2_POSITION_X = 800
 PADDLE2_POSITION_Z = 0
-PADDLE_POSITION_Y = 0
+PADDLE_POSITION_Y = -15
 PADDLE_WIDTH = 10
 PADDLE_LENGTH = 100
 PADDLE_DEPTH = 30
@@ -97,15 +97,18 @@ class Pong:
 			myPrint("Player 1 Scored")
 			self.player1Score += 1
 			self.respawnBall(1)
+			return 2
 		elif self.ball.positionX < -1000:
 			myPrint("Player 2 Scored")
 			self.player2Score += 1
 			self.respawnBall(2)
+			return 2
+		return 0
 
 	def move(self):
 		self.ball.positionX += self.ball.speedX
 		self.ball.positionZ += self.ball.speedZ
-		self.outOfBounds()
+		return self.outOfBounds()
 
 	def movePaddle(self):
 		if self.paddle1.moving == 1:
@@ -125,9 +128,14 @@ class Pong:
 		self.paddle2.positionZ += self.paddle2.speed
 
 	def update_state(self):
+		if self.player1Score == 7 or self.player2Score == 7:
+			return 3
 		self.movePaddle()
-		self.checkIntersection()
-		self.move()
+		action = self.checkIntersection()
+		point = self.move()
+		if point == 2:
+			return point
+		return action
 
 		# self.ball.boundingBox = {
 		# 	'min': [(self.ball.positionX - self.ball.diameter) / 2, (self.ball.positionZ - self.ball.diameter) / 2, 0],
@@ -157,34 +165,38 @@ class Pong:
 			self.ball.speedZ *= -1
 			self.ball.positionX += self.ball.speedX
 			self.ball.positionZ += self.ball.speedZ
+
+		if self.paddle1.positionZ > 450:
+			self.paddle1.positionZ = 450
+		elif self.paddle1.positionZ < -450:
+			self.paddle1.positionZ = -450
+
+		if self.paddle2.positionZ > 450:
+			self.paddle2.positionZ = 450
+		elif self.paddle2.positionZ < -450:
+			self.paddle2.positionZ = -450
 	
 		# Check for intersection with paddle1
 		if (ballBox['max'][0] >= paddle1Box['min'][0] and ballBox['min'][0] <= paddle1Box['max'][0] and
 			ballBox['max'][1] >= paddle1Box['min'][1] and ballBox['min'][1] <= paddle1Box['max'][1]):
-			myPrint("HIT PADDLE 1")
-			myPrint(f"Ball position: ({self.ball.positionX}, {self.ball.positionZ})")
-			myPrint(f"Paddle position: ({self.paddle1.positionX}, {self.paddle1.positionZ})")
 			self.ball.speedX *= -1
 			self.increaseSpeed()
 			self.adjustDirections(1)
 			self.ball.positionX += self.ball.speedX
 			self.ball.positionZ += self.ball.speedZ
+			return 1
+
 	
 		# Check for intersection with paddle2
 		if (ballBox['max'][0] >= paddle2Box['min'][0] and ballBox['min'][0] <= paddle2Box['max'][0] and
 			ballBox['max'][1] >= paddle2Box['min'][1] and ballBox['min'][1] <= paddle2Box['max'][1]):
-			myPrint("HIT PADDLE 2")
-			myPrint(f"Ball position: ({self.ball.positionX}, {self.ball.positionZ})")
-			myPrint(f"Paddle position: ({self.paddle2.positionX}, {self.paddle2.positionZ})")
 			self.ball.speedX *= -1
 			self.increaseSpeed()
 			self.adjustDirections(2)
 			self.ball.positionX += self.ball.speedX
 			self.ball.positionZ += self.ball.speedZ
-	# def intersections(self, ball, paddle):
-	# 	return	paddle['max'][0] >= ball['min'][0] and paddle['min'][0] <= ball['max'][0] and \
-	# 			paddle['max'][1] >= ball['min'][1] and paddle['min'][1] <= ball['max'][1] and \
-	# 			paddle['max'][2] >= ball['min'][2] and paddle['min'][2] <= ball['max'][2]
+			return 1
+		return 0		
 
 	def adjustDirections(self, paddle):
 		if paddle == 1:
@@ -252,6 +264,11 @@ class Consumer(AsyncWebsocketConsumer):
 				self.game_loop = asyncio.create_task(self.runLoop())
 			if send_type == 'move2':
 				self.game.paddle2.moving = payload['direction2']
+			if send_type == 'pause':
+				if self.game.gamePaused == False:
+					self.game.gamePaused = True
+				else:
+					self.game.gamePaused = False
 
 			await self.groupSend(send_type, payload)
 
@@ -277,9 +294,19 @@ class Consumer(AsyncWebsocketConsumer):
 	async def runLoop(self):
 		try:
 			while True:
-				self.game.update_state()
+				if self.game.gamePaused == True:
+					await asyncio.sleep(0.016)
+					continue
+
+				action = self.game.update_state()
+				if action == 1:
+					await self.groupSend("shake", {})
+				elif action == 2:
+					await self.groupSend("point", payload={"player1Score": self.game.player1Score, "player2Score": self.game.player2Score})
 				await self.sendState()
 				await asyncio.sleep(0.016)
+				if action == 3:
+					break
 		except asyncio.CancelledError:
 			await self.sendMessage('message', 'Game End')
 
