@@ -90,7 +90,7 @@ async function getLobbies()
 		const formData = new FormData(event.target);
 
 		try {
-			const data = await myFetch('https://localhost:8443/lobby/lobbies/', formData);
+			const data = await myFetch('https://localhost:8443/lobby/lobbies/', formData, 'POST', true);
 			console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
 			console.log(data);
 			joinLobby(data.lobby_id);

@@ -1,0 +1,20 @@
+<page-element name="2fa">
+    {% include 'navbar.html' with authenticated="true" %}
+    <div id="2fa-setup">
+        <p id="2fa-status-text">2FA is disabled.</p>
+        <button id="enable-2fa-button">Enable 2FA</button>
+    </div>
+    <div id="qr-container"></div>
+    <div id="setup-key-container" style="display: none;">
+        <p>Setup Key: <span id="setup-key"></span></p>
+    </div>
+    <div id="otp-container" style="display: none;">
+        <input type="text" id="otp-code" placeholder="Enter OTP code">
+        <button id="verify-otp-button">Verify OTP</button>
+        <button id="cancel-2fa-button">Cancel</button>
+    </div>
+    <div id="2fa-status" style="display: none;">
+        <p>2FA is enabled.</p>
+        <button id="disable-2fa-button">Disable 2FA</button>
+    </div>
+</page-element>
