@@ -30,37 +30,9 @@ function sendButtonConfigure(userListDiv)
     });
 }
 
-function putPossibleFriends(users)
+function displayResults(users)
 {
-	/* const previousList = userListDiv.querySelector('ul');
-	console.log("check", previousList);
-	previousList?.remove();
-	const userList = document.createElement('ul');
-	userList.classList.add("list-group");
-	users.forEach(user => {
-		const userItemList = document.createElement('li');
-		userItemList.classList.add("list-group-item");
-		userItemList.style = 'display: flex;align-items: center;justify-content: space-around';
-	
-		const usernameP = document.createElement('p');
-		usernameP.textContent = user.username;
-
-		const friendRequestButton = document.createElement('button');
-		friendRequestButton.classList.add("btn", "col", "pull-right", "btn-success", "btn-xs");
-		friendRequestButton.textContent = "Send Friend Request";
-		friendRequestButton.type = 'submit';
-		friendRequestButton.style.display = 'flex';
-
-		userItemList.appendChild(usernameP);
-		userItemList.appendChild(friendRequestButton);
-		userList.appendChild(userItemList);
-
-	});
-	userListDiv.appendChild(userList);
-	userListDiv.style.display = 'block'; */
-
 	const results = document.getElementById("search-results");
-	
 	const membersCount = document.getElementById("members-count");
 	if (membersCount) {
 		membersCount.textContent = users.length;
@@ -68,7 +40,7 @@ function putPossibleFriends(users)
 	
 	const membersContainer = document.createElement('div');
 	membersContainer.classList.add("row");
-	membersContainer.id = 'friends-list2';
+	membersContainer.id = 'friends-list';
 	console.log("users", users);
 	
 	users.forEach(user => {
@@ -89,7 +61,6 @@ function putPossibleFriends(users)
 		
 	});
 	results.appendChild(membersContainer);
-
 	sendButtonConfigure();
 }
 
@@ -163,7 +134,7 @@ function deleteFriend(src, dest) {
 
 // * MAIN SCRIPT *
 {
-	const results = document.getElementById("friend-requests-results");
+	const results = document.getElementById("friend-requests");
 	getFriendRequests().then(response => {
 		if (response && response.friendRequests.length > 0) {	
 			const requestsCount = document.getElementById("requests-count");
@@ -225,38 +196,7 @@ function deleteFriend(src, dest) {
 	}); 
 }
 {
-	const friendsListDiv = document.getElementById('friend-results');
-
-	getFriends().then(response => {
-		if (response) {
-			console.log(response);
-			response.friends.forEach(friend => {
-				const friendList = document.createElement('ul');
-				const friendsP = document.createElement('p');
-				friendsP.textContent = friend.username;
-				friendList.appendChild(friendsP);
-				friendsListDiv.appendChild(friendList);
-				const button = document.createElement('button');
-				button.classList.add("btn", "col", "pull-right", "btn-danger", "btn-xs");
-				button.textContent = "Remove friend :(";
-				button.type = 'submit';
-				button.style.display = 'flex';
-				friendsListDiv.appendChild(button);
-				button.addEventListener('click', () => {
-					const dest = friendList.querySelector('p').textContent;
-					deleteFriend(window.user.username, dest);
-					// window.location.reload()
-				})
-			});
-		} else {
-			friendsListDiv.innerHTML = "<p>No friends found.</p>";
-		}
-	}).catch(error => {
-			console.error("Error fetching friends:", error);
-			friendsListDiv.innerHTML = "<p>Error loading friends list.</p>";
-	});
-
-	/* const results = document.getElementById("friend-results");
+	const results = document.getElementById("friends");
 	getFriends().then(response => {
 		if (response && response.friends.length > 0) {	
 			const friendsCount = document.getElementById("friends-count");
@@ -266,7 +206,7 @@ function deleteFriend(src, dest) {
 			
 			const membersContainer = document.createElement('div');
 			membersContainer.classList.add("row");
-			membersContainer.id = 'friends-list2';
+			membersContainer.id = 'friends-list';
 			response.friends.forEach(friend => {
 				const card = document.createElement("div");
 				card.className = "col-sm-6 col-lg-4";
@@ -296,14 +236,13 @@ function deleteFriend(src, dest) {
 				removeButton.addEventListener('click', () => {
 					deleteFriend(window.user.username, dest);
 				})
-
 			});
 			results.appendChild(membersContainer);	
 		}
 	}).catch(error => {
 			console.error("Error fetching friends:", error);
 			results.innerHTML = "<p>Error loading friends list.</p>";
-	});  */
+	});
 }
 
 {
@@ -311,7 +250,7 @@ function deleteFriend(src, dest) {
 	const formUsers = document.getElementById('form-users');
 
 	formUsers?.addEventListener('submit', function(event) {
-		const previousList = document.getElementById('friends-list2');
+		const previousList = document.getElementById('friends-list');
 		if (previousList) {
 			previousList.remove();
 		}
@@ -330,7 +269,7 @@ function deleteFriend(src, dest) {
 		myFetch(fetch_url, formData, 'POST', true)
 		.then(data => {
 			if (data.users)
-				putPossibleFriends(data.users);
+				displayResults(data.users);
 		}).catch(error => {
 			console.log(error);
 			const membersCount = document.getElementById("members-count");
