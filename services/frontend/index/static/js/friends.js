@@ -59,6 +59,7 @@ function putPossibleFriends(users)
 	userListDiv.appendChild(userList);
 	userListDiv.style.display = 'block'; */
 
+	const results = document.getElementById("search-results");
 	
 	const membersCount = document.getElementById("members-count");
 	if (membersCount) {
@@ -68,6 +69,7 @@ function putPossibleFriends(users)
 	const membersContainer = document.createElement('div');
 	membersContainer.classList.add("row");
 	membersContainer.id = 'friends-list2';
+	console.log("users", users);
 	
 	users.forEach(user => {
 		const card = document.createElement("div");
@@ -86,7 +88,7 @@ function putPossibleFriends(users)
 		membersContainer.appendChild(card);
 		
 	});
-	//userListDiv2.appendChild(membersContainer);
+	results.appendChild(membersContainer);
 
 	sendButtonConfigure();
 }
@@ -112,6 +114,7 @@ function getFriendRequests() {
 }
 
 function handleFriendRequestButton(src, dest, intention) {
+	console.log(src, dest, intention);
 	return fetch('https://localhost:8443/user_friends/handle-friend-request/' , { // TODO: Add Authorization header
 		method: 'POST',
 		headers: {
@@ -160,12 +163,13 @@ function deleteFriend(src, dest) {
 
 // * MAIN SCRIPT *
 {
-	const friendRequestsDiv = document.getElementById('user-friend-requests')
+	const friendRequestsDiv = document.getElementById('user-friend-requests');
+	const results = document.getElementById("friend-requests-results");
 
-	getFriendRequests().then(response => {
-		if (response) {
+	 getFriendRequests().then(response => {
+		if (response && response.friendRequests.length > 0) {
 			console.log(response);
-			response.friendRequests.forEach(friendRequest => {
+			/* response.friendRequests.forEach(friendRequest => {
 				const friendList = document.createElement('ul');
 				const friendsP = document.createElement('p');
 				friendsP.textContent = friendRequest.username;
@@ -195,14 +199,64 @@ function deleteFriend(src, dest) {
 					handleFriendRequestButton(dest, window.user.username, 'accept')
 					// window.location.reload()
 				})
+			});  */
+	
+			const requestsCount = document.getElementById("requests-count");
+			if (requestsCount) {
+				requestsCount.textContent = response.friendRequests.length;
+			}
+			
+			const membersContainer = document.createElement('div');
+			membersContainer.classList.add("row");
+			membersContainer.id = 'requests-list2';
+			response.friendRequests.forEach(friendRequest => {
+				const card = document.createElement("div");
+				card.className = "col-sm-6 col-lg-4";
+				const cardOne = document.createElement("div");
+				cardOne.className = "card hover-img";
+				const cardTwo = document.createElement("div");
+				cardTwo.className = "card-body p-4 text-center border-bottom";
+				cardTwo.innerHTML = `
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${friendRequest.username}</h5>
+				`;
+				const cardThree = document.createElement("div");
+				cardThree.className = "px-2 py-2 bg-light text-center";
+				
+				const acceptButton = document.createElement('button');
+				acceptButton.classList.add("btn", "btn-success", "me-2");
+				acceptButton.textContent = "Accept";
+				acceptButton.type = 'submit';
+				cardThree.appendChild(acceptButton);
+
+				const declineButton = document.createElement('button');
+				declineButton.classList.add("btn", "btn-danger", "me-2");
+				declineButton.textContent = "Decline";
+				declineButton.type = 'submit';
+				cardThree.appendChild(declineButton);
+
+				cardOne.appendChild(cardTwo);
+				cardOne.appendChild(cardThree);
+				card.appendChild(cardOne);
+				membersContainer.appendChild(card);
+
+				const dest = friendRequest.username;
+				declineButton.addEventListener('click', () => {
+					handleFriendRequestButton(dest, window.user.username, 'decline')
+					// window.location.reload()
+				})
+				acceptButton.addEventListener('click', () => {
+					handleFriendRequestButton(dest, window.user.username, 'accept')
+					// window.location.reload()
+				})
+
 			});
-		} else {
-			friendRequestsDiv.innerHTML = "<p>No friends requests found.</p>";
+			results.appendChild(membersContainer);	
 		}
 	}).catch(error => {
 			console.error("Error fetching friends:", error);
-			friendRequestsDiv.innerHTML = "<p>Error loading friends list.</p>";
-	});
+			results.innerHTML = "<p>Error loading friends list.</p>";
+	}); 
 }
 {
 	const friendsListDiv = document.getElementById('user-friends');

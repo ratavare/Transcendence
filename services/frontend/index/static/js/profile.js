@@ -49,13 +49,13 @@ function editProfile() {
 		try {
 			await myFetch('https://localhost:8443/user_profile/profile/', formData, 'POST', true)
 			console.log("Profile change successful");
-			seturl('/home');
+			//seturl('/#/profile');
+			window.location.reload();
 		} catch(error) {
 			console.log("Profile change failed. Reason:", error);
 			alert("Profile change failed. Reason:", error);
 		}
 	});
-
 }
 
 fillProfile();

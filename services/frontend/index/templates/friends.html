@@ -17,26 +17,15 @@
 		</div>
 		<div id="search-results">
 			<div id="friends-list2" class="row">
-				<!-- The friends list will be populated here -->
+				<!-- The results list will be populated here -->
 			</div>
 		</div>
 		<div class="tab-pane fade show active" id="pills-friends" role="tabpanel" aria-labelledby="pills-friends-tab" tabindex="0">
 			<div class="d-sm-flex align-items-center justify-content-between mt-3 mb-4">
-				<h3 class="mb-3 mb-sm-0 fw-semibold d-flex align-items-center">Friends Requests<span class="badge text-bg-secondary fs-2 rounded-4 py-1 px-2 ms-2">1</span></h3>
+				<h3 class="mb-3 mb-sm-0 fw-semibold d-flex align-items-center">Friends Requests<span class="badge text-bg-secondary fs-2 rounded-4 py-1 px-2 ms-2" id="requests-count">0</span></h3>
 			</div>
-			<div class="row">
-				<div class="col-sm-6 col-lg-4">
-					<div class="card hover-img">
-						<div class="card-body p-4 text-center border-bottom">
-						<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-						<h5 class="fw-semibold mb-0">@user1</h5>
-						</div>
-						<div class="px-2 py-2 bg-light text-center">
-						<button class="btn btn-success me-2" onclick="handleFriendRequest('accept', 'user1')"> Accept</button>
-						<button  class="btn btn-danger" onclick="handleFriendRequest('decline', 'user1')"> Decline </button>
-						</div>
-					</div>
-				</div>
+			<div id="friend-requests-results">
+				<!-- The friends list will be populated here -->
 			</div>
 		</div>
 		<div class="tab-pane fade show active" id="pills-friends" role="tabpanel" aria-labelledby="pills-friends-tab" tabindex="0">
@@ -61,8 +50,9 @@
 							<img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" class="rounded-circle mb-3" width="80" height="80">
 							<h5 class="fw-semibold mb-0">@user2</h5>
 						</div>
-					<div class="px-2 py-2 bg-light text-center">
-						<button  class="btn btn-danger" onclick="handleFriendRequest('decline', 'user1')"> Remove Friend </button>
+						<div class="px-2 py-2 bg-light text-center">
+							<button  class="btn btn-danger" onclick="handleFriendRequest('decline', 'user1')"> Remove Friend </button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -77,18 +67,6 @@
 					</div>
 				</div>
 			</div>
-		</div>
-			</div>
-			<div class="tab-pane fade show active" id="pills-friends" role="tabpanel" aria-labelledby="pills-friends-tab" tabindex="0">
-				<div class="d-sm-flex align-items-center justify-content-between mt-3 mb-4">
-				<h3 class="mb-3 mb-sm-0 fw-semibold d-flex align-items-center">Members<span class="badge text-bg-secondary fs-2 rounded-4 py-1 px-2 ms-2" id="members-count">0</span></h3>
-				</div>
-					<div id="friends-list" class="row">
-						<!-- The friends list will be populated here -->
-						<p>Loading...</p>
-					</div>
-				</div>
-			</div>	  
 		</div>
 	</div>
 </page-element>
