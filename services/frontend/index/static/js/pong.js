@@ -125,71 +125,55 @@ function makeParalellepiped(x, y, z, dx, dy, dz, color)
   return box;
 }
 
-function handlePaddleControls() 
+function handlePaddleControls(player) 
 {
 	document.addEventListener('keydown', (event) => 
 	{
 		let payload = null;
 		let payload2 = null;
-		let payload3 = null;
 		switch (event.key) 
 		{
 			case 'W':
 			case 'w':
-				payload = { paddle: 1, direction1: -1};
+			case 'ArrowUp':
+				payload = { direction: -1 };
 				break;
 			case 's':
 			case 'S':
-				payload = { paddle: 1, direction1: 1};
-				break;
-			case 'ArrowUp':
-				payload2 = { paddle: 2, direction2: -1};
-				break;
 			case 'ArrowDown':
-				payload2 = { paddle: 2, direction2: 1};
+				payload = { direction: 1 };
 				break;
 			case 'p':
-				payload3 = { pause: true };
+				payload2 = { pause: true };
 				break;
 		}
 		if (payload) 
 		{
-			sendPayload('move', payload);
+			sendPayload(player, payload);
 		}
-		if (payload2) 
+		if (payload2)
 		{
-			sendPayload('move2', payload2);
-		}
-		if (payload3)
-		{
-			sendPayload('pause', payload3);
+			sendPayload('pause', payload2);
 		}
 	});
 
 	document.addEventListener('keyup', (event) => 
 	{
 		let payload = null;
-		let payload2 = null;
 		switch (event.key) 
 		{
 			case 'w':
 			case 's':
 			case 'W':
 			case 'S':
-				payload = { paddle: 1, direction1: 0 };
-				break;
 			case 'ArrowUp':
 			case 'ArrowDown':
-				payload2 = { paddle: 2, direction2: 0 };
+				payload = { direction: 0 };
 				break;
 		}
 		if (payload) 
 		{
-			sendPayload('move', payload);
-		}
-		if (payload2) 
-		{
-			sendPayload('move2', payload2);
+			sendPayload(player, payload);
 		}
 	});
 }
@@ -562,8 +546,8 @@ socket.onmessage = function(event)
 			createEnvironment(data.payload);
 			break;
 		case 'shake':
-			shakeDuration = SHAKE_DURATION;
-			applyCameraShake();
+			// shakeDuration = SHAKE_DURATION;
+			// applyCameraShake();
 			console.log('shake');
 			break;
 		case 'point':
@@ -573,17 +557,27 @@ socket.onmessage = function(event)
 			document.getElementById('player2score').innerHTML = player2Score;
 			console.log('player1Score: ', player1Score, 'player2Score: ', player2Score);
 			break;
+		case 'paddleInit':
+			console.log("PADDLE INIT:", data.payload);
+			if (data.payload.player == 1)
+				handlePaddleControls('p1');
+			else if (data.payload.player == 2)
+				handlePaddleControls('p2');
 	}
 }
 
 const readyBtn = document.getElementById('readyBtn');
 readyBtn.onclick = async () => {
 	readyBtn.style.display = 'none';
+	let ready;
 	const playerId = await checkPlayer()
 	if (playerId == 1)
-		sendPayload('ready', {player: 'p1'});
+		ready = await playersReady(playerId);
 	if (playerId == 2)
-		sendPayload('ready', {player: 'p2'});
+		ready = await playersReady(playerId);
+	if (ready == true)
+		console.log("Ready: ", ready);
+		sendPayload('beginGame', {beginGame: 'true'});
 }
 
 socket.onopen = async () => 
@@ -592,13 +586,13 @@ socket.onopen = async () =>
 		id: window.user.id,
 		connectMessage: `Welcome to the [${lobby_id}] lobby [${window.user.username}]!!`,
 	});
-	const playerId = await checkPlayer()
-	if (playerId == 1)
-		handlePaddleControls('p1');
-	else if (playerId == 2)
-		handlePaddleControls('p2');
-	else
-		console.log('SPECTATOR')	
+	// const playerId = await checkPlayer()
+	// if (playerId == 1)
+	// 	handlePaddleControls('p1');
+	// else if (playerId == 2)
+	// 	handlePaddleControls('p2');
+	// else
+	// 	console.log('SPECTATOR')
 }
 
 socket.onclose = () => 
@@ -612,13 +606,35 @@ socket.onclose = () =>
 async function checkPlayer()
 {
 	try {
-		const response = await fetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`);
+		const response = await fetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/$${window.user.username}/`);
 		const data = await response.json();
 		if (!response.ok)
-			throw data.error
-		console.log(data);
+			throw (data.error)
 		return (data.playerId)
 	} catch (error) {
 		console.log(error);
+	}
+}
+
+async function playersReady(playerId)
+{
+	console.log("LOBBY_ID", lobby_id);
+	try {
+		const response = await fetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/setReadyState/`, {
+			method: 'POST',
+			headers: {
+				"X-CSRFToken": getCookie('csrftoken'),
+				"Accept": "application/json",
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(playerId),
+		})
+		const data = await response.json();
+		if (!response.ok)
+			throw (data.error)
+		console.log(data.playersReady);
+		return (data.playersReady)
+	} catch (error) {
+		console.log(error)
 	}
 }

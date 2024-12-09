@@ -45,7 +45,7 @@ def lobbyView(request, lobby_id=None):
 			for lobby in lobbies:
 				all_lobbies.append({'lobby_id': lobby.lobby_id})
 			return JsonResponse({'lobbies': all_lobbies}, status=200)
-	return JsonResponse({'error': 'Wrong method'}, status=400)
+	return JsonResponse({'error': 'Method not allowed'}, status=400)
 
 # def create(request):
 # 	try:
@@ -71,12 +71,31 @@ def lobbyView(request, lobby_id=None):
 
 @csrf_exempt
 def checkPlayer(request, lobby_id, player):
-	lobby = Lobby.objects.get(lobby_id=lobby_id)
-	if lobby.users.filter(username=player).exists():
-		usersInLobby = list(lobby.users.all())
-		if usersInLobby[0].username == player:
-			return JsonResponse({'playerId': '1'}, status=200)
-		elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
-			return JsonResponse({'playerId': '2'}, status=200)
-		return JsonResponse({'playerId': '3'}, status=404)
-	return JsonResponse({'error': 'User not in Lobby'}, status=200)
+	if request.method == 'GET':
+		lobby = Lobby.objects.get(lobby_id=lobby_id)
+		if lobby.users.filter(username=player).exists():
+			usersInLobby = list(lobby.users.all())
+			if usersInLobby[0].username == player:
+				return JsonResponse({'playerId': '1'}, status=200)
+			elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
+				return JsonResponse({'playerId': '2'}, status=200)
+			return JsonResponse({'playerId': '3'}, status=404)
+		return JsonResponse({'error': 'User not in Lobby'}, status=200)
+	return JsonResponse({'error': 'Method not allowed'}, status=400)
+
+@csrf_exempt
+def setReadyState(request, lobby_id):
+	if request.method == 'POST':
+		lobby = Lobby.objects.get(lobby_id=lobby_id)
+		player = json.loads(request.body)
+		print("PLAYER: ", player, flush=True)
+		if player == "1":
+			lobby.player1Ready = True
+		if player == "2":
+			lobby.player2Ready = True
+		print(f"Player1Ready: {lobby.player1Ready}, Player2Ready: {lobby.player2Ready}", flush=True)
+		lobby.save()
+		if lobby.player1Ready and lobby.player2Ready:
+			return JsonResponse({'playersReady': 'true'}, status=200)
+		return JsonResponse({'playersReady': 'false'}, status=200)
+	return JsonResponse({'error': 'Method not allowed'}, status=400)

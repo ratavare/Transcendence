@@ -2,6 +2,8 @@
 import json
 import datetime
 import asyncio
+from lobby.models import Lobby
+from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 lobbies = {}
@@ -218,6 +220,7 @@ class Consumer(AsyncWebsocketConsumer):
 		self.game_loop = None
 	
 		await self.accept()
+		await self.playerId(self.lobby_id, self.user_id)
 		await self.graphicsInit()
 		if len(lobbies[self.lobby_id]) < 2:
 			await self.sendMessage('message', f'Connection Accepted: Welcome {self.user_id}!')
@@ -248,12 +251,12 @@ class Consumer(AsyncWebsocketConsumer):
 			payload = data.get('payload')
 
 			match(send_type):
-				case 'move':
-					self.game.paddle1.moving = payload['direction1']
-				case 'ready':
+				case 'p1':
+					self.game.paddle1.moving = payload['direction']
+				case 'p2':
+					self.game.paddle2.moving = payload['direction']
+				case 'beginGame':
 					self.game_loop = asyncio.create_task(self.runLoop())
-				case 'move2':
-					self.game.paddle2.moving = payload['direction2']
 				case 'pause':
 					if self.game.gamePaused == False:
 						self.game.gamePaused = True
@@ -331,3 +334,16 @@ class Consumer(AsyncWebsocketConsumer):
 			"paddleDepth": PADDLE_DEPTH,
 		}
 		await self.sendMessage("graphicsInit", payload)
+
+
+	# player is self.user_id which is ecrypted/binary shit...
+	# TO.DO change this to search in consumers lobby
+	async def playerId(self, lobby_id, player):
+		lobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=lobby_id)
+		userExists = await database_sync_to_async(lobby.users.filter(username=player).exists)()
+		if userExists:
+			usersInLobby = await database_sync_to_async(list)(lobby.users.all())
+			if usersInLobby[0].username == player:
+				await self.groupSend('paddleInit', { player: 1 })
+			elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
+				await self.groupSend('paddleInit', { player: 2 })

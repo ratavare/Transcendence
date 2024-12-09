@@ -21,6 +21,8 @@ class Lobby(models.Model):
 	gameState = models.CharField(choices=STATE_CHOICES, default="closed")
 	player1Score = models.PositiveIntegerField(default=0)
 	player2Score = models.PositiveIntegerField(default=0)
+	player1Ready = models.BooleanField(default=False)
+	player2Ready = models.BooleanField(default=False)
 	ballPosition = models.ForeignKey(Position, related_name="BallPosition", on_delete=models.CASCADE, null=True, blank=True)
 	paddle1Position = models.ForeignKey(Position, related_name="Paddle1Position", on_delete=models.CASCADE, null=True, blank=True)
 	paddle2Position = models.ForeignKey(Position, related_name="Paddle2Position", on_delete=models.CASCADE, null=True, blank=True)
