@@ -91,7 +91,6 @@ async function getLobbies()
 	
 		try {
 			const data = await myFetch('https://localhost:8443/lobby/lobbies/', formData)
-			console.log('LOBBY: ', data.lobby_id)
 			joinLobby(data.lobby_id);
 		} catch(error) {
 			seturl('/lobby');

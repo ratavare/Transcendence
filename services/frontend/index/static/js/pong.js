@@ -136,14 +136,15 @@ function handlePaddleControls(player)
 	document.addEventListener('keydown', (event) => 
 	{
 		let payload = null;
-		let payload2 = null;
 		switch (event.key) 
 		{
 			case 'w':
+			case 'W':
 			case 'ArrowUp':
 				payload = {speed: -PADDLE_SPEED };
 				break;
 			case 's':
+			case 'S':
 			case 'ArrowDown':
 				payload = {speed: PADDLE_SPEED };
 				break;
@@ -155,11 +156,12 @@ function handlePaddleControls(player)
 	document.addEventListener('keyup', (event) => 
 	{
 		let payload = null;
-		let payload2 = null;
 		switch (event.key) 
 		{
 			case 'w':
+			case 'W':
 			case 's':
+			case 'S':
 			case 'ArrowUp':
 			case 'ArrowDown':
 				payload = {speed: 0 };
@@ -329,12 +331,6 @@ function updateBall(ballData)
 	ball.position.x = ballData.ballPositionX;
 	ball.position.z = ballData.ballPositionZ;
 	pointLight.position.copy(ball.position);
-	// console.log('Ball Position: ', ball.position);
-	
-	// ballOutofBounds();
-	
-	// console.log(ballData.ballBoundingBox);
-	// ballBoundingBox == ballData.ballBoundingBox;
 }
 
 // function saveSphereData() 
@@ -522,7 +518,7 @@ socket.onopen = async () =>
 	else if (playerId == 2)
 		handlePaddleControls('p2');
 	else
-		console.log('SPECTATOR')
+		console.log('SPECTATOR')	
 }
 
 socket.onclose = () => 
