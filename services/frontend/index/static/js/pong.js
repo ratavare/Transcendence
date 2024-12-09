@@ -18,13 +18,7 @@ const AMBIENT_LIGHT_INTENSITY = 3;
 // Variables
 let player1Score = 0;
 let player2Score = 0;
-let ballSpeedx = 0;
-let ballSpeedz = 0;
 let shakeDuration = 0;
-let paddle1Speed = 0;
-let paddle2Speed = 0;
-let gamePaused = false;
-let beginGame = false;
 // let sphereData = [];
 // let startTime = Date.now();
 
@@ -77,10 +71,10 @@ let paddle2 = {};
 
 
 // Functions
-function createEnvironment(data)
+function  createEnvironment(data)
 {
 	// Paddles and Table
-	console.log("DATA: ", data)
+	// console.log("DATA: ", data)
 	const table1 = makeParalellepiped(
 		data.floorPositionX,
 		data.floorPositionY,
@@ -117,11 +111,6 @@ function createEnvironment(data)
 		data.paddleLength,
 		PADDLE_COLOR
 	);
-	const paddle1BoundingBox = new THREE.Box3().setFromObject(paddle1);
-	const paddle2BoundingBox = new THREE.Box3().setFromObject(paddle2);
-	console.log('Ball Bounding Box', ballBoundingBox);
-	console.log('Paddle1 Box', paddle1BoundingBox);
-	console.log('Paddle2 Box', paddle2BoundingBox);
 	scene.add(table1);
 	scene.add(table2);
 	scene.add(paddle1);
@@ -304,6 +293,53 @@ function applyCameraShake()
 //   }
 // }
 
+// function increaseSpeed()
+// {
+//   if (ballSpeedx < 20 && ballSpeedx > -20)
+// 	ballSpeedx += (ballSpeedx > 0) ? 0.4 : -0.4;
+// }
+
+// function checkIntersections()
+// {
+//   ballBoundingBox.setFromObject(ball);
+
+//   if (ballBoundingBox.intersectsBox(table1BoundingBox) || ballBoundingBox.intersectsBox(table2BoundingBox)) 
+//   {
+// 	ballSpeedz *= -1;
+// 	ball.position.z += ballSpeedz;
+//   }
+
+//   if (ballBoundingBox.intersectsBox(paddle1BoundingBox))
+//   {
+// 	console.log(ballBoundingBox, paddle1BoundingBox)
+// 	ballSpeedx *= -1;
+// 	shakeDuration = SHAKE_DURATION;
+// 	increaseSpeed();
+// 	adjustCubeDirection(paddle1);
+// 	ball.position.x += ballSpeedx;
+// 	ball.position.z += ballSpeedz;
+//   }
+
+//   if (ballBoundingBox.intersectsBox(paddle2BoundingBox))
+//   {
+// 	ballSpeedx *= -1;
+// 	shakeDuration = SHAKE_DURATION;
+// 	increaseSpeed();
+// 	adjustCubeDirection(paddle2);
+// 	ball.position.x += ballSpeedx;
+// 	ball.position.z += ballSpeedz;
+//   }
+
+//   if (paddle1BoundingBox.intersectsBox(table1BoundingBox) || paddle1BoundingBox.intersectsBox(table2BoundingBox)) 
+//   {
+// 	paddle1.position.z -= paddle1Speed;
+//   }
+//   if (paddle2BoundingBox.intersectsBox(table1BoundingBox) || paddle2BoundingBox.intersectsBox(table2BoundingBox))
+//   {
+// 	paddle2.position.z -= paddle2Speed;
+//   }
+// }
+
 // function adjustCubeDirection(paddle)
 // {
 //   const relativeIntersectZ = (paddle.position.z + (paddle.geometry.parameters.depth / 2)) - ball.position.z;
@@ -365,12 +401,6 @@ function updateBall(ballData)
 	ball.position.z = ballData.ballPositionZ;
 	applyCameraShake();
 	pointLight.position.copy(ball.position);
-	// console.log('Ball Position: ', ball.position);
-	
-	// ballOutofBounds();
-	
-	// console.log(ballData.ballBoundingBox);
-	ballBoundingBox == ballData.ballBoundingBox;
 }
 
 // function saveSphereData() 
@@ -436,77 +466,65 @@ function updateBall(ballData)
 //   return finalPosition;
 // }
 
-function paddle1AI(paddle) 
-{
-  const topWallZ = -440;
-  const bottomWallZ = 440;
+// function paddle1AI(paddle) 
+// {
+//   const topWallZ = -440;
+//   const bottomWallZ = 440;
 
-  // Calculate the final position of the ball using the calculateTrajectory function
-  let finalPosition = calculateTrajectory();
+//   // Calculate the final position of the ball using the calculateTrajectory function
+//   let finalPosition = calculateTrajectory();
 
-  // Ensure the paddle moves towards the final position of the ball
-  if (ballSpeedx < 0) 
-  {
-	if (paddle.position.z > finalPosition['z'])
-  {
-	  // Move paddle up
-	  if (paddle.position.z - AIPADDLE_SPEED < topWallZ) 
-	  {
-		paddle.position.z = topWallZ;
-	  }
-	  else if (paddle.position.z - AIPADDLE_SPEED >= finalPosition['z'])
-	  {
-		paddle.position.z -= AIPADDLE_SPEED;
-	  }
-	} 
-	else if (paddle.position.z < finalPosition['z']) 
-	{
-	  // Move paddle down
-	  if (paddle.position.z + AIPADDLE_SPEED > bottomWallZ)
-	  {
-		paddle.position.z = bottomWallZ;
-	  } 
-	  else if (paddle.position.z + AIPADDLE_SPEED <= finalPosition['z']) 
-	  {
-		paddle.position.z += AIPADDLE_SPEED;
-	  }
-	}
-  }
-}
+//   // Ensure the paddle moves towards the final position of the ball
+//   if (ballSpeedx < 0) 
+//   {
+// 	if (paddle.position.z > finalPosition['z'])
+//   {
+// 	  // Move paddle up
+// 	  if (paddle.position.z - AIPADDLE_SPEED < topWallZ) 
+// 	  {
+// 		paddle.position.z = topWallZ;
+// 	  }
+// 	  else if (paddle.position.z - AIPADDLE_SPEED >= finalPosition['z'])
+// 	  {
+// 		paddle.position.z -= AIPADDLE_SPEED;
+// 	  }
+// 	} 
+// 	else if (paddle.position.z < finalPosition['z']) 
+// 	{
+// 	  // Move paddle down
+// 	  if (paddle.position.z + AIPADDLE_SPEED > bottomWallZ)
+// 	  {
+// 		paddle.position.z = bottomWallZ;
+// 	  } 
+// 	  else if (paddle.position.z + AIPADDLE_SPEED <= finalPosition['z']) 
+// 	  {
+// 		paddle.position.z += AIPADDLE_SPEED;
+// 	  }
+// 	}
+//   }
+// }
 
 // Modify the animate function to include swatting animation logic
 function animate() 
 {
 	if (player1Score <= 7 && player2Score <= 7) 
 	{
-		
 		renderer.render(scene, camera);
-		if (paddle1Speed != 0 || paddle2Speed != 0)
-			beginGame = true;
-		if (!gamePaused && beginGame && player1Score < 7 && player2Score < 7) 
-		{
-			// movePaddles();
-			// paddle1AI(paddle1);
-			// checkIntersections();
-			// moveCube();
-			// applyCameraShake();
-		}
-		else if (player1Score == 7)
+		if (player1Score == 7)
 		{
 			document.getElementById('winner').innerHTML = 'Player 1 wins!';
-			startBtn.style.display = 'block';
+			readyBtn.style.display = 'block';
 		}
 		else if (player2Score == 7) 
 		{
 			document.getElementById('winner').innerHTML = 'Player 2 wins!';
-			startBtn.style.display = 'block';
+			readyBtn.style.display = 'block';
 		}
 	}
 }
 
 // saveSphereData();
 // setInterval(saveSphereData, 1000);
-handlePaddleControls();
 renderer.setAnimationLoop(animate);
 
 // ************************************* WEBSOCKET FUCNTIONS ************************************************
@@ -527,17 +545,10 @@ function sendPayload(type, payload)
 socket.onmessage = function(event) 
 {
 	const data = JSON.parse(event.data);
-	// console.log("Parsed data:", data);
 	switch(data.type)
 	{
-		// case 'move':
-		// 	updatePaddlePositions(data);
-		// 	break;
 		case 'connect':
 			console.log(`User ID: ${data.payload.id} | `, data.payload.connectMessage);
-			break;
-		case 'beginGame':
-			beginGame = data.payload
 			break;
 		case 'message':
 			console.log(data.payload);
@@ -562,29 +573,52 @@ socket.onmessage = function(event)
 			document.getElementById('player2score').innerHTML = player2Score;
 			console.log('player1Score: ', player1Score, 'player2Score: ', player2Score);
 			break;
-		default:
-			console.warn("Unknown message type:", data.type);
 	}
 }
 
-const startBtn = document.getElementById('startBtn');
-startBtn.onclick = () => {
-	beginGame = true;
-	sendPayload('beginGame', {
-		beginGame: true
-	});
-	startBtn.style.display = 'none';
+const readyBtn = document.getElementById('readyBtn');
+readyBtn.onclick = async () => {
+	readyBtn.style.display = 'none';
+	const playerId = await checkPlayer()
+	if (playerId == 1)
+		sendPayload('ready', {player: 'p1'});
+	if (playerId == 2)
+		sendPayload('ready', {player: 'p2'});
 }
 
-socket.onopen = () => 
+socket.onopen = async () => 
 {
 	sendPayload('connect', {
 		id: window.user.id,
-		connectMessage: `Welcome to the ${lobby_id} lobby ${window.user.username}!!`,
+		connectMessage: `Welcome to the [${lobby_id}] lobby [${window.user.username}]!!`,
 	});
+	const playerId = await checkPlayer()
+	if (playerId == 1)
+		handlePaddleControls('p1');
+	else if (playerId == 2)
+		handlePaddleControls('p2');
+	else
+		console.log('SPECTATOR')	
 }
 
 socket.onclose = () => 
 {
 	console.error('Socket closed unexpectedly');
 };
+
+
+// ************************************* FECTH FUCNTIONS ************************************************
+
+async function checkPlayer()
+{
+	try {
+		const response = await fetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`);
+		const data = await response.json();
+		if (!response.ok)
+			throw data.error
+		console.log(data);
+		return (data.playerId)
+	} catch (error) {
+		console.log(error);
+	}
+}
