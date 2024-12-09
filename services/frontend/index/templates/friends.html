@@ -2,10 +2,15 @@
 	{% include 'navbar.html' with authenticated="true" %}
 	<div class="container mt-5">
 		<title>Friends</title>
+
+		<h3>Friend requests sent:</h3>
+		<div id="user-sent-friend-requests" class="row row-cols-2">
+			<!-- Sent friend requests will populate here -->
+		</div>
 		
         <h3>Friend requests:</h3>
 		<div id="user-friend-requests" class="row row-cols-2">
-			<!-- Friends will populate here -->
+			<!-- Friend requests will populate here -->
 		</div>
 
 		<h3>Friends:</h3>

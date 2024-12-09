@@ -83,6 +83,16 @@ function getFriendRequests() {
 	});
 }
 
+function getSentFriendRequests() {
+	return fetch('https://localhost:8443/user_friends/get-sent-friend-requests/')
+	.then(response => {
+		return response.json();
+	})
+	.catch(error => {
+		console.error('Error fetching friend requests: ', error)
+	});
+}
+
 function handleFriendRequestButton(src, dest, intention) {
 	return fetch('https://localhost:8443/user_friends/handle-friend-request/' , {
 		method: 'POST',
@@ -109,6 +119,29 @@ function handleFriendRequestButton(src, dest, intention) {
 
 function deleteFriend(src, dest) {
 	return fetch('https://localhost:8443/user_friends/delete-friend/' , {
+		method: 'POST',
+		headers: {
+			"X-CSRFToken": getCookie('csrftoken'),
+			"Accept": "application/json",
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			'dest':dest,
+			'src':src,
+		})
+	})
+	.then(async response => {
+		const data = await response.json();
+		console.log(data);
+		return data;
+	})
+	.catch(error => {
+		console.error('Error: ', error.error);
+	})
+}
+
+function deleteFriendRequest(src, dest) {
+	return fetch('https://localhost:8443/user_friends/delete-friend-request/' , {
 		method: 'POST',
 		headers: {
 			"X-CSRFToken": getCookie('csrftoken'),
@@ -176,6 +209,34 @@ function deleteFriend(src, dest) {
 			friendRequestsDiv.innerHTML = "<p>Error loading friends list.</p>";
 	});
 }
+
+{
+	const sentFriendRequestsDiv = document.getElementById('user-sent-friend-requests')
+
+	getSentFriendRequests().then(response => {
+		if (response) {
+			console.log(response);
+			response.sentFriendRequests.forEach(request => {
+				const friendList = document.createElement('ul');
+				const friendsP = document.createElement('p');
+				friendsP.textContent = request.username;
+				friendList.appendChild(friendsP);
+				sentFriendRequestsDiv.appendChild(friendList);
+				const button = document.createElement('button');
+				button.classList.add("btn", "col", "pull-right", "btn-danger", "btn-xs");
+				button.textContent = "Cancel";
+				button.type = 'submit';
+				button.style.display = 'flex';
+				sentFriendRequestsDiv.appendChild(button);
+				button.addEventListener('click', () => {
+					const dest = friendList.querySelector('p').textContent;
+					deleteFriendRequest(window.user.username, dest);
+					// window.location.reload()
+				})
+			})
+		}
+	})
+}
 {
 	const friendsListDiv = document.getElementById('user-friends');
 
@@ -229,3 +290,45 @@ function deleteFriend(src, dest) {
 		})
 	});
 }
+
+
+/* 
+
+Tereza, esta e para ti.
+
+Esta vai ser a funcao principal com a qual vais fazer fetch da data dos friends to utilizador.
+Ela vai retornar 3 arrays diferentes aka: friends, friendRequests e sentFriendRequests
+para que possas depois fazer o display deles na pagina.
+
+Quanto aos post's, ta um bocado salganhada mas im working on it. Provavelmente vai ficar como esta.
+
+exemplo de utilizacao:
+
+const friendsData = await getFriendsData();
+
+friendsData.friends[...]
+friendsData.friendRequests[...]
+friendsData.sentFriendRequests[...]
+
+Obrigado e volte sempre.
+
+                |
+				|
+				|
+				V
+*/
+
+// async function getFriendsData() {
+// 	try {
+// 		const response = await fetch('https://localhost:8443/user_friends/api/');
+// 		const data = await response.json();
+// 		if (!response.ok)
+// 			throw data.error
+// 		console.log(data);      // Depois podes apagar esta linha.
+// 		return data;
+// 	} catch (error) {
+// 		console.log(error);
+// 	}
+// }
+
+
