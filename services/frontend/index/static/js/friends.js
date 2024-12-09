@@ -225,7 +225,7 @@ function deleteFriend(src, dest) {
 	}); 
 }
 {
-	const friendsListDiv = document.getElementById('user-friends');
+	const friendsListDiv = document.getElementById('friend-results');
 
 	getFriends().then(response => {
 		if (response) {
