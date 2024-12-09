@@ -479,12 +479,8 @@ function sendPayload(type, payload)
 socket.onmessage = function(event) 
 {
 	const data = JSON.parse(event.data);
-	// console.log("Parsed data:", data);
 	switch(data.type)
 	{
-		// case 'move':
-		// 	updatePaddlePositions(data);
-		// 	break;
 		case 'connect':
 			console.log(`User ID: ${data.payload.id} | `, data.payload.connectMessage);
 			break;
@@ -505,8 +501,9 @@ socket.onmessage = function(event)
 }
 
 const readyBtn = document.getElementById('readyBtn');
-readyBtn.onclick = () => {
+readyBtn.onclick = async () => {
 	readyBtn.style.display = 'none';
+	const playerId = await checkPlayer()
 	if (playerId == 1)
 		sendPayload('ready', {player: 'p1'});
 	if (playerId == 2)
@@ -519,6 +516,7 @@ socket.onopen = async () =>
 		id: window.user.id,
 		connectMessage: `Welcome to the [${lobby_id}] lobby [${window.user.username}]!!`,
 	});
+	const playerId = await checkPlayer()
 	if (playerId == 1)
 		handlePaddleControls('p1');
 	else if (playerId == 2)
@@ -548,5 +546,3 @@ async function checkPlayer()
 		console.log(error);
 	}
 }
-
-const playerId = await checkPlayer()

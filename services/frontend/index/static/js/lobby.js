@@ -86,10 +86,13 @@ async function getLobbies()
 		event.preventDefault();
 
 		const formData = new FormData(event.target);
-
+		for (const pair of formData.entries())
+			console.log(pair[0], " | ", pair[1]);
+	
 		try {
 			const data = await myFetch('https://localhost:8443/lobby/lobbies/', formData)
-			joinLobby(data.lobby_id)
+			console.log('LOBBY: ', data.lobby_id)
+			joinLobby(data.lobby_id);
 		} catch(error) {
 			seturl('/lobby');
 			console.log(error);
