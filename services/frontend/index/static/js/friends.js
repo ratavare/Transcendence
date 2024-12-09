@@ -30,7 +30,7 @@ function sendButtonConfigure(userListDiv)
     });
 }
 
-function putPossibleFriends(users, userListDiv)
+function putPossibleFriends(users)
 {
 	/* const previousList = userListDiv.querySelector('ul');
 	console.log("check", previousList);
@@ -64,11 +64,6 @@ function putPossibleFriends(users, userListDiv)
 	if (membersCount) {
 		membersCount.textContent = users.length;
 	}
-
-	const nousers = document.getElementById('no-users');
-	if (nousers) {
-		nousers.remove();
-	}
 	
 	const membersContainer = document.createElement('div');
 	membersContainer.classList.add("row");
@@ -91,7 +86,7 @@ function putPossibleFriends(users, userListDiv)
 		membersContainer.appendChild(card);
 		
 	});
-	userListDiv2.appendChild(membersContainer);
+	//userListDiv2.appendChild(membersContainer);
 
 	sendButtonConfigure();
 }
@@ -251,6 +246,11 @@ function deleteFriend(src, dest) {
 		if (previousList) {
 			previousList.remove();
 		}
+
+		const nousers = document.getElementById('no-users');
+		if (nousers) {
+			nousers.remove();
+		}
 		
 		event.preventDefault();
 
@@ -261,7 +261,7 @@ function deleteFriend(src, dest) {
 		myFetch(fetch_url, formData, 'POST', true)
 		.then(data => {
 			if (data.users)
-				putUsers(data.users);
+				putPossibleFriends(data.users);
 		}).catch(error => {
 			console.log(error);
 			const membersCount = document.getElementById("members-count");
