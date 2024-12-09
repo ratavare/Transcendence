@@ -163,44 +163,9 @@ function deleteFriend(src, dest) {
 
 // * MAIN SCRIPT *
 {
-	const friendRequestsDiv = document.getElementById('user-friend-requests');
 	const results = document.getElementById("friend-requests-results");
-
-	 getFriendRequests().then(response => {
-		if (response && response.friendRequests.length > 0) {
-			console.log(response);
-			/* response.friendRequests.forEach(friendRequest => {
-				const friendList = document.createElement('ul');
-				const friendsP = document.createElement('p');
-				friendsP.textContent = friendRequest.username;
-				friendList.appendChild(friendsP);
-				friendRequestsDiv.appendChild(friendList);
-
-				const declineButton = document.createElement('button');
-				declineButton.classList.add("btn", "col", "pull-right", "btn-danger", "btn-xs");
-				declineButton.textContent = "Decline";
-				declineButton.type = 'submit';
-				declineButton.style.display = 'flex';
-				friendRequestsDiv.appendChild(declineButton);
-
-				const acceptButton = document.createElement('button');
-				acceptButton.classList.add("btn", "col", "pull-right", "btn-success", "btn-xs");
-				acceptButton.textContent = "Accept";
-				acceptButton.type = 'submit';
-				acceptButton.style.display = 'flex';
-				friendRequestsDiv.appendChild(acceptButton);
-
-				const dest = friendList.querySelector('p').textContent;
-				declineButton.addEventListener('click', () => {
-					handleFriendRequestButton(dest ,window.user.username, 'decline')
-					// window.location.reload()
-				})
-				acceptButton.addEventListener('click', () => {
-					handleFriendRequestButton(dest, window.user.username, 'accept')
-					// window.location.reload()
-				})
-			});  */
-	
+	getFriendRequests().then(response => {
+		if (response && response.friendRequests.length > 0) {	
 			const requestsCount = document.getElementById("requests-count");
 			if (requestsCount) {
 				requestsCount.textContent = response.friendRequests.length;
@@ -247,6 +212,7 @@ function deleteFriend(src, dest) {
 				})
 				acceptButton.addEventListener('click', () => {
 					handleFriendRequestButton(dest, window.user.username, 'accept')
+					console.log(window.user.username);
 					// window.location.reload()
 				})
 
@@ -289,6 +255,55 @@ function deleteFriend(src, dest) {
 			console.error("Error fetching friends:", error);
 			friendsListDiv.innerHTML = "<p>Error loading friends list.</p>";
 	});
+
+	/* const results = document.getElementById("friend-results");
+	getFriends().then(response => {
+		if (response && response.friends.length > 0) {	
+			const friendsCount = document.getElementById("friends-count");
+			if (friendsCount) {
+				friendsCount.textContent = response.friends.length;
+			}
+			
+			const membersContainer = document.createElement('div');
+			membersContainer.classList.add("row");
+			membersContainer.id = 'friends-list2';
+			response.friends.forEach(friend => {
+				const card = document.createElement("div");
+				card.className = "col-sm-6 col-lg-4";
+				const cardOne = document.createElement("div");
+				cardOne.className = "card hover-img";
+				const cardTwo = document.createElement("div");
+				cardTwo.className = "card-body p-4 text-center border-bottom";
+				cardTwo.innerHTML = `
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${friend.username}</h5>
+				`;
+				const cardThree = document.createElement("div");
+				cardThree.className = "px-2 py-2 bg-light text-center";
+
+				const removeButton = document.createElement('button');
+				removeButton.classList.add("btn", "btn-danger", "me-2");
+				removeButton.textContent = "Remove Friend";
+				removeButton.type = 'submit';
+				cardThree.appendChild(removeButton);
+
+				cardOne.appendChild(cardTwo);
+				cardOne.appendChild(cardThree);
+				card.appendChild(cardOne);
+				membersContainer.appendChild(card);
+
+				const dest = friendRequest.username;
+				removeButton.addEventListener('click', () => {
+					deleteFriend(window.user.username, dest);
+				})
+
+			});
+			results.appendChild(membersContainer);	
+		}
+	}).catch(error => {
+			console.error("Error fetching friends:", error);
+			results.innerHTML = "<p>Error loading friends list.</p>";
+	});  */
 }
 
 {

@@ -30,42 +30,10 @@
 		</div>
 		<div class="tab-pane fade show active" id="pills-friends" role="tabpanel" aria-labelledby="pills-friends-tab" tabindex="0">
 			<div class="d-sm-flex align-items-center justify-content-between mt-3 mb-4">
-				<h3 class="mb-3 mb-sm-0 fw-semibold d-flex align-items-center">Friends<span class="badge text-bg-secondary fs-2 rounded-4 py-1 px-2 ms-2">3</span></h3>
+				<h3 class="mb-3 mb-sm-0 fw-semibold d-flex align-items-center">Friends<span class="badge text-bg-secondary fs-2 rounded-4 py-1 px-2 ms-2" id="friends-count">0</span></h3>
 			</div>
-			<div class="row">
-				<div class="col-sm-6 col-lg-4">
-					<div class="card hover-img">
-						<div class="card-body p-4 text-center border-bottom">
-							<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-							<h5 class="fw-semibold mb-0">@user1</h5>
-						</div>
-						<div class="px-2 py-2 bg-light text-center">
-							<button  class="btn btn-danger" onclick="handleFriendRequest('decline', 'user1')"> Remove Friend </button>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 col-lg-4">
-					<div class="card hover-img">
-						<div class="card-body p-4 text-center border-bottom">
-							<img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-							<h5 class="fw-semibold mb-0">@user2</h5>
-						</div>
-						<div class="px-2 py-2 bg-light text-center">
-							<button  class="btn btn-danger" onclick="handleFriendRequest('decline', 'user1')"> Remove Friend </button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-sm-6 col-lg-4">
-				<div class="card hover-img">
-					<div class="card-body p-4 text-center border-bottom">
-						<img src="https://bootdey.com/img/Content/avatar/avatar3.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-						<h5 class="fw-semibold mb-0">@user3</h5>
-					</div>
-					<div class="px-2 py-2 bg-light text-center">
-						<button  class="btn btn-danger" onclick="handleFriendRequest('decline', 'user1')"> Remove Friend </button>
-					</div>
-				</div>
+			<div id="friend-results">
+				<!-- The friends list will be populated here -->
 			</div>
 		</div>
 	</div>
