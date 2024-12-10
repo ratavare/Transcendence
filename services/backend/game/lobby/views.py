@@ -1,16 +1,18 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from .models import Lobby
 from lobby.models import Lobby
 from lobby.serializers import LobbySerializer
 
+# JWT
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 class createOrGetLobby(APIView):
 
-	@csrf_exempt
+	@permission_classes([IsAuthenticated])
 	def post(self, request, lobby_id=None):
 		if lobby_id:
 			try:
@@ -35,7 +37,7 @@ class createOrGetLobby(APIView):
 			return JsonResponse({'error': 'lobby already exists'}, status=200)
 		return JsonResponse({'lobby_id': id}, status=200)
 	
-	@csrf_exempt
+	@permission_classes([IsAuthenticated])
 	def get(self, request):
 		lobbies = Lobby.objects.all()
 		if not lobbies:
