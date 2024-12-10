@@ -1,23 +1,9 @@
 async function sendFriendRequest(dest, src) {
-	fetch('https://localhost:8443/user_friends/friend-request-send/', { // TODO: Add Authorization header
-		method: 'POST',
-		headers: {
-			"X-CSRFToken": getCookie('csrftoken'),
-			"Accept": "application/json",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			"dest":dest,
-			"src":src
-		})
-	})
-	.then(response => response.json())
-	.then(data => {
-		console.log(data);
-	})
-	.catch(error => {
+	try {
+		await myFetch('https://localhost:8443/user_friends/friend-request-send/', {"dest": dest, "src": src}, "POST", true)
+	} catch(error) {
 		console.error("Error:", error);
-	});
+	}
 }
 
 function sendButtonConfigure(userListDiv)
@@ -64,105 +50,53 @@ function displayResults(users)
 	sendButtonConfigure();
 }
 
-function getFriends() {
-	return fetch('https://localhost:8443/user_friends/get-friends/') // TODO: Add Authorization header
-	.then(response => {
-		return response.json();
-	})
-	.catch(error => {
+async function getFriends() {
+	try {
+		return await myFetch('https://localhost:8443/user_friends/get-friends/', null, "GET", true);
+	} catch (error) {
 		console.error("Error fetching friends:", error);
-	});
+	}
 }
 
-function getFriendRequests() {
-	return fetch('https://localhost:8443/user_friends/get-friend-requests/') // TODO: Add Authorization header
-	.then(response => {
-		return response.json();
-	})
-	.catch(error => {
-		console.error('Error fetching friend requests: ', error)
-	});
+async function getFriendRequests() {
+	try {
+		return await myFetch('https://localhost:8443/user_friends/get-friend-requests/', null, "GET", true);
+	} catch (error) {
+		console.error('Error fetching friend requests: ', error);
+	}
 }
 
-function getSentFriendRequests() {
-	return fetch('https://localhost:8443/user_friends/get-sent-friend-requests/')
-	.then(response => {
-		return response.json();
-	})
-	.catch(error => {
-		console.error('Error fetching friend requests: ', error)
-	});
+async function getSentFriendRequests() {
+	try {
+		return await myFetch('https://localhost:8443/user_friends/get-sent-friend-requests/', null, "GET", true)
+	} catch (error) {
+		console.error('Error fetching friend requests: ', error);
+	}
 }
 
-function handleFriendRequestButton(src, dest, intention) {
+async function handleFriendRequestButton(src, dest, intention) {
 	console.log(src, dest, intention);
-	return fetch('https://localhost:8443/user_friends/handle-friend-request/' , { // TODO: Add Authorization header
-		method: 'POST',
-		headers: {
-			"X-CSRFToken": getCookie('csrftoken'),
-			"Accept": "application/json",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			'dest':dest,
-			'src':src,
-			'intention':intention
-		})
-	})
-	.then(async response => {
-		const data = await response.json();
-		console.log(data);
-		return data;
-	})
-	.catch(error => {
+	try {
+		return await myFetch('https://localhost:8443/user_friends/handle-friend-request/', { 'dest': dest, 'src': src, 'intention': intention}, "POST", true);
+	} catch (error) {
 		console.error('Error: ', error.error);
-	})
+	}
 }
 
-function deleteFriend(src, dest) {
-	return fetch('https://localhost:8443/user_friends/delete-friend/' , { // TODO: Add Authorization header
-		method: 'POST',
-		headers: {
-			"X-CSRFToken": getCookie('csrftoken'),
-			"Accept": "application/json",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			'dest':dest,
-			'src':src,
-		})
-	})
-	.then(async response => {
-		const data = await response.json();
-		console.log(data);
-		return data;
-	})
-	.catch(error => {
+async function deleteFriend(src, dest) {
+	try {
+		return await myFetch('https://localhost:8443/user_friends/delete-friend/', { 'dest': dest, 'src': src}, "POST", true)
+	} catch (error) {
 		console.error('Error: ', error.error);
-	})
+	}
 }
 
 function deleteFriendRequest(src, dest) {
-	return fetch('https://localhost:8443/user_friends/delete-friend-request/' , {
-		method: 'POST',
-		headers: {
-			"X-CSRFToken": getCookie('csrftoken'),
-			"Accept": "application/json",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			'dest':dest,
-			'src':src,
-		})
-	})
-	.then(async response => {
-		const data = await response.json();
-		console.log(data);
-		return data;
-	})
-	.catch(error => {
+	try {
+		return myFetch('https://localhost:8443/user_friends/delete-friend-request/', { 'dest': dest, 'src': src}, "POST", true)
+	} catch (error) {
 		console.error('Error: ', error.error);
-	})
+	}
 }
 
 async function getFriendsData() {
@@ -242,7 +176,7 @@ data = getFriendsData();
 			const membersContainer = document.createElement('div');
 			membersContainer.classList.add("row");
 			membersContainer.id = 'friends-list';
-			response.friends.forEach(friend => {
+			response.friends.forEach(friendRequest => {
 				const card = document.createElement("div");
 				card.className = "col-sm-6 col-lg-4";
 				card.innerHTML = `

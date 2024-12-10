@@ -3,12 +3,11 @@ from django.http import JsonResponse
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
 from user_profile.models import Profile
 
 # JWT
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -23,7 +22,6 @@ from .forms import RegistrationForm
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def enable_2fa(request):
@@ -49,7 +47,6 @@ def enable_2fa(request):
     # Return the QR code and the OTP secret (temporarily)
     return JsonResponse({'qr_code': qr_base64, 'otp_secret': otp_secret}, status=200)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def disable_2fa(request):
@@ -61,7 +58,6 @@ def disable_2fa(request):
         return JsonResponse({'status': 'success'}, status=200)
     return JsonResponse({'status': 'error', 'error': 'Profile not found'}, status=400)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def verify_otp(request):
@@ -77,7 +73,6 @@ def verify_otp(request):
             return JsonResponse({'status': 'success'}, status=200)
     return JsonResponse({'status': 'error', 'error': 'Invalid OTP'}, status=400)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def registerView(request):
@@ -95,7 +90,6 @@ def registerView(request):
 		}, status=200)
 	return JsonResponse({'error': form.errors}, status=409)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def loginView(request):

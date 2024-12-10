@@ -10,7 +10,7 @@
 
                 localStorage.setItem('access_token', data.access);
                 localStorage.setItem('refresh_token', data.refresh);
-                localStorage.setItem('is_2fa_enabled', data.is_2fa_enabled);
+                // localStorage.setItem('is_2fa_enabled', data.is_2fa_enabled);
 				// alert('Successfully Logged In');
             }
             seturl('/home');
