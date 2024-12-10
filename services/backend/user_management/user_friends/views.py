@@ -1,8 +1,13 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
+from rest_framework.permissions import IsAuthenticated
 from django.db import models
 from django.db.models import Q
+
 from .models import Friendships
 from .serializers import FriendshipSerializer, UserSerializer
 import json
@@ -95,10 +100,27 @@ def getfriendRequests(request):
 				friendsRequestsList.append(request.from_user)
 			serializer = UserSerializer(friendsRequestsList, many=True)
 			return JsonResponse({'friendRequests': serializer.data}, status=200)
-
+		except User.DoesNotExist:
+			return JsonResponse({'error': 'User not found'}, status=404)
 		except Exception as e:
 			return JsonResponse({'error': str(e)}, status=500)
-	
+
+@login_required
+def getSentFriendRequests(request):
+	if request.method == 'GET':
+		try:
+			user = request.user.id
+			friendships = Friendships.objects.filter(models.Q(from_user=user, status='requested'))
+			friends = []
+			for friendship in friendships:
+				friends.append(friendship.to_user)
+			serializer = UserSerializer(friends, many=True)
+			return JsonResponse({'sentFriendRequests': serializer.data}, status=200)
+		except User.DoesNotExist:
+			return JsonResponse({'error': 'User not found'}, status=404)
+		except Exception as e:
+			return JsonResponse({'error': str(e)}, status=500)
+
 def handleFriendRequest(request):
 	if request.method == 'POST':
 		try:
@@ -120,7 +142,8 @@ def handleFriendRequest(request):
 				reverse_friend_request.save()
 
 			return JsonResponse({'success': f"Friendship request {intention}ed successfully"}, status=200)
-
+		except User.DoesNotExist:
+			return JsonResponse({'error': 'User not found.'}, status=404)
 		except Exception as e:
 			return JsonResponse({'error': str(e)}, status=400)
 		
@@ -133,8 +156,8 @@ def deleteFriend(request):
 			src_user = User.objects.get(username=src)
 			dest_user = User.objects.get(username=dest)
 
-			Friendships.objects.filter(from_user=src_user, to_user=dest_user).delete()
-			Friendships.objects.filter(from_user=dest_user, to_user=src_user).delete()
+			Friendships.objects.filter(from_user=src_user, to_user=dest_user, status='accepted').delete()
+			Friendships.objects.filter(from_user=dest_user, to_user=src_user, status='accepted').delete()
 	
 			return JsonResponse({'success':'Friendship deleted'}, status=200)
 		except User.DoesNotExist:
@@ -143,3 +166,51 @@ def deleteFriend(request):
 			return JsonResponse({'error': str(e)}, status=500)
 	return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
+def deleteFriendRequest(request):
+	if request.method == 'POST':
+		try:
+			data = json.loads(request.body)
+			src = data.get('src')
+			dest = data.get('dest')
+			src_user = User.objects.get(username=src)
+			dest_user = User.objects.get(username=dest)
+			Friendships.objects.filter(from_user=src_user, to_user=dest_user, status='requested').delete()
+	
+			return JsonResponse({'success':'Friendship Request deleted'}, status=200)
+		except User.DoesNotExist:
+			return JsonResponse({'error': 'User not found.'}, status=404)
+		except Exception as e:
+			return JsonResponse({'error': str(e)}, status=500)
+		
+	return JsonResponse({'error': 'Invalid request method.'}, status=400)
+
+class UnifiedFriendshipAPI(APIView):
+	permission_classes = [IsAuthenticated]
+	renderer_classes = [JSONRenderer]
+	def get(self, request):
+
+		user = request.user
+		# Get Friends
+		friendships = Friendships.objects.filter(from_user=user, status='accepted')
+		friends = [friendship.to_user for friendship in friendships]
+
+		# Get Friend Requests
+		friend_requests = Friendships.objects.filter(to_user=user, status='requested')
+		friends_requests_list = [friend_request.from_user for friend_request in friend_requests]
+
+		# Get Sent Friend Requests
+		sent_requests = Friendships.objects.filter(from_user=user, status='requested')
+		sent_requests_list = [sent_request.to_user for sent_request in sent_requests]
+
+		# Serialize the data
+		friends_serializer = UserSerializer(friends, many=True)
+		friend_requests_serializer = UserSerializer(friends_requests_list, many=True)
+		sent_requests_serializer = UserSerializer(sent_requests_list, many=True)
+
+		# Consolidated Response
+		data = {
+			"friends": friends_serializer.data,
+			"friendRequests": friend_requests_serializer.data,
+			"sentFriendRequests": sent_requests_serializer.data,
+		}
+		return Response(data, status=200)

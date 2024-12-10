@@ -29,7 +29,7 @@ INSTALLED_APPS = [
 	'django.contrib.staticfiles',
 	'crispy_forms',
 	'crispy_bootstrap5',
-	'rest_framework_simplejwt',
+	'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -112,12 +112,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 REST_FRAMEWORK = {
-	'DEFAULT_PERMISSION_CLASSES': [
-		'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-	],
-	'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+	'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',  # Render JSON responses
+        'rest_framework.renderers.BrowsableAPIRenderer',  # Optional for browsable API
+    ]
 }
 
 SIMPLE_JWT = {
