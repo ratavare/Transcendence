@@ -165,7 +165,24 @@ function deleteFriendRequest(src, dest) {
 	})
 }
 
+async function getFriendsData() {
+	try {
+		const response = await fetch('https://localhost:8443/user_friends/api/');
+		const data = await response.json();
+		if (!response.ok)
+			throw data.error
+		console.log(data);
+
+		return data;
+	} catch (error) {
+		console.log(error);
+	}
+}
+
 // * MAIN SCRIPT *
+
+data = getFriendsData();
+
 {
 	const results = document.getElementById("friend-requests");
 	getFriendRequests().then(response => {
@@ -289,19 +306,3 @@ function deleteFriendRequest(src, dest) {
 		})
 	});
 }
-
-/* async function getFriendsData() {
-	try {
-		const response = await fetch('https://localhost:8443/user_friends/api/');
-		const data = await response.json();
-		if (!response.ok)
-			throw data.error
-		console.log(data);
-
-		return data;
-	} catch (error) {
-		console.log(error);
-	}
-}
-
-getFriendsData(); */

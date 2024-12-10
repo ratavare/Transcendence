@@ -200,6 +200,7 @@ def deleteFriendRequest(request):
 		
 	return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
+
 class UnifiedFriendshipAPI(APIView):
 	permission_classes = [IsAuthenticated]
 	renderer_classes = [JSONRenderer]
