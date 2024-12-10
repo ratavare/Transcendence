@@ -120,7 +120,23 @@ def getSentFriendRequests(request):
 			return JsonResponse({'error': 'User not found'}, status=404)
 		except Exception as e:
 			return JsonResponse({'error': str(e)}, status=500)
-	
+
+@login_required
+def getSentFriendRequests(request):
+	if request.method == 'GET':
+		try:
+			user = request.user.id
+			friendships = Friendships.objects.filter(models.Q(from_user=user, status='requested'))
+			friends = []
+			for friendship in friendships:
+				friends.append(friendship.to_user)
+			serializer = UserSerializer(friends, many=True)
+			return JsonResponse({'sentFriendRequests': serializer.data}, status=200)
+		except User.DoesNotExist:
+			return JsonResponse({'error': 'User not found'}, status=404)
+		except Exception as e:
+			return JsonResponse({'error': str(e)}, status=500)
+
 def handleFriendRequest(request):
 	if request.method == 'POST':
 		try:
@@ -174,7 +190,6 @@ def deleteFriendRequest(request):
 			dest = data.get('dest')
 			src_user = User.objects.get(username=src)
 			dest_user = User.objects.get(username=dest)
-
 			Friendships.objects.filter(from_user=src_user, to_user=dest_user, status='requested').delete()
 	
 			return JsonResponse({'success':'Friendship Request deleted'}, status=200)
@@ -182,6 +197,7 @@ def deleteFriendRequest(request):
 			return JsonResponse({'error': 'User not found.'}, status=404)
 		except Exception as e:
 			return JsonResponse({'error': str(e)}, status=500)
+		
 	return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 class UnifiedFriendshipAPI(APIView):

@@ -22,45 +22,46 @@ async function sendFriendRequest(dest, src) {
 
 function sendButtonConfigure(userListDiv)
 {
-	const friends = userListDiv.querySelectorAll('li');
-	friends?.forEach(item => {
-		const button = item.querySelector('button')
-		const dest = item.querySelector('p').textContent;
-		button.addEventListener('click', () => {
-			sendFriendRequest(dest, window.user.username);
-		});
-	});
+	document.querySelectorAll('.send-friend-request').forEach(button => {
+        button.addEventListener('click', () => {
+            const dest = button.getAttribute('data-dest');
+            sendFriendRequest(dest, window.user.username);
+        });
+    });
 }
 
-function putPossibleFriends(users, userListDiv)
+function displayResults(users)
 {
-	const previousList = userListDiv.querySelector('ul');
-	previousList?.remove();
-	const userList = document.createElement('ul');
-	userList.classList.add("list-group");
-	users.forEach(user => {
-		const userItemList = document.createElement('li');
-		userItemList.classList.add("list-group-item");
-		userItemList.style = 'display: flex;align-items: center;justify-content: space-around';
+	const results = document.getElementById("search-results");
+	const membersCount = document.getElementById("members-count");
+	if (membersCount) {
+		membersCount.textContent = users.length;
+	}
 	
-		const usernameP = document.createElement('p');
-		usernameP.textContent = user.username;
-
-		const friendRequestButton = document.createElement('button');
-		friendRequestButton.classList.add("btn", "col", "pull-right", "btn-success", "btn-xs");
-		friendRequestButton.textContent = "Send Friend Request";
-		friendRequestButton.type = 'submit';
-		friendRequestButton.style.display = 'flex';
-
-		userItemList.appendChild(usernameP);
-		userItemList.appendChild(friendRequestButton);
-		userList.appendChild(userItemList);
-
+	const membersContainer = document.createElement('div');
+	membersContainer.classList.add("row");
+	membersContainer.id = 'friends-list';
+	console.log("users", users);
+	
+	users.forEach(user => {
+		const card = document.createElement("div");
+		card.className = "col-sm-6 col-lg-4";
+		card.innerHTML = `
+		<div class="card hover-img">
+		<div class="card-body p-4 text-center border-bottom">
+		<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+		<h5 class="fw-semibold mb-0">@${user.username}</h5>
+		</div>
+		<div class="px-2 py-2 bg-light text-center">
+		<button class="btn btn-success me-2 send-friend-request" data-dest="${user.username}" >Send Request</button>
+		</div>
+		</div>
+		`;
+		membersContainer.appendChild(card);
+		
 	});
-	userListDiv.appendChild(userList);
-	userListDiv.style.display = 'block';
-
-	sendButtonConfigure(userListDiv);
+	results.appendChild(membersContainer);
+	sendButtonConfigure();
 }
 
 function getFriends() {
@@ -94,6 +95,7 @@ function getSentFriendRequests() {
 }
 
 function handleFriendRequestButton(src, dest, intention) {
+	console.log(src, dest, intention);
 	return fetch('https://localhost:8443/user_friends/handle-friend-request/' , { // TODO: Add Authorization header
 		method: 'POST',
 		headers: {
@@ -165,158 +167,128 @@ function deleteFriendRequest(src, dest) {
 
 // * MAIN SCRIPT *
 {
-	const friendRequestsDiv = document.getElementById('user-friend-requests')
-
+	const results = document.getElementById("friend-requests");
 	getFriendRequests().then(response => {
-		if (response) {
-			console.log(response);
+		if (response && response.friendRequests.length > 0) {	
+			const requestsCount = document.getElementById("requests-count");
+			if (requestsCount) {
+				requestsCount.textContent = response.friendRequests.length;
+			}
+			
+			const membersContainer = document.createElement('div');
+			membersContainer.classList.add("row");
+			membersContainer.id = 'requests-list2';
 			response.friendRequests.forEach(friendRequest => {
-				const friendList = document.createElement('ul');
-				const friendsP = document.createElement('p');
-				friendsP.textContent = friendRequest.username;
-				friendList.appendChild(friendsP);
-				friendRequestsDiv.appendChild(friendList);
-
-				const declineButton = document.createElement('button');
-				declineButton.classList.add("btn", "col", "pull-right", "btn-danger", "btn-xs");
-				declineButton.textContent = "Decline";
-				declineButton.type = 'submit';
-				declineButton.style.display = 'flex';
-				friendRequestsDiv.appendChild(declineButton);
-
-				const acceptButton = document.createElement('button');
-				acceptButton.classList.add("btn", "col", "pull-right", "btn-success", "btn-xs");
-				acceptButton.textContent = "Accept";
-				acceptButton.type = 'submit';
-				acceptButton.style.display = 'flex';
-				friendRequestsDiv.appendChild(acceptButton);
-
-				const dest = friendList.querySelector('p').textContent;
-				declineButton.addEventListener('click', () => {
-					handleFriendRequestButton(dest ,window.user.username, 'decline')
-					// window.location.reload()
-				})
-				acceptButton.addEventListener('click', () => {
-					handleFriendRequestButton(dest, window.user.username, 'accept')
-					// window.location.reload()
-				})
+				const card = document.createElement("div");
+				card.className = "col-sm-6 col-lg-4";
+				card.innerHTML = `
+				<div class="card hover-img">
+				<div class="card-body p-4 text-center border-bottom">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${friendRequest.username}</h5>
+				</div>
+				<div class="px-2 py-2 bg-light text-center">
+				<button class="btn btn-success me-2 accept-friend-request" type="submit" data-dest="${friendRequest.username}">Accept</button>
+				<button class="btn btn-danger me-2 decline-friend-request" type="submit" data-dest="${friendRequest.username}">Decline</button>
+				</div>
+				</div>
+				`;
+				membersContainer.appendChild(card);
 			});
-		} else {
-			friendRequestsDiv.innerHTML = "<p>No friends requests found.</p>";
+			results.appendChild(membersContainer);
+			document.querySelectorAll('.accept-friend-request').forEach(button => {
+				button.addEventListener('click', () => {
+					const dest = button.getAttribute('data-dest');
+					handleFriendRequestButton(window.user.username, dest, 'accept')
+				});
+			});
+			document.querySelectorAll('.decline-friend-request').forEach(button => {
+				button.addEventListener('click', () => {
+					const dest = button.getAttribute('data-dest');
+					handleFriendRequestButton(dest, window.user.username, 'decline')
+				});
+			});
 		}
 	}).catch(error => {
 			console.error("Error fetching friends:", error);
-			friendRequestsDiv.innerHTML = "<p>Error loading friends list.</p>";
-	});
-}
-
-{
-	const sentFriendRequestsDiv = document.getElementById('user-sent-friend-requests')
-
-	getSentFriendRequests().then(response => {
-		if (response) {
-			console.log(response);
-			response.sentFriendRequests.forEach(request => {
-				const friendList = document.createElement('ul');
-				const friendsP = document.createElement('p');
-				friendsP.textContent = request.username;
-				friendList.appendChild(friendsP);
-				sentFriendRequestsDiv.appendChild(friendList);
-				const button = document.createElement('button');
-				button.classList.add("btn", "col", "pull-right", "btn-danger", "btn-xs");
-				button.textContent = "Cancel";
-				button.type = 'submit';
-				button.style.display = 'flex';
-				sentFriendRequestsDiv.appendChild(button);
-				button.addEventListener('click', () => {
-					const dest = friendList.querySelector('p').textContent;
-					deleteFriendRequest(window.user.username, dest);
-					// window.location.reload()
-				})
-			})
-		}
-	})
+			results.innerHTML = "<p>Error loading friends list.</p>";
+	}); 
 }
 {
-	const friendsListDiv = document.getElementById('user-friends');
-
+	const results = document.getElementById("friends");
 	getFriends().then(response => {
-		if (response) {
-			console.log(response);
+		if (response && response.friends.length > 0) {	
+			const friendsCount = document.getElementById("friends-count");
+			if (friendsCount) {
+				friendsCount.textContent = response.friends.length;
+			}
+			const membersContainer = document.createElement('div');
+			membersContainer.classList.add("row");
+			membersContainer.id = 'friends-list';
 			response.friends.forEach(friend => {
-				const friendList = document.createElement('ul');
-				const friendsP = document.createElement('p');
-				friendsP.textContent = friend.username;
-				friendList.appendChild(friendsP);
-				friendsListDiv.appendChild(friendList);
-				const button = document.createElement('button');
-				button.classList.add("btn", "col", "pull-right", "btn-danger", "btn-xs");
-				button.textContent = "Remove friend :(";
-				button.type = 'submit';
-				button.style.display = 'flex';
-				friendsListDiv.appendChild(button);
-				button.addEventListener('click', () => {
-					const dest = friendList.querySelector('p').textContent;
-					deleteFriend(window.user.username, dest);
-					// window.location.reload()
-				})
+				const card = document.createElement("div");
+				card.className = "col-sm-6 col-lg-4";
+				card.innerHTML = `
+				<div class="card hover-img">
+				<div class="card-body p-4 text-center border-bottom">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${friendRequest.username}</h5>
+				</div>
+				<div class="px-2 py-2 bg-light text-center">
+				<button class="btn btn-danger me-2 remove-friend" type="submit" data-dest="${friendRequest.username}">Remove Friend</button>
+				</div>
+				</div>
+				`;
+				membersContainer.appendChild(card);
 			});
-		} else {
-			friendsListDiv.innerHTML = "<p>No friends found.</p>";
+			results.appendChild(membersContainer);	
+			document.querySelectorAll('.remove-friend').forEach(button => {
+				button.addEventListener('click', () => {
+					const dest = button.getAttribute('data-dest');
+					deleteFriend(window.user.username, dest);
+				});
+			});
 		}
 	}).catch(error => {
 			console.error("Error fetching friends:", error);
-			friendsListDiv.innerHTML = "<p>Error loading friends list.</p>";
+			results.innerHTML = "<p>Error loading friends list.</p>";
 	});
 }
 
 {
-	const userListDiv = document.getElementById('user-search-result');
 	const formUsers = document.getElementById('form-users');
-
 	formUsers?.addEventListener('submit', function(event) {
+		const previousList = document.getElementById('friends-list');
+		if (previousList) {
+			previousList.remove();
+		}
+		const nousers = document.getElementById('no-users');
+		if (nousers) {
+			nousers.remove();
+		}
+	
 		event.preventDefault();
-
 		const formData = new FormData(event.target);
-
+		console.log("formData", formData);
 		const fetch_url = 'https://localhost:8443/user_auth/user_search/';
 		myFetch(fetch_url, formData, 'POST', true)
 		.then(data => {
 			if (data.users)
-				putPossibleFriends(data.users, userListDiv);
-			
+				displayResults(data.users);
 		}).catch(error => {
 			console.log(error);
+			const membersCount = document.getElementById("members-count");
+			if (membersCount) {
+				membersCount.textContent = "0";
+			}
+			const results = document.getElementById("search-results");
+			const nousers = document.createElement('p');
+			nousers.id = 'no-users';
+			nousers.innerHTML = "No users found";
+			results.appendChild(nousers);
 		})
 	});
 }
-
-
-/* 
-
-Tereza, esta e para ti.
-
-Esta vai ser a funcao principal com a qual vais fazer fetch da data dos friends to utilizador.
-Ela vai retornar 3 arrays diferentes aka: friends, friendRequests e sentFriendRequests
-para que possas depois fazer o display deles na pagina.
-
-Quanto aos post's, ta um bocado salganhada mas im working on it. Provavelmente vai ficar como esta.
-
-exemplo de utilizacao:
-
-const friendsData = await getFriendsData();
-
-friendsData.friends[...]
-friendsData.friendRequests[...]
-friendsData.sentFriendRequests[...]
-
-Obrigado e volte sempre.
-
-                |
-				|
-				|
-				V
-*/
 
 // async function getFriendsData() {
 // 	try {
@@ -330,5 +302,3 @@ Obrigado e volte sempre.
 // 		console.log(error);
 // 	}
 // }
-
-

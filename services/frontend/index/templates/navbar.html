@@ -1,30 +1,23 @@
 {% load static %}
-<nav class="navbar navbar-inverse">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
 	<div class="container-fluid">
-		<div class="navbar-header">
-			<a class="navbar-brand" href="#/home">Transcendence</a>
-		</div>
-		<ul class="nav navbar-nav navbar-right">
-			{% if authenticated %}
-				<li class="dropdown">
-					<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
-						<span class="glyphicon glyphicon-user"></span> 
-						<span class="caret"></span>
-					</a>
-					<ul class="dropdown-menu">
-						<li><a href="#/profile">Profile</a></li>
-						<li><a href="#/profile/friends">Friends</a></li>
-						<li><a href="#">Settings</a></li>
-						<li><a href="#/lobby">Game</a></li>
-						<li><a href="#/logout">Logout</a></li>
-						<li><a href="#/2fa">Enable 2FA</a></li>
-					</ul>
-				</li>
-			{% else %}
-				<!-- Links for users who are not logged in -->
-				<li><a href="#/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-				<li><a href="#/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-			{% endif %}
-		</ul>
+	  <a class="navbar-brand" href="#">Transcendence</a>
+	  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	  </button>
+	  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+		<ul class="navbar-nav"> <!-- Use <ul> with class navbar-nav -->
+		  {% if authenticated %}
+			<li class="nav-item"><a class="nav-link" href="#/lobby">Game</a></li>
+			<li class="nav-item"> <!-- Add class nav-item to each link --><a class="nav-link" href="#/profile">Profile</a></li>
+			<li class="nav-item"><a class="nav-link" href="#/profile/friends">Friends</a></li>
+			<li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
+			<li class="nav-item"><a class="nav-link" href="#/logout">Logout</a></li>
+		  {% else %}
+			<li class="nav-item"><a class="nav-link" href="#/register">Sign up</a></li>
+			<li class="nav-item"><a class="nav-link" href="#/login">Login</a></li>
+		  {% endif %}
+		</ul> <!-- Close <ul> tag -->
+	  </div>
 	</div>
-</nav>
+  </nav>
