@@ -174,8 +174,13 @@ def deleteFriend(request):
 		src_user = User.objects.get(username=src)
 		dest_user = User.objects.get(username=dest)
 
-		Friendships.objects.filter(from_user=src_user, to_user=dest_user, status='accepted').delete()
-		Friendships.objects.filter(from_user=dest_user, to_user=src_user, status='accepted').delete()
+		friend1 = Friendships.objects.filter(from_user=src_user, to_user=dest_user, status='accepted')
+		friend2 = Friendships.objects.filter(from_user=dest_user, to_user=src_user, status='accepted')
+
+		if not friend1 and not friend2:
+			return JsonResponse({'error': 'User not found.'}, status=404)
+		friend1.delete()
+		friend2.delete()
 
 		return JsonResponse({'success':'Friendship deleted'}, status=200)
 	except User.DoesNotExist:

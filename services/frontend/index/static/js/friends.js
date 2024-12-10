@@ -1,6 +1,7 @@
 async function sendFriendRequest(dest, src) {
 	try {
 		await myFetch('https://localhost:8443/user_friends/friend-request-send/', {"dest": dest, "src": src}, "POST", true)
+		console.log('Friend request sent!')
 	} catch(error) {
 		console.error("Error:", error);
 	}
@@ -79,15 +80,16 @@ async function handleFriendRequestButton(src, dest, intention) {
 	try {
 		return await myFetch('https://localhost:8443/user_friends/handle-friend-request/', { 'dest': dest, 'src': src, 'intention': intention}, "POST", true);
 	} catch (error) {
-		console.error('Error: ', error.error);
+		console.error('Error: ', error);
 	}
 }
 
 async function deleteFriend(src, dest) {
+	console.log('friend deleted');
 	try {
 		return await myFetch('https://localhost:8443/user_friends/delete-friend/', { 'dest': dest, 'src': src}, "POST", true)
 	} catch (error) {
-		console.error('Error: ', error.error);
+		console.error('Error: ', error);
 	}
 }
 
@@ -95,19 +97,15 @@ function deleteFriendRequest(src, dest) {
 	try {
 		return myFetch('https://localhost:8443/user_friends/delete-friend-request/', { 'dest': dest, 'src': src}, "POST", true)
 	} catch (error) {
-		console.error('Error: ', error.error);
+		console.error('Error: ', error);
 	}
 }
 
 async function getFriendsData() {
 	try {
-		const response = await fetch('https://localhost:8443/user_friends/api/');
-		const data = await response.json();
-		if (!response.ok)
-			throw data.error
-		console.log(data);
-
-		return data;
+		const response = await myFetch('https://localhost:8443/user_friends/api/', null, "GET", true);
+		console.log(response);
+		return response;
 	} catch (error) {
 		console.log(error);
 	}
@@ -115,7 +113,7 @@ async function getFriendsData() {
 
 // * MAIN SCRIPT *
 
-data = getFriendsData();
+// const data = getFriendsData();
 
 {
 	const results = document.getElementById("friend-requests");
@@ -150,7 +148,7 @@ data = getFriendsData();
 			document.querySelectorAll('.accept-friend-request').forEach(button => {
 				button.addEventListener('click', () => {
 					const dest = button.getAttribute('data-dest');
-					handleFriendRequestButton(window.user.username, dest, 'accept')
+					handleFriendRequestButton(dest, window.user.username, 'accept')
 				});
 			});
 			document.querySelectorAll('.decline-friend-request').forEach(button => {

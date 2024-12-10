@@ -7,6 +7,8 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 
 class JWTMiddleware(MiddlewareMixin):
 	def process_request(self, request):
+		if request.path.startswith('/admin/'):
+			return  # Skip further processing for admin pages
 		auth = request.headers.get('Authorization', None)
 		if auth is not None:
 			try:
