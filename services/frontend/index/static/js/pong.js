@@ -559,9 +559,9 @@ socket.onmessage = function(event)
 			break;
 		case 'paddleInit':
 			console.log("PADDLE INIT:", data.payload);
-			if (data.payload.player == 1)
+			if (data.payload.player == '1')
 				handlePaddleControls('p1');
-			else if (data.payload.player == 2)
+			else if (data.payload.player == '2')
 				handlePaddleControls('p2');
 	}
 }

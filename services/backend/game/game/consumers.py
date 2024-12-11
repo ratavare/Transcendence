@@ -220,7 +220,7 @@ class Consumer(AsyncWebsocketConsumer):
 		self.game_loop = None
 	
 		await self.accept()
-		await self.playerId(self.lobby_id, self.user_id)
+		await self.playerId()
 		await self.graphicsInit()
 		if len(lobbies[self.lobby_id]) < 2:
 			await self.sendMessage('message', f'Connection Accepted: Welcome {self.user_id}!')
@@ -338,12 +338,14 @@ class Consumer(AsyncWebsocketConsumer):
 
 	# player is self.user_id which is ecrypted/binary shit...
 	# TO.DO change this to search in consumers lobby
-	async def playerId(self, lobby_id, player):
-		lobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=lobby_id)
-		userExists = await database_sync_to_async(lobby.users.filter(username=player).exists)()
-		if userExists:
-			usersInLobby = await database_sync_to_async(list)(lobby.users.all())
-			if usersInLobby[0].username == player:
-				await self.groupSend('paddleInit', { player: 1 })
-			elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
-				await self.groupSend('paddleInit', { player: 2 })
+	async def playerId(self):
+		if self.lobby_id in lobbies:
+			user_list = list(lobbies[self.lobby_id])
+			print('USERLIST', user_list, flush=True)
+			print('USER111111111111111111', user_list[0], flush=True)
+			if len(user_list) >= 1 and user_list[0] == self.user_id:
+				print('11111111111111111111111111111111111', flush=True)
+				await self.groupSend('paddleInit', { 'player': '1' })
+			elif len(user_list) >= 2 and user_list[1] == self.user_id:
+				print('11111111111111111111111111111111111', flush=True)
+				await self.groupSend('paddleInit', { 'player': '2' })
