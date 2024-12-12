@@ -6,7 +6,6 @@ from lobby.models import Lobby
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-lobbies = {}
 PADDLE_SPEED = 20
 AIPADDLE_SPEED = 15
 BALL_INITIAL_SPEED = 10
@@ -29,11 +28,8 @@ PADDLE_POSITION_Y = -15
 PADDLE_WIDTH = 10
 PADDLE_LENGTH = 100
 PADDLE_DEPTH = 30
-
-
-def myPrint(p):
-	print(p, flush=True)
 	
+lobbies = {}
 
 class Paddle():
 	def __init__(self, positionX=0, positionZ=0):
@@ -58,15 +54,14 @@ class Ball:
 
 class Pong:
 	def __init__(self):
-		self.player1Score = 0;
-		self.player2Score = 0;
+		self.player1Score = 0
+		self.player2Score = 0
 
 		self.ball = Ball()
 		self.paddle1 = Paddle(positionX=PADDLE1_POSITION_X, positionZ=PADDLE1_POSITION_Z)
 		self.paddle2 = Paddle(positionX=PADDLE2_POSITION_X, positionZ=PADDLE2_POSITION_Z)
 	
-		self.gamePaused = False;
-		self.beginGame = False;
+		self.gamePaused = False
 		self.startTime = datetime.datetime.now()
 
 	def respawnBall(self, playerId):
@@ -85,12 +80,10 @@ class Pong:
 
 	def outOfBounds(self):
 		if self.ball.positionX > 1000:
-			myPrint("Player 1 Scored")
 			self.player1Score += 1
 			self.respawnBall(1)
 			return 2
 		elif self.ball.positionX < -1000:
-			myPrint("Player 2 Scored")
 			self.player2Score += 1
 			self.respawnBall(2)
 			return 2
@@ -220,10 +213,12 @@ class Consumer(AsyncWebsocketConsumer):
 		self.game_loop = None
 	
 		await self.accept()
+		await self.readyState(False)
 		await self.playerId()
 		await self.graphicsInit()
+		
 		if len(lobbies[self.lobby_id]) < 2:
-			await self.sendMessage('message', f'Connection Accepted: Welcome {self.user_id}!')
+			await self.sendMessage('message', f'Connection Accepted: Welcome!!')
 
 	async def disconnect(self, close_code):
 		if self.game_loop:
@@ -239,12 +234,14 @@ class Consumer(AsyncWebsocketConsumer):
 				del lobbies[self.lobby_id]
 			else:
 				await self.groupSend('message', f'{self.user_id} left the lobby')
+			await self.readyState(False)
 			await self.channel_layer.group_discard(
 				self.lobby_id,
 				self.channel_name
 			)
 		
 	async def receive(self, text_data):
+
 		try:
 			data = json.loads(text_data)
 			send_type = data.get('type')
@@ -255,8 +252,10 @@ class Consumer(AsyncWebsocketConsumer):
 					self.game.paddle1.moving = payload['direction']
 				case 'p2':
 					self.game.paddle2.moving = payload['direction']
-				case 'beginGame':
-					self.game_loop = asyncio.create_task(self.runLoop())
+				case 'ready':
+					ready = await self.readyState(True)
+					if ready:
+						self.game_loop = asyncio.create_task(self.runLoop())
 				case 'pause':
 					if self.game.gamePaused == False:
 						self.game.gamePaused = True
@@ -335,17 +334,36 @@ class Consumer(AsyncWebsocketConsumer):
 		}
 		await self.sendMessage("graphicsInit", payload)
 
-
-	# player is self.user_id which is ecrypted/binary shit...
-	# TO.DO change this to search in consumers lobby
 	async def playerId(self):
 		if self.lobby_id in lobbies:
 			user_list = list(lobbies[self.lobby_id])
-			print('USERLIST', user_list, flush=True)
-			print('USER111111111111111111', user_list[0], flush=True)
 			if len(user_list) >= 1 and user_list[0] == self.user_id:
-				print('11111111111111111111111111111111111', flush=True)
 				await self.groupSend('paddleInit', { 'player': '1' })
 			elif len(user_list) >= 2 and user_list[1] == self.user_id:
-				print('11111111111111111111111111111111111', flush=True)
 				await self.groupSend('paddleInit', { 'player': '2' })
+
+	async def readyState(self, state):
+		if self.lobby_id in lobbies:
+			user_list = list(lobbies[self.lobby_id])
+			
+			try:
+				userIndex = user_list.index(self.user_id)
+				lobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
+				if userIndex == 0:
+					lobby.player1Ready = state
+				elif userIndex == 1:
+					lobby.player2Ready = state
+				else:
+					return False
+
+				await database_sync_to_async(lobby.save)()
+				if state:
+					await self.groupSend('message', f'Player {userIndex + 1} is ready!')
+
+				if lobby.player1Ready and lobby.player2Ready:
+					lobby.gameState = "running"
+					return True
+				return False
+
+			except ValueError:
+				await self.groupSend('message', 'User does not exist in Lobby')

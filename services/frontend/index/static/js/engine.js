@@ -14,10 +14,17 @@ function setPageUrl()
 	canvas?.remove();
 	const url = window.location.href.split('/');
 	const x = (url.length) - 1;
-	if (url[x - 1] == 'lobbies')
-		setPage('pong');
-	else
-		setPage(url[x]);
+	const hash = window.location.hash;
+	window.props = new URLSearchParams();
+	if (hash.includes('?')) {
+		const queryString = hash.split('?')[1];
+		const urlParams = new URLSearchParams(queryString);
+		window.props = urlParams;
+		url[x] = url[x].replaceAll(`?${queryString}`, "");
+	} else {
+		// console.log('Nenhum parâmetro encontrado no hash.');
+	}
+	setPage(url[x]);
 	logoutFunc();
 }
 
@@ -54,6 +61,7 @@ async function checkRedirection(page)
 
 async function setPage(name)
 {
+	PageElement.onUnLoad();
 	if (name == '' || name == '#') {
 		name = 'home'
 		seturl('/home')
@@ -63,7 +71,17 @@ async function setPage(name)
 	pageName = name;
 	if (pageActive && pageActive.getAttribute("name") == name)
 		return ;
-	pageActive?.remove();
+	if (pageActive)
+	{
+		const scripts = pageActive.querySelectorAll("script");
+		for (const script of Array.from(scripts))
+		{
+			script.remove();
+		}
+		console.log("scripts: ", scripts);
+		pageActive.remove();
+
+	}
 	const page = l.get(name) || Array.from(pages).find(page => page.getAttribute('default'));
 	if (page)
 	{
@@ -78,6 +96,7 @@ async function setPage(name)
 		newPage.innerHTML = page.innerHTML;
 		newPage.setAttribute("name", name);
 		const newScript = document.createElement('script');
+		newScript.setAttribute("controller", "true")
 		newScript.src = "static/js/" + name + ".js";
 		if (name == 'pong')
 			newScript.type = "module";
@@ -88,6 +107,12 @@ async function setPage(name)
 		document.body.appendChild(newPage);
 		newPage.style.display = page.display;
 		pageActive = newPage;
+		if ("pong" == name)
+		{
+			setTimeout(() => {
+			PageElement.onLoad(newPage);
+			}, 200);
+		}
 	}
 	else
 		pageActive = undefined;

@@ -9,12 +9,23 @@
         <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+		<script type="importmap">
+			{
+			  "imports": {
+				"three": "https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js",
+				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.171.0/examples/jsm/"
+			  }
+			}
+		  </script>
+		  
+
 	</head>
 	<body>
 		<div id = "easter-egg" hidden="true">
 			<p>Easter Egg 14/10/2024</p>
 			<img src="https://i.seadn.io/gae/gI7SnOY9Upv4skFj6CoLbszEQUOhRtazugsRkK3jJq9icQff4Q3ltjgHebMm93cvbGv7YG1VV75b4swZKuvKsA29x63Luy-MjGp1?auto=format&dpr=1&w=5">
 		</div>	
+	
 		<script model="" src="{% static 'js/customElement.js' %}"></script>
 		{% include 'home.html' %}
 		{% include 'register.html' %}

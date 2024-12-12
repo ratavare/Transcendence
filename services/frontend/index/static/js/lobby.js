@@ -15,7 +15,8 @@ async function joinLobby(lobby_id)
 		const data = await response.json()
 		if (!response.ok)
 			throw data.error;
-		seturl(`/lobbies/${lobby_id}`)
+		console.log(lobby_id);
+		seturl(`/pong?id=${lobby_id}`)
 	} catch (error) {
 		seturl('/lobby');
 		console.log(error);
