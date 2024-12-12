@@ -1,3 +1,6 @@
+
+// **** FETCHES ****
+
 async function sendFriendRequest(dest, src) {
 	try {
 		await myFetch('https://localhost:8443/user_friends/friend-request-send/', {"dest": dest, "src": src}, "POST", true)
@@ -7,15 +10,56 @@ async function sendFriendRequest(dest, src) {
 	}
 }
 
-function sendButtonConfigure(userListDiv)
-{
-	document.querySelectorAll('.send-friend-request').forEach(button => {
-        button.addEventListener('click', () => {
-            const dest = button.getAttribute('data-dest');
-            sendFriendRequest(dest, window.user.username);
-        });
-    });
+async function handleFriendRequestButton(src, dest, intention) {
+	console.log(src, dest, intention);
+	try {
+		return await myFetch('https://localhost:8443/user_friends/handle-friend-request/', { 'dest': dest, 'src': src, 'intention': intention }, "POST", true);
+	} catch (error) {
+		console.error('Error: ', error);
+	}
 }
+
+async function deleteFriend(src, dest) {
+	console.log('friend deleted');
+	try {
+		return await myFetch('https://localhost:8443/user_friends/delete-friend/', { 'dest': dest, 'src': src }, "POST", true)
+	} catch (error) {
+		console.error('Error: ', error);
+	}
+}
+
+async function deleteFriendRequest(src, dest) {
+	try {
+		return myFetch('https://localhost:8443/user_friends/delete-friend-request/', { 'dest': dest, 'src': src }, "POST", true)
+	} catch (error) {
+		console.error('Error: ', error);
+	}
+}
+
+async function searchUser() {
+	
+}
+
+async function getFriendsData() {
+	try {
+		return await myFetch('https://localhost:8443/user_friends/api/', null, "GET", true)
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+// **** UTILS ****
+
+function addBtnEventListener(btnClass, f, ...arg) {
+	document.querySelectorAll(btnClass).forEach(button => {
+		button.addEventListener('click', () => {
+			const dest = button.getAttribute('data-dest');
+			f(dest, window.user.username, ...arg);
+		});
+	});
+}
+
+// * MAIN SCRIPT
 
 function displayResults(users)
 {
@@ -48,160 +92,7 @@ function displayResults(users)
 		
 	});
 	results.appendChild(membersContainer);
-	sendButtonConfigure();
-}
-
-async function getFriends() {
-	try {
-		return await myFetch('https://localhost:8443/user_friends/get-friends/', null, "GET", true);
-	} catch (error) {
-		console.error("Error fetching friends:", error);
-	}
-}
-
-async function getFriendRequests() {
-	try {
-		return await myFetch('https://localhost:8443/user_friends/get-friend-requests/', null, "GET", true);
-	} catch (error) {
-		console.error('Error fetching friend requests: ', error);
-	}
-}
-
-async function getSentFriendRequests() {
-	try {
-		return await myFetch('https://localhost:8443/user_friends/get-sent-friend-requests/', null, "GET", true)
-	} catch (error) {
-		console.error('Error fetching friend requests: ', error);
-	}
-}
-
-async function handleFriendRequestButton(src, dest, intention) {
-	console.log(src, dest, intention);
-	try {
-		return await myFetch('https://localhost:8443/user_friends/handle-friend-request/', { 'dest': dest, 'src': src, 'intention': intention}, "POST", true);
-	} catch (error) {
-		console.error('Error: ', error);
-	}
-}
-
-async function deleteFriend(src, dest) {
-	console.log('friend deleted');
-	try {
-		return await myFetch('https://localhost:8443/user_friends/delete-friend/', { 'dest': dest, 'src': src}, "POST", true)
-	} catch (error) {
-		console.error('Error: ', error);
-	}
-}
-
-function deleteFriendRequest(src, dest) {
-	try {
-		return myFetch('https://localhost:8443/user_friends/delete-friend-request/', { 'dest': dest, 'src': src}, "POST", true)
-	} catch (error) {
-		console.error('Error: ', error);
-	}
-}
-
-async function getFriendsData() {
-	try {
-		const response = await myFetch('https://localhost:8443/user_friends/api/', null, "GET", true);
-		console.log(response);
-		return response;
-	} catch (error) {
-		console.log(error);
-	}
-}
-
-// * MAIN SCRIPT *
-
-// const data = getFriendsData();
-
-{
-	const results = document.getElementById("friend-requests");
-	getFriendRequests().then(response => {
-		if (response && response.friendRequests.length > 0) {	
-			const requestsCount = document.getElementById("requests-count");
-			if (requestsCount) {
-				requestsCount.textContent = response.friendRequests.length;
-			}
-			
-			const membersContainer = document.createElement('div');
-			membersContainer.classList.add("row");
-			membersContainer.id = 'requests-list2';
-			response.friendRequests.forEach(friendRequest => {
-				const card = document.createElement("div");
-				card.className = "col-sm-6 col-lg-4";
-				card.innerHTML = `
-				<div class="card hover-img">
-				<div class="card-body p-4 text-center border-bottom">
-				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-				<h5 class="fw-semibold mb-0">@${friendRequest.username}</h5>
-				</div>
-				<div class="px-2 py-2 bg-light text-center">
-				<button class="btn btn-success me-2 accept-friend-request" type="submit" data-dest="${friendRequest.username}">Accept</button>
-				<button class="btn btn-danger me-2 decline-friend-request" type="submit" data-dest="${friendRequest.username}">Decline</button>
-				</div>
-				</div>
-				`;
-				membersContainer.appendChild(card);
-			});
-			results.appendChild(membersContainer);
-			document.querySelectorAll('.accept-friend-request').forEach(button => {
-				button.addEventListener('click', () => {
-					const dest = button.getAttribute('data-dest');
-					handleFriendRequestButton(dest, window.user.username, 'accept')
-				});
-			});
-			document.querySelectorAll('.decline-friend-request').forEach(button => {
-				button.addEventListener('click', () => {
-					const dest = button.getAttribute('data-dest');
-					handleFriendRequestButton(dest, window.user.username, 'decline')
-				});
-			});
-		}
-	}).catch(error => {
-			console.error("Error fetching friends:", error);
-			results.innerHTML = "<p>Error loading friends list.</p>";
-	}); 
-}
-{
-	const results = document.getElementById("friends");
-	getFriends().then(response => {
-		if (response && response.friends.length > 0) {	
-			const friendsCount = document.getElementById("friends-count");
-			if (friendsCount) {
-				friendsCount.textContent = response.friends.length;
-			}
-			const membersContainer = document.createElement('div');
-			membersContainer.classList.add("row");
-			membersContainer.id = 'friends-list';
-			response.friends.forEach(friendRequest => {
-				const card = document.createElement("div");
-				card.className = "col-sm-6 col-lg-4";
-				card.innerHTML = `
-				<div class="card hover-img">
-				<div class="card-body p-4 text-center border-bottom">
-				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-				<h5 class="fw-semibold mb-0">@${friendRequest.username}</h5>
-				</div>
-				<div class="px-2 py-2 bg-light text-center">
-				<button class="btn btn-danger me-2 remove-friend" type="submit" data-dest="${friendRequest.username}">Remove Friend</button>
-				</div>
-				</div>
-				`;
-				membersContainer.appendChild(card);
-			});
-			results.appendChild(membersContainer);	
-			document.querySelectorAll('.remove-friend').forEach(button => {
-				button.addEventListener('click', () => {
-					const dest = button.getAttribute('data-dest');
-					deleteFriend(window.user.username, dest);
-				});
-			});
-		}
-	}).catch(error => {
-			console.error("Error fetching friends:", error);
-			results.innerHTML = "<p>Error loading friends list.</p>";
-	});
+	addBtnEventListener('.send-friend-request', sendFriendRequest);
 }
 
 {
@@ -238,3 +129,106 @@ async function getFriendsData() {
 		})
 	});
 }
+
+function renderFriends(friends) {
+	const results = document.getElementById("friends");
+	const friendsCount = document.getElementById("friends-count");
+	if (friendsCount)
+		friendsCount.textContent = friends.length;
+	const membersContainer = document.createElement('div');
+	membersContainer.classList.add("row");
+	membersContainer.id = 'friends-list';
+	friends.forEach(friend => {
+		const card = document.createElement("div");
+		card.className = "col-sm-6 col-lg-4";
+		card.innerHTML = `
+			<div class="card hover-img">
+				<div class="card-body p-4 text-center border-bottom">
+					<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+					<h5 class="fw-semibold mb-0">@${friend.username}</h5>
+				</div>
+				<div class="px-2 py-2 bg-light text-center">
+					<button class="btn btn-danger me-2 remove-friend" type="submit" data-dest="${friend.username}">Remove Friend</button>
+				</div>
+			</div>
+		`;
+		membersContainer.appendChild(card);
+	});
+	results.appendChild(membersContainer);
+	addBtnEventListener('.remove-friend', deleteFriend)
+}
+
+function renderFriendRequests(friendRequests) {
+	const results = document.getElementById("friend-requests");
+	const requestsCount = document.getElementById("requests-count");
+	if (requestsCount)
+		requestsCount.textContent = friendRequests.length;
+	const membersContainer = document.createElement('div');
+	membersContainer.classList.add("row");
+	membersContainer.id = 'requests-list2';
+	friendRequests.forEach(friendRequest => {
+		const card = document.createElement("div");
+		card.className = "col-sm-6 col-lg-4";
+		card.innerHTML = `
+		<div class="card hover-img">
+			<div class="card-body p-4 text-center border-bottom">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${friendRequest.username}</h5>
+			</div>
+			<div class="px-2 py-2 bg-light text-center">
+				<button class="btn btn-success me-2 accept-friend-request" type="submit" data-dest="${friendRequest.username}">Accept</button>
+				<button class="btn btn-danger me-2 decline-friend-request" type="submit" data-dest="${friendRequest.username}">Decline</button>
+			</div>
+		</div>
+		`;
+		membersContainer.appendChild(card);
+		results.appendChild(membersContainer);
+		addBtnEventListener('.accept-friend-request', handleFriendRequestButton, 'accept');
+		addBtnEventListener('.decline-friend-request', handleFriendRequestButton, 'decline');
+	});
+}
+
+function renderSentFriendRequests(sentFriendRequests) {
+	const results = document.getElementById("sent-friend-requests");
+	const requestsCount = document.getElementById("sent-requests-count");
+	if (requestsCount)
+		requestsCount.innerHTML = sentFriendRequests.length;
+	const membersContainer = document.createElement('div');
+	membersContainer.classList.add("row");
+	membersContainer.id = 'sent-requests-list';
+	sentFriendRequests.forEach(request => {
+		const card = document.createElement("div");
+		card.className = "col-sm-6 col-lg-4";
+		card.innerHTML = `
+			<div class="card hover-img">
+				<div class="card-body p-4 text-center border-bottom">
+					<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+					<h5 class="fw-semibold mb-0">@${request.username}</h5>
+				</div>
+				<div class="px-2 py-2 bg-light text-center">
+					<button class="btn btn-danger me-2 delete-request" type="submit" data-dest="${request.username}">Delete request</button>
+				</div>
+			</div>
+		`;
+		membersContainer.appendChild(card);
+	});
+	results.appendChild(membersContainer);
+	addBtnEventListener('.delete-request', deleteFriendRequest);
+}
+
+// **** MAIN LOAD FUNCTION ****
+
+async function loadFriendsPage() {
+	try {
+		const {friends, friendRequests, sentFriendRequests} = await getFriendsData();
+
+		renderFriends(friends);
+		renderFriendRequests(friendRequests);
+		renderSentFriendRequests(sentFriendRequests);
+	}
+	catch (error) {
+		console.error("Error loading friends page: ", error);
+	}
+}
+
+loadFriendsPage();

@@ -197,7 +197,7 @@ def deleteFriendRequest(request):
 		dest = data.get('dest')
 		src_user = User.objects.get(username=src)
 		dest_user = User.objects.get(username=dest)
-		Friendships.objects.filter(from_user=src_user, to_user=dest_user, status='requested').delete()
+		Friendships.objects.filter(from_user=dest_user, to_user=src_user, status='requested').delete()
 
 		return JsonResponse({'success':'Friendship Request deleted'}, status=200)
 	except User.DoesNotExist:
