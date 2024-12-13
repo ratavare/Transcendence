@@ -263,6 +263,7 @@ PageElement.onLoad = () => {
 			renderer.render(scene, camera);
 			if (player1Score == 7)
 			{
+				// Move this to server-side and stop game
 				document.getElementById('winner').innerHTML = 'Player 1 wins!';
 				readyBtn.style.display = 'block';
 			}
