@@ -8,9 +8,9 @@ PageElement.onLoad = () => {
 	const PADDLE_COLOR = 0x008000;
 	const TABLE_COLOR = 0x800080;
 	const PLANE_COLOR = 0x000000;
-	const POINT_LIGHT_INTENSITY = 1000000;
+	const POINT_LIGHT_INTENSITY = 5000000;
 	const POINT_LIGHT_DISTANCE = 1000;
-	const AMBIENT_LIGHT_INTENSITY = 3;
+	const AMBIENT_LIGHT_INTENSITY = 1;
 
 	// Variables
 	let player1Score = 0;
@@ -53,10 +53,12 @@ PageElement.onLoad = () => {
 	// Sphere
 	const ballLoader = new THREE.TextureLoader();
 	const ballTexture = ballLoader.load('media/skybox/grey-scale-sun.jpg');
-	const sphereMaterial = new THREE.MeshBasicMaterial({
+	const sphereMaterial = new THREE.MeshStandardMaterial({
 		map: ballTexture,
 		color: 0x33e3ff,
-	});
+		emissive: 0x33e3ff,
+		emissiveIntensity: 1.0,
+	  });
 	const sphereGeometry = new THREE.SphereGeometry(10, 32, 32);
 	const ball = new THREE.Mesh(sphereGeometry, sphereMaterial);
 	scene.add(ball);
@@ -77,23 +79,21 @@ PageElement.onLoad = () => {
 	{
 		// Paddles and Table
 		// console.log("DATA: ", data)
-		const table1 = makeParalellepiped(
+		const table1 = makeWall(
 			data.floorPositionX,
 			data.floorPositionY,
 			data.floorPositionZ,
 			data.boundariesWidth,
 			data.boundariesDepth, 
 			data.boundariesHeight,
-			TABLE_COLOR
 		);
-		const table2 = makeParalellepiped(
+		const table2 = makeWall(
 			data.ceilingPositionX,
 			data.ceilingPositionY,
 			data.ceilingPositionZ,
 			data.boundariesWidth,
 			data.boundariesDepth, 
 			data.boundariesHeight,
-			TABLE_COLOR
 		);
 		paddle1 = makeParalellepiped(
 			data.paddle1PositionX,
@@ -113,6 +113,7 @@ PageElement.onLoad = () => {
 			data.paddleLength,
 			PADDLE_COLOR
 		);
+
 		scene.add(table1);
 		scene.add(table2);
 		scene.add(paddle1);
@@ -121,10 +122,52 @@ PageElement.onLoad = () => {
 
 	function makeParalellepiped(x, y, z, dx, dy, dz, color) 
 	{
-	const material = new THREE.MeshStandardMaterial({ color: color });
-	const box = new THREE.Mesh(new THREE.BoxGeometry(dx, dy, dz), material);
-	box.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
-	return box;
+		const material = new THREE.MeshStandardMaterial({
+			color: color,
+		});
+		const box = new THREE.Mesh(new THREE.BoxGeometry(dx, dy, dz), material);
+		box.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
+		return box;
+	}
+
+	function makeWall(x, y, z, dx, dy, dz)
+	{
+		const textureLoader = new THREE.TextureLoader();
+	
+		const colorMap = textureLoader.load('media/walls/colorMap.png');
+		const normalMap = textureLoader.load('media/walls/normalMap.png');
+		const aoMap = textureLoader.load('media/walls/aoMap.png');
+		const metallicMap = textureLoader.load('media/walls/metallicMap.png');
+		const roughnessMap = textureLoader.load('media/walls/roughnessMap.png');
+		const heightMap = textureLoader.load('media/walls/heightMap.png');
+
+		const scaleX = dx / 100;
+		const scaleZ = dz / 100;
+	
+		const textures = [colorMap, normalMap, aoMap, metallicMap, roughnessMap, heightMap];
+		textures.forEach(texture => {
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			texture.repeat.set(scaleX, scaleZ);
+		});
+
+		const material = new THREE.MeshStandardMaterial({
+			color: TABLE_COLOR,
+			map: colorMap,
+			normalMap: normalMap,
+			aoMap: aoMap,
+			metalnessMap: metallicMap,
+			roughnessMap: roughnessMap,
+			displacementMap: heightMap,
+			displacementScale: 0.1
+		});
+		material.aoMapIntensity = 1.0;
+		material.displacementBias = 0;
+
+		const box = new THREE.BoxGeometry(dx, dy, dz);
+		const mesh = new THREE.Mesh(box, material);
+		mesh.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
+		return (mesh)
 	}
 
 	function handlePaddleControls(player) 
@@ -198,10 +241,10 @@ PageElement.onLoad = () => {
 			camera.position.z += shakeZ;
 			shakeDuration--;
 		}
-		if (shakeDuration == 0)   
-		{
-			camera.position.set(0, 500, 0); 
-		}
+		//if (shakeDuration == 0)   
+		//{
+		//	camera.position.set(0, 500, 0); 
+		//}
 	}
 
 	function updateBall(ballData)
@@ -257,6 +300,9 @@ PageElement.onLoad = () => {
 			case 'connect':
 				console.log(`User ID: ${data.payload.id} | `, data.payload.connectMessage);
 				break;
+			case 'readyBtn':
+				readyBtn.style.display = data.payload
+				break ;
 			case 'message':
 				console.log(data.payload);
 				break;
@@ -281,10 +327,10 @@ PageElement.onLoad = () => {
 				console.log('player1Score: ', player1Score, 'player2Score: ', player2Score);
 				break;
 			case 'paddleInit':
-				if (data.payload.player == '1')
-					handlePaddleControls('p1');
-				else if (data.payload.player == '2')
-					handlePaddleControls('p2');
+				if (data.payload.player == '1'){
+					handlePaddleControls('p1');}
+				else if (data.payload.player == '2'){
+					handlePaddleControls('p2');}
 		}
 	}
 
