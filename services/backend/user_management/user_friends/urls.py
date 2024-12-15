@@ -4,7 +4,7 @@ from .views import UnifiedFriendshipAPI
 
 app_name = "user_friends"
 urlpatterns = [
-	path('user_search/', views.userSearchView),
+	path('user_search/', views.friendSearchView),
 	path('friend-request-send/', views.sendFriendRequest),
 	path('get-friends/', views.getFriends),
 	path('get-friend-requests/', views.getFriendRequests),

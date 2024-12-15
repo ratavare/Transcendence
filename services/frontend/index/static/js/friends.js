@@ -59,9 +59,7 @@ function addBtnEventListener(btnClass, f, ...arg) {
 	});
 }
 
-// * MAIN SCRIPT
-
-function displayResults(users)
+function displaySearchResults(users)
 {
 	const results = document.getElementById("search-results");
 	const membersCount = document.getElementById("members-count");
@@ -72,9 +70,10 @@ function displayResults(users)
 	const membersContainer = document.createElement('div');
 	membersContainer.classList.add("row");
 	membersContainer.id = 'friends-list';
-	console.log("users", users);
 	
 	users.forEach(user => {
+		if (document.querySelector(`[data-username="${user.username}"]`))
+			return ;
 		const card = document.createElement("div");
 		card.className = "col-sm-6 col-lg-4";
 		card.innerHTML = `
@@ -84,50 +83,56 @@ function displayResults(users)
 		<h5 class="fw-semibold mb-0">@${user.username}</h5>
 		</div>
 		<div class="px-2 py-2 bg-light text-center">
-		<button class="btn btn-success me-2 send-friend-request" data-dest="${user.username}" >Send Request</button>
+		<button class="btn btn-success me-2 send-friend-request" data-dest="${user.username}" >Send Friend Request</button>
 		</div>
 		</div>
 		`;
 		membersContainer.appendChild(card);
-		
 	});
 	results.appendChild(membersContainer);
 	addBtnEventListener('.send-friend-request', sendFriendRequest);
 }
 
-{
-	const formUsers = document.getElementById('form-users');
-	formUsers?.addEventListener('submit', function(event) {
-		const previousList = document.getElementById('friends-list');
-		if (previousList) {
-			previousList.remove();
-		}
-		const nousers = document.getElementById('no-users');
-		if (nousers) {
-			nousers.remove();
-		}
-	
-		event.preventDefault();
-		const formData = new FormData(event.target);
-		console.log("formData", formData);
-		const fetch_url = 'https://localhost:8443/user_auth/user_search/';
-		myFetch(fetch_url, formData, 'POST', true)
+function clearPreviousResults() {
+	document.getElementById('friends-list')?.remove();
+	document.getElementById('no-users')?.remove();
+}
+
+function displayNoUsersMessage() {
+	const membersCount = document.getElementById("members-count");
+	if (membersCount) {
+		membersCount.textContent = "0";
+	}
+	const results = document.getElementById("search-results");
+	const nousers = document.createElement('h4');
+	nousers.id = 'no-users';
+	nousers.innerHTML = "No users found";
+	results.appendChild(nousers);
+}
+
+function handleSearchForm(event) {
+	event.preventDefault();
+	clearPreviousResults();
+
+	const formData = new FormData(event.target);
+	myFetch('https://localhost:8443/user_friends/user_search/', formData, 'POST', true)
 		.then(data => {
 			if (data.users)
-				displayResults(data.users);
-		}).catch(error => {
-			console.log(error);
-			const membersCount = document.getElementById("members-count");
-			if (membersCount) {
-				membersCount.textContent = "0";
-			}
-			const results = document.getElementById("search-results");
-			const nousers = document.createElement('p');
-			nousers.id = 'no-users';
-			nousers.innerHTML = "No users found";
-			results.appendChild(nousers);
+				displaySearchResults(data.users);
 		})
-	});
+		.catch(error => {
+			displayNoUsersMessage()
+			console.error(error);
+		});
+}
+
+// **** RENDER FUNCTIONS ****
+
+function RenderUserSearch() {
+	const formUsers = document.getElementById('form-users');
+    if (formUsers) {
+        formUsers.addEventListener('submit', handleSearchForm);
+    }
 }
 
 function renderFriends(friends) {
@@ -140,6 +145,7 @@ function renderFriends(friends) {
 	membersContainer.id = 'friends-list';
 	friends.forEach(friend => {
 		const card = document.createElement("div");
+		card.setAttribute("data-username", friend.username);
 		card.className = "col-sm-6 col-lg-4";
 		card.innerHTML = `
 			<div class="card hover-img">
@@ -198,6 +204,7 @@ function renderSentFriendRequests(sentFriendRequests) {
 	membersContainer.id = 'sent-requests-list';
 	sentFriendRequests.forEach(request => {
 		const card = document.createElement("div");
+		card.setAttribute("data-username", request.username);
 		card.className = "col-sm-6 col-lg-4";
 		card.innerHTML = `
 			<div class="card hover-img">
@@ -222,6 +229,7 @@ async function loadFriendsPage() {
 	try {
 		const {friends, friendRequests, sentFriendRequests} = await getFriendsData();
 
+		RenderUserSearch();
 		renderFriends(friends);
 		renderFriendRequests(friendRequests);
 		renderSentFriendRequests(sentFriendRequests);

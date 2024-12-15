@@ -17,21 +17,22 @@ import json
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def userSearchView(request):
+def friendSearchView(request):
 	userSearched = request.POST.get('username')
 	
 	if not userSearched:
 		return JsonResponse({'error': 'No users found!'}, status=404)
-	# gets all users that contain 'userSearched'; Not sensitive to case
+
 	all_users = User.objects.filter(username__icontains=userSearched)
-	
+	exceptions = Friendships.objects.filter(from_user=request.user).values_list('to_user', flat=True)
+
 	users = []
 	for user in all_users:
-		if user.username == 'root' or user == request.user:
+		if user.username == 'root' or user == request.user or user.id in exceptions:
 			continue
 		users.append({'username': user.username})
 	if not users:
-		return JsonResponse({'error': 'No users found!'}, status=404)
+		return JsonResponse({'error': 'No users found'}, status=404)
 	return JsonResponse({'users': users}, status=200)
 
 @api_view(['POST'])
