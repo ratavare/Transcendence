@@ -128,7 +128,7 @@ function handleSearchForm(event) {
 
 // **** RENDER FUNCTIONS ****
 
-function RenderUserSearch() {
+function renderUserSearch() {
 	const formUsers = document.getElementById('form-users');
     if (formUsers) {
         formUsers.addEventListener('submit', handleSearchForm);
@@ -229,7 +229,7 @@ async function loadFriendsPage() {
 	try {
 		const {friends, friendRequests, sentFriendRequests} = await getFriendsData();
 
-		RenderUserSearch();
+		renderUserSearch();
 		renderFriends(friends);
 		renderFriendRequests(friendRequests);
 		renderSentFriendRequests(sentFriendRequests);
