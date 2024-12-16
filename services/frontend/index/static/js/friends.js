@@ -36,8 +36,13 @@ async function deleteFriendRequest(src, dest) {
 	}
 }
 
-async function searchUser() {
-	
+async function friendsSearchUser(formData) {
+    return myFetch('https://localhost:8443/user_friends/user_search/', formData, 'POST', true)
+        .catch(error => {
+            displayNoUsersMessage();
+            console.error('Error: ', error);
+			return null;
+        });
 }
 
 async function getFriendsData() {
@@ -110,29 +115,23 @@ function displayNoUsersMessage() {
 	results.appendChild(nousers);
 }
 
-function handleSearchForm(event) {
+async function handleSearchForm(event) {
 	event.preventDefault();
 	clearPreviousResults();
 
 	const formData = new FormData(event.target);
-	myFetch('https://localhost:8443/user_friends/user_search/', formData, 'POST', true)
-		.then(data => {
-			if (data.users)
-				displaySearchResults(data.users);
-		})
-		.catch(error => {
-			displayNoUsersMessage()
-			console.error(error);
-		});
+	const data = await friendsSearchUser(formData);
+	if (data)
+		displaySearchResults(data.users);
 }
 
 // **** RENDER FUNCTIONS ****
 
 function renderUserSearch() {
 	const formUsers = document.getElementById('form-users');
-    if (formUsers) {
-        formUsers.addEventListener('submit', handleSearchForm);
-    }
+	if (formUsers) {
+		formUsers.addEventListener('submit', handleSearchForm);
+	}
 }
 
 function renderFriends(friends) {
