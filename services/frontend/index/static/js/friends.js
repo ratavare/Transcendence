@@ -55,12 +55,23 @@ async function getFriendsData() {
 
 // **** UTILS ****
 
-function addBtnEventListener(btnClass, f, ...arg) {
+function decreaseCounter(counterElem) {
+	if (counterElem) {
+		const currCount = parseInt(counterElem.textContent);
+		if (currCount > 0)
+			counterElem.textContent = currCount - 1;
+	}
+}
+
+function addBtnEventListener(btnClass, f, counterElem, ...arg) {
 	document.querySelectorAll(btnClass).forEach(button => {
 		button.addEventListener('click', () => {
 			const dest = button.getAttribute('data-dest');
 			f(dest, window.user.username, ...arg);
-		});
+			const card = document.querySelector(`[data-username="${dest}"]`)
+			card?.remove();
+			decreaseCounter(counterElem);
+		})
 	});
 }
 
@@ -81,6 +92,7 @@ function displaySearchResults(users)
 			return ;
 		const card = document.createElement("div");
 		card.className = "col-sm-6 col-lg-4";
+		card.setAttribute("data-username", user.username);
 		card.innerHTML = `
 		<div class="card hover-img">
 		<div class="card-body p-4 text-center border-bottom">
@@ -95,7 +107,7 @@ function displaySearchResults(users)
 		membersContainer.appendChild(card);
 	});
 	results.appendChild(membersContainer);
-	addBtnEventListener('.send-friend-request', sendFriendRequest);
+	addBtnEventListener('.send-friend-request', sendFriendRequest, membersCount);
 }
 
 function clearPreviousResults() {
@@ -160,7 +172,7 @@ function renderFriends(friends) {
 		membersContainer.appendChild(card);
 	});
 	results.appendChild(membersContainer);
-	addBtnEventListener('.remove-friend', deleteFriend)
+	addBtnEventListener('.remove-friend', deleteFriend, friendsCount)
 }
 
 function renderFriendRequests(friendRequests) {
@@ -173,6 +185,7 @@ function renderFriendRequests(friendRequests) {
 	membersContainer.id = 'requests-list2';
 	friendRequests.forEach(friendRequest => {
 		const card = document.createElement("div");
+		card.setAttribute("data-username", friendRequest.username);
 		card.className = "col-sm-6 col-lg-4";
 		card.innerHTML = `
 		<div class="card hover-img">
@@ -187,10 +200,10 @@ function renderFriendRequests(friendRequests) {
 		</div>
 		`;
 		membersContainer.appendChild(card);
-		results.appendChild(membersContainer);
-		addBtnEventListener('.accept-friend-request', handleFriendRequestButton, 'accept');
-		addBtnEventListener('.decline-friend-request', handleFriendRequestButton, 'decline');
 	});
+	results.appendChild(membersContainer);
+	addBtnEventListener('.accept-friend-request', handleFriendRequestButton, requestsCount, 'accept');
+	addBtnEventListener('.decline-friend-request', handleFriendRequestButton, requestsCount, 'decline');
 }
 
 function renderSentFriendRequests(sentFriendRequests) {
@@ -219,7 +232,7 @@ function renderSentFriendRequests(sentFriendRequests) {
 		membersContainer.appendChild(card);
 	});
 	results.appendChild(membersContainer);
-	addBtnEventListener('.delete-request', deleteFriendRequest);
+	addBtnEventListener('.delete-request', deleteFriendRequest, requestsCount);
 }
 
 // **** MAIN LOAD FUNCTION ****
