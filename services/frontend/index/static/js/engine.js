@@ -78,7 +78,6 @@ async function setPage(name)
 		{
 			script.remove();
 		}
-		console.log("scripts: ", scripts);
 		pageActive.remove();
 
 	}

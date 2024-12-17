@@ -2,6 +2,7 @@
 import json
 import datetime
 import asyncio
+import threading
 from lobby.models import Lobby
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -57,6 +58,9 @@ class Pong:
 		self.player1Score = 0
 		self.player2Score = 0
 		self.running = False
+
+		self.player1Token = None
+		self.player2Token = None
 
 		self.ball = Ball()
 		self.paddle1 = Paddle(positionX=PADDLE1_POSITION_X, positionZ=PADDLE1_POSITION_Z)
@@ -196,23 +200,31 @@ class Consumer(AsyncWebsocketConsumer):
 
 	async def connect(self):
 		self.lobby_id = self.scope["url_route"]["kwargs"]["lobby_id"]
-		self.user_id = self.channel_name
-
+	
 		# Create lobby
 		if self.lobby_id not in lobbies:
-			lobbies[self.lobby_id] = {"players": set(), "gameLoop": None, "game": Pong()}
+			lobbies[self.lobby_id] = {"players": list(), "gameLoop": None, "game": Pong()}
 
 		lobby = lobbies[self.lobby_id]
-		lobby["players"].add(self.user_id)
 
 		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
 		await self.accept()
 		
-		await self.playerId()
+		token = (self.scope["query_string"].decode()).split('=')[1]
+		self.user_id = token
+		if not self.user_id:
+			self.user_id = self.channel_name
+			await self.sendMessage('token', self.user_id)
+
+		lobby["players"].append(self.user_id)
+		
+		game = lobby["game"]
+		
+		await self.setPaddleMovement(game)
 		await self.readyState(False)
 		await self.graphicsInit()
 
-		if lobby["game"].running:
+		if game.running:
 			await self.sendMessage('readyBtn', 'none')
 		else:
 			await self.sendMessage('readyBtn', 'block')
@@ -247,7 +259,6 @@ class Consumer(AsyncWebsocketConsumer):
 		else:
 			await self.groupSend('message', f'{self.user_id} left the lobby')
 
-		await self.readyState(False)
 		await self.channel_layer.group_discard(self.lobby_id, self.channel_name)
 	
 	async def receive(self, text_data):
@@ -355,25 +366,18 @@ class Consumer(AsyncWebsocketConsumer):
 		}
 		await self.sendMessage("graphicsInit", payload)
 
-	async def playerId(self):
-		lobby = lobbies[self.lobby_id]
-		players = lobby["players"]
-		
-		if self.user_id in players:
-			if len(players) == 1:
-				print("PLAYER 1!", flush=True)
-				await self.sendMessage('paddleInit', { 'player': '1' })
-			elif len(players) == 2:
-				print("PLAYER 2!", flush=True)
-				await self.sendMessage('paddleInit', { 'player': '2' })
-			else:
-				print("Additional players present.")
+	async def setPaddleMovement(self, game):
+		if not game.player1Token or game.player1Token == self.user_id:
+			game.player1Token =  self.user_id
+			await self.sendMessage('paddleInit', { 'player': '1' })
+		elif not game.player2Token or game.player2Token == self.user_id:
+			game.player2Token =  self.user_id
+			await self.sendMessage('paddleInit', { 'player': '2' })
 
 	async def readyState(self, state):
-		serverlLobby = lobbies[self.lobby_id]
-		user_list = list(serverlLobby["players"])
-		game = serverlLobby["game"]
-		
+		serverLobby = lobbies[self.lobby_id]
+		user_list = list(serverLobby["players"])
+		game = serverLobby["game"]
 		try:
 			userIndex = user_list.index(self.user_id)
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)

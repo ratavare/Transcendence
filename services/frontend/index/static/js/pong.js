@@ -10,7 +10,7 @@ PageElement.onLoad = () => {
 	const PLANE_COLOR = 0x000000;
 	const POINT_LIGHT_INTENSITY = 5000000;
 	const POINT_LIGHT_DISTANCE = 1000;
-	const AMBIENT_LIGHT_INTENSITY = 1;
+	const AMBIENT_LIGHT_INTENSITY = 3;
 
 	// Variables
 	let player1Score = 0;
@@ -282,8 +282,8 @@ PageElement.onLoad = () => {
 	// ************************************* WEBSOCKET FUCNTIONS ************************************************
 
 	const lobby_id = window.props.get("id");
-
-	const socket = new WebSocket(`wss://localhost:8443/ws/${lobby_id}/`);
+	const token = localStorage.getItem("playerToken") || ""
+	const socket = new WebSocket(`wss://localhost:8443/ws/${lobby_id}/?token=${token}`);
 
 	function sendPayload(type, payload) 
 	{
@@ -298,6 +298,9 @@ PageElement.onLoad = () => {
 		const data = JSON.parse(event.data);
 		switch(data.type)
 		{
+			case 'token':
+				localStorage.setItem("playerToken", data.payload)
+				break
 			case 'connect':
 				console.log(`User ID: ${data.payload.id} | `, data.payload.connectMessage);
 				break;
@@ -360,6 +363,7 @@ PageElement.onLoad = () => {
 	PageElement.onUnLoad = () => {
 		console.log("onUnLoad:pong");
 		sendPayload('message', `[${window.user.username}] disconnected.`);
+		renderer.dispose();
 		socket.close();
 		PageElement.onUnLoad = () => {};
 	}

@@ -15,7 +15,7 @@ async function joinLobby(lobby_id)
 		const data = await response.json()
 		if (!response.ok)
 			throw data.error;
-		console.log(lobby_id);
+		// console.log(lobby_id);
 		seturl(`/pong?id=${lobby_id}`)
 	} catch (error) {
 		seturl('/lobby');
@@ -87,8 +87,8 @@ async function getLobbies()
 		event.preventDefault();
 
 		const formData = new FormData(event.target);
-		for (const pair of formData.entries())
-			console.log(pair[0], " | ", pair[1]);
+		// for (const pair of formData.entries())
+		// 	console.log(pair[0], " | ", pair[1]);
 	
 		try {
 			const data = await myFetch('https://localhost:8443/lobby/lobbies/', formData)
