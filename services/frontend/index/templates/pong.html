@@ -26,12 +26,12 @@
 			height: 600px;
 		}
 		#canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
+			position: absolute;
+			top: 0;
+			left: 0;
 			left:10%;
 			top:10%;
-        }
+		}
 
 		#readyBtn {
 			position: absolute;
@@ -56,5 +56,17 @@
 	<div class="canvas-container">
 		<canvas id='canvas' width='900px' height='600px'></canvas>
 	</div>
-	<button id='readyBtn' hidden="none">Ready!</button> 
+	<button id='readyBtn' class="hidden">Ready!</button>
+
+	<!-- Quit modal -->
+	<div class="modal fade" id="exampleModalToggle" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body">
+					<p id="winner-msg"></p>
+					<button id="quit-btn" type="button" data-bs-dismiss="modal" class="btn btn-primary">Quit</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </page-element>

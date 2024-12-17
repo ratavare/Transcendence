@@ -29,7 +29,7 @@ PADDLE_POSITION_Y = -15
 PADDLE_WIDTH = 10
 PADDLE_LENGTH = 100
 PADDLE_DEPTH = 30
-	
+
 lobbies = {}
 
 class Paddle():
@@ -225,9 +225,9 @@ class Consumer(AsyncWebsocketConsumer):
 		await self.graphicsInit()
 
 		if game.running:
-			await self.sendMessage('readyBtn', 'none')
+			await self.sendMessage('readyBtn', 'add')
 		else:
-			await self.sendMessage('readyBtn', 'block')
+			await self.sendMessage('readyBtn', 'remove')
 		
 		if len(lobby["players"]) < 2:
 			await self.sendMessage('message', f'Connection Accepted: Welcome!!')
@@ -376,21 +376,19 @@ class Consumer(AsyncWebsocketConsumer):
 
 	async def readyState(self, state):
 		serverLobby = lobbies[self.lobby_id]
-		user_list = list(serverLobby["players"])
 		game = serverLobby["game"]
 		try:
-			userIndex = user_list.index(self.user_id)
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
-			if userIndex == 0:
+			if game.player1Token == self.user_id:
 				dbLobby.player1Ready = state
-			elif userIndex == 1:
+				await self.groupSend('message', f'Player 1 ready: {state}!')
+			elif game.player2Token == self.user_id:
 				dbLobby.player2Ready = state
+				await self.groupSend('message', f'Player 2 ready: {state}!')
 			else:
 				return False
 
 			await database_sync_to_async(dbLobby.save)()
-			if state:
-				await self.groupSend('message', f'Player {userIndex + 1} is ready!')
 
 			if dbLobby.player1Ready and dbLobby.player2Ready:
 				await self.groupSend('message', 'GAME START!')

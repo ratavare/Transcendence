@@ -255,22 +255,32 @@ PageElement.onLoad = () => {
 		pointLight.position.copy(ball.position);
 	}
 
+	const quitBtn = document.getElementById("quit-btn");
+	quitBtn.addEventListener('click', () => {
+		socket.close();
+	})
+
 	// Modify the animate function to include swatting animation logic
 	function animate() 
 	{
-		if (player1Score <= 7 && player2Score <= 7) 
+		if (rendering) 
 		{
 			renderer.render(scene, camera);
-			if (player1Score == 7)
+			if (player1Score == 7 || player2Score == 7)
 			{
-				// Move this to server-side and stop game
-				document.getElementById('winner').innerHTML = 'Player 1 wins!';
+				const modalElement = document.getElementById('exampleModalToggle');
+				const modal = new bootstrap.Modal(modalElement, {
+					backdrop: 'static',
+					keyboard: false,
+				});
+				modal.show();
+				const winnerMsg = document.getElementById("winner-msg");
+				if (player1Score == 7)
+					winnerMsg.innerHTML = "Player 1 Won!"
+				else
+					winnerMsg.innerHTML = "Player 2 Won!"
 				readyBtn.style.display = 'block';
-			}
-			else if (player2Score == 7) 
-			{
-				document.getElementById('winner').innerHTML = 'Player 2 wins!';
-				readyBtn.style.display = 'block';
+				rendering = false;
 			}
 		}
 	}
@@ -284,6 +294,7 @@ PageElement.onLoad = () => {
 	const lobby_id = window.props.get("id");
 	const token = localStorage.getItem("playerToken") || ""
 	const socket = new WebSocket(`wss://localhost:8443/ws/${lobby_id}/?token=${token}`);
+	let rendering = true;
 
 	function sendPayload(type, payload) 
 	{
@@ -305,7 +316,13 @@ PageElement.onLoad = () => {
 				console.log(`User ID: ${data.payload.id} | `, data.payload.connectMessage);
 				break;
 			case 'readyBtn':
-				readyBtn.style.display = data.payload
+				console.log("TEST: ", readyBtn.classList.contains('hidden'));
+				if (readyBtn.classList.contains('hidden'))
+				{
+					readyBtn.classList.remove('hidden');
+				}
+				if (data.payload == 'add')
+					readyBtn.classList.add('hidden');
 				break ;
 			case 'message':
 				console.log(data.payload);
@@ -340,7 +357,7 @@ PageElement.onLoad = () => {
 
 	const readyBtn = document.getElementById('readyBtn');
 	readyBtn.onclick = async () => {
-		readyBtn.style.display = 'none';
+		readyBtn.classList.add("hidden");
 		sendPayload('ready', {
 			ready: true,
 		});
