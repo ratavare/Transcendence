@@ -1,5 +1,5 @@
 
-// **** FETCHES ****
+// *** FETCHES ***
 
 async function sendFriendRequest(dest, src) {
 	try {
@@ -52,22 +52,7 @@ async function getFriendsData() {
 	}
 }
 
-// **** UTILS ****
-
-function decreaseCounter(counterElem) {
-	if (counterElem) {
-		const currCount = parseInt(counterElem.textContent);
-		if (currCount > 0)
-			counterElem.textContent = currCount - 1;
-	}
-}
-
-function increaseCounter(counterElem) {
-	if (counterElem) {
-		const currCount = parseInt(counterElem.textContent);
-		counterElem.textContent = currCount + 1;
-	}
-}
+// *** DOM UPDATES
 
 function addAcceptedFriendToFriendsList(dest) { // Perdoem-me por esta funcao
 	const friendsList = document.getElementById('friends-list');
@@ -85,33 +70,68 @@ function addAcceptedFriendToFriendsList(dest) { // Perdoem-me por esta funcao
 			</div>
 		</div>
 	`;
-	card.querySelector('.remove-friend').addEventListener('click', () => {  // addBtnEventListener needs refactoring, not good man...
-		card.remove();
-		deleteFriend(dest, window.user.username);
-		decreaseCounter(document.getElementById("friends-count"));
-	})
-	// addBtnEventListener('.remove-friend', deleteFriend, document.getElementById("friends-count"));
+	addBtnEventListener(card.querySelector('button'), deleteFriend, document.getElementById("friends-count"));
 	friendsList.appendChild(card);
 	increaseCounter(document.getElementById("friends-count"));
 }
 
-function addBtnEventListener(btnClass, f, counterElem, ...arg) {
-	document.querySelectorAll(btnClass).forEach(button => {
-		button.addEventListener('click', () => {
-			const dest = button.getAttribute('data-dest');
-			f(dest, window.user.username, ...arg);
-			const card = document.querySelector(`[data-username="${dest}"]`)
-			card.classList.add('opacity-0', 'transition-opacity');
-			card.style.transition = 'opacity 0.5s'; // Fade out fdddddd
-			setTimeout(() => {
-				card?.remove();
-				if (btnClass == '.accept-friend-request')
-					addAcceptedFriendToFriendsList(dest);
-				decreaseCounter(counterElem);
-			}, 500); // se mexerem neste valor tem que por o mesmo valor no card.style.transition, 500ms = 0.5s
-		})
-	});
+function addPossibleFriendToSentFriendRequests(dest) {
+	const sentRequestsList = document.getElementById('sent-requests-list');
+	const card = document.createElement("div");
+	card.setAttribute("data-username", dest);
+	card.className = "col-sm-6 col-lg-4";
+	card.innerHTML = `
+		<div class="card hover-img">
+			<div class="card-body p-4 text-center border-bottom">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${dest}</h5>
+			</div>
+			<div class="px-2 py-2 bg-light text-center">
+				<button class="btn btn-danger me-2 delete-request" type="submit" data-dest="${dest}">Delete request</button>
+			</div>
+		</div>
+	`;
+	addBtnEventListener(card.querySelector('button'), deleteFriendRequest, document.getElementById('sent-requests-count'));
+	sentRequestsList.appendChild(card);
+	increaseCounter(document.getElementById('sent-requests-count'));
 }
+
+function decreaseCounter(counterElem) {
+	if (counterElem) {
+		const currCount = parseInt(counterElem.textContent);
+		if (currCount > 0)
+			counterElem.textContent = currCount - 1;
+	}
+}
+
+function increaseCounter(counterElem) {
+	if (counterElem) {
+		const currCount = parseInt(counterElem.textContent);
+		counterElem.textContent = currCount + 1;
+	}
+}
+
+// *** UTILS ***
+
+function addBtnEventListener(button, f, counterElem, ...arg) {
+	button.addEventListener('click', () => {
+		const dest = button.getAttribute('data-dest');
+		f(dest, window.user.username, ...arg);
+		const card = document.querySelector(`[data-username="${dest}"]`)
+		card.classList.add('opacity-0', 'transition-opacity');
+		card.style.transition = 'opacity 0.5s'; // Fade out fdddddd
+		setTimeout(() => {
+			card?.remove();
+			if (button.classList.contains('accept-friend-request'))
+				addAcceptedFriendToFriendsList(dest);
+			if (button.classList.contains('send-friend-request'))
+				addPossibleFriendToSentFriendRequests(dest);
+			decreaseCounter(counterElem);
+		}, 500); // se mexerem neste valor tem que por o mesmo valor no card.style.transition, 500ms = 0.5s
+	})
+}
+
+// *** USER SEARCH ***
 
 function displaySearchResults(users)
 {
@@ -133,19 +153,19 @@ function displaySearchResults(users)
 		card.setAttribute("data-username", user.username);
 		card.innerHTML = `
 		<div class="card hover-img">
-		<div class="card-body p-4 text-center border-bottom">
-		<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-		<h5 class="fw-semibold mb-0">@${user.username}</h5>
-		</div>
-		<div class="px-2 py-2 bg-light text-center">
-		<button class="btn btn-success me-2 send-friend-request" data-dest="${user.username}" >Send Friend Request</button>
-		</div>
+			<div class="card-body p-4 text-center border-bottom">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${user.username}</h5>
+			</div>
+			<div class="px-2 py-2 bg-light text-center">
+				<button class="btn btn-success me-2 send-friend-request" data-dest="${user.username}" >Send Friend Request</button>
+			</div>
 		</div>
 		`;
 		membersContainer.appendChild(card);
+		addBtnEventListener(card.querySelector('button'), sendFriendRequest, membersCount);
 	});
 	results.appendChild(membersContainer);
-	addBtnEventListener('.send-friend-request', sendFriendRequest, membersCount);
 }
 
 function clearPreviousResults() {
@@ -177,7 +197,7 @@ async function handleSearchForm(event) {
 		displayNoUsersMessage();
 }
 
-// **** RENDER FUNCTIONS ****
+// *** RENDER FUNCTIONS ***
 
 function renderUserSearch() {
 	const formUsers = document.getElementById('form-users');
@@ -210,9 +230,9 @@ function renderFriends(friends) {
 			</div>
 		`;
 		membersContainer.appendChild(card);
+		addBtnEventListener(card.querySelector('button'), deleteFriend, friendsCount);
 	});
 	results.appendChild(membersContainer);
-	addBtnEventListener('.remove-friend', deleteFriend, friendsCount)
 }
 
 function renderFriendRequests(friendRequests) {
@@ -240,10 +260,10 @@ function renderFriendRequests(friendRequests) {
 		</div>
 		`;
 		membersContainer.appendChild(card);
+		addBtnEventListener(card.querySelector('.accept-friend-request'), handleFriendRequestButton, requestsCount, 'accept');
+		addBtnEventListener(card.querySelector('.decline-friend-request'), handleFriendRequestButton, requestsCount, 'decline');
 	});
 	results.appendChild(membersContainer);
-	addBtnEventListener('.accept-friend-request', handleFriendRequestButton, requestsCount, 'accept');
-	addBtnEventListener('.decline-friend-request', handleFriendRequestButton, requestsCount, 'decline');
 }
 
 function renderSentFriendRequests(sentFriendRequests) {
@@ -270,12 +290,12 @@ function renderSentFriendRequests(sentFriendRequests) {
 			</div>
 		`;
 		membersContainer.appendChild(card);
+		addBtnEventListener(card.querySelector('button'), deleteFriendRequest, requestsCount);
 	});
 	results.appendChild(membersContainer);
-	addBtnEventListener('.delete-request', deleteFriendRequest, requestsCount);
 }
 
-// **** MAIN LOAD FUNCTION ****
+// *** MAIN LOAD FUNCTION ***
 
 async function loadFriendsPage() {
 	try {
