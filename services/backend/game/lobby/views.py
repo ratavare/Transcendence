@@ -17,6 +17,7 @@ def lobbyView(request, lobby_id=None):
 				username = data.get('username')
 				user = User.objects.get(username=username)
 				selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
+				selectedLobby.save()
 				selectedLobby.users.add(user)
 				serilizer = LobbySerializer(selectedLobby)
 				return JsonResponse({'data': serilizer.data}, status=200)
@@ -46,28 +47,6 @@ def lobbyView(request, lobby_id=None):
 				all_lobbies.append({'lobby_id': lobby.lobby_id})
 			return JsonResponse({'lobbies': all_lobbies}, status=200)
 	return JsonResponse({'error': 'Method not allowed'}, status=400)
-
-# def create(request):
-# 	try:
-# 		id = request.POST.get('lobby_id')
-# 		newLobby = Lobby.objects.create(lobby_id=id)
-# 		newLobby.save()
-# 		return JsonResponse({'lobby_id': id}, status=200)
-# 	except:
-# 		return JsonResponse({'error': 'lobby already exists'}, status=200)
-
-# def join(request, lobby_id):
-# 	try:
-# 		username = request.data.get('username')
-# 		user = User.objects.get(username=username)
-# 		selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
-# 		selectedLobby.users.add(user)
-# 		serilizer = LobbySerializer(selectedLobby)
-# 		return JsonResponse({'data': serilizer.data}, status=200)
-# 	except Lobby.DoesNotExist:
-# 		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
-# 	except User.DoesNotExist:
-# 		return JsonResponse({'error': 'User does not exist'}, status=400)
 
 @csrf_exempt
 def checkPlayer(request, lobby_id, player):

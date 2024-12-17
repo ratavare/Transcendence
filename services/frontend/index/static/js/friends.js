@@ -1,93 +1,314 @@
 
+// *** FETCHES ***
+
 async function sendFriendRequest(dest, src) {
-	fetch('https://localhost:8443/user_friends/friend-request-send/', {
-		method: 'POST',
-		headers: {
-			"X-CSRFToken": getCookie('csrftoken'),
-			"Accept": "application/json",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			"dest":dest,
-			"src":src
-		})
-	})
-	.then(response => response.json())
-	.then(data => {
-		console.log(data);
-	})
-	.catch(error => {
+	try {
+		await myFetch('https://localhost:8443/user_friends/friend-request-send/', {"dest": dest, "src": src}, "POST", true)
+		console.log('Friend request sent!')
+	} catch(error) {
 		console.error("Error:", error);
-	});
+	}
 }
 
-function sendButtonConfigure()
-{
-	const friends = userListDiv.querySelectorAll('li');
-	friends?.forEach(item => {
-		const button = item.querySelector('button')
-		const dest = item.querySelector('p').textContent;
-		button.addEventListener('click', () => {
-			sendFriendRequest(dest, window.user.username);
+async function handleFriendRequestButton(src, dest, intention) {
+	console.log(src, dest, intention);
+	try {
+		return await myFetch('https://localhost:8443/user_friends/handle-friend-request/', { 'dest': dest, 'src': src, 'intention': intention }, "POST", true);
+	} catch (error) {
+		console.error('Error: ', error);
+	}
+}
+
+async function deleteFriend(src, dest) {
+	console.log('friend deleted');
+	try {
+		return await myFetch('https://localhost:8443/user_friends/delete-friend/', { 'dest': dest, 'src': src }, "POST", true)
+	} catch (error) {
+		console.error('Error: ', error);
+	}
+}
+
+async function deleteFriendRequest(src, dest) {
+	try {
+		return myFetch('https://localhost:8443/user_friends/delete-friend-request/', { 'dest': dest, 'src': src }, "POST", true)
+	} catch (error) {
+		console.error('Error: ', error);
+	}
+}
+
+async function friendsSearchUser(formData) {
+	return myFetch('https://localhost:8443/user_friends/user_search/', formData, 'POST', true)
+		.catch(error => {
+			console.error('Error: ', error);
+			return null;
 		});
-	});
 }
 
-function putUsers(users)
+async function getFriendsData() {
+	try {
+		return await myFetch('https://localhost:8443/user_friends/api/', null, "GET", true)
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+// *** DOM UPDATES
+
+function addAcceptedFriendToFriendsList(dest) { // Perdoem-me por esta funcao
+	const friendsList = document.getElementById('friends-list');
+	const card = document.createElement("div");
+	card.setAttribute("data-username", dest);
+	card.className = "col-sm-6 col-lg-4";
+	card.innerHTML = `
+		<div class="card hover-img">
+			<div class="card-body p-4 text-center border-bottom">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${dest}</h5>
+			</div>
+			<div class="px-2 py-2 bg-light text-center">
+				<button class="btn btn-danger me-2 remove-friend" type="submit" data-dest="${dest}">Remove Friend</button>
+			</div>
+		</div>
+	`;
+	addBtnEventListener(card.querySelector('button'), deleteFriend, document.getElementById("friends-count"));
+	friendsList.appendChild(card);
+	increaseCounter(document.getElementById("friends-count"));
+}
+
+function addPossibleFriendToSentFriendRequests(dest) {
+	const sentRequestsList = document.getElementById('sent-requests-list');
+	const card = document.createElement("div");
+	card.setAttribute("data-username", dest);
+	card.className = "col-sm-6 col-lg-4";
+	card.innerHTML = `
+		<div class="card hover-img">
+			<div class="card-body p-4 text-center border-bottom">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${dest}</h5>
+			</div>
+			<div class="px-2 py-2 bg-light text-center">
+				<button class="btn btn-danger me-2 delete-request" type="submit" data-dest="${dest}">Delete request</button>
+			</div>
+		</div>
+	`;
+	addBtnEventListener(card.querySelector('button'), deleteFriendRequest, document.getElementById('sent-requests-count'));
+	sentRequestsList.appendChild(card);
+	increaseCounter(document.getElementById('sent-requests-count'));
+}
+
+function decreaseCounter(counterElem) {
+	if (counterElem) {
+		const currCount = parseInt(counterElem.textContent);
+		if (currCount > 0)
+			counterElem.textContent = currCount - 1;
+	}
+}
+
+function increaseCounter(counterElem) {
+	if (counterElem) {
+		const currCount = parseInt(counterElem.textContent);
+		counterElem.textContent = currCount + 1;
+	}
+}
+
+// *** UTILS ***
+
+function addBtnEventListener(button, f, counterElem, ...arg) {
+	button.addEventListener('click', () => {
+		const dest = button.getAttribute('data-dest');
+		f(dest, window.user.username, ...arg);
+		const card = document.querySelector(`[data-username="${dest}"]`)
+		card.classList.add('opacity-0', 'transition-opacity');
+		card.style.transition = 'opacity 0.5s'; // Fade out fdddddd
+		setTimeout(() => {
+			card?.remove();
+			if (button.classList.contains('accept-friend-request'))
+				addAcceptedFriendToFriendsList(dest);
+			if (button.classList.contains('send-friend-request'))
+				addPossibleFriendToSentFriendRequests(dest);
+			decreaseCounter(counterElem);
+		}, 500); // se mexerem neste valor tem que por o mesmo valor no card.style.transition, 500ms = 0.5s
+	})
+}
+
+// *** USER SEARCH ***
+
+function displaySearchResults(users)
 {
-	const previousList = userListDiv.querySelector('ul');
-	previousList?.remove();
-	const userList = document.createElement('ul');
-	userList.classList.add("list-group");
+	const results = document.getElementById("search-results");
+	const membersCount = document.getElementById("members-count");
+	if (membersCount) {
+		membersCount.textContent = users.length;
+	}
+	
+	const membersContainer = document.createElement('div');
+	membersContainer.classList.add("row");
+	membersContainer.id = 'friends-search-list';
+	
 	users.forEach(user => {
-		const userItemList = document.createElement('li');
-		userItemList.classList.add("list-group-item");
-		userItemList.style = 'display: flex;align-items: center;justify-content: space-around';
-	
-		const usernameP = document.createElement('p');
-		usernameP.textContent = user.username;
-
-		const friendRequestButton = document.createElement('button');
-		friendRequestButton.classList.add("btn", "col", "pull-right", "btn-success", "btn-xs");
-		friendRequestButton.textContent = "Send Friend Request";
-		friendRequestButton.type = 'submit';
-		friendRequestButton.style.display = 'flex';
-
-		userItemList.appendChild(usernameP);
-		userItemList.appendChild(friendRequestButton);
-		userList.appendChild(userItemList);
-
+		if (document.querySelector(`[data-username="${user.username}"]`))
+			return ;
+		const card = document.createElement("div");
+		card.className = "col-sm-6 col-lg-4";
+		card.setAttribute("data-username", user.username);
+		card.innerHTML = `
+		<div class="card hover-img">
+			<div class="card-body p-4 text-center border-bottom">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${user.username}</h5>
+			</div>
+			<div class="px-2 py-2 bg-light text-center">
+				<button class="btn btn-success me-2 send-friend-request" data-dest="${user.username}" >Send Friend Request</button>
+			</div>
+		</div>
+		`;
+		membersContainer.appendChild(card);
+		addBtnEventListener(card.querySelector('button'), sendFriendRequest, membersCount);
 	});
-	userListDiv.appendChild(userList);
-	userListDiv.style.display = 'block';
-
-	sendButtonConfigure();
+	results.appendChild(membersContainer);
 }
 
-const friendsListDiv = document.getElementById('user-friends');
-
-{
-	
+function clearPreviousResults() {
+	document.getElementById('friends-search-list')?.remove();
+	document.getElementById('no-users')?.remove();
 }
 
-const userListDiv = document.getElementById('user-search-result');
+function displayNoUsersMessage() {
+	const membersCount = document.getElementById("members-count");
+	if (membersCount) {
+		membersCount.textContent = "0";
+	}
+	const results = document.getElementById("search-results");
+	const nousers = document.createElement('h4');
+	nousers.id = 'no-users';
+	nousers.innerHTML = "No users found";
+	results.appendChild(nousers);
+}
 
-{
+async function handleSearchForm(event) {
+	event.preventDefault();
+	clearPreviousResults();
+
+	const formData = new FormData(event.target);
+	const data = await friendsSearchUser(formData);
+	if (data)
+		displaySearchResults(data.users);
+	else
+		displayNoUsersMessage();
+}
+
+// *** RENDER FUNCTIONS ***
+
+function renderUserSearch() {
 	const formUsers = document.getElementById('form-users');
-
-	formUsers?.addEventListener('submit', function(event) {
-		event.preventDefault();
-
-		const formData = new FormData(event.target);
-
-		const fetch_url = 'https://localhost:8443/user_auth/user_search/';
-		myFetch(fetch_url, formData)
-		.then(data => {
-			if (data.users)
-				putUsers(data.users);
-			
-		}).catch(error => {
-			console.log(error);
-		})
-	});
+	if (formUsers) {
+		formUsers.addEventListener('submit', handleSearchForm);
+	}
 }
+
+function renderFriends(friends) {
+	const results = document.getElementById("friends");
+	const friendsCount = document.getElementById("friends-count");
+	if (friendsCount)
+		friendsCount.textContent = friends.length;
+	const membersContainer = document.createElement('div');
+	membersContainer.classList.add("row");
+	membersContainer.id = 'friends-list';
+	friends.forEach(friend => {
+		const card = document.createElement("div");
+		card.setAttribute("data-username", friend.username);
+		card.className = "col-sm-6 col-lg-4";
+		card.innerHTML = `
+			<div class="card hover-img">
+				<div class="card-body p-4 text-center border-bottom">
+					<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+					<h5 class="fw-semibold mb-0">@${friend.username}</h5>
+				</div>
+				<div class="px-2 py-2 bg-light text-center">
+					<button class="btn btn-danger me-2 remove-friend" type="submit" data-dest="${friend.username}">Remove Friend</button>
+				</div>
+			</div>
+		`;
+		membersContainer.appendChild(card);
+		addBtnEventListener(card.querySelector('button'), deleteFriend, friendsCount);
+	});
+	results.appendChild(membersContainer);
+}
+
+function renderFriendRequests(friendRequests) {
+	const results = document.getElementById("friend-requests");
+	const requestsCount = document.getElementById("requests-count");
+	if (requestsCount)
+		requestsCount.textContent = friendRequests.length;
+	const membersContainer = document.createElement('div');
+	membersContainer.classList.add("row");
+	membersContainer.id = 'requests-list2';
+	friendRequests.forEach(friendRequest => {
+		const card = document.createElement("div");
+		card.setAttribute("data-username", friendRequest.username);
+		card.className = "col-sm-6 col-lg-4";
+		card.innerHTML = `
+		<div class="card hover-img">
+			<div class="card-body p-4 text-center border-bottom">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<h5 class="fw-semibold mb-0">@${friendRequest.username}</h5>
+			</div>
+			<div class="px-2 py-2 bg-light text-center">
+				<button class="btn btn-success me-2 accept-friend-request" type="submit" data-dest="${friendRequest.username}">Accept</button>
+				<button class="btn btn-danger me-2 decline-friend-request" type="submit" data-dest="${friendRequest.username}">Decline</button>
+			</div>
+		</div>
+		`;
+		membersContainer.appendChild(card);
+		addBtnEventListener(card.querySelector('.accept-friend-request'), handleFriendRequestButton, requestsCount, 'accept');
+		addBtnEventListener(card.querySelector('.decline-friend-request'), handleFriendRequestButton, requestsCount, 'decline');
+	});
+	results.appendChild(membersContainer);
+}
+
+function renderSentFriendRequests(sentFriendRequests) {
+	const results = document.getElementById("sent-friend-requests");
+	const requestsCount = document.getElementById("sent-requests-count");
+	if (requestsCount)
+		requestsCount.innerHTML = sentFriendRequests.length;
+	const membersContainer = document.createElement('div');
+	membersContainer.classList.add("row");
+	membersContainer.id = 'sent-requests-list';
+	sentFriendRequests.forEach(request => {
+		const card = document.createElement("div");
+		card.setAttribute("data-username", request.username);
+		card.className = "col-sm-6 col-lg-4";
+		card.innerHTML = `
+			<div class="card hover-img">
+				<div class="card-body p-4 text-center border-bottom">
+					<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+					<h5 class="fw-semibold mb-0">@${request.username}</h5>
+				</div>
+				<div class="px-2 py-2 bg-light text-center">
+					<button class="btn btn-danger me-2 delete-request" type="submit" data-dest="${request.username}">Delete request</button>
+				</div>
+			</div>
+		`;
+		membersContainer.appendChild(card);
+		addBtnEventListener(card.querySelector('button'), deleteFriendRequest, requestsCount);
+	});
+	results.appendChild(membersContainer);
+}
+
+// *** MAIN LOAD FUNCTION ***
+
+async function loadFriendsPage() {
+	try {
+		const {friends, friendRequests, sentFriendRequests} = await getFriendsData();
+
+		renderUserSearch();
+		renderFriends(friends);
+		renderFriendRequests(friendRequests);
+		renderSentFriendRequests(sentFriendRequests);
+	}
+	catch (error) {
+		console.error("Error loading friends page: ", error);
+	}
+}
+
+loadFriendsPage();

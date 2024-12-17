@@ -2,7 +2,7 @@
 async function joinLobby(lobby_id)
 {
 	try {
-		const response = await fetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/`, {
+		const response = await fetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/`, { // TODO: Add Authorization header
 			method: 'POST',
 			body: JSON.stringify(window.user),
 			headers: {
@@ -70,7 +70,7 @@ function putLobbylist(lobbies)
 async function getLobbies()
 {
 	try {
-		const response = await fetch('https://localhost:8443/lobby/lobbies/')
+		const response = await fetch('https://localhost:8443/lobby/lobbies/') // TODO: Add Authorization header
 		const data = await response.json();
 		if (!response.ok)
 			throw data.error;

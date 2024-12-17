@@ -41,18 +41,20 @@ async function checkRedirection(page)
 {
 	const authenticated =  page.getAttribute("authenticated") || "true";
 	const result = await getProfile();
+	// console.log("checkRedirection: authenticated: ", authenticated, " result: ", result);
 	if (authenticated == "true")
 	{
-		if (result == false) {
+		if (!result)
+		{	
 			pageActive = undefined;
-			seturl('/login');
+			seturl('/login')
 			return true;
 		}
 	}
 	else {
 		if (result) {
-			pageActive = undefined;
-			seturl('/home')
+			// pageActive = undefined;
+			seturl('/home');
 			return true;
 		}
 	}
@@ -85,7 +87,7 @@ async function setPage(name)
 	if (page)
 	{
 		name = page.getAttribute("name") || name;
-		console.log("name:", name);
+		// console.log("name:", name);
 		
 		const redirection = await checkRedirection(page);
 		if (redirection)
@@ -119,14 +121,18 @@ async function setPage(name)
 
 async function getProfile(){
 	try {
-		const response = await fetch('https://localhost:8443/user_profile/profile/');
-		if(!response.ok) {
-			return false;
+		if (localStorage.key('access_token') == null) return (false);
+		// console.log("access_token: oh");
+		const response = await myFetch('https://localhost:8443/user_profile/profile/', null, "GET"); 
+		if (response == null) {
+			throw new Error("Failed to fetch profile");
 		}
-		const data = await response.json();
-		window.user = data;
+		// console.log("getProfile: ", response);
+
+		window.user = response;
 		return true;
 	} catch {
+		window.user = null;
 		return false
 	}
 }
