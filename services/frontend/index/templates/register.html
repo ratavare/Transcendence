@@ -4,7 +4,7 @@
 	<form method="POST" id="form-register">	
 		{% csrf_token %}
 		<div class="form-group row" align="center">		
-			<h1 class="row justify-content-center">Create an Account</h1>
+			<h1 class="row justify-content-center" style="padding-top: 30px;">Create an Account</h1>
 			<div class="text-center" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
 				{{ registerForm | crispy }}
 			</div>
