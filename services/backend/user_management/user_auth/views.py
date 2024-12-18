@@ -93,34 +93,60 @@ def registerView(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def loginView(request):
-    form = AuthenticationForm(request, data=request.POST)
-    if form.is_valid():
-        user = form.get_user()
+    step = request.POST.get('step', '1')  # Default to step 1
 
-        # Check if 2FA is enabled for the user
+    # Step 1: Verify credentials and check for 2FA
+    if step == '1':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+
+            # Check if 2FA is enabled
+            profile = getattr(user, 'profile', None)
+            is_2fa_enabled = bool(profile and profile.otp_secret)
+
+            if is_2fa_enabled:
+                # Return a flag to prompt for 2FA in frontend
+                return JsonResponse({'status': '2fa_required'}, status=200)
+
+            # Log in user if no 2FA
+            login(request, user)
+            refresh = RefreshToken.for_user(user)
+            return JsonResponse({
+                'status': 'success',
+                'username': user.username,
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'is_2fa_enabled': is_2fa_enabled,
+            }, status=200)
+
+        return JsonResponse({'error': form.errors}, status=400)
+
+    # Step 2: Validate OTP
+    elif step == '2':
+        username = request.POST.get('username')
+        otp = request.POST.get('otp')
+
+        user = User.objects.filter(username=username).first()
+        if not user:
+            return JsonResponse({'error': 'Invalid username'}, status=400)
+
         profile = getattr(user, 'profile', None)
-        is_2fa_enabled = bool(profile and profile.otp_secret)
+        totp = pyotp.TOTP(profile.otp_secret) if profile else None
 
-        if is_2fa_enabled:
-            otp = request.POST.get('otp')
-            totp = pyotp.TOTP(profile.otp_secret)
-
-            if not otp or not totp.verify(otp):
-                return JsonResponse({'error': 'Invalid OTP'}, status=400)
-
-        # Perform login if OTP validation passes (or 2FA is not enabled)
-        login(request, user)
-        refresh = RefreshToken.for_user(user)
-
-        return JsonResponse({
-            'status': 'success',
-            'username': user.username,
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-            'is_2fa_enabled': is_2fa_enabled,
-        }, status=200)
-
-    return JsonResponse({'error': form.errors}, status=400)
+        if totp and totp.verify(otp):
+            # Log in user
+            login(request, user)
+            refresh = RefreshToken.for_user(user)
+            return JsonResponse({
+                'status': 'success',
+                'username': user.username,
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }, status=200)
+        return JsonResponse({'error': 'Invalid OTP'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid step'}, status=400)
 
 @permission_classes([IsAuthenticated])
 def logoutView(request):
