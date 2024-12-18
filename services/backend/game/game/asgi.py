@@ -12,7 +12,7 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from django.urls import re_path
-from . import consumers
+from game.consumers.consumer import Consumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'game.settings')
 
@@ -20,7 +20,7 @@ application = ProtocolTypeRouter({
 	"http":get_asgi_application(),
 	"websocket": AuthMiddlewareStack(
 		URLRouter([
-			re_path(r'ws/(?P<lobby_id>\w+)/$', consumers.Consumer.as_asgi()),
+			re_path(r'ws/(?P<lobby_id>\w+)/$', Consumer.as_asgi()),
 		])
 	),
 })
