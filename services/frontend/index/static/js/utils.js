@@ -71,7 +71,7 @@ async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = tr
     if (myData) {
         if (myData instanceof FormData) {
             body = myData;
-            delete headers["Content-Type"];
+            // delete headers["Content-Type"];
         } else {
             headers["Content-Type"] = "application/json";
             body = JSON.stringify(myData);
