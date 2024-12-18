@@ -17,7 +17,7 @@ async function uploadProfilePicture(file) {
 		await myFetch('https://localhost:8443/user_profile/profile/picture/', formData, 'POST', true);
 
 		alert('Profile picture updated successfully!');
-		window.location.reload(); // Refresh to show the new picture
+		window.location.reload(); // Refresh might not be the best way
 	} catch (error) {
 		console.error("Error uploading profile picture:", error);
 		alert('Failed to upload profile picture. Please try again.');
@@ -49,17 +49,15 @@ async function getProfileImage() {
         if (response.ok) {
             const contentType = response.headers.get('Content-Type');
             
-            // Check if the response is an image type
             if (contentType && contentType.startsWith('image/')) {
                 const blob = await response.blob();
-				console.log(blob);
-                const imageUrl = URL.createObjectURL(blob);  // Create a URL for the Blob
-                document.getElementById('profile-pic').src = imageUrl;  // Assuming your <img id="profile-pic" /> exists
+                const imageUrl = URL.createObjectURL(blob);
+                document.getElementById('profile-pic').src = imageUrl;
             } else {
                 console.error("Expected image but received:", contentType);
             }
         } else {
-            const errorText = await response.text();  // Get error message text if any
+            const errorText = await response.text();
             console.error("Error fetching profile image:", errorText);
 			document.getElementById('profile-pic').src = '/static/assets/melhor_icone.png';
         }

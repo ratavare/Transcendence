@@ -4,14 +4,12 @@ from django.core.exceptions import ValidationError
 from .forms import UpdateProfileForm
 from .models import Profile
 from django.http import HttpResponse
+import logging
 
 # JWT
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
-logging.basicConfig(level=logging.DEBUG)
-
-import logging
 logging.basicConfig(level=logging.DEBUG)
 
 @api_view(['POST', 'GET'])
@@ -68,7 +66,7 @@ def profilePicture(request):
 	if request.method == 'POST':
 		if 'profile_picture' in request.FILES:
 			image_file = request.FILES['profile_picture']
-			profile.profile_picture = image_file.read()  # Save the binary data
+			profile.profile_picture = image_file.read()
 			profile.save()
 			return JsonResponse({'status': 'Profile picture uploaded successfully!'}, status=200)
 		else:
@@ -76,8 +74,8 @@ def profilePicture(request):
 
 	if request.method == 'GET':
 			if profile.profile_picture:
-				response = HttpResponse(profile.profile_picture, content_type='image/jpeg')  # Adjust the content_type accordingly (e.g., 'image/png' for PNG images)
-				# response['Content-Disposition'] = 'inline; filename="profile.jpg"'  # Optional, specify the filename
+				response = HttpResponse(profile.profile_picture, content_type='image/jpeg')
+				# response['Content-Disposition'] = 'inline; filename="profile.jpg"'  # Optional, specifies the filename
 				return response
 			else:
 				logging.info("No profile picture found.")
