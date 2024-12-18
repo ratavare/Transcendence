@@ -63,10 +63,10 @@ function addAcceptedFriendToFriendsList(dest) { // Perdoem-me por esta funcao
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
 				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-				<h5 class="fw-semibold mb-0">@${dest}</h5>
+				<h5 class="fw-semibold mb-0" style="color: white">@${dest}</h5>
 			</div>
-			<div class="px-2 py-2 bg-light text-center">
-				<button class="btn btn-danger me-2 remove-friend" type="submit" data-dest="${dest}">Remove Friend</button>
+			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
+				<button class="btn btn-outline-danger me-2 remove-friend" type="submit" data-dest="${dest}">Remove Friend</button>
 			</div>
 		</div>
 	`;
@@ -84,10 +84,10 @@ function addPossibleFriendToSentFriendRequests(dest) {
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
 				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-				<h5 class="fw-semibold mb-0">@${dest}</h5>
+				<h5 class="fw-semibold mb-0" style="color: white">@${dest}</h5>
 			</div>
-			<div class="px-2 py-2 bg-light text-center">
-				<button class="btn btn-danger me-2 delete-request" type="submit" data-dest="${dest}">Delete request</button>
+			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
+				<button class="btn btn-outline-danger me-2 delete-request" type="submit" data-dest="${dest}">Delete request</button>
 			</div>
 		</div>
 	`;
@@ -155,10 +155,10 @@ function displaySearchResults(users)
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
 				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-				<h5 class="fw-semibold mb-0">@${user.username}</h5>
+				<h5 class="fw-semibold mb-0" style="color: white">@${user.username}</h5>
 			</div>
-			<div class="px-2 py-2 bg-light text-center">
-				<button class="btn btn-success me-2 send-friend-request" data-dest="${user.username}" >Send Friend Request</button>
+			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
+				<button class="btn btn-outline-success me-2 send-friend-request" data-dest="${user.username}" >Send Friend Request</button>
 			</div>
 		</div>
 		`;
@@ -222,10 +222,10 @@ function renderFriends(friends) {
 			<div class="card hover-img">
 				<div class="card-body p-4 text-center border-bottom">
 					<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-					<h5 class="fw-semibold mb-0">@${friend.username}</h5>
+					<h5 class="fw-semibold mb-0" style="color: white">@${friend.username}</h5>
 				</div>
-				<div class="px-2 py-2 bg-light text-center">
-					<button class="btn btn-danger me-2 remove-friend" type="submit" data-dest="${friend.username}">Remove Friend</button>
+				<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
+					<button class="btn btn-outline-danger me-2 remove-friend" type="submit" data-dest="${friend.username}">Remove Friend</button>
 				</div>
 			</div>
 		`;
@@ -251,11 +251,11 @@ function renderFriendRequests(friendRequests) {
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
 				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-				<h5 class="fw-semibold mb-0">@${friendRequest.username}</h5>
+				<h5 class="fw-semibold mb-0" style="color: white">@${friendRequest.username}</h5>
 			</div>
-			<div class="px-2 py-2 bg-light text-center">
-				<button class="btn btn-success me-2 accept-friend-request" type="submit" data-dest="${friendRequest.username}">Accept</button>
-				<button class="btn btn-danger me-2 decline-friend-request" type="submit" data-dest="${friendRequest.username}">Decline</button>
+			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
+				<button class="btn btn-outline-success me-2 accept-friend-request" type="submit" data-dest="${friendRequest.username}">Accept</button>
+				<button class="btn btn-outline-danger me-2 decline-friend-request" type="submit" data-dest="${friendRequest.username}">Decline</button>
 			</div>
 		</div>
 		`;
@@ -282,10 +282,10 @@ function renderSentFriendRequests(sentFriendRequests) {
 			<div class="card hover-img">
 				<div class="card-body p-4 text-center border-bottom">
 					<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
-					<h5 class="fw-semibold mb-0">@${request.username}</h5>
+					<h5 class="fw-semibold mb-0" style="color: white">@${request.username}</h5>
 				</div>
-				<div class="px-2 py-2 bg-light text-center">
-					<button class="btn btn-danger me-2 delete-request" type="submit" data-dest="${request.username}">Delete request</button>
+				<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
+					<button class="btn btn-outline-danger me-2 delete-request" type="submit" data-dest="${request.username}">Delete request</button>
 				</div>
 			</div>
 		`;

@@ -1,7 +1,10 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #00000069;">
 	<div class="container-fluid">
-	  <a class="navbar-brand" href="#">Transcendence</a>
+	  <a class="navbar-brand" href="#">
+		<img src="/static/favicon.svg" width="35" height="35" alt="" style="padding-right: 5px;">
+		Transcendence
+	  </a>
 	  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 		<span class="navbar-toggler-icon"></span>
 	  </button>
@@ -9,10 +12,9 @@
 		<ul class="navbar-nav"> <!-- Use <ul> with class navbar-nav -->
 		  {% if authenticated %}
 			<li class="nav-item"><a class="nav-link" href="#/lobby">Game</a></li>
-			<li class="nav-item"><a class="nav-link" href="#/2fa">Two Factor Auth</a></li>
 			<li class="nav-item"> <!-- Add class nav-item to each link --><a class="nav-link" href="#/profile">Profile</a></li>
 			<li class="nav-item"><a class="nav-link" href="#/profile/friends">Friends</a></li>
-			<li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
+			<li class="nav-item"><a class="nav-link" href="#/settings">Settings</a></li>
 			<li class="nav-item"><a class="nav-link" href="#/logout">Logout</a></li>
 		  {% else %}
 			<li class="nav-item"><a class="nav-link" href="#/register">Sign up</a></li>
