@@ -147,13 +147,15 @@ class Consumer(AsyncWebsocketConsumer):
 					continue
 
 				action = game.update_state()
+				winner = game.winCheck()
 				if action == 1:
 					await self.groupSend("shake", {})
 				elif action == 2:
 					await self.groupSend("point", payload={"player1Score": game.player1Score, "player2Score": game.player2Score})
 				await self.sendState()
 				await asyncio.sleep(0.016)
-				if action == 3:
+				if winner:
+					await self.groupSend('gameOver', f"Player {winner} won!")
 					break
 		except Exception as e:
 			await self.sendMessage('message', f'Error is runLoop: {e}')

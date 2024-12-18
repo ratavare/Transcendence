@@ -15,11 +15,9 @@ async function joinLobby(lobby_id)
 		const data = await response.json()
 		if (!response.ok)
 			throw data.error;
-		// console.log(lobby_id);
 		seturl(`/pong?id=${lobby_id}`)
 	} catch (error) {
-		seturl('/lobby');
-		console.log(error);
+		alert(error);
 	}
 }
 
@@ -42,8 +40,10 @@ function putLobbylist(lobbies)
 	previousList?.remove();
 	const lobbyList = document.createElement('ul');
 	lobbyList.classList.add("list-group");
+	let i = 0;
 	lobbies.forEach(lobby => {
 		const lobbyItemList = document.createElement('li');
+		lobbyItemList.id = 'item' + i++;
 		lobbyItemList.classList.add("list-group-item");
 		lobbyItemList.style = 'display: flex;align-items: center;justify-content: space-around';
 	
