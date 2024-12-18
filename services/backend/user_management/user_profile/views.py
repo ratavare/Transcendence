@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from .forms import UpdateProfileForm
 from .models import Profile
+from django.http import HttpResponse
 
 # JWT
 from rest_framework.decorators import api_view, permission_classes
@@ -52,3 +53,32 @@ def profileView(request):
 		logging.debug("initial_data")
 		return JsonResponse(initial_data, status=200)
 	return JsonResponse({'error': "Test"}, status=400)
+
+@api_view(['POST', 'GET'])
+@permission_classes([IsAuthenticated])
+def profilePicture(request):
+	logging.debug("Updating profile picture.")
+	try:
+		user = request.user
+		profile = Profile.objects.get(user=user)
+	except Profile.DoesNotExist:
+		logging.error("Profile not found.")
+		return JsonResponse({'error': 'Profile Not Found'}, status=404)
+
+	if request.method == 'POST':
+		if 'profile_picture' in request.FILES:
+			image_file = request.FILES['profile_picture']
+			profile.profile_picture = image_file.read()  # Save the binary data
+			profile.save()
+			return JsonResponse({'status': 'Profile picture uploaded successfully!'}, status=200)
+		else:
+			return JsonResponse({'error': 'No image provided'}, status=400)
+
+	if request.method == 'GET':
+			if profile.profile_picture:
+				response = HttpResponse(profile.profile_picture, content_type='image/jpeg')  # Adjust the content_type accordingly (e.g., 'image/png' for PNG images)
+				# response['Content-Disposition'] = 'inline; filename="profile.jpg"'  # Optional, specify the filename
+				return response
+			else:
+				logging.info("No profile picture found.")
+				return JsonResponse({'error': 'No profile picture found'}, status=404)

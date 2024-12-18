@@ -4,4 +4,5 @@ from . import views
 app_name = "user_profile"
 urlpatterns = [
 	path('profile/', views.profileView),
+    path('profile/picture/', views.profilePicture),
 ]

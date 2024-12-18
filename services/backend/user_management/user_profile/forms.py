@@ -15,7 +15,6 @@ class UpdateProfileForm(forms.ModelForm):
 		required=False,
 		label= "Date of Birth",
 		input_formats=settings.DATE_INPUT_FORMAT,
-		# widget = forms.SelectDateWidget(years=BIRTH_YEARS),
 	)
 	bio = forms.CharField(required=False)
 

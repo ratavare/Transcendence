@@ -6,6 +6,7 @@ class Profile(models.Model):
 	bio = models.TextField(blank=True, null=True)
 	birth_date = models.DateField(blank=True, null=True)
 	otp_secret = models.TextField(blank=True, null=True)
+	profile_picture = models.BinaryField(blank=True, null=True)
 
 	def __str__(self):
 		return f"{self.user.username}'s Profile"
