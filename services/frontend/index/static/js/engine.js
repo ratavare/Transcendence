@@ -108,7 +108,7 @@ async function setPage(name)
 		document.body.appendChild(newPage);
 		newPage.style.display = page.display;
 		pageActive = newPage;
-		if ("pong" == name)
+		if ("pong" == name || "singleplayerpong" == name)
 		{
 			setTimeout(() => {
 			PageElement.onLoad(newPage);

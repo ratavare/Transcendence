@@ -1,75 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <page-element name="home" authenticated="">
-        {% include 'navbar.html' with authenticated="true" %}
-        
-        <!-- Add buttons using Bootstrap classes -->
-        <div class="container mt-4">
-            <div class="d-flex flex-column align-items-center">
-                <button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#createMatchModal">Create Match</button>
-                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#joinMatchModal">Join Match</button>
-            </div>
-        </div>
+<page-element name="home" authenticated="">
+	{% include 'navbar.html' with authenticated="true" %}
+	
+	<!-- Add buttons using Bootstrap classes -->
+	<div class="container mt-4">
+		<div class="d-flex flex-column align-items-center">
+			<button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#createMatchModal">Create Match</button>
+			<button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#joinMatchModal">Join Match</button>
+		</div>
+	</div>
 
-        <style>
-            .custom-modal-size {
-                max-width: 25%; /* Adjust as needed */
-            }
-        </style>
-        
-        <!-- Create Match Modal -->
-        <div class="modal fade" id="createMatchModal" tabindex="-1" aria-labelledby="createMatchModalLabel" aria-hidden="true">
-            <div class="modal-dialog custom-modal-size"> <!-- Add custom class for specific size -->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createMatchModalLabel">Create Match</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="d-flex flex-column align-items-center">
-                            <button id="createSingleplayerMatch" class="btn btn-secondary mb-2" data-bs-dismiss="modal">Create Singleplayer Match</button>
-                            <button id="createLocalMultiplayerMatch" class="btn btn-secondary mb-2" data-bs-dismiss="modal">Create Local Multiplayer Match</button>
-                            <button id="createOnlineMultiplayerMatch" class="btn btn-secondary" data-bs-dismiss="modal">Create Online Multiplayer Match</button>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+	<style>
+		.custom-modal-size {
+			max-width: 25%; /* Adjust as needed */
+		}
+	</style>
+	
+	<!-- Create Match Modal -->
+	<div class="modal fade" id="createMatchModal" tabindex="-1" aria-labelledby="createMatchModalLabel" aria-hidden="true">
+		<div class="modal-dialog custom-modal-size"> <!-- Add custom class for specific size -->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="createMatchModalLabel">Create Match</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="d-flex flex-column align-items-center">
+						<button id="createSingleplayerMatch" class="btn btn-secondary mb-2" data-bs-dismiss="modal">Create Singleplayer Match</button>
+						<button id="createLocalMultiplayerMatch" class="btn btn-secondary mb-2" data-bs-dismiss="modal">Create Local Multiplayer Match</button>
+						<button id="createOnlineMultiplayerMatch" class="btn btn-secondary" data-bs-dismiss="modal">Create Online Multiplayer Match</button>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
-        <!-- Join Match Modal -->
-        <div class="modal fade" id="joinMatchModal" tabindex="-1" aria-labelledby="joinMatchModalLabel" aria-hidden="true">
-            <div class="modal-dialog custom-modal-size">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="joinMatchModalLabel">Join Match</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Add your form or content here -->
-                        <p>Form to join a match goes here.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </page-element>
-
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
-</body>
-</html>
+	<!-- Join Match Modal -->
+	<div class="modal fade" id="joinMatchModal" tabindex="-1" aria-labelledby="joinMatchModalLabel" aria-hidden="true">
+		<div class="modal-dialog custom-modal-size">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="joinMatchModalLabel">Join Match</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<!-- Add your form or content here -->
+					<p>Form to join a match goes here.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</page-element>
