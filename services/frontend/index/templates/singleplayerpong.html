@@ -1,0 +1,72 @@
+<page-element name="singleplayerpong">
+	{% include 'navbar.html' with authenticated="true" %}
+	<style>
+		h1 {
+			color: firebrick;
+			font-family: 'Courier New', Courier, monospace;
+			text-align: center;
+			font-size: 2rem;
+			top: 0px;
+			position: relative;
+		}
+	
+		h2 {
+			color: firebrick;
+			font-family: 'Courier New', Courier, monospace;
+			text-align: center;
+			font-size: 2rem;
+			bottom: 0px;
+			position: absolute;
+		}
+
+		.canvas-container{
+			position: relative;
+			margin: 0;
+			width: 900px;
+			height: 600px;
+		}
+		#canvas {
+			position: absolute;
+			top: 0;
+			left: 0;
+			left:10%;
+			top:10%;
+		}
+
+		#readyBtn {
+			position: absolute;
+			left:50%;
+			top: 95%;
+			transform: translate(-50%, -50%);
+			text-align: center;
+		}
+	
+		#player1score {
+			left: 25%;
+		}
+	
+		#player2score {
+			right: 25%;
+		} 
+	</style>
+	<h1>Pong Game</h1>
+	<h2 id="player1score">0</h2>
+	<h2 id="player2score">0</h2>
+	<h2 id="winner"></h2>
+	<div class="canvas-container">
+		<canvas id='canvas' width='900px' height='600px'></canvas>
+	</div>
+	<button id='readyBtn' class="hidden">Ready!</button>
+
+	<!-- Quit modal -->
+	<div class="modal fade" id="exampleModalToggle" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body">
+					<p id="winner-msg"></p>
+					<button id="quit-btn" type="button" data-bs-dismiss="modal" class="btn btn-primary">Quit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</page-element>

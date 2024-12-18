@@ -99,7 +99,7 @@ async function setPage(name)
 		const newScript = document.createElement('script');
 		newScript.setAttribute("controller", "true")
 		newScript.src = "static/js/" + name + ".js";
-		if (name == 'pong')
+		if (name == 'pong' || name == 'singleplayerpong')
 			newScript.type = "module";
 		newScript.onload = function(){
 			console.log(`${name}.js loaded successfully`);
