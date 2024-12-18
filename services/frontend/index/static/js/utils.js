@@ -26,7 +26,7 @@ async function refreshAccessToken() {
         return null;
     }
 
-    const response = await fetch('/api/token/refresh/', {
+    const response = await fetch('https://localhost:8443/user_auth/api/token/refresh/', {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
