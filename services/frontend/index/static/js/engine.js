@@ -4,7 +4,7 @@ const pages = document.querySelectorAll('page-element');
 const l = new Map();
 for (const page of pages) {
 	document.body.removeChild(page);
-	console.log("removeChild: ", page);
+	// console.log("removeChild: ", page);
 	l.set(page.getAttribute('name'), page);
 }
 

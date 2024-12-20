@@ -4,11 +4,17 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from django.contrib.postgres.fields import ArrayField
+
 STATE_CHOICES = [
 	('running', 'Running'),
 	('closed', 'Closed'),
 	('paused', 'Paused'),
 ]
+
+class Message(models.Model):
+	sender = models.CharField(max_length=150, blank=True)
+	content = models.TextField(blank=True)
 
 class Position(models.Model):
 	x = models.IntegerField(default=0)
@@ -26,6 +32,7 @@ class Lobby(models.Model):
 	ballPosition = models.ForeignKey(Position, related_name="BallPosition", on_delete=models.CASCADE, null=True, blank=True)
 	paddle1Position = models.ForeignKey(Position, related_name="Paddle1Position", on_delete=models.CASCADE, null=True, blank=True)
 	paddle2Position = models.ForeignKey(Position, related_name="Paddle2Position", on_delete=models.CASCADE, null=True, blank=True)
+	chat = models.ManyToManyField(Message)
 
 # signals to initialize positions when Lobby is created
 @receiver(post_save, sender=Lobby)

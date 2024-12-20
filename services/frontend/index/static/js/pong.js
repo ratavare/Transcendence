@@ -308,9 +308,6 @@ PageElement.onLoad = () => {
 			case 'token':
 				localStorage.setItem("playerToken", data.payload)
 				break
-			case 'connect':
-				console.log(`User ID: ${data.payload.id} | `, data.payload.connectMessage);
-				break;
 			case 'readyBtn':
 				console.log("TEST: ", readyBtn.classList.contains('hidden'));
 				if (readyBtn.classList.contains('hidden'))
@@ -367,9 +364,9 @@ PageElement.onLoad = () => {
 
 	socket.onopen = async () => 
 	{
-		sendPayload('connect', {
-			id: window.user.id,
-			connectMessage: `Welcome to the [${lobby_id}] lobby [${window.user.username}]!!`,
+		sendPayload('message', {
+			status: 'connect',
+			message: `${window.user.username} joined the lobby!`,
 		});
 	}
 
@@ -397,12 +394,26 @@ PageElement.onLoad = () => {
 		let color = "white"
 		const messageList = document.getElementById('chat-message-list');
 		const messageListItem = document.createElement('li');
-		if (payload.user == window.user.username)
-			color = 'orangered'
-		messageListItem.innerHTML = `
-			<b style="color: ${color}">${payload.user}: </b>
-			<span>${payload.message}</span>
-		`;
+		if (payload.user) {
+			if (payload.user == window.user.username)
+				color = 'orangered'
+			messageListItem.innerHTML = `
+				<b style="color: ${color}">${payload.user}: </b>
+				<span>${payload.message}</span>
+			`;
+		}
+		if (payload.status) {
+			if (payload.status == 'connect')
+				color = 'green';
+			if (payload.status == 'disconnect')
+				color = 'red'
+			messageListItem.innerHTML = `
+			<span style="color: ${color}">${payload.message}</span>
+			`;
+		}
+
+
+
 		messageList.appendChild(messageListItem);
 	}
 	
@@ -417,7 +428,10 @@ PageElement.onLoad = () => {
 
 	PageElement.onUnLoad = () => {
 		console.log("onUnLoad:pong");
-		sendPayload('message', `[${window.user.username}] disconnected.`);
+		sendPayload('message', {
+			status: 'disconnect',
+			message: `${window.user.username} disconnected.`
+	});
 		renderer.dispose();
 		socket.close();
 		PageElement.onUnLoad = () => {};

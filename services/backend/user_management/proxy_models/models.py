@@ -28,5 +28,5 @@ class ProxyLobby(models.Model):
 				WHERE lobby_lobby_users.lobby_id = (SELECT id FROM lobby_lobby WHERE lobby_id = %s)
 			""", [self.lobby_id])
 			return [row[0] for row in cursor.fetchall()]
-		
+
 # SELECT auth_user.username FROM lobby_lobby_users JOIN auth_user ON lobby_lobby_users.user_id = auth_user.id WHERE lobby_lobby_users.lobby_id = (SELECT lobby_id FROM lobby_lobby WHERE lobby_id = 'aaa');

@@ -1,7 +1,7 @@
 
 import json
 import asyncio
-from lobby.models import Lobby
+from lobby.models import Lobby, Message
 from .objects import Pong, vars
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -46,9 +46,6 @@ class Consumer(AsyncWebsocketConsumer):
 			await self.sendMessage('readyBtn', 'add')
 		else:
 			await self.sendMessage('readyBtn', 'remove')
-		
-		if len(lobby["players"]) < 2:
-			await self.sendMessage('log', 'Connection Accepted: Welcome!!')
 
 	async def disconnect(self, close_code):
 		lobby = lobbies.get(self.lobby_id)
@@ -64,7 +61,7 @@ class Consumer(AsyncWebsocketConsumer):
 
 		if not lobby["players"]:
 			await self.deleteLobbyWS(lobby)
-			await self.deleteLobbyDB()
+			await self.deleteLobbyDb()
 		else:
 			await self.groupSend('log', f'{self.user_id} left the lobby')
 		await self.channel_layer.group_discard(self.lobby_id, self.channel_name)
@@ -81,7 +78,7 @@ class Consumer(AsyncWebsocketConsumer):
 
 		del lobbies[self.lobby_id]
 
-	async def deleteLobbyDB(self):
+	async def deleteLobbyDb(self):
 		try:
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
 			await database_sync_to_async(dbLobby.delete)()
@@ -113,6 +110,8 @@ class Consumer(AsyncWebsocketConsumer):
 						game.gamePaused = True
 					else:
 						game.gamePaused = False
+				case 'message':
+					await self.saveChatMessageDb(payload)
 
 			await self.groupSend(send_type, payload)
 
@@ -209,17 +208,8 @@ class Consumer(AsyncWebsocketConsumer):
 		game = serverLobby["game"]
 		try:
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
-			if game.player1Token == self.user_id:
-				dbLobby.player1Ready = state
-				await self.groupSend('log', f'Player 1 ready: {state}!')
-			elif game.player2Token == self.user_id:
-				dbLobby.player2Ready = state
-				await self.groupSend('log', f'Player 2 ready: {state}!')
-			else:
-				return False
-
-			await database_sync_to_async(dbLobby.save)()
-
+			self.saveReadyStateDb(game, dbLobby, state)
+			
 			if dbLobby.player1Ready and dbLobby.player2Ready:
 				await self.groupSend('log', 'GAME START!')
 				dbLobby.gameState = "running"
@@ -229,3 +219,25 @@ class Consumer(AsyncWebsocketConsumer):
 
 		except Exception as e:
 			await self.groupSend('log', f'Ready State Error: {e}')
+
+	async def saveReadyStateDb(self, game, dbLobby, state):
+		if game.player1Token == self.user_id:
+			dbLobby.player1Ready = state
+			await self.groupSend('log', f'Player 1 ready: {state}!')
+		elif game.player2Token == self.user_id:
+			dbLobby.player2Ready = state
+			await self.groupSend('log', f'Player 2 ready: {state}!')
+		else:
+			return False
+
+		await database_sync_to_async(dbLobby.save)()
+
+	async def saveChatMessageDb(self, payload):
+		lobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
+		if payload['user']:
+			message = Message(sender=payload['user'], content=payload['message'])
+		if payload['status']:
+			message = Message(sender='server', content=payload['message'])
+		await database_sync_to_async(message.save)()
+		await database_sync_to_async(lobby.chat.add)(message)
+		await database_sync_to_async(lobby.save)()
