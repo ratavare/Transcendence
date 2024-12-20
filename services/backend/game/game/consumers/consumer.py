@@ -48,7 +48,7 @@ class Consumer(AsyncWebsocketConsumer):
 			await self.sendMessage('readyBtn', 'remove')
 		
 		if len(lobby["players"]) < 2:
-			await self.sendMessage('message', 'Connection Accepted: Welcome!!')
+			await self.sendMessage('log', 'Connection Accepted: Welcome!!')
 
 	async def disconnect(self, close_code):
 		lobby = lobbies.get(self.lobby_id)
@@ -66,7 +66,7 @@ class Consumer(AsyncWebsocketConsumer):
 			await self.deleteLobbyWS(lobby)
 			await self.deleteLobbyDB()
 		else:
-			await self.groupSend('message', f'{self.user_id} left the lobby')
+			await self.groupSend('log', f'{self.user_id} left the lobby')
 		await self.channel_layer.group_discard(self.lobby_id, self.channel_name)
 
 	async def deleteLobbyWS(self, lobby):
@@ -75,7 +75,7 @@ class Consumer(AsyncWebsocketConsumer):
 			try:
 				await lobby["gameLoop"]
 			except asyncio.CancelledError:
-				await self.sendMessage('message', 'Game Loop Cancel Error')
+				await self.sendMessage('log', 'Game Loop Cancel Error')
 			lobby['game'].running = False
 			lobby["gameLoop"] = None
 
@@ -87,7 +87,7 @@ class Consumer(AsyncWebsocketConsumer):
 			await database_sync_to_async(dbLobby.delete)()
 		except Lobby.DoesNotExist:
 			print(f"Lobby {self.lobby_id} does not exist in the database", flush=True)
-			await self.sendMessage('message', "Lobby does not exist")
+			await self.sendMessage('log', "Lobby does not exist")
 
 	
 	async def receive(self, text_data):
@@ -117,7 +117,7 @@ class Consumer(AsyncWebsocketConsumer):
 			await self.groupSend(send_type, payload)
 
 		except:
-			await self.sendMessage('message', 'Type and Payload keys are required!')
+			await self.sendMessage('log', 'Type and Payload keys are required!')
 
 	async def groupSend(self, send_type, payload):
 		await self.channel_layer.group_send(
@@ -158,9 +158,9 @@ class Consumer(AsyncWebsocketConsumer):
 					await self.groupSend('gameOver', f"Player {winner} won!")
 					break
 		except Exception as e:
-			await self.sendMessage('message', f'Error is runLoop: {e}')
+			await self.sendMessage('log', f'Error is runLoop: {e}')
 		finally:
-			await self.sendMessage('message', 'Game End')
+			await self.sendMessage('log', 'Game End')
 
 	async def sendState(self):
 		lobby = lobbies.get(self.lobby_id)
@@ -211,21 +211,21 @@ class Consumer(AsyncWebsocketConsumer):
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
 			if game.player1Token == self.user_id:
 				dbLobby.player1Ready = state
-				await self.groupSend('message', f'Player 1 ready: {state}!')
+				await self.groupSend('log', f'Player 1 ready: {state}!')
 			elif game.player2Token == self.user_id:
 				dbLobby.player2Ready = state
-				await self.groupSend('message', f'Player 2 ready: {state}!')
+				await self.groupSend('log', f'Player 2 ready: {state}!')
 			else:
 				return False
 
 			await database_sync_to_async(dbLobby.save)()
 
 			if dbLobby.player1Ready and dbLobby.player2Ready:
-				await self.groupSend('message', 'GAME START!')
+				await self.groupSend('log', 'GAME START!')
 				dbLobby.gameState = "running"
 				game.running = True
 				return True
 			return False
 
 		except Exception as e:
-			await self.groupSend('message', f'Ready State Error: {e}')
+			await self.groupSend('log', f'Ready State Error: {e}')

@@ -2,6 +2,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+// ************************************* THREEJS ************************************************
+
 PageElement.onLoad = () => {
 	// Constants
 	const SHAKE_INTENSITY = 10;
@@ -19,9 +21,15 @@ PageElement.onLoad = () => {
 
 	// Scene Setup
 	const canvas = document.getElementById('canvas');
+	const canvasContainer = document.getElementById('canvas-item');
+
 	const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 	renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8);
 	document.body.appendChild(renderer.domElement);
+	
+	if (!canvasContainer.contains(canvas)) {
+		canvasContainer.appendChild(canvas);
+	}
 
 	const scene = new THREE.Scene();
 	const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -277,7 +285,7 @@ PageElement.onLoad = () => {
 	// setInterval(saveSphereData, 1000);
 	renderer.setAnimationLoop(animate);
 
-	// ************************************* WEBSOCKET FUCNTIONS ************************************************
+	// ************************************* WEBSOCKET ************************************************
 
 	const lobby_id = window.props.get("id");
 	const token = localStorage.getItem("playerToken") || ""
@@ -313,8 +321,11 @@ PageElement.onLoad = () => {
 					readyBtn.classList.add('hidden');
 				break ;
 			case 'message':
-				console.log(data.payload);
+				receiveChatMessage(data.payload);
 				break;
+			case 'log':
+				console.log(data.payload);
+				break
 			case 'state':
 				updateBall(data.payload);
 				updatePaddlePositions(data.payload);
@@ -338,10 +349,11 @@ PageElement.onLoad = () => {
 			case 'gameOver':
 				win(data.payload);
 			case 'paddleInit':
-				if (data.payload.player == '1'){
-					handlePaddleControls('p1');}
-				else if (data.payload.player == '2'){
-					handlePaddleControls('p2');}
+				if (data.payload.player == '1') {
+					handlePaddleControls('p1');
+				} else if (data.payload.player == '2') {
+					handlePaddleControls('p2');
+				}
 		}
 	}
 
@@ -367,6 +379,42 @@ PageElement.onLoad = () => {
 		seturl('/lobby');
 	};
 
+	
+	// ************************************* CHAT ************************************************
+	{
+		const chatInputForm = document.getElementById('chat-input-form');
+		chatInputForm.addEventListener('submit', (event) => {
+			event.preventDefault();
+
+			const chatInput = event.target.querySelector('#chat-input');
+			sendMessage(chatInput.value);
+			chatInput.value = "";
+		});
+	}
+	
+	function receiveChatMessage(payload)
+	{
+		let color = "white"
+		const messageList = document.getElementById('chat-message-list');
+		const messageListItem = document.createElement('li');
+		if (payload.user == window.user.username)
+			color = 'orangered'
+		messageListItem.innerHTML = `
+			<b style="color: ${color}">${payload.user}: </b>
+			<span>${payload.message}</span>
+		`;
+		messageList.appendChild(messageListItem);
+	}
+	
+	function sendMessage(data)
+	{
+		sendPayload('message', {
+			user: window.user.username,
+			message: data
+		})
+	}
+
+
 	PageElement.onUnLoad = () => {
 		console.log("onUnLoad:pong");
 		sendPayload('message', `[${window.user.username}] disconnected.`);
@@ -375,3 +423,4 @@ PageElement.onLoad = () => {
 		PageElement.onUnLoad = () => {};
 	}
 }
+
