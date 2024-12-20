@@ -3,7 +3,7 @@ document.getElementById('createSingleplayerMatch').addEventListener('click', fun
 });
 
 document.getElementById('createLocalMultiplayerMatch').addEventListener('click', function() {
-    seturl('/local_multiplayer_pong');
+    seturl('/multiplayer_pong');
 });
 
 document.getElementById('createOnlineMultiplayerMatch').addEventListener('click', function() {

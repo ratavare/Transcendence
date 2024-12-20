@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 PageElement.onLoad = () => {
-	console.log("singleplayerpong.js loaded fawfawfwafaw");
 
 	// Constants
 	const PADDLE_SPEED = 10;
@@ -148,11 +147,11 @@ PageElement.onLoad = () => {
 			{
 			case 'w':
 				beginGame = true;
-				paddle2Speed = -PADDLE_SPEED;
+				paddle1Speed = -PADDLE_SPEED;
 				break;
 			case 's':
 				beginGame = true;
-				paddle2Speed = PADDLE_SPEED;
+				paddle1Speed = PADDLE_SPEED;
 				break;
 			case 'ArrowUp':
 				beginGame = true;
@@ -433,7 +432,7 @@ PageElement.onLoad = () => {
 			if (!gamePaused && beginGame)
 			{
 				movePaddles();
-				paddle1AI(paddle1);
+				// paddle1AI(paddle1);
 				checkIntersections();
 				moveCube();
 				applyCameraShake();
