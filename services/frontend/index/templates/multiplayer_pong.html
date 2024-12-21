@@ -1,72 +1,128 @@
 <page-element name="multiplayer_pong">
-	{% include 'navbar.html' with authenticated="true" %}
-	<style>
-		h1 {
+    {% include 'navbar.html' with authenticated="true" %}
+    <style>
+        h1 {
+            color: rgb(255, 255, 255);
+            font-family: 'Nunito', sans-serif;
+            text-align: center;
+            font-size: 3rem;
+			/* font-weight: bold; */
+            top: 0px;
+            position: relative;
+        }
+
+        h2 {
+            color: firebrick;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            font-size: 2rem;
+            bottom: 0px;
+            position: absolute;
+        }
+
+		h3 {
 			color: firebrick;
 			font-family: 'Courier New', Courier, monospace;
 			text-align: center;
-			font-size: 2rem;
-			top: 0px;
-			position: relative;
-		}
-	
-		h2 {
-			color: firebrick;
-			font-family: 'Courier New', Courier, monospace;
-			text-align: center;
-			font-size: 2rem;
+			font-size: 1rem;
 			bottom: 0px;
-			position: absolute;
-		}
-
-		.canvas-container{
 			position: relative;
-			margin: 0;
-			width: 900px;
-			height: 600px;
-		}
-		#canvas {
-			position: absolute;
-			top: 0;
-			left: 0;
-			left:10%;
-			top:10%;
 		}
 
-		#readyBtn {
-			position: absolute;
-			left:50%;
-			top: 95%;
-			transform: translate(-50%, -50%);
-			text-align: center;
-		}
-	
-		#player1score {
-			left: 25%;
-		}
-	
-		#player2score {
-			right: 25%;
-		} 
-	</style>
-	<h1>Pong Game</h1>
-	<h2 id="player1score">0</h2>
-	<h2 id="player2score">0</h2>
-	<h2 id="winner"></h2>
-	<div class="canvas-container">
-		<canvas id='canvas' width='900px' height='600px'></canvas>
-	</div>
-	<button id='readyBtn' class="hidden">Ready!</button>
+        .canvas-container {
+            position: relative;
+            margin: 0;
+            width: 900px;
+            height: 600px;
+        }
 
-	<!-- Quit modal -->
-	<div class="modal fade" id="exampleModalToggle" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-body">
-					<p id="winner-msg"></p>
-					<button id="quit-btn" type="button" data-bs-dismiss="modal" class="btn btn-primary">Quit</button>
-				</div>
-			</div>
-		</div>
-	</div>
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            left: 10%;
+            top: 10%;
+        }
+
+        #readyBtn {
+            position: absolute;
+            left: 50%;
+            top: 95%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        #player1score {
+            left: 25%;
+        }
+
+        #player2score {
+            right: 25%;
+        }
+
+        .overlay-container {
+            position: relative;
+            width: 900px;
+            height: 600px;
+            margin: 0 auto;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 40%;
+            background-color: rgba(76, 0, 101, 0.453);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .overlay button {
+            padding: 10px 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    </style>
+    <h2 id="player1score">0</h2>
+    <h2 id="player2score">0</h2>
+    <h2 id="winner"></h2>
+    <div class="overlay-container" id="overlay-container">
+        <div class="canvas-container">
+            <canvas id='canvas' width='900px' height='600px'></canvas>
+        </div>
+        <!-- Overlay -->
+        <div class="overlay" id="overlay">
+			<h1>Pong Game</h1>
+			<h3>Controls</h3>
+			<h3>Player 1: [Up and Down]</h3>
+			<h3>Player 2: [W and S]</h3>
+			<h3>Press any to start</h3>
+			<!-- <button id='startBtn'>Start</button> -->
+        </div>
+    </div>
+    <button id='readyBtn' class="hidden">Ready!</button>
+
+    <!-- Quit modal -->
+    <div class="modal fade" id="exampleModalToggle" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p id="winner-msg"></p>
+                    <button id="quit-btn" type="button" data-bs-dismiss="modal" class="btn btn-primary">Quit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('startBtn').addEventListener('click', function() {
+            document.getElementById('overlay').style.display = 'none';
+            // Add any additional logic to start the game here
+        });
+    </script>
 </page-element>

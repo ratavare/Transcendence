@@ -29,6 +29,13 @@ PageElement.onLoad = () => {
 	let gamePaused = false;
 	let beginGame = false;
 
+
+	// get Overlay
+
+	const overlay = document.getElementById('overlay');
+	const overlayContainer = document.getElementById('overlay-container');
+
+
 	// Scene Setup
 	const canvas = document.getElementById('canvas');
 	const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -149,18 +156,22 @@ PageElement.onLoad = () => {
 			case 'w':
 				beginGame = true;
 				paddle2Speed = -PADDLE_SPEED;
+				overlayContainer.style.display = 'none';
 				break;
 			case 's':
 				beginGame = true;
 				paddle2Speed = PADDLE_SPEED;
+				overlayContainer.style.display = 'none';
 				break;
 			case 'ArrowUp':
 				beginGame = true;
 				paddle2Speed = -PADDLE_SPEED;
+				overlayContainer.style.display = 'none';
 				break;
 			case 'ArrowDown':
 				beginGame = true;
 				paddle2Speed = PADDLE_SPEED;
+				overlayContainer.style.display = 'none'; 	
 				break;
 			case 'p':
 				gamePaused = !gamePaused;

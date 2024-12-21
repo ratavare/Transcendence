@@ -346,11 +346,15 @@ PageElement.onLoad = () => {
 	}
 
 	const readyBtn = document.getElementById('readyBtn');
+	const overlayText = document.getElementById('overlay-text');
+	const overlayContainer = document.getElementById('overlay-container');
 	readyBtn.onclick = async () => {
 		readyBtn.classList.add("hidden");
 		sendPayload('ready', {
 			ready: true,
 		});
+		overlayText.textContent = 'Waiting for the other player';
+		console.log('Ready button clicked');
 	}
 
 	socket.onopen = async () => 
