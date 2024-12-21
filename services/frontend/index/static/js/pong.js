@@ -29,15 +29,6 @@ PageElement.onLoad = () => {
 	camera.position.set(0, 500, 0);
 	controls.update();
 
-	// Plane
-	/* const planeGeometry = new THREE.PlaneGeometry(3000, 2000);
-	const planeMaterial = new THREE.MeshStandardMaterial({ color: PLANE_COLOR });
-	const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-	plane.rotation.x = -Math.PI / 2;
-	plane.position.y = -100;
-	plane.receiveShadow = true;
-	scene.add(plane); */
-
 	// Skybox
 	const loader = new THREE.CubeTextureLoader();
 	const skybox = loader.load([
@@ -260,29 +251,26 @@ PageElement.onLoad = () => {
 		socket.close();
 	})
 
+	function win(message)
+	{
+		console.log('MESSAGE:', message);
+		const modalElement = document.getElementById('quit');
+		const modal = new bootstrap.Modal(modalElement, {
+			backdrop: 'static',
+			keyboard: false,
+		});
+		modal.show();
+		const winnerMsg = document.getElementById("winner-msg");
+		winnerMsg.innerHTML = message
+		readyBtn.style.display = 'block';
+		rendering = False
+	}
+
 	// Modify the animate function to include swatting animation logic
 	function animate() 
 	{
-		if (rendering) 
-		{
+		if (rendering)
 			renderer.render(scene, camera);
-			if (player1Score == 7 || player2Score == 7)
-			{
-				const modalElement = document.getElementById('exampleModalToggle');
-				const modal = new bootstrap.Modal(modalElement, {
-					backdrop: 'static',
-					keyboard: false,
-				});
-				modal.show();
-				const winnerMsg = document.getElementById("winner-msg");
-				if (player1Score == 7)
-					winnerMsg.innerHTML = "Player 1 Won!"
-				else
-					winnerMsg.innerHTML = "Player 2 Won!"
-				readyBtn.style.display = 'block';
-				rendering = false;
-			}
-		}
 	}
 
 	// saveSphereData();
@@ -347,6 +335,8 @@ PageElement.onLoad = () => {
 				document.getElementById('player2score').innerHTML = player2Score;
 				console.log('player1Score: ', player1Score, 'player2Score: ', player2Score);
 				break;
+			case 'gameOver':
+				win(data.payload);
 			case 'paddleInit':
 				if (data.payload.player == '1'){
 					handlePaddleControls('p1');}

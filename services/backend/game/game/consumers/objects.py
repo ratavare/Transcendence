@@ -23,6 +23,7 @@ class vars():
 	PADDLE_WIDTH = 10
 	PADDLE_LENGTH = 100
 	PADDLE_DEPTH = 30
+	POINTS_TO_WIN = 7
 
 class Paddle():
 	def __init__(self, positionX=0, positionZ=0):
@@ -85,6 +86,13 @@ class Pong:
 			self.respawnBall(2)
 			return 2
 		return 0
+	
+	def winCheck(self):
+		if self.player1Score == vars.POINTS_TO_WIN:
+			return 1
+		if self.player2Score == vars.POINTS_TO_WIN:
+			return 2
+		return 0
 
 	def move(self):
 		self.ball.positionX += self.ball.speedX
@@ -108,6 +116,7 @@ class Pong:
 		self.paddle1.positionZ += self.paddle1.speed
 		self.paddle2.positionZ += self.paddle2.speed
 
+	# return None if x is None else something_else
 	def update_state(self):
 		if self.player1Score == 7 or self.player2Score == 7:
 			return 3
@@ -172,7 +181,7 @@ class Pong:
 			self.ball.positionX += self.ball.speedX
 			self.ball.positionZ += self.ball.speedZ
 			return 1
-		return 0		
+		return 0
 
 	def adjustDirections(self, paddle):
 		if paddle == 1:

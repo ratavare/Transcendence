@@ -26,7 +26,7 @@ async function refreshAccessToken() {
         return null;
     }
 
-    const response = await fetch('/api/token/refresh/', {
+    const response = await fetch('https://localhost:8443/user_auth/api/token/refresh/', {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = tr
     if (myData) {
         if (myData instanceof FormData) {
             body = myData;
-            delete headers["Content-Type"];
+            // delete headers["Content-Type"];
         } else {
             headers["Content-Type"] = "application/json";
             body = JSON.stringify(myData);
