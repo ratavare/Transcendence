@@ -174,7 +174,7 @@ PageElement.onLoad = () => {
 			{
 			case 'w':
 			case 's':
-				paddle1Speed = 0;
+				paddle2Speed = 0;
 				break;
 			case 'ArrowUp':
 			case 'ArrowDown':
