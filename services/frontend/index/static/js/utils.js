@@ -77,13 +77,14 @@ async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = tr
             body = JSON.stringify(myData);
         }
     }
-	// console.log("headers: ", headers);
+	console.log("headers: ", headers);
+
     const response = await fetch(viewUrl, {
         method: method,
         headers: headers,
         body: body,
     });
-	// console.log("response: ", response);
+	console.log("response: ", response);
     const data = await response.json();
 
     if (response.status === 401 && requireAuth && localStorage.getItem('refresh_token')) {

@@ -3,7 +3,7 @@ async function joinLobby(lobby_id)
 {
 	body = JSON.stringify(window.user);
 	try {
-		const data = await myfetch(`https://localhost:8443/lobby/lobbies/$${lobby_id}/`, body, "POST", true);
+		const data = await myFetch(`https://localhost:8443/lobby/lobbies/$${lobby_id}/`, body, "POST", true);
 		seturl(`/pong?id=${lobby_id}`)
 	} catch (error) {
 		alert(error);

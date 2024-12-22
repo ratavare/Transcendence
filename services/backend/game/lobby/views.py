@@ -27,8 +27,8 @@ def getLobby(request, lobby_id=None):
 @permission_classes([IsAuthenticated])
 def postLobby(request, lobby_id=None):
 	if lobby_id:
-		return joinLobby(lobby_id)
-	return createLobby(lobby_id)
+		return joinLobby(request, lobby_id)
+	return createLobby(request)
 
 def joinLobby(request, lobby_id):
 	try:
@@ -44,7 +44,7 @@ def joinLobby(request, lobby_id):
 		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User does not exist'}, status=400)
-	
+
 def createLobby(request):
 	try:
 		id = request.POST.get('lobby_id')
