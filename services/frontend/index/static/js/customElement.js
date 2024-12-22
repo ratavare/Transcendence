@@ -1,16 +1,12 @@
-
 class PageElement extends HTMLElement {
-
 	display = undefined;
 
-	connectedCallback()
-	{
+	connectedCallback() {
 		this.display = this.style.display;
 		this.style.display = "none";
 	}
 
-	static go(url)
-	{
+	static go(url) {
 		window.location.href = "#" + url;
 	}
 
@@ -21,7 +17,6 @@ class PageElement extends HTMLElement {
 	static onUnLoad = (page) => {
 		// console.log("PageElement.onLoad");
 	};
-
 }
 
-customElements.define('page-element', PageElement);
+customElements.define("page-element", PageElement);
