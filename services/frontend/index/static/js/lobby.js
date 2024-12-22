@@ -1,8 +1,9 @@
 async function joinLobby(lobby_id) {
-	body = JSON.stringify(window.user);
+	// console.log("joinLobby: ", lobby_id);
+	const body = JSON.stringify(window.user);
 	try {
 		const data = await myFetch(
-			`https://localhost:8443/lobby/lobbies/$${lobby_id}/`,
+			`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
 			body,
 			"POST",
 			true
@@ -70,6 +71,7 @@ async function getLobbies() {
 			"GET",
 			true
 		);
+		// console.log(data.lobbies);
 		putLobbylist(data.lobbies);
 	} catch (error) {
 		console.log(error);
@@ -83,8 +85,9 @@ async function getLobbies() {
 		event.preventDefault();
 		const formData = new FormData(event.target);
 		try {
+			// console.log("createLobbyForm: ", formData);
 			const data = await myFetch(
-				"https://localhost:8443/lobby/$lobbies/",
+				"https://localhost:8443/lobby/lobbies/",
 				formData,
 				"POST",
 				true
