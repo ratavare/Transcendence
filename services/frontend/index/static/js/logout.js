@@ -1,16 +1,19 @@
-
 async function logoutFunc() {
-	if (location.hash === "#/logout")
-	{
+	if (location.hash === "#/logout") {
 		try {
-			await myFetch('https://localhost:8443/user_auth/logout/', null, 'POST', true);
-			localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-			localStorage.removeItem('is_2fa_enabled');
-			localStorage.removeItem('otp_secret');
+			await myFetch(
+				"https://localhost:8443/user_auth/logout/",
+				null,
+				"POST",
+				true
+			);
+			localStorage.removeItem("access_token");
+			localStorage.removeItem("refresh_token");
+			localStorage.removeItem("is_2fa_enabled");
+			localStorage.removeItem("otp_secret");
 			// alert('Successfully Logged Out');
-			seturl('/login');
-		} catch(error) {
+			seturl("/login");
+		} catch (error) {
 			console.log(error);
 		}
 	}

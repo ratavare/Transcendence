@@ -1,6 +1,5 @@
-
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 // ************************************* THREEJS ************************************************
 
@@ -20,19 +19,27 @@ PageElement.onLoad = () => {
 	let shakeDuration = 0;
 
 	// Scene Setup
-	const canvas = document.getElementById('canvas');
-	const canvasContainer = document.getElementById('canvas-item');
+	const canvas = document.getElementById("canvas");
+	const canvasContainer = document.getElementById("canvas-item");
 
-	const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+	const renderer = new THREE.WebGLRenderer({
+		canvas: canvas,
+		antialias: true,
+	});
 	renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8);
 	document.body.appendChild(renderer.domElement);
-	
+
 	if (!canvasContainer.contains(canvas)) {
 		canvasContainer.appendChild(canvas);
 	}
 
 	const scene = new THREE.Scene();
-	const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 10000);
+	const camera = new THREE.PerspectiveCamera(
+		100,
+		window.innerWidth / window.innerHeight,
+		0.1,
+		10000
+	);
 	const controls = new OrbitControls(camera, renderer.domElement);
 	camera.position.set(0, 500, 0);
 	controls.update();
@@ -40,42 +47,48 @@ PageElement.onLoad = () => {
 	// Skybox
 	const loader = new THREE.CubeTextureLoader();
 	const skybox = loader.load([
-		'media/skybox/right.png', // Right
-		'media/skybox/left.png', // Left
-		'media/skybox/top.png', // Top
-		'media/skybox/bottom.png', // Bottom
-		'media/skybox/front.png', // Front
-		'media/skybox/back.png'  // Back
+		"media/skybox/right.png", // Right
+		"media/skybox/left.png", // Left
+		"media/skybox/top.png", // Top
+		"media/skybox/bottom.png", // Bottom
+		"media/skybox/front.png", // Front
+		"media/skybox/back.png", // Back
 	]);
 	scene.background = skybox;
-	
+
 	// Sphere
 	const ballLoader = new THREE.TextureLoader();
-	const ballTexture = ballLoader.load('media/skybox/grey-scale-sun.jpg');
+	const ballTexture = ballLoader.load("media/skybox/grey-scale-sun.jpg");
 	const sphereMaterial = new THREE.MeshStandardMaterial({
 		map: ballTexture,
 		color: 0x33e3ff,
 		emissive: 0x33e3ff,
 		emissiveIntensity: 1.0,
-	  });
+	});
 	const sphereGeometry = new THREE.SphereGeometry(10, 32, 32);
 	const ball = new THREE.Mesh(sphereGeometry, sphereMaterial);
 	scene.add(ball);
 
 	// Lights
-	const ambientLight = new THREE.AmbientLight(0xffffff, AMBIENT_LIGHT_INTENSITY);
+	const ambientLight = new THREE.AmbientLight(
+		0xffffff,
+		AMBIENT_LIGHT_INTENSITY
+	);
 	scene.add(ambientLight);
 
-	const pointLight = new THREE.PointLight(0x33e3ff, POINT_LIGHT_INTENSITY, POINT_LIGHT_DISTANCE);
+	const pointLight = new THREE.PointLight(
+		0x33e3ff,
+		POINT_LIGHT_INTENSITY,
+		POINT_LIGHT_DISTANCE
+	);
 	pointLight.position.set(0, 0, 0);
 	scene.add(pointLight);
-	
+
 	let paddle1 = {};
 	let paddle2 = {};
 
 	// Functions
-	function  createEnvironment(data)
-	{
+	function createEnvironment(data) {
 		// Paddles and Table
 		// console.log("DATA: ", data)
 		const table1 = makeWall(
@@ -83,23 +96,23 @@ PageElement.onLoad = () => {
 			data.floorPositionY,
 			data.floorPositionZ,
 			data.boundariesWidth,
-			data.boundariesDepth, 
-			data.boundariesHeight,
+			data.boundariesDepth,
+			data.boundariesHeight
 		);
 		const table2 = makeWall(
 			data.ceilingPositionX,
 			data.ceilingPositionY,
 			data.ceilingPositionZ,
 			data.boundariesWidth,
-			data.boundariesDepth, 
-			data.boundariesHeight,
+			data.boundariesDepth,
+			data.boundariesHeight
 		);
 		paddle1 = makeParalellepiped(
 			data.paddle1PositionX,
 			data.paddlePositionY,
 			data.paddle1PositionZ,
 			data.paddleWidth,
-			data.paddleDepth, 
+			data.paddleDepth,
 			data.paddleLength,
 			PADDLE_COLOR
 		);
@@ -108,7 +121,7 @@ PageElement.onLoad = () => {
 			data.paddlePositionY,
 			data.paddle2PositionZ,
 			data.paddleWidth,
-			data.paddleDepth, 
+			data.paddleDepth,
 			data.paddleLength,
 			PADDLE_COLOR
 		);
@@ -119,8 +132,7 @@ PageElement.onLoad = () => {
 		scene.add(paddle2);
 	}
 
-	function makeParalellepiped(x, y, z, dx, dy, dz, color) 
-	{
+	function makeParalellepiped(x, y, z, dx, dy, dz, color) {
 		const material = new THREE.MeshStandardMaterial({
 			color: color,
 		});
@@ -129,22 +141,28 @@ PageElement.onLoad = () => {
 		return box;
 	}
 
-	function makeWall(x, y, z, dx, dy, dz)
-	{
+	function makeWall(x, y, z, dx, dy, dz) {
 		const textureLoader = new THREE.TextureLoader();
-	
-		const colorMap = textureLoader.load('media/walls/colorMap.png');
-		const normalMap = textureLoader.load('media/walls/normalMap.png');
-		const aoMap = textureLoader.load('media/walls/aoMap.png');
-		const metallicMap = textureLoader.load('media/walls/metallicMap.png');
-		const roughnessMap = textureLoader.load('media/walls/roughnessMap.png');
-		const heightMap = textureLoader.load('media/walls/heightMap.png');
+
+		const colorMap = textureLoader.load("media/walls/colorMap.png");
+		const normalMap = textureLoader.load("media/walls/normalMap.png");
+		const aoMap = textureLoader.load("media/walls/aoMap.png");
+		const metallicMap = textureLoader.load("media/walls/metallicMap.png");
+		const roughnessMap = textureLoader.load("media/walls/roughnessMap.png");
+		const heightMap = textureLoader.load("media/walls/heightMap.png");
 
 		const scaleX = dx / 100;
 		const scaleZ = dz / 100;
-	
-		const textures = [colorMap, normalMap, aoMap, metallicMap, roughnessMap, heightMap];
-		textures.forEach(texture => {
+
+		const textures = [
+			colorMap,
+			normalMap,
+			aoMap,
+			metallicMap,
+			roughnessMap,
+			heightMap,
+		];
+		textures.forEach((texture) => {
 			texture.wrapS = THREE.RepeatWrapping;
 			texture.wrapT = THREE.RepeatWrapping;
 			texture.repeat.set(scaleX, scaleZ);
@@ -158,7 +176,7 @@ PageElement.onLoad = () => {
 			metalnessMap: metallicMap,
 			roughnessMap: roughnessMap,
 			displacementMap: heightMap,
-			displacementScale: 0.1
+			displacementScale: 0.1,
 		});
 		material.aoMapIntensity = 1.0;
 		material.displacementBias = 0;
@@ -166,72 +184,61 @@ PageElement.onLoad = () => {
 		const box = new THREE.BoxGeometry(dx, dy, dz);
 		const mesh = new THREE.Mesh(box, material);
 		mesh.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
-		return (mesh)
+		return mesh;
 	}
 
-	function handlePaddleControls(player) 
-	{
-		document.addEventListener('keydown', (event) => 
-		{
+	function handlePaddleControls(player) {
+		document.addEventListener("keydown", (event) => {
 			let payload = null;
 			let payload2 = null;
-			switch (event.key) 
-			{
-				case 'W':
-				case 'w':
-				case 'ArrowUp':
+			switch (event.key) {
+				case "W":
+				case "w":
+				case "ArrowUp":
 					payload = { direction: -1 };
 					break;
-				case 's':
-				case 'S':
-				case 'ArrowDown':
+				case "s":
+				case "S":
+				case "ArrowDown":
 					payload = { direction: 1 };
 					break;
-				case 'p':
+				case "p":
 					payload2 = { pause: true };
 					break;
 			}
-			if (payload) 
-			{
+			if (payload) {
 				sendPayload(player, payload);
 			}
-			if (payload2)
-			{
-				sendPayload('pause', payload2);
+			if (payload2) {
+				sendPayload("pause", payload2);
 			}
 		});
 
-		document.addEventListener('keyup', (event) => 
-		{
+		document.addEventListener("keyup", (event) => {
 			let payload = null;
-			switch (event.key) 
-			{
-				case 'w':
-				case 's':
-				case 'W':
-				case 'S':
-				case 'ArrowUp':
-				case 'ArrowDown':
+			switch (event.key) {
+				case "w":
+				case "s":
+				case "W":
+				case "S":
+				case "ArrowUp":
+				case "ArrowDown":
 					payload = { direction: 0 };
 					break;
 			}
-			if (payload) 
-			{
+			if (payload) {
 				sendPayload(player, payload);
 			}
 		});
 	}
 
-	function updatePaddlePositions(payloadData) 
-	{
+	function updatePaddlePositions(payloadData) {
 		paddle1.position.z = payloadData.paddle1PositionZ;
 		paddle2.position.z = payloadData.paddle2PositionZ;
 	}
 
-	function applyCameraShake() 
-	{
-		if (shakeDuration > 0)
-		{
+	function applyCameraShake() {
+		if (shakeDuration > 0) {
 			const shakeX = (Math.random() - 0.5) * SHAKE_INTENSITY;
 			const shakeY = (Math.random() - 0.5) * SHAKE_INTENSITY;
 			const shakeZ = (Math.random() - 0.5) * SHAKE_INTENSITY;
@@ -240,14 +247,13 @@ PageElement.onLoad = () => {
 			camera.position.z += shakeZ;
 			shakeDuration--;
 		}
-		//if (shakeDuration == 0)   
+		//if (shakeDuration == 0)
 		//{
-		//	camera.position.set(0, 500, 0); 
+		//	camera.position.set(0, 500, 0);
 		//}
 	}
 
-	function updateBall(ballData)
-	{
+	function updateBall(ballData) {
 		ball.position.x = ballData.ballPositionX;
 		ball.position.z = ballData.ballPositionZ;
 		applyCameraShake();
@@ -255,30 +261,27 @@ PageElement.onLoad = () => {
 	}
 
 	const quitBtn = document.getElementById("quit-btn");
-	quitBtn.addEventListener('click', () => {
+	quitBtn.addEventListener("click", () => {
 		socket.close();
-	})
+	});
 
-	function win(message)
-	{
-		console.log('MESSAGE:', message);
-		const modalElement = document.getElementById('quit');
+	function win(message) {
+		console.log("MESSAGE:", message);
+		const modalElement = document.getElementById("quit");
 		const modal = new bootstrap.Modal(modalElement, {
-			backdrop: 'static',
+			backdrop: "static",
 			keyboard: false,
 		});
 		modal.show();
 		const winnerMsg = document.getElementById("winner-msg");
-		winnerMsg.innerHTML = message
-		readyBtn.style.display = 'block';
-		rendering = False
+		winnerMsg.innerHTML = message;
+		readyBtn.style.display = "block";
+		rendering = False;
 	}
 
 	// Modify the animate function to include swatting animation logic
-	function animate() 
-	{
-		if (rendering)
-			renderer.render(scene, camera);
+	function animate() {
+		if (rendering) renderer.render(scene, camera);
 	}
 
 	// saveSphereData();
@@ -288,153 +291,147 @@ PageElement.onLoad = () => {
 	// ************************************* WEBSOCKET ************************************************
 
 	const lobby_id = window.props.get("id");
-	const token = localStorage.getItem("playerToken") || ""
-	const socket = new WebSocket(`wss://localhost:8443/ws/${lobby_id}/?token=${token}`);
+	const token = localStorage.getItem("playerToken") || "";
+	const socket = new WebSocket(
+		`wss://localhost:8443/ws/${lobby_id}/?token=${token}`
+	);
 	let rendering = true;
 
-	function sendPayload(type, payload) 
-	{
-		socket.send(JSON.stringify({
-			type: type,
-			payload: payload
-		}));
+	function sendPayload(type, payload) {
+		socket.send(
+			JSON.stringify({
+				type: type,
+				payload: payload,
+			})
+		);
 	}
 
-	socket.onmessage = function(event) 
-	{
+	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
-		switch(data.type)
-		{
-			case 'token':
-				localStorage.setItem("playerToken", data.payload)
-				break
-			case 'readyBtn':
-				console.log("TEST: ", readyBtn.classList.contains('hidden'));
-				if (readyBtn.classList.contains('hidden'))
-				{
-					readyBtn.classList.remove('hidden');
+		switch (data.type) {
+			case "token":
+				localStorage.setItem("playerToken", data.payload);
+				break;
+			case "readyBtn":
+				console.log("TEST: ", readyBtn.classList.contains("hidden"));
+				if (readyBtn.classList.contains("hidden")) {
+					readyBtn.classList.remove("hidden");
 				}
-				if (data.payload == 'add')
-					readyBtn.classList.add('hidden');
-				break ;
-			case 'message':
+				if (data.payload == "add") readyBtn.classList.add("hidden");
+				break;
+			case "message":
 				receiveChatMessage(data.payload);
 				break;
-			case 'log':
+			case "log":
 				console.log(data.payload);
-				break
-			case 'state':
+				break;
+			case "state":
 				updateBall(data.payload);
 				updatePaddlePositions(data.payload);
 				break;
-			case 'graphicsInit':
-				console.log('Graphics initialized');
+			case "graphicsInit":
+				console.log("Graphics initialized");
 				createEnvironment(data.payload);
 				break;
-			case 'shake':
+			case "shake":
 				// shakeDuration = SHAKE_DURATION;
 				// applyCameraShake();
-				console.log('shake');
+				console.log("shake");
 				break;
-			case 'point':
+			case "point":
 				player1Score = data.payload.player1Score;
-				document.getElementById('player1score').innerHTML = player1Score;
+				document.getElementById("player1score").innerHTML =
+					player1Score;
 				player2Score = data.payload.player2Score;
-				document.getElementById('player2score').innerHTML = player2Score;
-				console.log('player1Score: ', player1Score, 'player2Score: ', player2Score);
+				document.getElementById("player2score").innerHTML =
+					player2Score;
+				console.log(
+					"player1Score: ",
+					player1Score,
+					"player2Score: ",
+					player2Score
+				);
 				break;
-			case 'gameOver':
+			case "gameOver":
 				win(data.payload);
-			case 'paddleInit':
-				if (data.payload.player == '1') {
-					handlePaddleControls('p1');
-				} else if (data.payload.player == '2') {
-					handlePaddleControls('p2');
+			case "paddleInit":
+				if (data.payload.player == "1") {
+					handlePaddleControls("p1");
+				} else if (data.payload.player == "2") {
+					handlePaddleControls("p2");
 				}
 		}
-	}
-
-	const readyBtn = document.getElementById('readyBtn');
-	readyBtn.onclick = async () => {
-		readyBtn.classList.add("hidden");
-		sendPayload('ready', {
-			ready: true,
-		});
-	}
-
-	socket.onopen = async () => 
-	{
-		sendPayload('message', {
-			status: 'connect',
-			message: `${window.user.username} joined the lobby!`,
-		});
-	}
-
-	socket.onclose = () => 
-	{
-		console.log('Socket closed unexpectedly');
-		seturl('/lobby');
 	};
 
-	
+	const readyBtn = document.getElementById("readyBtn");
+	readyBtn.onclick = async () => {
+		readyBtn.classList.add("hidden");
+		sendPayload("ready", {
+			ready: true,
+		});
+	};
+
+	socket.onopen = async () => {
+		sendPayload("message", {
+			status: "connect",
+			message: `${window.user.username} joined the lobby!`,
+		});
+	};
+
+	socket.onclose = () => {
+		console.log("Socket closed unexpectedly");
+		seturl("/lobby");
+	};
+
 	// ************************************* CHAT ************************************************
 	{
-		const chatInputForm = document.getElementById('chat-input-form');
-		chatInputForm.addEventListener('submit', (event) => {
+		const chatInputForm = document.getElementById("chat-input-form");
+		chatInputForm.addEventListener("submit", (event) => {
 			event.preventDefault();
 
-			const chatInput = event.target.querySelector('#chat-input');
+			const chatInput = event.target.querySelector("#chat-input");
 			sendMessage(chatInput.value);
 			chatInput.value = "";
 		});
 	}
-	
-	function receiveChatMessage(payload)
-	{
-		let color = "white"
-		const messageList = document.getElementById('chat-message-list');
-		const messageListItem = document.createElement('li');
+
+	function receiveChatMessage(payload) {
+		let color = "white";
+		const messageList = document.getElementById("chat-message-list");
+		const messageListItem = document.createElement("li");
 		if (payload.user) {
-			if (payload.user == window.user.username)
-				color = 'orangered'
+			if (payload.user == window.user.username) color = "orangered";
 			messageListItem.innerHTML = `
 				<b style="color: ${color}">${payload.user}: </b>
 				<span>${payload.message}</span>
 			`;
 		}
 		if (payload.status) {
-			if (payload.status == 'connect')
-				color = 'green';
-			if (payload.status == 'disconnect')
-				color = 'red'
+			if (payload.status == "connect") color = "green";
+			if (payload.status == "disconnect") color = "red";
 			messageListItem.innerHTML = `
 			<span style="color: ${color}">${payload.message}</span>
 			`;
 		}
 
-
-
 		messageList.appendChild(messageListItem);
 	}
-	
-	function sendMessage(data)
-	{
-		sendPayload('message', {
-			user: window.user.username,
-			message: data
-		})
-	}
 
+	function sendMessage(data) {
+		sendPayload("message", {
+			user: window.user.username,
+			message: data,
+		});
+	}
 
 	PageElement.onUnLoad = () => {
 		console.log("onUnLoad:pong");
-		sendPayload('message', {
-			status: 'disconnect',
-			message: `${window.user.username} disconnected.`
-	});
+		sendPayload("message", {
+			status: "disconnect",
+			message: `${window.user.username} disconnected.`,
+		});
 		renderer.dispose();
 		socket.close();
 		PageElement.onUnLoad = () => {};
-	}
-}
-
+	};
+};
