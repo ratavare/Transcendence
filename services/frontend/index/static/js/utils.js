@@ -86,14 +86,12 @@ async function myFetch(
 			body = JSON.stringify(myData);
 		}
 	}
-	console.log("headers: ", headers);
 
 	const response = await fetch(viewUrl, {
 		method: method,
 		headers: headers,
 		body: body,
 	});
-	console.log("response: ", response);
 	const data = await response.json();
 
 	if (

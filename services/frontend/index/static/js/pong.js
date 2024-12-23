@@ -290,13 +290,6 @@ PageElement.onLoad = () => {
 
 	// ************************************* WEBSOCKET ************************************************
 
-	const lobby_id = window.props.get("id");
-	const token = localStorage.getItem("playerToken") || "";
-	const socket = new WebSocket(
-		`wss://localhost:8443/ws/${lobby_id}/?token=${token}`
-	);
-	let rendering = true;
-
 	function sendPayload(type, payload) {
 		socket.send(
 			JSON.stringify({
@@ -306,6 +299,13 @@ PageElement.onLoad = () => {
 		);
 	}
 
+	let rendering = true;
+	const lobby_id = window.props.get("id");
+	const token = localStorage.getItem("playerToken") || "";
+	const socket = new WebSocket(
+		`wss://localhost:8443/ws/${encodeURIComponent(lobby_id)}/?token=${token}`
+	);
+
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
 		switch (data.type) {
@@ -313,7 +313,6 @@ PageElement.onLoad = () => {
 				localStorage.setItem("playerToken", data.payload);
 				break;
 			case "readyBtn":
-				console.log("TEST: ", readyBtn.classList.contains("hidden"));
 				if (readyBtn.classList.contains("hidden")) {
 					readyBtn.classList.remove("hidden");
 				}
@@ -373,65 +372,91 @@ PageElement.onLoad = () => {
 
 	socket.onopen = async () => {
 		sendPayload("message", {
-			status: "connect",
-			message: `${window.user.username} joined the lobby!`,
+			sender: "connect",
+			content: `${window.user.username} joined the lobby!`,
 		});
 	};
 
 	socket.onclose = () => {
 		console.log("Socket closed unexpectedly");
-		seturl("/lobby");
 	};
 
 	// ************************************* CHAT ************************************************
-	{
-		const chatInputForm = document.getElementById("chat-input-form");
-		chatInputForm.addEventListener("submit", (event) => {
-			event.preventDefault();
-
-			const chatInput = event.target.querySelector("#chat-input");
-			sendMessage(chatInput.value);
-			chatInput.value = "";
-		});
-	}
 
 	function receiveChatMessage(payload) {
 		let color = "white";
 		const messageList = document.getElementById("chat-message-list");
 		const messageListItem = document.createElement("li");
-		if (payload.user) {
-			if (payload.user == window.user.username) color = "orangered";
+		const chatContentElement = document.querySelector('.chat-content');
+	
+		if (payload.sender == "connect" || payload.sender == "disconnect") {
+			if (payload.sender == "connect") color = "limegreen";
+			if (payload.sender == "disconnect")color = "red";
+			messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
+		} else {
+			if (payload.sender == window.user.username) color = "orangered";
 			messageListItem.innerHTML = `
-				<b style="color: ${color}">${payload.user}: </b>
-				<span>${payload.message}</span>
+			<b style="color: ${color}">${payload.sender}: </b>
+			<span>${payload.content}</span>
 			`;
 		}
-		if (payload.status) {
-			if (payload.status == "connect") color = "green";
-			if (payload.status == "disconnect") color = "red";
-			messageListItem.innerHTML = `
-			<span style="color: ${color}">${payload.message}</span>
-			`;
-		}
-
 		messageList.appendChild(messageListItem);
+		if (chatContentElement) {
+			chatContentElement.scrollTop = chatContentElement.scrollHeight;
+		}
 	}
 
-	function sendMessage(data) {
+	function sendMessage(sender, content) {
 		sendPayload("message", {
-			user: window.user.username,
-			message: data,
+			sender: sender,
+			content: content,
 		});
 	}
 
-	PageElement.onUnLoad = () => {
-		console.log("onUnLoad:pong");
-		sendPayload("message", {
-			status: "disconnect",
-			message: `${window.user.username} disconnected.`,
+	async function getChat()
+	{
+		try {
+			const data = await myFetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/`, null, 'GET', true);
+			console.log("Data: ", data.lobby.chat)
+			for (const message of data.lobby.chat){
+				receiveChatMessage(message);
+			}
+		}catch (error) {
+			console.log(error);
+		}
+	}
+
+	function messageForm()
+	{
+		const chatInputForm = document.getElementById("chat-input-form");
+		chatInputForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+	
+			const chatInput = event.target.querySelector("#chat-input");
+			if (chatInput.value)
+				sendMessage(window.user.username, chatInput.value);
+			chatInput.value = "";
 		});
-		renderer.dispose();
+	}
+
+	messageForm()
+	getChat();
+
+	window.onbeforeunload = () => {
+		sendMessage("disconnect", `${window.user.username} left the lobby`);
+	}
+
+	PageElement.onUnload = () => {
+		sendMessage("disconnect", `${window.user.username} left the lobby`);
+
 		socket.close();
-		PageElement.onUnLoad = () => {};
+
+		if (renderer)
+			renderer.dispose();
+
+		document.removeEventListener('keyup', handlePaddleControls);
+		document.removeEventListener('keydown', handlePaddleControls);
+		
+		PageElement.onUnload = () => {};
 	};
 };

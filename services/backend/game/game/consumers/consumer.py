@@ -16,7 +16,6 @@ class Consumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		self.lobby_id = self.scope["url_route"]["kwargs"]["lobby_id"]
 	
-		# Create lobby
 		if self.lobby_id not in lobbies:
 			lobbies[self.lobby_id] = {"players": list(), "gameLoop": None, "game": Pong()}
 		elif self.lobby_id in deleteTimers:
@@ -234,10 +233,8 @@ class Consumer(AsyncWebsocketConsumer):
 
 	async def saveChatMessageDb(self, payload):
 		lobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
-		if payload['user']:
-			message = Message(sender=payload['user'], content=payload['message'])
-		if payload['status']:
-			message = Message(sender='server', content=payload['message'])
-		await database_sync_to_async(message.save)()
+		if payload.get('sender'):
+			message = await database_sync_to_async(Message.objects.create)(sender=payload['sender'], content=payload['content'])
+		else:
+			return
 		await database_sync_to_async(lobby.chat.add)(message)
-		await database_sync_to_async(lobby.save)()
