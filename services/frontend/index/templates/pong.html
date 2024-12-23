@@ -3,13 +3,13 @@
 	<style>
 		h1 {
 			color: blueviolet;
-			font-family: 'Courier New', Courier, monospace;
+			font-family: "Courier New", Courier, monospace;
 			text-align: center;
 			font-size: 2rem;
 		}
-	
+
 		h2 {
-			font-family: 'Courier New', Courier, monospace;
+			font-family: "Courier New", Courier, monospace;
 			text-align: center;
 			font-size: 3rem;
 		}
@@ -32,7 +32,14 @@
 			display: flex;
 			flex-direction: column;
 			border: 2px solid;
-			border-image: linear-gradient(-80deg, rgb(73, 0, 128), rgb(228, 50, 252), rgb(73, 0, 128), rgb(228, 50, 252)) 1;
+			border-image: linear-gradient(
+					-80deg,
+					rgb(73, 0, 128),
+					rgb(228, 50, 252),
+					rgb(73, 0, 128),
+					rgb(228, 50, 252)
+				)
+				1;
 		}
 
 		.chat-container {
@@ -40,27 +47,34 @@
 			justify-content: flex-end;
 			display: flex;
 			flex-direction: column;
-			height: 800px ;
+			height: 800px;
 			width: 300px;
 			min-width: 300px;
 			margin-left: 20px;
 			border: 2px solid;
-			border-image: linear-gradient(-80deg, rgb(73, 0, 128), rgb(228, 50, 252), rgb(73, 0, 128), rgb(228, 50, 252)) 1;
+			border-image: linear-gradient(
+					-80deg,
+					rgb(73, 0, 128),
+					rgb(228, 50, 252),
+					rgb(73, 0, 128),
+					rgb(228, 50, 252)
+				)
+				1;
 			padding: 5px;
 			overflow-y: auto;
 		}
 
 		.chat-content {
 			display: flex;
-			
+
 			overflow-y: auto;
 			color: white;
 			font-size: 15px;
-			
+
 			inline-size: 95%;
 			word-break: break-all;
 		}
-		
+
 		.chat-input-container {
 			padding: 10px;
 			display: flex;
@@ -71,7 +85,7 @@
 			padding: 10px;
 			width: 100%;
 		}
-		
+
 		.info-container {
 			display: flex;
 			flex-direction: row;
@@ -80,24 +94,44 @@
 			justify-content: space-evenly;
 		}
 
-		::-webkit-scrollbar { 
+		::-webkit-scrollbar {
 			width: 2px;
-		} 
+		}
 
-		::-webkit-scrollbar-thumb { 
-			background: linear-gradient(-80deg, rgb(73, 0, 128), rgb(228, 50, 252));
-		} 
+		::-webkit-scrollbar-thumb {
+			background: linear-gradient(
+				-80deg,
+				rgb(73, 0, 128),
+				rgb(228, 50, 252)
+			);
+		}
 
-		::-webkit-resizer { 
-			background: linear-gradient(-80deg, rgb(73, 0, 128), rgb(228, 50, 252));
+		::-webkit-resizer {
+			background: linear-gradient(
+				-80deg,
+				rgb(73, 0, 128),
+				rgb(228, 50, 252)
+			);
 			width: 2px;
-		} 
+		}
 
 		#readyBtn {
 			text-align: center;
 			font-size: 1.5rem;
-			background-color: linear-gradient(-80deg, black, rgb(23, 13, 113), rgb(73, 0, 128), black);
-			color: linear-gradient(-80deg, black, rgb(23, 13, 113), rgb(73, 0, 128), black);
+			background-color: linear-gradient(
+				-80deg,
+				black,
+				rgb(23, 13, 113),
+				rgb(73, 0, 128),
+				black
+			);
+			color: linear-gradient(
+				-80deg,
+				black,
+				rgb(23, 13, 113),
+				rgb(73, 0, 128),
+				black
+			);
 			border-radius: 25px;
 			padding-right: 20px;
 			padding-left: 20px;
@@ -108,39 +142,56 @@
 			height: 100%;
 			display: block;
 		}
-
 	</style>
 	<h2 id="winner"></h2>
 	<h1>Pong Game</h1>
 	<div class="game-container">
 		<div class="canvas-container">
 			<div id="canvas-item" class="canvas-item">
-				<canvas id='canvas'></canvas>
+				<canvas id="canvas"></canvas>
 			</div>
 			<div class="info-container">
 				<h2 id="player1score" class="player1">0</h2>
-				<button id='readyBtn' class="hidden">Ready!</button>
+				<button id="readyBtn" class="hidden">Ready!</button>
 				<h2 id="player2score" class="player2">0</h2>
 			</div>
 		</div>
 		<div class="chat-container">
 			<div id="chat-content" class="chat-content">
-				<ul id="chat-message-list" style="list-style-type: none;">
-				</ul>
+				<ul id="chat-message-list" style="list-style-type: none"></ul>
 			</div>
 			<form id="chat-input-form" class="chat-input">
-				<input id="chat-input" class="chat-input" type="text" placeholder="Send a message..." autocomplete="off">
+				<input
+					id="chat-input"
+					class="chat-input"
+					type="text"
+					placeholder="Send a message..."
+					autocomplete="off"
+				/>
 			</form>
 		</div>
 	</div>
 
 	<!-- Quit modal -->
-	<div class="modal fade" id="quit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div
+		class="modal fade"
+		id="quit"
+		tabindex="-1"
+		aria-labelledby="exampleModalLabel"
+		aria-hidden="true"
+	>
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-body">
 					<p id="winner-msg"></p>
-					<button id="quit-btn" type="button" data-bs-dismiss="modal" class="btn btn-primary">Quit</button>
+					<button
+						id="quit-btn"
+						type="button"
+						data-bs-dismiss="modal"
+						class="btn btn-primary"
+					>
+						Quit
+					</button>
 				</div>
 			</div>
 		</div>
