@@ -4,7 +4,7 @@ const pages = document.querySelectorAll("page-element");
 const l = new Map();
 for (const page of pages) {
 	document.body.removeChild(page);
-	console.log("removeChild: ", page);
+	// console.log("removeChild: ", page);
 	l.set(page.getAttribute("name"), page);
 }
 
@@ -90,7 +90,7 @@ async function setPage(name) {
 		newScript.src = "static/js/" + name + ".js";
 		if (name == "pong") newScript.type = "module";
 		newScript.onload = function () {
-			console.log(`${name}.js loaded successfully`);
+			// console.log(`${name}.js loaded successfully`);
 		};
 		newPage.appendChild(newScript);
 		document.body.appendChild(newPage);

@@ -28,3 +28,26 @@
 		}
 	});
 }
+
+document.getElementById("intra-login").addEventListener("click", function () {
+	const clientId =
+		"u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725";
+	const redirectUri = "https://localhost:8443/user_auth/login/";
+	const responseType = "code";
+
+	const authUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}`;
+
+	window.location.href = authUrl;
+});
+
+const hash = window.location.hash.substring(1);
+const queryParams = new URLSearchParams(hash.split("?")[1]);
+const code = queryParams.get("code");
+const accessToken = queryParams.get("access_token");
+const refreshToken = queryParams.get("refresh_token");
+if (code && accessToken && refreshToken) {
+	localStorage.setItem("access_token", accessToken);
+	localStorage.setItem("refresh_token", refreshToken);
+
+	window.location.href = "https://localhost:8443/#/home";
+}
