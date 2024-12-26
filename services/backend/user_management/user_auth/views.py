@@ -164,8 +164,8 @@ def handle_regular_login(request):
 		profile = getattr(user, 'profile', None)
 		is_2fa_enabled = bool(profile and profile.otp_secret)
 
-		if is_2fa_enabled:
-			return JsonResponse({'status': '2fa_required'}, status=200)
+		# if is_2fa_enabled:
+		# 	return JsonResponse({'status': '2fa_required'}, status=200)
 
 		login(request, user)
 		refresh = RefreshToken.for_user(user)
@@ -174,6 +174,7 @@ def handle_regular_login(request):
 			'username': user.username,
 			'access': str(refresh.access_token),
 			'refresh': str(refresh),
+			'otp_secret': profile.otp_secret if profile else '',
 			'is_2fa_enabled': is_2fa_enabled,
 		}, status=200)
 

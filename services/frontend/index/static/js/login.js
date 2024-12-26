@@ -7,10 +7,9 @@ function handleOAuthRedirect() {
 	}
 }
 
-async function processLogin(accessToken, refreshToken, auth, otp_secret,  username) {
+async function processLogin(accessToken, refreshToken, auth, otp_secret, username) {
 	if (accessToken && refreshToken) {
-		console.log("Login successful");
-		if (auth === "True") {
+		if (auth === "True" || auth === true) {
 			const otpModal = new bootstrap.Modal(
 				document.getElementById("otp-modal"),
 				{
@@ -63,6 +62,27 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret,  userna
 		alert("Login failed. OAuth parameters missing.");
 	}
 }
+
+document.getElementById("form-login").addEventListener("submit", async function (event) {
+	event.preventDefault();
+	const formData = new FormData(event.target);
+
+	try {
+		const data = await myFetch(
+			"https://localhost:8443/user_auth/login/",
+			formData,
+			"POST",
+			false
+		);
+		console.log("Login successful ", data);
+		processLogin(data.access, data.refresh, data.is_2fa_enabled, data.otp_secret, data.username);
+	} catch (error) {
+		console.log("login.js: ", error);
+		const messages = Object.values(error);
+		console.log("Login Failed. Reasons: ", messages);
+		messages.forEach(alert);
+	}
+});
 
 document.getElementById("intra-login").addEventListener("click", function () {
 	const { code, accessToken, refreshToken } = getUrlParams();
