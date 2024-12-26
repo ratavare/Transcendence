@@ -28,9 +28,6 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticated])
 def enable_2fa(request):
 	user = request.user
-
-	profile, created = Profile.objects.get_or_create(user=user)
-
 	otp_secret = pyotp.random_base32()
 
 	totp = pyotp.TOTP(otp_secret)
@@ -56,17 +53,21 @@ def disable_2fa(request):
 	return JsonResponse({'status': 'error', 'error': 'Profile not found'}, status=400)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def verify_otp(request):
-	user = request.user
+	if request.user.is_authenticated:
+		user = request.user
+	else:
+		user = User.objects.filter(username=request.data.get('username')).first()
 	otp = request.data.get('otp')
-	otp_secret = request.data.get('otp_secret')
 	profile = getattr(user, 'profile', None)
+	otp_secret = request.data.get('otp_secret')
+	logging.debug(f"Verifying OTP: {otp} for user: {user.username} with otp_secret: {otp_secret} and profile: {profile}")
 	if profile and otp_secret:
 		totp = pyotp.TOTP(otp_secret)
+		profile.otp_secret = otp_secret
+		profile.save()
 		if totp.verify(otp):
-			profile.otp_secret = otp_secret
-			profile.save()
 			return JsonResponse({'status': 'success'}, status=200)
 	return JsonResponse({'status': 'error', 'error': 'Invalid OTP'}, status=400)
 
@@ -90,6 +91,7 @@ def registerView(request):
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def loginView(request):
+	logging.debug("Handling login")
 	if request.method == 'GET':
 		code = request.GET.get('code')
 		if code:
@@ -103,6 +105,7 @@ def loginView(request):
 			return handle_intra_oauth_login(request, request.POST['code'])
 		
 		if step == '1':
+			logging.debug("Handling regular login")
 			return handle_regular_login(request)
 		elif step == '2':
 			return handle_otp_verification(request)
@@ -141,13 +144,19 @@ def handle_intra_oauth_login(request, code):
 	login(request, user)
 	refresh = RefreshToken.for_user(user)
 
-	redirect_url = f'https://localhost:8443/#/login?code={code}&access_token={refresh.access_token}&refresh_token={refresh}'
+	profile = getattr(user, 'profile', None)
+	is_2fa_enabled = bool(profile and profile.otp_secret)
+
+	otp_secret = profile.otp_secret if profile else ''
+
+	redirect_url = f'https://localhost:8443/#/login?code={code}&access_token={refresh.access_token}&refresh_token={refresh}&2fa={is_2fa_enabled}&otp_secret={otp_secret}&username={user.username}'
 	return HttpResponseRedirect(redirect_url)
 
 def handle_regular_login(request):
 	"""
 	Handle regular login with username/password.
 	"""
+	logging.debug("Handling regular login")
 	form = AuthenticationForm(request, data=request.POST)
 	if form.is_valid():
 		user = form.get_user()

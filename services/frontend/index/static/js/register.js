@@ -40,11 +40,7 @@ document.getElementById("intra-login").addEventListener("click", function () {
 	window.location.href = authUrl;
 });
 
-const hash = window.location.hash.substring(1);
-const queryParams = new URLSearchParams(hash.split("?")[1]);
-const code = queryParams.get("code");
-const accessToken = queryParams.get("access_token");
-const refreshToken = queryParams.get("refresh_token");
+const { code, accessToken, refreshToken } = getUrlParams();
 if (code && accessToken && refreshToken) {
 	localStorage.setItem("access_token", accessToken);
 	localStorage.setItem("refresh_token", refreshToken);

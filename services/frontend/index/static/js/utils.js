@@ -117,3 +117,17 @@ async function myFetch(
 	}
 	return data;
 }
+
+function getUrlParams() {
+	const hash = window.location.hash.substring(1);
+	const queryParams = new URLSearchParams(hash.split("?")[1]);
+
+	return {
+		code: queryParams.get("code"),
+		accessToken: queryParams.get("access_token"),
+		refreshToken: queryParams.get("refresh_token"),
+		auth: queryParams.get("2fa"),
+		otp_secret: queryParams.get("otp_secret"),
+		username: queryParams.get("username"),
+	};
+}

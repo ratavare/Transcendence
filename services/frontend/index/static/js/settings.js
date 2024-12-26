@@ -1,17 +1,34 @@
-const is2FAEnabled = localStorage.getItem("is_2fa_enabled") === "true";
-const setupContainer = document.getElementById("2fa-setup");
-const statusContainer = document.getElementById("2fa-status");
-const qrContainer = document.getElementById("qr-container");
-const setupKeyContainer = document.getElementById("setup-key-container");
-const otpContainer = document.getElementById("otp-container");
+function get2fa() {
+	return localStorage.getItem("is_2fa_enabled") === "true";
+}
+
+function getSetupContainer() {
+	return document.getElementById("2fa-setup");
+}
+
+function getStatusContainer() {
+	return document.getElementById("2fa-status");
+}
+
+function getQrContainer() {
+	return document.getElementById("qr-container");
+}
+
+function getSetupKeyContainer() {
+	return document.getElementById("setup-key-container");
+}
+
+function getOtpContainer() {
+	return document.getElementById("otp-container");
+}
 
 function updateUI() {
-	if (is2FAEnabled) {
-		setupContainer.style.display = "none";
-		statusContainer.style.display = "block";
+	if (get2fa()) {
+		getSetupContainer().style.display = "none";
+		getStatusContainer().style.display = "block";
 	} else {
-		setupContainer.style.display = "block";
-		statusContainer.style.display = "none";
+		getSetupContainer().style.display = "block";
+		getStatusContainer().style.display = "none";
 	}
 }
 
@@ -28,11 +45,11 @@ document
 				true
 			);
 			if (data.qr_code) {
-				qrContainer.innerHTML = `<img src="data:image/png;base64,${data.qr_code}" />`;
+				getQrContainer().innerHTML = `<img src="data:image/png;base64,${data.qr_code}" />`;
 				document.getElementById("setup-key").textContent =
 					data.otp_secret;
-				setupKeyContainer.style.display = "block";
-				otpContainer.style.display = "block";
+				getSetupKeyContainer().style.display = "block";
+				getOtpContainer().style.display = "block";
 				localStorage.setItem("otp_secret", data.otp_secret);
 			} else {
 				alert("Failed to activate 2FA.");
@@ -55,11 +72,11 @@ document
 				true
 			);
 			if (data.status === "success") {
-				qrContainer.innerHTML = "";
-				setupKeyContainer.style.display = "none";
-				otpContainer.style.display = "none";
-				setupContainer.style.display = "none";
-				statusContainer.style.display = "block";
+				getQrContainer().innerHTML = "";
+				getSetupKeyContainer().style.display = "none";
+				getOtpContainer().style.display = "none";
+				getSetupContainer().style.display = "none";
+				getStatusContainer().style.display = "block";
 				localStorage.setItem("is_2fa_enabled", "true");
 				localStorage.removeItem("otp_secret");
 				alert("Successfully enabled 2FA");
@@ -74,9 +91,9 @@ document
 document
 	.getElementById("cancel-2fa-button")
 	.addEventListener("click", function () {
-		qrContainer.innerHTML = "";
-		setupKeyContainer.style.display = "none";
-		otpContainer.style.display = "none";
+		getQrContainer().innerHTML = "";
+		getSetupKeyContainer().style.display = "none";
+		getOtpContainer().style.display = "none";
 		localStorage.removeItem("otp_secret");
 	});
 
@@ -92,8 +109,8 @@ document
 			);
 			if (data.status === "success") {
 				alert("2FA has been disabled.");
-				statusContainer.style.display = "none";
-				setupContainer.style.display = "block";
+				getStatusContainer().style.display = "none";
+				getSetupContainer().style.display = "block";
 				localStorage.setItem("is_2fa_enabled", "false");
 			} else {
 				alert("Failed to disable 2FA.");
