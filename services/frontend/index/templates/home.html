@@ -1,58 +1,129 @@
 <page-element name="home" authenticated="">
-	{% include 'navbar.html' with authenticated="true" %}
-	
-	<!-- Add buttons using Bootstrap classes -->
-	<div class="container mt-4">
-		<div class="d-flex flex-column align-items-center">
-			<button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#createMatchModal">Create Match</button>
-			<button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#joinMatchModal">Join Match</button>
-		</div>
-	</div>
+    {% load static %}
+    {% include 'navbar.html' with authenticated="true" %}
+    
+    <!-- Add image here -->
+    <div class="container mt-4">
+        <div class="d-flex flex-column align-items-center justify-content-center text-center mb-4 mt-4 p-4 card">   
+            <img src="{% static 'textures/pixil-frame-0.png' %}" alt="lettering" class="img-fluid">
+            <button class="btn btn-primary mb-2 play-button" data-bs-toggle="modal" data-bs-target="#playModal">Play</button>
+        </div>
+    </div>
 
-	<style>
-		.custom-modal-size {
-			max-width: 25%; /* Adjust as needed */
+    <style>
+        .custom-modal-size {
+            max-width: 25%; /* Adjust as needed */
+        }
+        .play-button {
+            background-color: #810cc0; /* Custom background color */
+            border: none; /* Remove borders */
+            color: white; /* White text */
+            padding: 15px 32px; /* Some padding */
+            text-align: center; /* Centered text */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Make the button inline-block */
+			font: inherit;
+            font-size: 16px; /* Increase font size */
+            margin: 4px 2px; /* Some margin */
+            cursor: pointer; /* Pointer/hand icon */
+            border-radius: none; /* Rounded corners */
+            transition: background-color 0.3s; /* Smooth transition */
+        }
+        .play-button:hover {
+            background-color: #6200ff; /* Darker green on hover */
+        }
+		h3 {
+			color: #000;
+			font-size: 1.5em;
+			font-weight: bold;
 		}
-	</style>
-	
-	<!-- Create Match Modal -->
-	<div class="modal fade" id="createMatchModal" tabindex="-1" aria-labelledby="createMatchModalLabel" aria-hidden="true">
-		<div class="modal-dialog custom-modal-size"> <!-- Add custom class for specific size -->
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="createMatchModalLabel">Create Match</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<div class="d-flex flex-column align-items-center">
-						<button id="createSingleplayerMatch" class="btn btn-secondary mb-2" data-bs-dismiss="modal">Create Singleplayer Match</button>
-						<button id="createLocalMultiplayerMatch" class="btn btn-secondary mb-2" data-bs-dismiss="modal">Create Local Multiplayer Match</button>
-						<button id="createOnlineMultiplayerMatch" class="btn btn-secondary" data-bs-dismiss="modal">Create Online Multiplayer Match</button>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
+    </style>
+    
+    <!-- Play Modal -->
+    <div class="modal fade" id="playModal" tabindex="-1" aria-labelledby="playModalLabel" aria-hidden="true">
+        <div class="modal-dialog custom-modal-size">
+            <div class="modal-content" style="background-color: #000000; color: #ffffff;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="playModalLabel">Play</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex flex-column align-items-center">
+                        <button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#createMatchModal" data-bs-dismiss="modal">Create Match</button>
+                        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#joinMatchModal" data-bs-dismiss="modal">Join Match</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<!-- Join Match Modal -->
-	<div class="modal fade" id="joinMatchModal" tabindex="-1" aria-labelledby="joinMatchModalLabel" aria-hidden="true">
-		<div class="modal-dialog custom-modal-size">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="joinMatchModalLabel">Join Match</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
+<!-- Create Match Modal -->
+<div class="modal fade" id="createMatchModal" tabindex="-1" aria-labelledby="createMatchModalLabel" aria-hidden="true">
+    <div class="modal-dialog custom-modal-size">
+        <div class="modal-content" style="background-color: #000000; color: #ffffff;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createMatchModalLabel">Create Match</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex flex-column align-items-center">
+                    <button id="createSingleplayerMatch" class="btn btn-secondary mb-2" data-bs-dismiss="modal">Create Singleplayer Match</button>
+                    <button id="createLocalMultiplayerMatch" class="btn btn-secondary mb-2" data-bs-dismiss="modal">Create Local Multiplayer Match</button>
+                    <button id="createOnlineMultiplayerMatch" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#createLobbyModal" data-bs-dismiss="modal">Create Online Multiplayer Match</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create a lobby Modal -->
+<div class="modal fade" id="createLobbyModal" tabindex="-1" aria-labelledby="createLobbyModalLabel" aria-hidden="true">
+    <div class="modal-dialog custom-modal-size">
+        <div class="modal-content" style="background-color: #000000; color: #ffffff;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createLobbyModalLabel">Create Lobby</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4>Insert a lobby name:</h4>
+                    <div class="container mt-5">
+                        <form method="POST" id="create-lobby-form">
+                            <input placeholder="Create a lobby.." name="lobby_id" style="background-color: #000000; border: 2px solid #505050; padding: 10px; border-radius: 5px; color: #ffffff;" onfocus="this.style.backgroundColor='#3b3b3b'" onblur="this.style.backgroundColor='#000000'">
+                            <input class="btn btn-outline-secondary" type="submit" data-bs-dismiss="modal" style="background-color: #000000; border: 2px solid #3b3b3b; padding: 10px; border-radius: 5px; color: #ffffff; margin-top: 10px;">
+                        </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Join Match Modal -->
+    <div class="modal fade" id="joinMatchModal" tabindex="-1" aria-labelledby="joinMatchModalLabel" aria-hidden="true">
+        <div class="modal-dialog custom-modal-size">
+            <div class="modal-content" style="background-color: #000000; color: #ffffff;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="joinMatchModalLabel">Join Match</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 				<div class="modal-body">
-					<!-- Add your form or content here -->
-					<p>Form to join a match goes here.</p>
+					<h3>Select a Lobby</h3>
 				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
+				<div class="modal-body" id="lobby-list">
+					</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </page-element>
