@@ -326,14 +326,16 @@ PageElement.onLoad = () => {
 		}
 	});
 
-	const readyBtn = document.getElementById("readyBtn");
+	const readyBtn = document.getElementById('readyBtn');
+	const overlayText = document.getElementById('overlay-text');
 	readyBtn.onclick = async () => {
 		readyBtn.classList.add("hidden");
-		if (socket.readyState == socket.OPEN)
-			sendPayload("ready", {
-				ready: true,
-			});
-	};
+		sendPayload('ready', {
+			ready: true,
+		});
+		overlayText.textContent = 'Waiting for the other player';
+		console.log('Ready button clicked');
+	}
 
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
