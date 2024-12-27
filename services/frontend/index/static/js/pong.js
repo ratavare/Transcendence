@@ -305,6 +305,14 @@ PageElement.onLoad = () => {
 	const socket = new WebSocket(
 		`wss://localhost:8443/ws/${encodeURIComponent(lobby_id)}/?token=${token}`
 	);
+	
+	const readyBtn = document.getElementById("readyBtn");
+	readyBtn.onclick = async () => {
+		readyBtn.classList.add("hidden");
+		sendPayload("ready", {
+			ready: true,
+		});
+	};
 
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
@@ -360,14 +368,6 @@ PageElement.onLoad = () => {
 					handlePaddleControls("p2");
 				}
 		}
-	};
-
-	const readyBtn = document.getElementById("readyBtn");
-	readyBtn.onclick = async () => {
-		readyBtn.classList.add("hidden");
-		sendPayload("ready", {
-			ready: true,
-		});
 	};
 
 	socket.onopen = async () => {
