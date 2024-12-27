@@ -299,19 +299,40 @@ PageElement.onLoad = () => {
 		);
 	}
 
+	async function checkLobby(lobbyId)
+	{
+		try {
+			const data = await myFetch(`https://localhost:8443/lobby/lobbies/${lobbyId}/`, null, 'GET', true);
+		}catch (error) {
+			console.log(error);
+			seturl('/home');
+		}
+	}
+
 	let rendering = true;
 	const lobby_id = window.props.get("id");
+	checkLobby(lobby_id)
 	const token = localStorage.getItem("playerToken") || "";
 	const socket = new WebSocket(
 		`wss://localhost:8443/ws/${encodeURIComponent(lobby_id)}/?token=${token}`
 	);
 	
+	
+	window.addEventListener('popstate', () => {
+		const hash = window.location.hash;
+		if (hash.includes("?")) {
+			const lobbyId = window.props.get("id");
+			checkLobby(lobbyId);
+		}
+	});
+
 	const readyBtn = document.getElementById("readyBtn");
 	readyBtn.onclick = async () => {
 		readyBtn.classList.add("hidden");
-		sendPayload("ready", {
-			ready: true,
-		});
+		if (socket.readyState == socket.OPEN)
+			sendPayload("ready", {
+				ready: true,
+			});
 	};
 
 	socket.onmessage = function (event) {
@@ -361,12 +382,17 @@ PageElement.onLoad = () => {
 				break;
 			case "gameOver":
 				win(data.payload);
+				break;
 			case "paddleInit":
 				if (data.payload.player == "1") {
 					handlePaddleControls("p1");
 				} else if (data.payload.player == "2") {
 					handlePaddleControls("p2");
 				}
+				break;
+			case "error":
+				socket.close()
+				seturl('/home');
 		}
 	};
 
