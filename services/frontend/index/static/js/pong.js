@@ -45,29 +45,29 @@ PageElement.onLoad = () => {
 	controls.update();
 
 	// Skybox
-	const loader = new THREE.CubeTextureLoader();
-	const skybox = loader.load([
-		"media/skybox/right.png", // Right
-		"media/skybox/left.png", // Left
-		"media/skybox/top.png", // Top
-		"media/skybox/bottom.png", // Bottom
-		"media/skybox/front.png", // Front
-		"media/skybox/back.png", // Back
-	]);
-	scene.background = skybox;
+	// const loader = new THREE.CubeTextureLoader();
+	// const skybox = loader.load([
+	// 	"media/skybox/right.png", // Right
+	// 	"media/skybox/left.png", // Left
+	// 	"media/skybox/top.png", // Top
+	// 	"media/skybox/bottom.png", // Bottom
+	// 	"media/skybox/front.png", // Front
+	// 	"media/skybox/back.png", // Back
+	// ]);
+	// scene.background = skybox;
 
 	// Sphere
-	const ballLoader = new THREE.TextureLoader();
-	const ballTexture = ballLoader.load("media/skybox/grey-scale-sun.jpg");
-	const sphereMaterial = new THREE.MeshStandardMaterial({
-		map: ballTexture,
-		color: 0x33e3ff,
-		emissive: 0x33e3ff,
-		emissiveIntensity: 1.0,
-	});
-	const sphereGeometry = new THREE.SphereGeometry(10, 32, 32);
-	const ball = new THREE.Mesh(sphereGeometry, sphereMaterial);
-	scene.add(ball);
+	// const ballLoader = new THREE.TextureLoader();
+	// const ballTexture = ballLoader.load("media/skybox/grey-scale-sun.jpg");
+	// const sphereMaterial = new THREE.MeshStandardMaterial({
+	// 	map: ballTexture,
+	// 	color: 0x33e3ff,
+	// 	emissive: 0x33e3ff,
+	// 	emissiveIntensity: 1.0,
+	// });
+	// const sphereGeometry = new THREE.SphereGeometry(10, 32, 32);
+	// const ball = new THREE.Mesh(sphereGeometry, sphereMaterial);
+	// scene.add(ball);
 
 	// Lights
 	const ambientLight = new THREE.AmbientLight(
@@ -142,49 +142,49 @@ PageElement.onLoad = () => {
 	}
 
 	function makeWall(x, y, z, dx, dy, dz) {
-		const textureLoader = new THREE.TextureLoader();
+		// const textureLoader = new THREE.TextureLoader();
 
-		const colorMap = textureLoader.load("media/walls/colorMap.png");
-		const normalMap = textureLoader.load("media/walls/normalMap.png");
-		const aoMap = textureLoader.load("media/walls/aoMap.png");
-		const metallicMap = textureLoader.load("media/walls/metallicMap.png");
-		const roughnessMap = textureLoader.load("media/walls/roughnessMap.png");
-		const heightMap = textureLoader.load("media/walls/heightMap.png");
+		// const colorMap = textureLoader.load("media/walls/colorMap.png");
+		// const normalMap = textureLoader.load("media/walls/normalMap.png");
+		// const aoMap = textureLoader.load("media/walls/aoMap.png");
+		// const metallicMap = textureLoader.load("media/walls/metallicMap.png");
+		// const roughnessMap = textureLoader.load("media/walls/roughnessMap.png");
+		// const heightMap = textureLoader.load("media/walls/heightMap.png");
 
-		const scaleX = dx / 100;
-		const scaleZ = dz / 100;
+		// const scaleX = dx / 100;
+		// const scaleZ = dz / 100;
 
-		const textures = [
-			colorMap,
-			normalMap,
-			aoMap,
-			metallicMap,
-			roughnessMap,
-			heightMap,
-		];
-		textures.forEach((texture) => {
-			texture.wrapS = THREE.RepeatWrapping;
-			texture.wrapT = THREE.RepeatWrapping;
-			texture.repeat.set(scaleX, scaleZ);
-		});
+		// const textures = [
+		// 	colorMap,
+		// 	normalMap,
+		// 	aoMap,
+		// 	metallicMap,
+		// 	roughnessMap,
+		// 	heightMap,
+		// ];
+		// textures.forEach((texture) => {
+		// 	texture.wrapS = THREE.RepeatWrapping;
+		// 	texture.wrapT = THREE.RepeatWrapping;
+		// 	texture.repeat.set(scaleX, scaleZ);
+		// });
 
-		const material = new THREE.MeshStandardMaterial({
-			color: TABLE_COLOR,
-			map: colorMap,
-			normalMap: normalMap,
-			aoMap: aoMap,
-			metalnessMap: metallicMap,
-			roughnessMap: roughnessMap,
-			displacementMap: heightMap,
-			displacementScale: 0.1,
-		});
-		material.aoMapIntensity = 1.0;
-		material.displacementBias = 0;
+		// const material = new THREE.MeshStandardMaterial({
+		// 	color: TABLE_COLOR,
+		// 	map: colorMap,
+		// 	normalMap: normalMap,
+		// 	aoMap: aoMap,
+		// 	metalnessMap: metallicMap,
+		// 	roughnessMap: roughnessMap,
+		// 	displacementMap: heightMap,
+		// 	displacementScale: 0.1,
+		// });
+		// material.aoMapIntensity = 1.0;
+		// material.displacementBias = 0;
 
-		const box = new THREE.BoxGeometry(dx, dy, dz);
-		const mesh = new THREE.Mesh(box, material);
-		mesh.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
-		return mesh;
+		// const box = new THREE.BoxGeometry(dx, dy, dz);
+		// const mesh = new THREE.Mesh(box, material);
+		// mesh.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
+		// return mesh;
 	}
 
 	function handlePaddleControls(player) {
