@@ -10,6 +10,7 @@ from rest_framework.decorators import permission_classes
 
 lobbies = {}
 deleteTimers = {}
+connections = {}
 
 class Consumer(AsyncWebsocketConsumer):
 
@@ -24,13 +25,24 @@ class Consumer(AsyncWebsocketConsumer):
 		
 		lobby = lobbies[self.lobby_id]
 
-		await self.accept()
-		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
-		
 		token = (self.scope["query_string"].decode()).split('=')[1]
-		self.user_id = token
-		if not self.user_id:
-			self.user_id = self.channel_name
+		self.user_id = token if token else self.channel_name
+
+		if self.lobby_id not in connections:
+			connections[self.lobby_id] = {}
+
+		if self.user_id in connections[self.lobby_id]:
+			connected_channel_name = connections[self.lobby_id][self.user_id]
+			print('DUPLCIATE TABSSSSSSSSSSSSSSSSSSSSSSSSSS ', connected_channel_name, ' |||||| ', self.channel_layer, flush=True)
+			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
+			del connections[self.lobby_id][self.user_id]
+
+		connections[self.lobby_id][self.user_id] = self.channel_name
+
+		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
+		await self.accept()
+		
+		if not token:
 			await self.sendMessage('token', self.user_id)
 
 		lobby["players"].append(self.user_id)
@@ -49,11 +61,14 @@ class Consumer(AsyncWebsocketConsumer):
 	async def disconnect(self, close_code):
 		lobby = lobbies.get(self.lobby_id)
 
-		if lobby:
+		if lobby and self.user_id in lobby["players"]:
 			lobby["players"].remove(self.user_id)
 
 		if self.lobby_id not in deleteTimers:
 			deleteTimers[self.lobby_id] = asyncio.create_task(self.deleteLobbyTask(lobby))
+
+	async def force_disconnect(self):
+		await self.close()
 
 	async def deleteLobbyTask(self, lobby):
 		await asyncio.sleep(4)
