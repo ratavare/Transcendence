@@ -1,10 +1,14 @@
-document.getElementById('createSingleplayerMatch').addEventListener('click', function () {
-	seturl('/singleplayerpong');
-});
+document
+	.getElementById("createSingleplayerMatch")
+	.addEventListener("click", function () {
+		seturl("/singleplayerpong");
+	});
 
-document.getElementById('createLocalMultiplayerMatch').addEventListener('click', function () {
-	seturl('/multiplayer_pong');
-});
+document
+	.getElementById("createLocalMultiplayerMatch")
+	.addEventListener("click", function () {
+		seturl("/multiplayer_pong");
+	});
 
 async function joinLobby(lobby_id) {
 	const body = JSON.stringify(window.user);
@@ -31,7 +35,6 @@ function buttonConfigure() {
 		});
 	});
 }
-
 
 function putLobbylist(lobbies) {
 	const previousList = lobbyListDiv.querySelector("ul");
@@ -111,12 +114,14 @@ async function getLobbies() {
 	const joinLobbyBtn = document.getElementById("join-modal-btn");
 
 	joinLobbyBtn?.addEventListener("click", async function (event) {
-		var lobbyListDiv = document.getElementById('lobby-list');
-		lobbyListDiv.style.display = 'none'
+		var lobbyListDiv = document.getElementById("lobby-list");
+		lobbyListDiv.style.display = "none";
 		getLobbies();
-	})
+	});
 }
 
 {
-	const createOMMatchBtn = document.getElementById(id="createOnlineMultiplayerMatch");
+	const createOMMatchBtn = document.getElementById(
+		(id = "createOnlineMultiplayerMatch")
+	);
 }

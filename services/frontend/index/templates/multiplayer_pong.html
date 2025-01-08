@@ -3,7 +3,7 @@
 	<style>
 		h1 {
 			color: rgb(255, 255, 255);
-			font-family: 'Nunito', sans-serif;
+			font-family: "Nunito", sans-serif;
 			text-align: center;
 			font-size: 3rem;
 			/* font-weight: bold; */
@@ -13,7 +13,7 @@
 
 		h2 {
 			color: firebrick;
-			font-family: 'Courier New', Courier, monospace;
+			font-family: "Courier New", Courier, monospace;
 			text-align: center;
 			font-size: 2rem;
 			bottom: 0px;
@@ -22,7 +22,7 @@
 
 		h3 {
 			color: firebrick;
-			font-family: 'Courier New', Courier, monospace;
+			font-family: "Courier New", Courier, monospace;
 			text-align: center;
 			font-size: 1rem;
 			bottom: 0px;
@@ -93,7 +93,7 @@
 	<h2 id="winner"></h2>
 	<div class="overlay-container" id="overlay-container">
 		<div class="canvas-container">
-			<canvas id='canvas' width='900px' height='600px'></canvas>
+			<canvas id="canvas" width="900px" height="600px"></canvas>
 		</div>
 		<!-- Overlay -->
 		<div class="overlay" id="overlay">
@@ -105,16 +105,28 @@
 			<!-- <button id='startBtn'>Start</button> -->
 		</div>
 	</div>
-	<button id='readyBtn' class="hidden">Ready!</button>
+	<button id="readyBtn" class="hidden">Ready!</button>
 
 	<!-- Quit modal -->
-	<div class="modal fade" id="exampleModalToggle" tabindex="-1" aria-labelledby="exampleModalLabel"
-		aria-hidden="true">
+	<div
+		class="modal fade"
+		id="exampleModalToggle"
+		tabindex="-1"
+		aria-labelledby="exampleModalLabel"
+		aria-hidden="true"
+	>
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-body">
 					<p id="winner-msg"></p>
-					<button id="quit-btn" type="button" data-bs-dismiss="modal" class="btn btn-primary">Quit</button>
+					<button
+						id="quit-btn"
+						type="button"
+						data-bs-dismiss="modal"
+						class="btn btn-primary"
+					>
+						Quit
+					</button>
 				</div>
 			</div>
 		</div>

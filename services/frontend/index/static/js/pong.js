@@ -299,26 +299,31 @@ PageElement.onLoad = () => {
 		);
 	}
 
-	async function checkLobby(lobbyId)
-	{
+	async function checkLobby(lobbyId) {
 		try {
-			const data = await myFetch(`https://localhost:8443/lobby/lobbies/${lobbyId}/`, null, 'GET', true);
-		}catch (error) {
+			const data = await myFetch(
+				`https://localhost:8443/lobby/lobbies/${lobbyId}/`,
+				null,
+				"GET",
+				true
+			);
+		} catch (error) {
 			console.log(error);
-			seturl('/home');
+			seturl("/home");
 		}
 	}
 
 	let rendering = true;
 	const lobby_id = window.props.get("id");
-	checkLobby(lobby_id)
+	checkLobby(lobby_id);
 	const token = localStorage.getItem("playerToken") || "";
 	const socket = new WebSocket(
-		`wss://localhost:8443/ws/${encodeURIComponent(lobby_id)}/?token=${token}`
+		`wss://localhost:8443/ws/${encodeURIComponent(
+			lobby_id
+		)}/?token=${token}`
 	);
-	
-	
-	window.addEventListener('popstate', () => {
+
+	window.addEventListener("popstate", () => {
 		const hash = window.location.hash;
 		if (hash.includes("?")) {
 			const lobbyId = window.props.get("id");
@@ -326,16 +331,16 @@ PageElement.onLoad = () => {
 		}
 	});
 
-	const readyBtn = document.getElementById('readyBtn');
-	const overlayText = document.getElementById('overlay-text');
+	const readyBtn = document.getElementById("readyBtn");
+	const overlayText = document.getElementById("overlay-text");
 	readyBtn.onclick = async () => {
 		readyBtn.classList.add("hidden");
-		sendPayload('ready', {
+		sendPayload("ready", {
 			ready: true,
 		});
-		overlayText.textContent = 'Waiting for the other player';
-		console.log('Ready button clicked');
-	}
+		overlayText.textContent = "Waiting for the other player";
+		console.log("Ready button clicked");
+	};
 
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
@@ -393,8 +398,8 @@ PageElement.onLoad = () => {
 				}
 				break;
 			case "error":
-				socket.close()
-				seturl('/home');
+				socket.close();
+				seturl("/home");
 		}
 	};
 
@@ -407,7 +412,7 @@ PageElement.onLoad = () => {
 
 	socket.onclose = () => {
 		console.log("Socket closed unexpectedly");
-		seturl('/home');
+		seturl("/home");
 	};
 
 	// ************************************* CHAT ************************************************
@@ -416,11 +421,11 @@ PageElement.onLoad = () => {
 		let color = "white";
 		const messageList = document.getElementById("chat-message-list");
 		const messageListItem = document.createElement("li");
-		const chatContentElement = document.querySelector('.chat-content');
-	
+		const chatContentElement = document.querySelector(".chat-content");
+
 		if (payload.sender == "connect" || payload.sender == "disconnect") {
 			if (payload.sender == "connect") color = "limegreen";
-			if (payload.sender == "disconnect")color = "red";
+			if (payload.sender == "disconnect") color = "red";
 			messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
 		} else {
 			if (payload.sender == window.user.username) color = "orangered";
@@ -442,24 +447,27 @@ PageElement.onLoad = () => {
 		});
 	}
 
-	async function getChat()
-	{
+	async function getChat() {
 		try {
-			const data = await myFetch(`https://localhost:8443/lobby/lobbies/${lobby_id}/`, null, 'GET', true);
-			for (const message of data.lobby.chat){
+			const data = await myFetch(
+				`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
+				null,
+				"GET",
+				true
+			);
+			for (const message of data.lobby.chat) {
 				receiveChatMessage(message);
 			}
-		}catch (error) {
+		} catch (error) {
 			console.log(error);
 		}
 	}
 
-	function messageForm()
-	{
+	function messageForm() {
 		const chatInputForm = document.getElementById("chat-input-form");
 		chatInputForm.addEventListener("submit", (event) => {
 			event.preventDefault();
-	
+
 			const chatInput = event.target.querySelector("#chat-input");
 			if (chatInput.value)
 				sendMessage(window.user.username, chatInput.value);
@@ -467,24 +475,23 @@ PageElement.onLoad = () => {
 		});
 	}
 
-	messageForm()
+	messageForm();
 	getChat();
 
 	window.onbeforeunload = () => {
 		sendMessage("disconnect", `${window.user.username} left the lobby`);
-	}
+	};
 
 	PageElement.onUnload = () => {
 		sendMessage("disconnect", `${window.user.username} left the lobby`);
 
 		socket.close();
 
-		if (renderer)
-			renderer.dispose();
+		if (renderer) renderer.dispose();
 
-		document.removeEventListener('keyup', handlePaddleControls);
-		document.removeEventListener('keydown', handlePaddleControls);
-		
+		document.removeEventListener("keyup", handlePaddleControls);
+		document.removeEventListener("keydown", handlePaddleControls);
+
 		PageElement.onUnload = () => {};
 	};
 };
