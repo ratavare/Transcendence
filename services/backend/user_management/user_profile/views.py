@@ -44,7 +44,9 @@ def profileView(request):
 		initial_data = {
 			'username': user.username,
 			'email': user.email,
+			'full_name': profile.full_name,
 			'bio': profile.bio,
+			'city': profile.city,
 			'birth_date':profile.birth_date,
 			'id': user.pk,
 		}

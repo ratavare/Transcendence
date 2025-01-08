@@ -11,6 +11,7 @@ BIRTH_YEARS=range(CURRENT_YEAR - 100, CURRENT_YEAR)
 class UpdateProfileForm(forms.ModelForm):
 	username = forms.CharField(required=False)
 	email = forms.EmailField(required=False)
+	full_name = forms.CharField(required=False)
 	birth_date = forms.DateField(
 		required=False,
 		label= "Date of Birth",
@@ -20,4 +21,4 @@ class UpdateProfileForm(forms.ModelForm):
 
 	class Meta:
 		model = Profile
-		fields =['username', 'email', 'bio', 'birth_date']
+		fields =['username', 'full_name', 'email', 'bio', 'city', 'birth_date']

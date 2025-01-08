@@ -98,13 +98,10 @@ async function setPage(name)
 async function getProfile(){
 	try {
 		if (localStorage.key('access_token') == null) return (false);
-		// console.log("access_token: oh");
 		const response = await myFetch('https://localhost:8443/user_profile/profile/', null, "GET"); 
 		if (response == null) {
 			throw new Error("Failed to fetch profile");
 		}
-		// console.log("getProfile: ", response);
-
 		window.user = response;
 		return true;
 	} catch {

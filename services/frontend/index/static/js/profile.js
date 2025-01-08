@@ -1,7 +1,7 @@
 async function updateProfile(formData) {
 	try {
+		console.log(formData);
 		await myFetch('https://localhost:8443/user_profile/profile/', formData, 'POST', true)
-		console.log("Profile change successful");
 		window.location.reload();
 	} catch(error) {
 		console.log("Profile change failed. Reason:", error);
@@ -26,18 +26,12 @@ async function uploadProfilePicture(file) {
 
 async function fillProfile(){
 	try {
-		const form = document.getElementById('form-center');
-		document.getElementById('profile-username').innerText = window.user.username; // MUDAR ID'S OU PEGAR DO PAGE ELEMENT EM VEZ DE DOCUMENT
-        document.getElementById('fullname').innerText = window.user.full_name || "";
-        document.getElementById('email').innerText = window.user.email;
-        document.getElementById('bio').innerText = window.user.bio || "";
-        document.getElementById('city').innerText = window.user.city || "";
-        document.getElementById('birth-date').innerText = window.user.birth_date;
-        document.getElementById('username-edit').value = window.user.username;
-        document.getElementById('id-email').value = window.user.email;
-        document.querySelector('input[name="bio"]').value = window.user.bio || "";
-        document.querySelector('input[name="city"]').value = window.user.city || "";
-        document.getElementById('id-date').value = window.user.birth_date;
+		document.getElementById('profile-username').innerText = window.user.username;
+        document.getElementById('profile-fullname').innerText = window.user.full_name || "";
+        document.getElementById('profile-email').innerText = window.user.email;
+        document.getElementById('profile-bio').innerText = window.user.bio || "";
+        document.getElementById('profile-city').innerText = window.user.city || "";
+        document.getElementById('profile-birth-date').innerText = window.user.birth_date || "";
 	} catch (error) {
 		console.error("Fetch error: ", error);
 	}
@@ -70,9 +64,10 @@ function editProfile() {
     document.getElementById('profile-view').style.display = 'none';
     document.getElementById('profile-edit').style.display = 'block';
     document.getElementById('username-edit').value = window.user.username;
-	document.getElementById('id-email').value = window.user.email;
-	document.querySelector('input[name="bio"]').value = window.user.bio || "";
-	document.querySelector('input[name="city"]').value = window.user.city || "";
+    document.getElementById('full_name-edit').value = window.user.full_name;
+	document.getElementById('email-edit').value = window.user.email;
+	document.getElementById('bio-edit').value = window.user.bio || "";
+	document.getElementById('city-edit').value = window.user.city || "";
 	document.getElementById('id-date').value = window.user.birth_date;
 }
 
@@ -83,7 +78,6 @@ async function run() {
 	
 	document.getElementById('file-input').addEventListener('change', function (event) {
 		const file = event.target.files[0];
-	
 		if (file) {
 			if (file.size > 2 * 1024 * 1024) {
 				alert('File size must be less than 2MB.');
@@ -110,7 +104,6 @@ async function run() {
             saveChangesButton.classList.remove('hidden');
         });
     }
-
 	formProfile?.addEventListener('submit', async function(event) {
 		event.preventDefault();
 		const formData = new FormData(event.target);

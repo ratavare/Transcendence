@@ -43,7 +43,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Full Name</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="fullname">
+						<div class="col-sm-9 text-secondary" id="profile-fullname">
 						</div>
 					  </div>
 					  <hr>
@@ -51,7 +51,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Email</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="email">
+						<div class="col-sm-9 text-secondary" id="profile-email">
 						</div>
 					  </div>
 					  <hr>
@@ -59,7 +59,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Bio</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="bio">
+						<div class="col-sm-9 text-secondary" id="profile-bio">
 						</div>
 					  </div>
 					  <hr>
@@ -67,7 +67,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">City</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="city">
+						<div class="col-sm-9 text-secondary" id="profile-city">
 						</div>
 					  </div>
 					  <hr>
@@ -75,7 +75,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Birth Date</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="birth-date">
+						<div class="col-sm-9 text-secondary" id="profile-birth-date">
 						</div>
 					  </div>
 					  <hr>
@@ -106,7 +106,7 @@
 						  <h6 class="mb-0">Username</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="username" class="form-control" placeholder="{{ request.user.username }}" id="username-edit">
+						  <input name="username" id="username-edit" class="form-control" placeholder="{{ request.user.username }}">
 						</div>
 					  </div>
 					  <hr><div class="row mb-3">
@@ -114,7 +114,7 @@
 						  <h6 class="mb-0">Full Name</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="name" class="form-control" placeholder="{{ request.user.name }}">
+						  <input name="full_name" id='full_name-edit' class="form-control" placeholder="{{ request.user.full_name }}">
 						</div>
 					  </div>
 					  <hr>
@@ -123,7 +123,7 @@
 						  <h6 class="mb-0">Email</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input type="email" id="id-email" name="email" class="form-control" placeholder="{{ request.user.email }}">
+						  <input type="email" id="email-edit" name="email" class="form-control" placeholder="{{ request.user.email }}">
 						</div>
 					  </div>
 					  <hr>
@@ -132,7 +132,7 @@
 						  <h6 class="mb-0">Bio</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="bio" class="form-control" placeholder="{{ request.user.bio }}">
+						  <input name="bio" id="bio-edit" class="form-control" placeholder="{{ request.user.bio }}">
 						
 						</div>
 					  </div>
@@ -142,7 +142,7 @@
 						  <h6 class="mb-0">City</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="city" class="form-control" placeholder="{{ request.user.city }}">
+						  <input name="city" id="city-edit" class="form-control" placeholder="{{ request.user.city }}">
 						</div>
 					  </div>
 					  <hr>
