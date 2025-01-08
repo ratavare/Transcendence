@@ -48,14 +48,11 @@
 
 		.canvas-item {
 			border: 2px solid;
-			border-image: linear-gradient(
-					-80deg,
+			border-image: linear-gradient(-80deg,
 					rgb(73, 0, 128),
 					rgb(228, 50, 252),
 					rgb(73, 0, 128),
-					rgb(228, 50, 252)
-				)
-				1;
+					rgb(228, 50, 252)) 1;
 		}
 
 		.chat-container {
@@ -68,14 +65,11 @@
 			min-width: 300px;
 			margin-left: 20px;
 			border: 2px solid;
-			border-image: linear-gradient(
-					-80deg,
+			border-image: linear-gradient(-80deg,
 					rgb(73, 0, 128),
 					rgb(228, 50, 252),
 					rgb(73, 0, 128),
-					rgb(228, 50, 252)
-				)
-				1;
+					rgb(228, 50, 252)) 1;
 			padding: 5px;
 			overflow-y: auto;
 		}
@@ -106,14 +100,11 @@
 			justify-content: space-around;
 			border: 2px solid;
 			margin-top: 7px;
-			border-image: linear-gradient(
-				-80deg,
-				rgb(73, 0, 128),
-				rgb(228, 50, 252),
-				rgb(73, 0, 128),
-				rgb(228, 50, 252)
-			)
-			1;
+			border-image: linear-gradient(-80deg,
+					rgb(73, 0, 128),
+					rgb(228, 50, 252),
+					rgb(73, 0, 128),
+					rgb(228, 50, 252)) 1;
 		}
 
 		::-webkit-scrollbar {
@@ -122,30 +113,24 @@
 		}
 
 		::-webkit-scrollbar-thumb {
-			background: linear-gradient(
-				-80deg,
-				rgb(73, 0, 128),
-				rgb(228, 50, 252)
-			);
+			background: linear-gradient(-80deg,
+					rgb(73, 0, 128),
+					rgb(228, 50, 252));
 		}
 
 		#readyBtn {
 			text-align: center;
 			font-size: 1.5rem;
-			background-color: linear-gradient(
-				-80deg,
-				black,
-				rgb(23, 13, 113),
-				rgb(73, 0, 128),
-				black
-			);
-			color: linear-gradient(
-				-80deg,
-				black,
-				rgb(23, 13, 113),
-				rgb(73, 0, 128),
-				black
-			);
+			background-color: linear-gradient(-80deg,
+					black,
+					rgb(23, 13, 113),
+					rgb(73, 0, 128),
+					black);
+			color: linear-gradient(-80deg,
+					black,
+					rgb(23, 13, 113),
+					rgb(73, 0, 128),
+					black);
 			border-radius: 25px;
 			padding-right: 20px;
 			padding-left: 20px;
@@ -179,13 +164,14 @@
 		}
 
 		.overlay button {
-			padding: 3px 6px; /* Reduced padding */
-			font-size: 1rem; /* Reduced font size */
+			padding: 3px 6px;
+			/* Reduced padding */
+			font-size: 1rem;
+			/* Reduced font size */
 			cursor: pointer;
 			position: relative;
 			margin-top: -30px;
 		}
-
 	</style>
 	<h2 id="winner"></h2>
 	<div class="game-container">
@@ -212,136 +198,23 @@
 				<ul id="chat-message-list" style="list-style-type: none"></ul>
 			</div>
 			<form id="chat-input-form" class="chat-input">
-				<input
-					id="chat-input"
-					class="chat-input"
-					type="text"
-					placeholder="Send a message..."
-					autocomplete="off"
-				/>
+				<input id="chat-input" class="chat-input" type="text" placeholder="Send a message..."
+					autocomplete="off" />
 			</form>
 		</div>
 	</div>
 
-	<script>
-		document.getElementById('startBtn').addEventListener('click', function() {
-			document.getElementById('overlay').style.display = 'none';
-			// Add any additional logic to start the game here
-		});
-	</script>
-
 	<!-- Quit modal -->
-	<div
-		class="modal fade"
-		id="quit"
-		tabindex="-1"
-		aria-labelledby="exampleModalLabel"
-		aria-hidden="true"
-	>
+	<div class="modal fade" id="quit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-body">
 					<p id="winner-msg"></p>
-					<button
-						id="quit-btn"
-						type="button"
-						data-bs-dismiss="modal"
-						class="btn btn-primary"
-					>
+					<button id="quit-btn" type="button" data-bs-dismiss="modal" class="btn btn-primary">
 						Quit
 					</button>
 				</div>
 			</div>
 		</div>
 	</div>
-
-	<!-- <div class="overlay-container" id="overlay-container">
-		<div class="canvas-container">
-			<canvas id='canvas' width='900px' height='600px'></canvas>
-		</div> -->
-		<!-- Overlay -->
-		<!-- <div class="overlay" id="overlay">
-			<h1>Pong Game</h1>
-			<h3>Controls</h3>
-			<h3>[W and S] || [Up and Down]</h3>
-			<h3 id="overlay-text">Press 'Ready!' to start</h3>
-			<button id='readyBtn' class="hidden">Ready!</button>
-		</div>
-	</div> -->
-
-		<!-- h1 {
-			color: rgb(255, 255, 255);
-			font-family: 'Nunito', sans-serif;
-			text-align: center;
-			font-size: 3rem;
-			/* font-weight: bold; */
-			top: 0px;
-			position: relative;
-		} -->
-
-		<!-- h2 {
-			color: firebrick;
-			font-family: 'Courier New', Courier, monospace;
-			text-align: center;
-			font-size: 2rem;
-			bottom: 0px;
-			position: absolute;
-		} -->
-
-		<!-- h3 {
-			color: firebrick;
-			font-family: 'Courier New', Courier, monospace;
-			text-align: center;
-			font-size: 1rem;
-			bottom: 0px;
-			position: relative;
-		} -->
-
-
-
-		<!-- #readyBtn {
-			position: absolute;
-			left: 50%;
-			top: 95%;
-			transform: translate(-50%, -50%);
-			text-align: center;
-		} -->
-
-	<!-- </style>
-	<h2 id="player1score">0</h2>
-	<h2 id="player2score">0</h2>
-	<h2 id="winner"></h2>
-	<div class="overlay-container" id="overlay-container">
-		<div class="canvas-container">
-			<canvas id='canvas' width='900px' height='600px'></canvas>
-		</div> -->
-		<!-- Overlay -->
-		<!-- <div class="overlay" id="overlay">
-			<h1>Pong Game</h1>
-			<h3>Controls</h3>
-			<h3>[W and S] || [Up and Down]</h3>
-			<h3 id="overlay-text">Press 'Ready!' to start</h3>
-			<button id='readyBtn' class="hidden">Ready!</button>
-		</div>
-	</div> -->
-	<!-- <button id='readyBtn' class="hidden">Ready!</button> -->
-
-	<!-- Quit modal -->
-	<!-- <div class="modal fade" id="exampleModalToggle" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-body">
-					<p id="winner-msg"></p>
-					<button id="quit-btn" type="button" data-bs-dismiss="modal" class="btn btn-primary">Quit</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<script>
-		document.getElementById('startBtn').addEventListener('click', function() {
-			document.getElementById('overlay').style.display = 'none';
-			// Add any additional logic to start the game here
-		});
-	</script> -->
 </page-element>

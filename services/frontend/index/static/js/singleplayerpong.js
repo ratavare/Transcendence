@@ -511,7 +511,13 @@ PageElement.onLoad = () => {
 	handlePaddleControls();
 	renderer.setAnimationLoop(animate);
 
-	// ************************************* WEBSOCKET FUCNTIONS ************************************************
+	{
+		const startButton = document.getElementById('startBtn');
+		startButton.addEventListener('click', function () {
+			document.getElementById('overlay').style.display = 'none';
+			// Add any additional logic to start the game here
+		});
+	}
 
 	PageElement.onUnLoad = () => {
 		console.log("onUnLoad:pong");

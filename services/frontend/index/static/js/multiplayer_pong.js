@@ -445,7 +445,7 @@ PageElement.onLoad = () => {
 				// paddle1AI(paddle1);
 				checkIntersections();
 				moveCube();
-				applyCameraShake();
+				// applyCameraShake();
 			}
 			console.log('Player 1: ' + player1Score + ' Player 2: ' + player2Score);
 		}
@@ -462,7 +462,13 @@ PageElement.onLoad = () => {
 	handlePaddleControls();
 	renderer.setAnimationLoop(animate);
 
-	// ************************************* WEBSOCKET FUCNTIONS ************************************************
+	{
+		const startButton = document.getElementById('startBtn');
+		startButton.addEventListener('click', function () {
+			document.getElementById('overlay').style.display = 'none';
+			// Add any additional logic to start the game here
+		});
+	}
 
 	PageElement.onUnLoad = () => {
 		console.log("onUnLoad:pong");

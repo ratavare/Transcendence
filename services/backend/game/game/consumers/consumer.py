@@ -33,7 +33,6 @@ class Consumer(AsyncWebsocketConsumer):
 
 		if self.user_id in connections[self.lobby_id]:
 			connected_channel_name = connections[self.lobby_id][self.user_id]
-			print('DUPLCIATE TABSSSSSSSSSSSSSSSSSSSSSSSSSS ', connected_channel_name, ' |||||| ', self.channel_layer, flush=True)
 			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
 			del connections[self.lobby_id][self.user_id]
 
