@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 PageElement.onLoad = () => {
-	console.log("singleplayerpong.js loaded fawfawfwafaw");
+	console.log("singleplayerpong.js loaded");
 
 	// Constants
 	const PADDLE_SPEED = 10;
@@ -44,7 +44,7 @@ PageElement.onLoad = () => {
 	document.body.appendChild(renderer.domElement);
 
 	const scene = new THREE.Scene();
-	const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 10000);
+	const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 10000); // Field of view, aspect ratio, near clipping plane, far clipping plane
 	const controls = new OrbitControls(camera, renderer.domElement);
 	camera.position.set(0, 500, 0);
 	controls.update();
@@ -348,14 +348,12 @@ PageElement.onLoad = () => {
 	{
 		if (cube.position.x > 1000)
 		{
-			console.log('z is ' + cube.position.z + ' x is ' + cube.position.x);
 			respawnCube(1);
 			player1Score++;
 			document.getElementById('player1score').innerHTML = player1Score;
 		} 
 		else if (cube.position.x < -1000)
 		{
-			console.log('z is ' + cube.position.z + ' x is ' + cube.position.x); 
 			respawnCube(2);
 			player2Score++;
 			document.getElementById('player2score').innerHTML = player2Score;
@@ -394,7 +392,6 @@ PageElement.onLoad = () => {
 		{
 			sphereData[0] = { time: time, position: position, speed: speed };
 		}
-		console.log('Time: ' + time + ' Position: ' + position.x + ', ' + position.z + ' Speed: ' + speed.x + ', ' + speed.z);
 	}
 
 	saveSphereData();
@@ -496,7 +493,6 @@ PageElement.onLoad = () => {
 				moveCube();
 				// applyCameraShake();
 			}
-			console.log('Player 1: ' + player1Score + ' Player 2: ' + player2Score);
 		}
 		else if (player1Score == 7)
 		{

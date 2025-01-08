@@ -88,7 +88,7 @@ async function setPage(name) {
 		const newScript = document.createElement("script");
 		newScript.setAttribute("controller", "true");
 		newScript.src = "static/js/" + name + ".js";
-		if (name == 'pong' || name == 'singleplayerpong' || name == 'multiplayer_pong')
+		if (name == 'pong' || name == 'singleplayerpong' || name == 'multiplayer_pong' || name == 'home')
 			newScript.type = "module";
 		newScript.onload = function(){
 			console.log(`${name}.js loaded successfully`);
@@ -97,7 +97,7 @@ async function setPage(name) {
 		document.body.appendChild(newPage);
 		newPage.style.display = page.display;
 		pageActive = newPage;
-		if ("pong" == name || "singleplayerpong" == name || "multiplayer_pong" == name)
+		if ("pong" == name || "singleplayerpong" == name || "multiplayer_pong" == name || "home" == name)
 		{
 			setTimeout(() => {
 				PageElement.onLoad(newPage);

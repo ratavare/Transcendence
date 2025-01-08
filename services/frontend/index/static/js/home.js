@@ -1,3 +1,47 @@
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+
+PageElement.onLoad = () => {
+
+	const POINT_LIGHT_INTENSITY = 5000000;
+	const POINT_LIGHT_DISTANCE = 1000;
+	const AMBIENT_LIGHT_INTENSITY = 3;
+	// set the renderer
+	const canvas = document.getElementById('canvas_home');
+	const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+	renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8);
+	document.body.appendChild(renderer.domElement);
+
+	// set the scene
+	const scene = new THREE.Scene();
+	const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 10000); // Field of view, aspect ratio, near clipping plane, far clipping plane
+	const controls = new OrbitControls(camera, renderer.domElement);
+	camera.position.set(0, 500, 0);
+	controls.update();
+
+	// Make skybox
+	const loader = new THREE.CubeTextureLoader();
+	const skybox = loader.load([
+		'media/skybox/right.png', // Right
+		'media/skybox/left.png', // Left
+		'media/skybox/top.png', // Top
+		'media/skybox/bottom.png', // Bottom
+		'media/skybox/front.png', // Front
+		'media/skybox/back.png'  // Back
+	]);
+	scene.background = skybox;
+
+	// Lights
+	const ambientLight = new THREE.AmbientLight(0xffffff, AMBIENT_LIGHT_INTENSITY);
+	scene.add(ambientLight);
+
+	const pointLight = new THREE.PointLight(0x33e3ff, POINT_LIGHT_INTENSITY, POINT_LIGHT_DISTANCE);
+	scene.add(pointLight);
+
+	console.log('Loaded home page');
+}
+
 document.getElementById('createSingleplayerMatch').addEventListener('click', function() {
     seturl('/singleplayerpong');
 });

@@ -2,10 +2,19 @@
 	{% load static %}
 	{% include 'navbar.html' with authenticated="true" %}
 	
+	<style>
+		.canvas_home {
+			position: absolute;
+			top: 0;
+			left: 0;
+			left: 10%;
+			top: 10%;
+		}
+	</style>
 	<!-- Add image here -->
 	<div class="container mt-4">
 		<div class="d-flex flex-column align-items-center justify-content-center text-center mb-4 mt-4 p-4 card">   
-			<img src="{% static 'textures/pixil-frame-0.png' %}" alt="lettering" class="img-fluid">
+			<canvas id='canvas_home' width="1130" height="260"></canvas>
 			<button class="btn btn-primary mb-2 play-button" data-bs-toggle="modal" data-bs-target="#playModal">Play</button>
 		</div>
 	</div>
@@ -126,4 +135,5 @@
 			</div>
 		</div>
 	</div>
+
 </page-element>
