@@ -11,7 +11,7 @@ STATE_CHOICES = [
 ]
 
 class Message(models.Model):
-	sender = models.CharField(max_length=150, blank=True)
+	sender = models.CharField(max_length=100, blank=True)
 	content = models.TextField(blank=True)
 
 class Position(models.Model):

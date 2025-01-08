@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from django.db import IntegrityError
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from .models import Lobby
 from .serializers import LobbySerializer
@@ -42,12 +44,19 @@ def getLobby(request, lobby_id):
 		return JsonResponse({'error': 'Lobby does not exist'}, status=404)
 
 def createLobby(request):
+	validator = RegexValidator('[+\/%!?,.$%#&*]', inverse_match=True)
 	try:
 		id = request.data.get('lobby_id')
-		Lobby.objects.create(lobby_id=id)
+		validator(id)
+		newLobby = Lobby.objects.create(lobby_id=id)
+		newLobby.save()
 		return JsonResponse({'lobby_id': id}, status=200)
 	except IntegrityError:
 		return JsonResponse({'error': 'Lobby already exists'}, status=400)
+	except ValidationError:
+		return JsonResponse({'error': 'Regex'}, status=400)
+	except:
+		return JsonResponse({'error': 'Other error'}, status=400)
 
 def joinLobby(request, lobby_id):
 	try:
