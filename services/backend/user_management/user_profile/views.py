@@ -2,6 +2,7 @@ import logging
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from .forms import UpdateProfileForm
+from django.contrib.auth.models import User
 from .models import Profile
 from django.http import HttpResponse
 import logging
@@ -15,13 +16,10 @@ logging.basicConfig(level=logging.DEBUG)
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
 def profileView(request):
-	logging.debug("initial_data")
 	try:
 		user=request.user
 		profile = Profile.objects.get(user=user)
-		logging.debug("initial_data")
 	except Profile.DoesNotExist:
-		logging.debug("initial_data")
 		return JsonResponse({'error': 'Profile Not Found'})
 	if request.method == 'POST':
 		profileForm = UpdateProfileForm(request.POST, instance=profile)
@@ -50,7 +48,6 @@ def profileView(request):
 			'birth_date':profile.birth_date,
 			'id': user.pk,
 		}
-		logging.debug("initial_data")
 		return JsonResponse(initial_data, status=200)
 	return JsonResponse({'error': "Test"}, status=400)
 
@@ -82,3 +79,20 @@ def profilePicture(request):
 			else:
 				logging.info("No profile picture found.")
 				return JsonResponse({'error': 'No profile picture found'}, status=404)
+
+def foreignProfile(request, username):
+	try:
+		user = User.objects.get(username=username)
+		profile = Profile.objects.get(user=user)
+	except Profile.DoesNotExist:
+		return JsonResponse({'error': 'Profile Not Found'})
+	initial_data = {
+		'username': user.username,
+		'email': user.email,
+		'full_name': profile.full_name,
+		'bio': profile.bio,
+		'city': profile.city,
+		'birth_date':profile.birth_date,
+		'id': user.pk,
+	}
+	return JsonResponse(initial_data, status=200)
