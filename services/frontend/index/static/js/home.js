@@ -121,7 +121,10 @@ async function getLobbies() {
 }
 
 {
-	const createOMMatchBtn = document.getElementById(
-		(id = "createOnlineMultiplayerMatch")
-	);
+	const tournamentBtn = document.getElementById("tournament-btn");
+	tournamentBtn.addEventListener("click", (event) => {
+		console.log('HELLO!')
+		seturl("/tournaments");
+	})
 }
+

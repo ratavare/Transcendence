@@ -323,6 +323,7 @@ PageElement.onLoad = () => {
 		)}/?token=${token}`
 	);
 
+	// ISSUES MIGHT OCCUR!! Maybe remove popstate
 	window.addEventListener("popstate", () => {
 		const hash = window.location.hash;
 		if (hash.includes("?")) {
