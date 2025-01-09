@@ -311,7 +311,7 @@ PageElement.onLoad = () => {
 			console.log(error);
 			seturl("/home");
 		}
-	}
+	};
 
 	let rendering = true;
 	const lobby_id = window.props.get("id");
@@ -446,7 +446,7 @@ PageElement.onLoad = () => {
 			sender: sender,
 			content: content,
 		});
-	}
+	};
 
 	async function getChat() {
 		try {

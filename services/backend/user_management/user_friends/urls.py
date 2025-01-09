@@ -10,7 +10,7 @@ urlpatterns = [
 	path('get-friend-requests/', views.getFriendRequests),
 	path('get-sent-friend-requests/', views.getSentFriendRequests),
 	path('handle-friend-request/', views.handleFriendRequest),
-    path('delete-friend/', views.deleteFriend),
-    path('delete-friend-request/', views.deleteFriendRequest),
-    path('api/', UnifiedFriendshipAPI.as_view()),
+	path('delete-friend/', views.deleteFriend),
+	path('delete-friend-request/', views.deleteFriendRequest),
+	path('api/', UnifiedFriendshipAPI.as_view()),
 ]
