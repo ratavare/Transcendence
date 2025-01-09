@@ -14,7 +14,7 @@ async function uploadProfilePicture(file) {
 		const formData = new FormData();
 		formData.append('profile_picture', file);
 
-		await myFetch('https://localhost:8443/user_profile/profile/picture/', formData, 'POST', true);
+		await myFetch(`https://localhost:8443/user_profile/profile/picture/${window.user.username}/`, formData, 'POST', true);
 
 		alert('Profile picture updated successfully!');
 		window.location.reload(); // Refresh might not be the best way
@@ -24,22 +24,22 @@ async function uploadProfilePicture(file) {
 	}
 }
 
-async function fillProfile(){
+async function fillProfile(user) {
 	try {
-		document.getElementById('profile-username').innerText = window.user.username;
-        document.getElementById('profile-fullname').innerText = window.user.full_name || "";
-        document.getElementById('profile-email').innerText = window.user.email;
-        document.getElementById('profile-bio').innerText = window.user.bio || "";
-        document.getElementById('profile-city').innerText = window.user.city || "";
-        document.getElementById('profile-birth-date').innerText = window.user.birth_date || "";
+		document.getElementById('profile-username').innerText = user.username;
+        document.getElementById('profile-fullname').innerText = user.full_name || "";
+        document.getElementById('profile-email').innerText = user.email;
+        document.getElementById('profile-bio').innerText = user.bio || "";
+        document.getElementById('profile-city').innerText = user.city || "";
+        document.getElementById('profile-birth-date').innerText = user.birth_date || "";
 	} catch (error) {
 		console.error("Fetch error: ", error);
 	}
 }
 
-async function getProfileImage() {
+async function getProfileImage(username) {
     try {
-		const response = await myImageFetch('https://localhost:8443/user_profile/profile/picture/', null, 'GET', true);
+		const response = await myImageFetch(`https://localhost:8443/user_profile/profile/picture/${username}/`, null, 'GET', true);
         if (response.ok) {
             const contentType = response.headers.get('Content-Type');
             
@@ -58,6 +58,19 @@ async function getProfileImage() {
     } catch (error) {
         console.error("Fetch error: ", error);
     }
+}
+
+async function getForeignProfile(username) {
+	try {
+		return await myFetch(
+			`https://localhost:8443/user_profile/profile/${username}/`,
+			null,
+			"GET",
+			true
+		);
+	} catch (error) {
+		console.log(error);
+	}
 }
 
 function editProfile() {
@@ -91,8 +104,14 @@ async function run() {
 		}
 	});
 
-	await getProfileImage();
-	fillProfile();
+	const username = window.props.get('username');
+	let user;
+	if (username)
+		user = await getForeignProfile(username);
+	else
+		user = window.user;
+	await getProfileImage(user.username);
+	fillProfile(user);
 
 	const formProfile = document.getElementById('form-profile');
 	const saveChangesButton = document.getElementById('saveChangesButton');

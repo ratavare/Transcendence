@@ -53,13 +53,11 @@ def profileView(request):
 
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
-def profilePicture(request):
-	logging.debug("Updating profile picture.")
+def profilePicture(request, username):
 	try:
-		user = request.user
+		user = User.objects.get(username=username)
 		profile = Profile.objects.get(user=user)
 	except Profile.DoesNotExist:
-		logging.error("Profile not found.")
 		return JsonResponse({'error': 'Profile Not Found'}, status=404)
 
 	if request.method == 'POST':

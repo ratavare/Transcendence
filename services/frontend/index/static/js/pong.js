@@ -280,7 +280,7 @@ PageElement.onLoad = () => {
 	// setInterval(saveSphereData, 1000);
 	renderer.setAnimationLoop(animate);
 
-	// ************************************* WEBSOCKET FUCNTIONS ************************************************
+	// ************************************* WEBSOCKET FUNCTIONS ************************************************
 
 	const lobby_id = window.props.get("id");
 	const token = localStorage.getItem("playerToken") || "";
