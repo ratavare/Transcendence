@@ -110,6 +110,7 @@ async function run() {
 		user = await getForeignProfile(username);
 	else
 		user = window.user;
+	
 	await getProfileImage(user.username);
 	fillProfile(user);
 

@@ -37,18 +37,34 @@
 			width: 300px;
 		}
 
-		.button-div {
-			background-color: transparent;
-			border: 2px solid white;
+		.player-div {
+			border: 2px solid;
+			border-color: var(--border-color);
 			display: block;
 			text-align: center;
 			width: 250px;
 			padding: 10px 10px;
 			text-decoration: none;
 			color: white;
-			font-size: 20px;
+			font-size: 25px;
+			font-family: sans-serif;
 			display: inline-block;
 			border-radius: 5px;
+		}
+
+		.player-div:hover {
+			border-color: white;
+			background-color: var(--border-color);
+			color: white;
+			text-shadow: 
+				2px 0 rgba(0, 0, 0, 0.4),
+				-2px 0 rgba(0, 0, 0, 0.4),
+				0 2px rgba(0, 0, 0, 0.4),
+				0 -2px rgba(0, 0, 0, 0.4),
+				1px 1px rgba(0, 0, 0, 0.4),
+				-1px -1px rgba(0, 0, 0, 0.4),
+				1px -1px rgba(0, 0, 0, 0.4),
+				-1px 1px rgba(0, 0, 0, 0.4);
 		}
 
 		.bracket li::before,
@@ -106,60 +122,60 @@
 		}
 
 		#p1 {
-			border-color: rgb(8, 8, 238);
+			--border-color: rgb(19, 19, 255);
 		}
 		#p2 {
-			border-color: rgb(243, 160, 6);
+			--border-color: rgb(236, 153, 0);
 		}
 		#p3 {
-			border-color: rgb(0, 195, 0);
+			--border-color: rgb(0, 186, 0);
 		}
 		#p4 {
-			border-color: rgb(239, 239, 8);
+			--border-color: rgb(225, 188, 0);
 		}
 	</style>
 
 	<div class="bracket">
 		<ul>
 			<li>
-				<div id="" class="button-div">
-					<button>???</button>
+				<div id="" class="player-div">
+					<span>???</span>
 				</div>
 				<ul>
 					<li style="width: 600px">
-						<div id="" class="button-div">
-							<button>???</button>
+						<div id="" class="player-div">
+							<span>???</span>
 						</div>
 						<ul>
 							<li>
-								<div id="p1" class="button-div">
+								<div id="p1" class="player-div">
 									<img src="/static/assets/favicon.svg" />
-									<button>Player 1</button>
+									<span  class="player-span">Player 1</span>
 								</div>
 							</li>
 							<li>
-								<div id="p2" class="button-div">
+								<div id="p2" class="player-div">
 									<img src="/static/assets/favicon.svg" />
-									<button>Player 2</button>
+									<span  class="player-span">Player 2</span>
 								</div>
 							</li>
 						</ul>
 					</li>
 					<li style="width: 600px">
-						<div id="" class="button-div">
-							<button>???</button>
+						<div id="" class="player-div">
+							<span>???</span>
 						</div>
 						<ul>
 							<li>
-								<div id="p3" class="button-div">
+								<div id="p3" class="player-div">
 									<img src="/static/assets/favicon.svg" />
-									<button>Player 3</button>
+									<span  class="player-span">Player 3</span>
 								</div>
 							</li>
 							<li>
-								<div id="p4" class="button-div">
+								<div id="p4" class="player-div">
 									<img src="/static/assets/favicon.svg" />
-									<button>Player 4</button>
+									<span  class="player-span">Player 4</span>
 								</div>
 							</li>
 						</ul>
