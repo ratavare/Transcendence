@@ -1,11 +1,15 @@
-
 // *** FETCHES ***
 
 async function sendFriendRequest(dest, src) {
 	try {
-		await myFetch('https://localhost:8443/user_friends/friend-request-send/', {"dest": dest, "src": src}, "POST", true)
-		console.log('Friend request sent!')
-	} catch(error) {
+		await myFetch(
+			"https://localhost:8443/user_friends/friend-request-send/",
+			{ dest: dest, src: src },
+			"POST",
+			true
+		);
+		console.log("Friend request sent!");
+	} catch (error) {
 		console.error("Error:", error);
 	}
 }
@@ -13,40 +17,64 @@ async function sendFriendRequest(dest, src) {
 async function handleFriendRequestButton(src, dest, intention) {
 	console.log(src, dest, intention);
 	try {
-		return await myFetch('https://localhost:8443/user_friends/handle-friend-request/', { 'dest': dest, 'src': src, 'intention': intention }, "POST", true);
+		return await myFetch(
+			"https://localhost:8443/user_friends/handle-friend-request/",
+			{ dest: dest, src: src, intention: intention },
+			"POST",
+			true
+		);
 	} catch (error) {
-		console.error('Error: ', error);
+		console.error("Error: ", error);
 	}
 }
 
 async function deleteFriend(src, dest) {
-	console.log('friend deleted');
+	console.log("friend deleted");
 	try {
-		return await myFetch('https://localhost:8443/user_friends/delete-friend/', { 'dest': dest, 'src': src }, "POST", true)
+		return await myFetch(
+			"https://localhost:8443/user_friends/delete-friend/",
+			{ dest: dest, src: src },
+			"POST",
+			true
+		);
 	} catch (error) {
-		console.error('Error: ', error);
+		console.error("Error: ", error);
 	}
 }
 
 async function deleteFriendRequest(src, dest) {
 	try {
-		return myFetch('https://localhost:8443/user_friends/delete-friend-request/', { 'dest': dest, 'src': src }, "POST", true)
+		return myFetch(
+			"https://localhost:8443/user_friends/delete-friend-request/",
+			{ dest: dest, src: src },
+			"POST",
+			true
+		);
 	} catch (error) {
-		console.error('Error: ', error);
+		console.error("Error: ", error);
 	}
 }
 
 async function friendsSearchUser(formData) {
-	return myFetch('https://localhost:8443/user_friends/user_search/', formData, 'POST', true)
-		.catch(error => {
-			console.error('Error: ', error);
-			return null;
-		});
+	return myFetch(
+		"https://localhost:8443/user_friends/user_search/",
+		formData,
+		"POST",
+		true
+	).catch((error) => {
+		console.error("Error: ", error);
+		return null;
+	});
 }
 
 async function getFriendsData() {
 	try {
-		return await myFetch('https://localhost:8443/user_friends/api/', null, "GET", true)
+		return await myFetch(
+			"https://localhost:8443/user_friends/api/",
+			null,
+			"GET",
+			true
+		);
 	} catch (error) {
 		console.log(error);
 	}
@@ -54,8 +82,9 @@ async function getFriendsData() {
 
 // *** DOM UPDATES
 
-function addAcceptedFriendToFriendsList(dest) { // Perdoem-me por esta funcao
-	const friendsList = document.getElementById('friends-list');
+function addAcceptedFriendToFriendsList(dest) {
+	// Perdoem-me por esta funcao
+	const friendsList = document.getElementById("friends-list");
 	const card = document.createElement("div");
 	card.setAttribute("data-username", dest);
 	card.className = "col-sm-6 col-lg-4";
@@ -70,13 +99,17 @@ function addAcceptedFriendToFriendsList(dest) { // Perdoem-me por esta funcao
 			</div>
 		</div>
 	`;
-	addBtnEventListener(card.querySelector('button'), deleteFriend, document.getElementById("friends-count"));
+	addBtnEventListener(
+		card.querySelector("button"),
+		deleteFriend,
+		document.getElementById("friends-count")
+	);
 	friendsList.appendChild(card);
 	increaseCounter(document.getElementById("friends-count"));
 }
 
 function addPossibleFriendToSentFriendRequests(dest) {
-	const sentRequestsList = document.getElementById('sent-requests-list');
+	const sentRequestsList = document.getElementById("sent-requests-list");
 	const card = document.createElement("div");
 	card.setAttribute("data-username", dest);
 	card.className = "col-sm-6 col-lg-4";
@@ -91,16 +124,19 @@ function addPossibleFriendToSentFriendRequests(dest) {
 			</div>
 		</div>
 	`;
-	addBtnEventListener(card.querySelector('button'), deleteFriendRequest, document.getElementById('sent-requests-count'));
+	addBtnEventListener(
+		card.querySelector("button"),
+		deleteFriendRequest,
+		document.getElementById("sent-requests-count")
+	);
 	sentRequestsList.appendChild(card);
-	increaseCounter(document.getElementById('sent-requests-count'));
+	increaseCounter(document.getElementById("sent-requests-count"));
 }
 
 function decreaseCounter(counterElem) {
 	if (counterElem) {
 		const currCount = parseInt(counterElem.textContent);
-		if (currCount > 0)
-			counterElem.textContent = currCount - 1;
+		if (currCount > 0) counterElem.textContent = currCount - 1;
 	}
 }
 
@@ -114,40 +150,39 @@ function increaseCounter(counterElem) {
 // *** UTILS ***
 
 function addBtnEventListener(button, f, counterElem, ...arg) {
-	button.addEventListener('click', () => {
-		const dest = button.getAttribute('data-dest');
+	button.addEventListener("click", () => {
+		const dest = button.getAttribute("data-dest");
 		f(dest, window.user.username, ...arg);
-		const card = document.querySelector(`[data-username="${dest}"]`)
-		card.classList.add('opacity-0', 'transition-opacity');
-		card.style.transition = 'opacity 0.5s'; // Fade out fdddddd
+		const card = document.querySelector(`[data-username="${dest}"]`);
+		card.classList.add("opacity-0", "transition-opacity");
+		card.style.transition = "opacity 0.5s"; // Fade out fdddddd
 		setTimeout(() => {
 			card?.remove();
-			if (button.classList.contains('accept-friend-request'))
+			if (button.classList.contains("accept-friend-request"))
 				addAcceptedFriendToFriendsList(dest);
-			if (button.classList.contains('send-friend-request'))
+			if (button.classList.contains("send-friend-request"))
 				addPossibleFriendToSentFriendRequests(dest);
 			decreaseCounter(counterElem);
 		}, 500); // se mexerem neste valor tem que por o mesmo valor no card.style.transition, 500ms = 0.5s
-	})
+	});
 }
 
 // *** USER SEARCH ***
 
-function displaySearchResults(users)
-{
+function displaySearchResults(users) {
 	const results = document.getElementById("search-results");
 	const membersCount = document.getElementById("members-count");
 	if (membersCount) {
 		membersCount.textContent = users.length;
 	}
-	
-	const membersContainer = document.createElement('div');
+
+	const membersContainer = document.createElement("div");
 	membersContainer.classList.add("row");
-	membersContainer.id = 'friends-search-list';
-	
-	users.forEach(user => {
+	membersContainer.id = "friends-search-list";
+
+	users.forEach((user) => {
 		if (document.querySelector(`[data-username="${user.username}"]`))
-			return ;
+			return;
 		const card = document.createElement("div");
 		card.className = "col-sm-6 col-lg-4";
 		card.setAttribute("data-username", user.username);
@@ -163,14 +198,18 @@ function displaySearchResults(users)
 		</div>
 		`;
 		membersContainer.appendChild(card);
-		addBtnEventListener(card.querySelector('button'), sendFriendRequest, membersCount);
+		addBtnEventListener(
+			card.querySelector("button"),
+			sendFriendRequest,
+			membersCount
+		);
 	});
 	results.appendChild(membersContainer);
 }
 
 function clearPreviousResults() {
-	document.getElementById('friends-search-list')?.remove();
-	document.getElementById('no-users')?.remove();
+	document.getElementById("friends-search-list")?.remove();
+	document.getElementById("no-users")?.remove();
 }
 
 function displayNoUsersMessage() {
@@ -179,8 +218,8 @@ function displayNoUsersMessage() {
 		membersCount.textContent = "0";
 	}
 	const results = document.getElementById("search-results");
-	const nousers = document.createElement('h4');
-	nousers.id = 'no-users';
+	const nousers = document.createElement("h4");
+	nousers.id = "no-users";
 	nousers.innerHTML = "No users found";
 	results.appendChild(nousers);
 }
@@ -191,30 +230,27 @@ async function handleSearchForm(event) {
 
 	const formData = new FormData(event.target);
 	const data = await friendsSearchUser(formData);
-	if (data)
-		displaySearchResults(data.users);
-	else
-		displayNoUsersMessage();
+	if (data) displaySearchResults(data.users);
+	else displayNoUsersMessage();
 }
 
 // *** RENDER FUNCTIONS ***
 
 function renderUserSearch() {
-	const formUsers = document.getElementById('form-users');
+	const formUsers = document.getElementById("form-users");
 	if (formUsers) {
-		formUsers.addEventListener('submit', handleSearchForm);
+		formUsers.addEventListener("submit", handleSearchForm);
 	}
 }
 
 function renderFriends(friends) {
 	const results = document.getElementById("friends");
 	const friendsCount = document.getElementById("friends-count");
-	if (friendsCount)
-		friendsCount.textContent = friends.length;
-	const membersContainer = document.createElement('div');
+	if (friendsCount) friendsCount.textContent = friends.length;
+	const membersContainer = document.createElement("div");
 	membersContainer.classList.add("row");
-	membersContainer.id = 'friends-list';
-	friends.forEach(friend => {
+	membersContainer.id = "friends-list";
+	friends.forEach((friend) => {
 		const card = document.createElement("div");
 		card.setAttribute("data-username", friend.username);
 		card.className = "col-sm-6 col-lg-4";
@@ -230,7 +266,11 @@ function renderFriends(friends) {
 			</div>
 		`;
 		membersContainer.appendChild(card);
-		addBtnEventListener(card.querySelector('button'), deleteFriend, friendsCount);
+		addBtnEventListener(
+			card.querySelector("button"),
+			deleteFriend,
+			friendsCount
+		);
 	});
 	results.appendChild(membersContainer);
 }
@@ -238,12 +278,11 @@ function renderFriends(friends) {
 function renderFriendRequests(friendRequests) {
 	const results = document.getElementById("friend-requests");
 	const requestsCount = document.getElementById("requests-count");
-	if (requestsCount)
-		requestsCount.textContent = friendRequests.length;
-	const membersContainer = document.createElement('div');
+	if (requestsCount) requestsCount.textContent = friendRequests.length;
+	const membersContainer = document.createElement("div");
 	membersContainer.classList.add("row");
-	membersContainer.id = 'requests-list2';
-	friendRequests.forEach(friendRequest => {
+	membersContainer.id = "requests-list2";
+	friendRequests.forEach((friendRequest) => {
 		const card = document.createElement("div");
 		card.setAttribute("data-username", friendRequest.username);
 		card.className = "col-sm-6 col-lg-4";
@@ -260,8 +299,18 @@ function renderFriendRequests(friendRequests) {
 		</div>
 		`;
 		membersContainer.appendChild(card);
-		addBtnEventListener(card.querySelector('.accept-friend-request'), handleFriendRequestButton, requestsCount, 'accept');
-		addBtnEventListener(card.querySelector('.decline-friend-request'), handleFriendRequestButton, requestsCount, 'decline');
+		addBtnEventListener(
+			card.querySelector(".accept-friend-request"),
+			handleFriendRequestButton,
+			requestsCount,
+			"accept"
+		);
+		addBtnEventListener(
+			card.querySelector(".decline-friend-request"),
+			handleFriendRequestButton,
+			requestsCount,
+			"decline"
+		);
 	});
 	results.appendChild(membersContainer);
 }
@@ -269,12 +318,11 @@ function renderFriendRequests(friendRequests) {
 function renderSentFriendRequests(sentFriendRequests) {
 	const results = document.getElementById("sent-friend-requests");
 	const requestsCount = document.getElementById("sent-requests-count");
-	if (requestsCount)
-		requestsCount.innerHTML = sentFriendRequests.length;
-	const membersContainer = document.createElement('div');
+	if (requestsCount) requestsCount.innerHTML = sentFriendRequests.length;
+	const membersContainer = document.createElement("div");
 	membersContainer.classList.add("row");
-	membersContainer.id = 'sent-requests-list';
-	sentFriendRequests.forEach(request => {
+	membersContainer.id = "sent-requests-list";
+	sentFriendRequests.forEach((request) => {
 		const card = document.createElement("div");
 		card.setAttribute("data-username", request.username);
 		card.className = "col-sm-6 col-lg-4";
@@ -290,7 +338,11 @@ function renderSentFriendRequests(sentFriendRequests) {
 			</div>
 		`;
 		membersContainer.appendChild(card);
-		addBtnEventListener(card.querySelector('button'), deleteFriendRequest, requestsCount);
+		addBtnEventListener(
+			card.querySelector("button"),
+			deleteFriendRequest,
+			requestsCount
+		);
 	});
 	results.appendChild(membersContainer);
 }
@@ -299,14 +351,14 @@ function renderSentFriendRequests(sentFriendRequests) {
 
 async function loadFriendsPage() {
 	try {
-		const {friends, friendRequests, sentFriendRequests} = await getFriendsData();
+		const { friends, friendRequests, sentFriendRequests } =
+			await getFriendsData();
 
 		renderUserSearch();
 		renderFriends(friends);
 		renderFriendRequests(friendRequests);
 		renderSentFriendRequests(sentFriendRequests);
-	}
-	catch (error) {
+	} catch (error) {
 		console.error("Error loading friends page: ", error);
 	}
 }

@@ -1,17 +1,37 @@
 {% load crispy_forms_tags %}
 <page-element name="login" authenticated="false" >
 	{% include 'navbar.html' %}
+	<!-- Login Form -->
 	<form method="POST" id="form-login">
 		{% csrf_token %}
-		<div class="text-center" style="width: 100%;display: flex;flex-direction: column;align-items: center;">
+		<div class="text-center" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
 			<h1 class="row justify-content-center" style="padding-top: 30px;">Login!</h1>
 			{{ loginForm | crispy }}
-			<input type="text" style="padding-left: 20px;" name="otp" placeholder="Enter OTP (if 2FA enabled)"></input>
 		</div>
 		<p align="center" style="padding-top: 25px;">
 			<button type="submit" class="btn btn-outline-light">Login</button>
 		</p>
 	</form>
+
+	<!-- OTP Modal -->
+	<div class="modal fade" id="otp-modal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="otpModalLabel">Two-Factor Authentication</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Please enter your OTP code below:</p>
+      				<input type="text" id="otp-input" class="form-control border-dark" style="caret-color: black; color: black !important;"  placeholder="Enter OTP">
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="otp-submit" class="btn btn-primary">Submit</button>
+					<!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button> -->
+				</div>
+			</div>
+		</div>
+	</div>
 	<p align="center" style="color: white;">or</p>
 	<p align="center">
 		<a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725&redirect_uri={{ url }}&response_type=code" class="btn btn-outline-light">

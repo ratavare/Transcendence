@@ -98,7 +98,7 @@ async function run() {
 	const saveChangesButton = document.getElementById('saveChangesButton');
 	
 	if (formProfile && saveChangesButton) {
-        saveChangesButton.classList.add('hidden');
+		saveChangesButton.classList.add("hidden");
 
         formProfile.addEventListener('input', function () {
             saveChangesButton.classList.remove('hidden');

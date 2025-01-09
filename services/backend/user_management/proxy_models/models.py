@@ -7,6 +7,11 @@ GAME_API_URL = "http://game:8002/lobby/api/"
 class ProxyLobby(models.Model):
 	lobby_id = models.CharField(max_length=25, unique=True)
 	created_at = models.DateTimeField(auto_now_add=True)
+	gameState = models.CharField(max_length=25)
+	player1Score = models.PositiveIntegerField(default=0)
+	player2Score = models.PositiveIntegerField(default=0)
+	player1Ready = models.BooleanField(default=False)
+	player2Ready = models.BooleanField(default=False)
 
 	class Meta:
 		managed = False

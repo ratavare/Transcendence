@@ -1,8 +1,10 @@
-from django.urls import path, include
-from .views import createOrGetLobby
+from django.urls import path
+from . import views
 
 app_name = "lobby"
 urlpatterns = [
-	path('lobbies/', createOrGetLobby.as_view()),
-	path('lobbies/<str:lobby_id>/', createOrGetLobby.as_view()),
+	path('lobbies/', views.lobbyView),
+	path('lobbies/<str:lobby_id>/', views.lobbyView),
+	path('lobbies/<str:lobby_id>/$<str:player>/', views.checkPlayer),
+	path('lobbies/<str:lobby_id>/setReadyState/', views.setReadyState),
 ]
