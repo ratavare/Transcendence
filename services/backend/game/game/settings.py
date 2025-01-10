@@ -37,6 +37,7 @@ INSTALLED_APPS = [
 	'channels',
 	'rest_framework',
 	'lobby.apps.LobbyConfig',
+	'tournament.apps.TournamentConfig',
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',

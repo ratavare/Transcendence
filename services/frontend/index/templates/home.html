@@ -112,6 +112,8 @@
 							id="tournament-btn"
 							class="btn btn-secondary"
 							style="margin-top: 8px;"
+							data-bs-toggle="modal"
+							data-bs-target="#createTournamentModal"
 							data-bs-dismiss="modal"
 						>
 							Create Tournament
@@ -226,6 +228,77 @@
 							<input
 								placeholder="Create a lobby.."
 								name="lobby_id"
+								style="
+									background-color: #000000;
+									border: 2px solid #505050;
+									padding: 10px;
+									border-radius: 5px;
+									color: #ffffff;
+								"
+								onfocus="this.style.backgroundColor='#3b3b3b'"
+								onblur="this.style.backgroundColor='#000000'"
+							/>
+							<input
+								class="btn btn-outline-secondary"
+								type="submit"
+								data-bs-dismiss="modal"
+								style="
+									background-color: #000000;
+									border: 2px solid #3b3b3b;
+									padding: 10px;
+									border-radius: 5px;
+									color: #ffffff;
+									margin-top: 10px;
+								"
+							/>
+						</form>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button
+						type="button"
+						class="btn btn-secondary"
+						data-bs-dismiss="modal"
+					>
+						Close
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Create a tournament Modal-->
+	<div
+		class="modal fade"
+		id="createTournamentModal"
+		tabindex="-1"
+		aria-labelledby="createTournamentModalLabel"
+		aria-hidden="true"
+	>
+		<div class="modal-dialog custom-modal-size">
+			<div
+				class="modal-content"
+				style="background-color: #000000; color: #ffffff"
+			>
+				<div class="modal-header">
+					<h5 class="modal-title" id="createTournamentModalLabel">
+						Create Tournament
+					</h5>
+					<button
+						type="button"
+						class="btn-close"
+						data-bs-dismiss="modal"
+						aria-label="Close"
+					></button>
+				</div>
+				<div class="modal-body">
+					<h4>Insert a tournament name:</h4>
+					<div class="container mt-5">
+						<form method="POST" id="create-tournament-form">
+							{% csrf_token %}
+							<input
+								placeholder="Create a tournament.."
+								name="tournament_id"
 								style="
 									background-color: #000000;
 									border: 2px solid #505050;

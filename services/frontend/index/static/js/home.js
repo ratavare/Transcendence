@@ -121,9 +121,23 @@ async function getLobbies() {
 }
 
 {
-	const tournamentBtn = document.getElementById("tournament-btn");
-	tournamentBtn.addEventListener("click", (event) => {
-		seturl("/tournament?id=test");
-	})
+	const createTournamentForm = document.getElementById("create-tournament-form");
+	console.log('AAAAAAAAAAAAAA: ', createTournamentForm);
+	createTournamentForm?.addEventListener("submit", async function (event) {
+		event.preventDefault();
+		const formData = new FormData(event.target);
+		try {
+			const data = await myFetch(
+				"https://localhost:8443/tournament/create/",
+				formData,
+				"POST",
+				true
+			);
+			console.log('DATA:', data);
+		} catch (error) {
+			console.log(error);
+			// seturl("/home");
+		}
+	});
 }
 
