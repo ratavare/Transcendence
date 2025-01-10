@@ -37,29 +37,6 @@ async function fillProfile(user) {
 	}
 }
 
-async function getProfileImage(username) {
-    try {
-		const response = await myImageFetch(`https://localhost:8443/user_profile/profile/picture/${username}/`, null, 'GET', true);
-        if (response.ok) {
-            const contentType = response.headers.get('Content-Type');
-            
-            if (contentType && contentType.startsWith('image/')) {
-                const blob = await response.blob();
-                const imageUrl = URL.createObjectURL(blob);
-                document.getElementById('profile-pic').src = imageUrl;
-            } else {
-                console.error("Expected image but received:", contentType);
-            }
-        } else {
-            const errorText = await response.text();
-            console.error("Error fetching profile image:", errorText);
-			document.getElementById('profile-pic').src = '/static/assets/melhor_icone.png';
-        }
-    } catch (error) {
-        console.error("Fetch error: ", error);
-    }
-}
-
 async function getForeignProfile(username) {
 	try {
 		return await myFetch(
@@ -85,32 +62,39 @@ function editProfile() {
 }
 
 async function run() {
-	document.getElementById('change-photo-button').addEventListener('click', function () {
+	document.getElementById('change-photo-button').addEventListener('click', () => {
 		document.getElementById('file-input').click();
-	});
-	
-	document.getElementById('file-input').addEventListener('change', function (event) {
-		const file = event.target.files[0];
-		if (file) {
-			if (file.size > 2 * 1024 * 1024) {
-				alert('File size must be less than 2MB.');
-				return;
-			}
-			if (!file.type.startsWith('image/')) {
-				alert('Please upload a valid image file.');
-				return;
-			}
-			uploadProfilePicture(file);
-		}
 	});
 
 	const username = window.props.get('username');
 	let user;
-	if (username)
+	if (username) {
 		user = await getForeignProfile(username);
-	else
+		if (!user)
+			seturl('/home'); // IMPLEMENTAR 404
+		document.getElementById('profile-h1').innerHTML = `${username}'s Profile`
+		document.getElementById('change-photo-button').classList.add('hidden');
+		document.getElementById('edit-profile-btn').classList.add('hidden');
+	}
+	else {
 		user = window.user;
-	await getProfileImage(user.username);
+		document.getElementById('file-input').addEventListener('change', function (event) {
+			const file = event.target.files[0];
+			if (file) {
+				if (file.size > 2 * 1024 * 1024) {
+					alert('File size must be less than 2MB.');
+					return;
+				}
+				if (!file.type.startsWith('image/')) {
+					alert('Please upload a valid image file.');
+					return;
+				}
+				uploadProfilePicture(file);
+			}
+		});
+	}
+	const profilePicURl = await getProfileImage(user.username);
+	document.getElementById('profile-pic').src = profilePicURl;
 	fillProfile(user);
 
 	const formProfile = document.getElementById('form-profile');

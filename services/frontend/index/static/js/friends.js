@@ -82,8 +82,8 @@ async function getFriendsData() {
 
 // *** DOM UPDATES
 
-function addAcceptedFriendToFriendsList(dest) {
-	// Perdoem-me por esta funcao
+async function addAcceptedFriendToFriendsList(dest) {
+	const imageURL = await getProfileImage(dest);
 	const friendsList = document.getElementById("friends-list");
 	const card = document.createElement("div");
 	card.setAttribute("data-username", dest);
@@ -91,7 +91,7 @@ function addAcceptedFriendToFriendsList(dest) {
 	card.innerHTML = `
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
-				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<img src="${imageURL}" class="profile-image" width="80" height="80">
 				<h5 class="fw-semibold mb-0" style="color: white">@${dest}</h5>
 			</div>
 			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
@@ -99,6 +99,9 @@ function addAcceptedFriendToFriendsList(dest) {
 			</div>
 		</div>
 	`;
+	card.querySelector('img').addEventListener('click', () => {
+		seturl(`/profile?username=${dest}`);
+	})
 	addBtnEventListener(
 		card.querySelector("button"),
 		deleteFriend,
@@ -108,7 +111,8 @@ function addAcceptedFriendToFriendsList(dest) {
 	increaseCounter(document.getElementById("friends-count"));
 }
 
-function addPossibleFriendToSentFriendRequests(dest) {
+async function addPossibleFriendToSentFriendRequests(dest) {
+	const imageURL = await getProfileImage(dest);
 	const sentRequestsList = document.getElementById("sent-requests-list");
 	const card = document.createElement("div");
 	card.setAttribute("data-username", dest);
@@ -116,7 +120,7 @@ function addPossibleFriendToSentFriendRequests(dest) {
 	card.innerHTML = `
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
-				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<img src="${imageURL}" class="profile-image" width="80" height="80">
 				<h5 class="fw-semibold mb-0" style="color: white">@${dest}</h5>
 			</div>
 			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
@@ -124,6 +128,9 @@ function addPossibleFriendToSentFriendRequests(dest) {
 			</div>
 		</div>
 	`;
+	card.querySelector('img').addEventListener('click', () => {
+		seturl(`/profile?username=${dest}`);
+	})
 	addBtnEventListener(
 		card.querySelector("button"),
 		deleteFriendRequest,
@@ -180,16 +187,17 @@ function displaySearchResults(users) {
 	membersContainer.classList.add("row");
 	membersContainer.id = "friends-search-list";
 
-	users.forEach((user) => {
+	users.forEach( async (user) => {
 		if (document.querySelector(`[data-username="${user.username}"]`))
 			return;
+		const imageURL = await getProfileImage(user.username);
 		const card = document.createElement("div");
 		card.className = "col-sm-6 col-lg-4";
 		card.setAttribute("data-username", user.username);
 		card.innerHTML = `
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
-				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<img src="${imageURL}" class="profile-image" width="80" height="80">
 				<h5 class="fw-semibold mb-0" style="color: white">@${user.username}</h5>
 			</div>
 			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
@@ -197,6 +205,9 @@ function displaySearchResults(users) {
 			</div>
 		</div>
 		`;
+		card.querySelector('img').addEventListener('click', () => {
+			seturl(`/profile?username=${user.username}`);
+		})
 		membersContainer.appendChild(card);
 		addBtnEventListener(
 			card.querySelector("button"),
@@ -250,14 +261,15 @@ function renderFriends(friends) {
 	const membersContainer = document.createElement("div");
 	membersContainer.classList.add("row");
 	membersContainer.id = "friends-list";
-	friends.forEach((friend) => {
+	friends.forEach( async (friend) => {
+		const imageURL = await getProfileImage(friend.username);
 		const card = document.createElement("div");
 		card.setAttribute("data-username", friend.username);
 		card.className = "col-sm-6 col-lg-4";
 		card.innerHTML = `
 			<div class="card hover-img">
 				<div class="card-body p-4 text-center border-bottom">
-					<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+					<img src="${imageURL}" class="profile-image" width="80" height="80">
 					<h5 class="fw-semibold mb-0" style="color: white">@${friend.username}</h5>
 				</div>
 				<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
@@ -265,6 +277,9 @@ function renderFriends(friends) {
 				</div>
 			</div>
 		`;
+		card.querySelector('img').addEventListener('click', () => {
+			seturl(`/profile?username=${friend.username}`);
+		})
 		membersContainer.appendChild(card);
 		addBtnEventListener(
 			card.querySelector("button"),
@@ -282,14 +297,15 @@ function renderFriendRequests(friendRequests) {
 	const membersContainer = document.createElement("div");
 	membersContainer.classList.add("row");
 	membersContainer.id = "requests-list2";
-	friendRequests.forEach((friendRequest) => {
+	friendRequests.forEach( async (friendRequest) => {
+		const imageURL = await getProfileImage(friendRequest.username);
 		const card = document.createElement("div");
 		card.setAttribute("data-username", friendRequest.username);
 		card.className = "col-sm-6 col-lg-4";
 		card.innerHTML = `
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
-				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+				<img src="${imageURL}" class="profile-image" width="80" height="80">
 				<h5 class="fw-semibold mb-0" style="color: white">@${friendRequest.username}</h5>
 			</div>
 			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
@@ -298,6 +314,9 @@ function renderFriendRequests(friendRequests) {
 			</div>
 		</div>
 		`;
+		card.querySelector('img').addEventListener('click', () => {
+			seturl(`/profile?username=${friendRequest.username}`);
+		})
 		membersContainer.appendChild(card);
 		addBtnEventListener(
 			card.querySelector(".accept-friend-request"),
@@ -322,14 +341,15 @@ function renderSentFriendRequests(sentFriendRequests) {
 	const membersContainer = document.createElement("div");
 	membersContainer.classList.add("row");
 	membersContainer.id = "sent-requests-list";
-	sentFriendRequests.forEach((request) => {
+	sentFriendRequests.forEach( async (request) => {
+		const imageURL = await getProfileImage(request.username);
 		const card = document.createElement("div");
 		card.setAttribute("data-username", request.username);
 		card.className = "col-sm-6 col-lg-4";
 		card.innerHTML = `
 			<div class="card hover-img">
 				<div class="card-body p-4 text-center border-bottom">
-					<img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="rounded-circle mb-3" width="80" height="80">
+					<img src="${imageURL}" class="profile-image" width="80" height="80">
 					<h5 class="fw-semibold mb-0" style="color: white">@${request.username}</h5>
 				</div>
 				<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
@@ -337,6 +357,9 @@ function renderSentFriendRequests(sentFriendRequests) {
 				</div>
 			</div>
 		`;
+		card.querySelector('img').addEventListener('click', () => {
+			seturl(`/profile?username=${request.username}`);
+		})
 		membersContainer.appendChild(card);
 		addBtnEventListener(
 			card.querySelector("button"),
