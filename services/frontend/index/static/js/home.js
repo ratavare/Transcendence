@@ -123,8 +123,7 @@ async function getLobbies() {
 {
 	const tournamentBtn = document.getElementById("tournament-btn");
 	tournamentBtn.addEventListener("click", (event) => {
-		console.log('HELLO!')
-		seturl("/tournaments");
+		seturl("/tournament?id=test");
 	})
 }
 

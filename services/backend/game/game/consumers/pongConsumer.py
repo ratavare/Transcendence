@@ -2,17 +2,15 @@
 import json
 import asyncio
 from lobby.models import Lobby, Message
-from .objects import Pong, vars
+from .pongObjects import Pong, vars
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
 
 lobbies = {}
 deleteTimers = {}
 connections = {}
 
-class Consumer(AsyncWebsocketConsumer):
+class PongConsumer(AsyncWebsocketConsumer):
 
 	async def connect(self):
 		self.lobby_id = self.scope["url_route"]["kwargs"]["lobby_id"]

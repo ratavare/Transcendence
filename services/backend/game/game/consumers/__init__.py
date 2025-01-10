@@ -1,3 +1,4 @@
-from .consumer import Consumer
+from .pongConsumer import PongConsumer
+from .tournamentConsumer import TournamentConsumer
 
-__all__ = ['Consumer']
+__all__ = ['PongConsumer', 'TournamentConsumer']

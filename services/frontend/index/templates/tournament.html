@@ -1,0 +1,73 @@
+{% load static%}
+<page-element name="tournament">
+	{% include 'navbar.html' with authenticated="true" %}
+
+	<link rel="stylesheet" href="{% static 'css/tournament.css' %}">
+	<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+
+	<div class="container">
+		<div class="bracket">
+			<ul>
+				<li>
+					<div id="" class="player-div">
+						<span>???</span>
+					</div>
+					<ul>
+						<li style="width: 600px">
+							<div id="" class="player-div">
+								<span>???</span>
+							</div>
+							<ul>
+								<li>
+									<div id="p1" class="player-div">
+										<img src="/static/assets/favicon.svg" />
+										<span  class="player-span">Player 1</span>
+									</div>
+								</li>
+								<li>
+									<div id="p2" class="player-div">
+										<img src="/static/assets/favicon.svg" />
+										<span  class="player-span">Player 2</span>
+									</div>
+								</li>
+							</ul>
+						</li>
+						<li style="width: 600px">
+							<div id="" class="player-div">
+								<span>???</span>
+							</div>
+							<ul>
+								<li>
+									<div id="p3" class="player-div">
+										<img src="/static/assets/favicon.svg" />
+										<span  class="player-span">Player 3</span>
+									</div>
+								</li>
+								<li>
+									<div id="p4" class="player-div">
+										<img src="/static/assets/favicon.svg" />
+										<span  class="player-span">Player 4</span>
+									</div>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div class="chat-container">
+			<div id="chat-content" class="chat-content">
+				<ul id="chat-message-list" style="list-style-type: none"></ul>
+			</div>
+			<form id="chat-input-form" class="chat-input">
+				<input
+					id="chat-input"
+					class="chat-input"
+					type="text"
+					placeholder="Send a message..."
+					autocomplete="off"
+				/>
+			</form>
+		</div>
+	</div>
+</page-element>
