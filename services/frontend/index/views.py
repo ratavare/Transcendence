@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 
-from .forms import RegistrationForm, UpdateProfileForm
+from .forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 
 def indexView(request):
@@ -16,7 +16,6 @@ def indexView(request):
 		return render(request, 'index.html', {
 			'registerForm': RegistrationForm,
 			'loginForm': AuthenticationForm,
-			'updateProfileForm': UpdateProfileForm,
 		})
 
 	return auth(request, auth_code)

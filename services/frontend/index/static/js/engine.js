@@ -77,8 +77,7 @@ async function setPage(name) {
 		Array.from(pages).find((page) => page.getAttribute("default"));
 	if (page) {
 		name = page.getAttribute("name") || name;
-		// console.log("name:", name);
-
+		
 		const redirection = await checkRedirection(page);
 		if (redirection) return;
 
@@ -111,6 +110,7 @@ async function setPage(name) {
 			}, 200);
 		}
 	} else pageActive = undefined;
+	
 }
 
 async function getProfile() {
@@ -125,8 +125,6 @@ async function getProfile() {
 		if (response == null) {
 			throw new Error("Failed to fetch profile");
 		}
-		// console.log("getProfile: ", response);
-
 		window.user = response;
 		return true;
 	} catch {
