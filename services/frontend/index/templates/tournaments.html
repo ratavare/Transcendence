@@ -1,0 +1,171 @@
+<page-element name="tournaments">
+	{% include 'navbar.html' with authenticated="true" %}
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		.bracket {
+			padding-top: 20px;
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		.bracket ul {
+			list-style-type: none;
+			padding-top: 20px;
+			position: relative;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			padding: 0;
+			margin: 0;
+			padding-top: 40px;
+		}
+
+		.bracket li {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 40px 5px 0 5px;
+			width: 300px;
+		}
+
+		.button-div {
+			background-color: transparent;
+			border: 2px solid white;
+			display: block;
+			text-align: center;
+			width: 250px;
+			padding: 10px 10px;
+			text-decoration: none;
+			color: white;
+			font-size: 20px;
+			display: inline-block;
+			border-radius: 5px;
+		}
+
+		.bracket li::before,
+		.bracket li::after {
+			content: "";
+			position: absolute;
+			top: 0;
+			right: 50%;
+			border-top: 2px solid white;
+			width: 50%;
+			height: 40px;
+		}
+		.bracket li::after {
+			right: auto;
+			left: 50%;
+			border-left: 2px solid white;
+		}
+
+		.bracket li:only-child::after,
+		.bracket li:only-child::before {
+			display: none;
+		}
+
+		.bracket li:only-child {
+			padding-top: 0;
+		}
+
+		.bracket li:first-child::before,
+		.bracket li:last-child::after {
+			border: 0 none;
+		}
+
+		.bracket li:last-child::before {
+			border-right: 2px solid white;
+			border-radius: 0 5px 0 0;
+		}
+		.bracket li:first-child::after {
+			border-radius: 5px 0 0 0;
+		}
+
+		.bracket ul ul::after {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 50%;
+			border-left: 2px solid white;
+			width: 0;
+			height: 40px;
+		}
+
+		.bracket img {
+			width: 35px;
+			height: 35px;
+			padding-right: 5px;
+		}
+
+		#p1 {
+			border-color: rgb(8, 8, 238);
+		}
+		#p2 {
+			border-color: rgb(243, 160, 6);
+		}
+		#p3 {
+			border-color: rgb(0, 195, 0);
+		}
+		#p4 {
+			border-color: rgb(239, 239, 8);
+		}
+	</style>
+
+	<div class="bracket">
+		<ul>
+			<li>
+				<div id="" class="button-div">
+					<button>???</button>
+				</div>
+				<ul>
+					<li style="width: 600px">
+						<div id="" class="button-div">
+							<button>???</button>
+						</div>
+						<ul>
+							<li>
+								<div id="p1" class="button-div">
+									<img src="/static/assets/favicon.svg" />
+									<button>Player 1</button>
+								</div>
+							</li>
+							<li>
+								<div id="p2" class="button-div">
+									<img src="/static/assets/favicon.svg" />
+									<button>Player 2</button>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<li style="width: 600px">
+						<div id="" class="button-div">
+							<button>???</button>
+						</div>
+						<ul>
+							<li>
+								<div id="p3" class="button-div">
+									<img src="/static/assets/favicon.svg" />
+									<button>Player 3</button>
+								</div>
+							</li>
+							<li>
+								<div id="p4" class="button-div">
+									<img src="/static/assets/favicon.svg" />
+									<button>Player 4</button>
+								</div>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</page-element>

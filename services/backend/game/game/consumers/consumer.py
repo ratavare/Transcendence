@@ -1,7 +1,7 @@
 
 import json
 import asyncio
-from lobby.models import Lobby
+from lobby.models import Lobby, Message
 from .objects import Pong, vars
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -10,13 +10,13 @@ from rest_framework.decorators import permission_classes
 
 lobbies = {}
 deleteTimers = {}
+connections = {}
 
 class Consumer(AsyncWebsocketConsumer):
 
 	async def connect(self):
 		self.lobby_id = self.scope["url_route"]["kwargs"]["lobby_id"]
 	
-		# Create lobby
 		if self.lobby_id not in lobbies:
 			lobbies[self.lobby_id] = {"players": list(), "gameLoop": None, "game": Pong()}
 		elif self.lobby_id in deleteTimers:
@@ -25,13 +25,23 @@ class Consumer(AsyncWebsocketConsumer):
 		
 		lobby = lobbies[self.lobby_id]
 
-		await self.accept()
-		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
-		
 		token = (self.scope["query_string"].decode()).split('=')[1]
-		self.user_id = token
-		if not self.user_id:
-			self.user_id = self.channel_name
+		self.user_id = token if token else self.channel_name
+
+		if self.lobby_id not in connections:
+			connections[self.lobby_id] = {}
+
+		if self.user_id in connections[self.lobby_id]:
+			connected_channel_name = connections[self.lobby_id][self.user_id]
+			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
+			del connections[self.lobby_id][self.user_id]
+
+		connections[self.lobby_id][self.user_id] = self.channel_name
+
+		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
+		await self.accept()
+		
+		if not token:
 			await self.sendMessage('token', self.user_id)
 
 		lobby["players"].append(self.user_id)
@@ -46,27 +56,27 @@ class Consumer(AsyncWebsocketConsumer):
 			await self.sendMessage('readyBtn', 'add')
 		else:
 			await self.sendMessage('readyBtn', 'remove')
-		
-		if len(lobby["players"]) < 2:
-			await self.sendMessage('message', 'Connection Accepted: Welcome!!')
 
 	async def disconnect(self, close_code):
 		lobby = lobbies.get(self.lobby_id)
 
-		if lobby:
+		if lobby and self.user_id in lobby["players"]:
 			lobby["players"].remove(self.user_id)
 
 		if self.lobby_id not in deleteTimers:
 			deleteTimers[self.lobby_id] = asyncio.create_task(self.deleteLobbyTask(lobby))
+
+	async def force_disconnect(self):
+		await self.close()
 
 	async def deleteLobbyTask(self, lobby):
 		await asyncio.sleep(4)
 
 		if not lobby["players"]:
 			await self.deleteLobbyWS(lobby)
-			await self.deleteLobbyDB()
+			await self.deleteLobbyDb()
 		else:
-			await self.groupSend('message', f'{self.user_id} left the lobby')
+			await self.groupSend('log', f'{self.user_id} left the lobby')
 		await self.channel_layer.group_discard(self.lobby_id, self.channel_name)
 
 	async def deleteLobbyWS(self, lobby):
@@ -75,19 +85,19 @@ class Consumer(AsyncWebsocketConsumer):
 			try:
 				await lobby["gameLoop"]
 			except asyncio.CancelledError:
-				await self.sendMessage('message', 'Game Loop Cancel Error')
+				await self.sendMessage('log', 'Game Loop Cancel Error')
 			lobby['game'].running = False
 			lobby["gameLoop"] = None
 
 		del lobbies[self.lobby_id]
 
-	async def deleteLobbyDB(self):
+	async def deleteLobbyDb(self):
 		try:
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
 			await database_sync_to_async(dbLobby.delete)()
 		except Lobby.DoesNotExist:
 			print(f"Lobby {self.lobby_id} does not exist in the database", flush=True)
-			await self.sendMessage('message', "Lobby does not exist")
+			await self.sendMessage('log', "Lobby does not exist")
 
 	
 	async def receive(self, text_data):
@@ -113,11 +123,13 @@ class Consumer(AsyncWebsocketConsumer):
 						game.gamePaused = True
 					else:
 						game.gamePaused = False
+				case 'message':
+					await self.saveChatMessageDb(payload)
 
 			await self.groupSend(send_type, payload)
 
 		except:
-			await self.sendMessage('message', 'Type and Payload keys are required!')
+			await self.sendMessage('log', 'Type and Payload keys are required!')
 
 	async def groupSend(self, send_type, payload):
 		await self.channel_layer.group_send(
@@ -158,9 +170,9 @@ class Consumer(AsyncWebsocketConsumer):
 					await self.groupSend('gameOver', f"Player {winner} won!")
 					break
 		except Exception as e:
-			await self.sendMessage('message', f'Error is runLoop: {e}')
+			await self.sendMessage('log', f'Error is runLoop: {e}')
 		finally:
-			await self.sendMessage('message', 'Game End')
+			await self.sendMessage('log', 'Game End')
 
 	async def sendState(self):
 		lobby = lobbies.get(self.lobby_id)
@@ -209,23 +221,34 @@ class Consumer(AsyncWebsocketConsumer):
 		game = serverLobby["game"]
 		try:
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
-			if game.player1Token == self.user_id:
-				dbLobby.player1Ready = state
-				await self.groupSend('message', f'Player 1 ready: {state}!')
-			elif game.player2Token == self.user_id:
-				dbLobby.player2Ready = state
-				await self.groupSend('message', f'Player 2 ready: {state}!')
-			else:
-				return False
-
-			await database_sync_to_async(dbLobby.save)()
-
+			self.saveReadyStateDb(game, dbLobby, state)
+			
 			if dbLobby.player1Ready and dbLobby.player2Ready:
-				await self.groupSend('message', 'GAME START!')
+				await self.groupSend('log', 'GAME START!')
 				dbLobby.gameState = "running"
 				game.running = True
 				return True
 			return False
 
 		except Exception as e:
-			await self.groupSend('message', f'Ready State Error: {e}')
+			await self.groupSend('log', f'Ready State Error: {e}')
+
+	async def saveReadyStateDb(self, game, dbLobby, state):
+		if game.player1Token == self.user_id:
+			dbLobby.player1Ready = state
+			await self.groupSend('log', f'Player 1 ready: {state}!')
+		elif game.player2Token == self.user_id:
+			dbLobby.player2Ready = state
+			await self.groupSend('log', f'Player 2 ready: {state}!')
+		else:
+			return False
+
+		await database_sync_to_async(dbLobby.save)()
+
+	async def saveChatMessageDb(self, payload):
+		lobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
+		if payload.get('sender'):
+			message = await database_sync_to_async(Message.objects.create)(sender=payload['sender'], content=payload['content'])
+		else:
+			return
+		await database_sync_to_async(lobby.chat.add)(message)

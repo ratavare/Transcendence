@@ -1,20 +1,12 @@
 async function joinLobby(lobby_id) {
+	const body = JSON.stringify(window.user);
 	try {
-		const response = await fetch(
+		const data = await myFetch(
 			`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
-			{
-				// TODO: Add Authorization header
-				method: "POST",
-				body: JSON.stringify(window.user),
-				headers: {
-					"X-CSRFToken": getCookie("csrftoken"),
-					Accept: "application/json",
-					"Content-Type": "application/json",
-				},
-			}
+			body,
+			"POST",
+			true
 		);
-		const data = await response.json();
-		if (!response.ok) throw data.error;
 		seturl(`/pong?id=${lobby_id}`);
 	} catch (error) {
 		alert(error);
@@ -72,9 +64,13 @@ function putLobbylist(lobbies) {
 
 async function getLobbies() {
 	try {
-		const response = await fetch("https://localhost:8443/lobby/lobbies/"); // TODO: Add Authorization header
-		const data = await response.json();
-		if (!response.ok) throw data.error;
+		const data = await myFetch(
+			"https://localhost:8443/lobby/lobbies/",
+			null,
+			"GET",
+			true
+		);
+		// console.log(data.lobbies);
 		putLobbylist(data.lobbies);
 	} catch (error) {
 		console.log(error);
@@ -86,20 +82,18 @@ async function getLobbies() {
 
 	createLobbyForm?.addEventListener("submit", async function (event) {
 		event.preventDefault();
-
 		const formData = new FormData(event.target);
-		// for (const pair of formData.entries())
-		// 	console.log(pair[0], " | ", pair[1]);
-
 		try {
 			const data = await myFetch(
 				"https://localhost:8443/lobby/lobbies/",
-				formData
+				formData,
+				"POST",
+				true
 			);
 			joinLobby(data.lobby_id);
 		} catch (error) {
-			seturl("/lobby");
 			console.log(error);
+			seturl("/home");
 		}
 	});
 }

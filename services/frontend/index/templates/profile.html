@@ -4,24 +4,25 @@
 	<title>Profile</title>
 	<div class="container mt-5">
 		<div class="form-group row" align="center">	
-			<h1 class="mb-4">My Profile</h1>
+			<h1 id="profile-h1" class="mb-4">My Profile</h1>
 		</div>
 	</div>
-
-	 <div class="container">
+	 <div class="container" id="userprofile">
 		<div class="main-body">
-		  
 		  <div class="row gutters-sm">
 			<div class="col-md-4 mb-3">
 			  <div class="card">
 				<div class="card-body">
 				  <div class="d-flex flex-column align-items-center text-center">
-					<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
+					<img id="profile-pic" class="profile-image" style="pointer-events: none;" alt="Admin">
 					<div class="mt-3">
-					  <h4 id="username">{{ request.user.username }}</h4>
-					  <p class="text-muted font-size-sm" id="city"></p>
-					  <hr>
-					  <button class="btn btn-primary">Change Photo</button>
+						<h4 id="username">{{ request.user.username }}</h4>
+						<p class="text-muted font-size-sm" id="city"></p>
+						<hr>
+						<!-- File input hidden -->
+						<input id="file-input" type="file" accept="image/*" style="display: none;">
+						<!-- Change photo button -->
+						<button id="change-photo-button" class="btn btn-primary">Change Photo</button>
 					</div>
 				  </div>
 				</div>
@@ -34,7 +35,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Username</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="username">
+						<div class="col-sm-9 text-secondary" id="profile-username">
 						</div>
 					  </div>
 					  <hr>
@@ -42,7 +43,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Full Name</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="fullname">
+						<div class="col-sm-9 text-secondary" id="profile-fullname">
 						</div>
 					  </div>
 					  <hr>
@@ -50,7 +51,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Email</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="email">
+						<div class="col-sm-9 text-secondary" id="profile-email">
 						</div>
 					  </div>
 					  <hr>
@@ -58,7 +59,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Bio</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="bio">
+						<div class="col-sm-9 text-secondary" id="profile-bio">
 						</div>
 					  </div>
 					  <hr>
@@ -66,7 +67,7 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">City</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="city">
+						<div class="col-sm-9 text-secondary" id="profile-city">
 						</div>
 					  </div>
 					  <hr>
@@ -74,16 +75,13 @@
 						<div class="col-sm-3">
 						  <h6 class="mb-0">Birth Date</h6>
 						</div>
-						<div class="col-sm-9 text-secondary" id="birth-date">
+						<div class="col-sm-9 text-secondary" id="profile-birth-date">
 						</div>
 					  </div>
 					  <hr>
 					  <div class="row mb-3">
 						<div class="col-sm-1">
-						  <a class="btn btn-info " onclick="editProfile()">Edit</a>
-						</div>
-						<div class="col-sm-3">
-						  <a class="btn btn-danger " >Delete</a>
+						  <a id="edit-profile-btn" class="btn btn-info " onclick="editProfile()">Edit</a>
 						</div>
 					  </div>
 					</div>
@@ -96,7 +94,7 @@
 						  <h6 class="mb-0">Username</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="username" class="form-control" placeholder="{{ request.user.username }}" id="username-edit">
+						  <input name="username" id="username-edit" class="form-control" placeholder="{{ request.user.username }}">
 						</div>
 					  </div>
 					  <hr><div class="row mb-3">
@@ -104,7 +102,7 @@
 						  <h6 class="mb-0">Full Name</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="name" class="form-control" placeholder="{{ request.user.name }}">
+						  <input name="full_name" id='full_name-edit' class="form-control" placeholder="{{ request.user.full_name }}">
 						</div>
 					  </div>
 					  <hr>
@@ -113,7 +111,7 @@
 						  <h6 class="mb-0">Email</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input type="email" id="id-email" name="email" class="form-control" placeholder="{{ request.user.email }}">
+						  <input type="email" id="email-edit" name="email" class="form-control" placeholder="{{ request.user.email }}">
 						</div>
 					  </div>
 					  <hr>
@@ -122,7 +120,7 @@
 						  <h6 class="mb-0">Bio</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="bio" class="form-control" placeholder="{{ request.user.bio }}">
+						  <input name="bio" id="bio-edit" class="form-control" placeholder="{{ request.user.bio }}">
 						
 						</div>
 					  </div>
@@ -132,7 +130,7 @@
 						  <h6 class="mb-0">City</h6>
 						</div>
 						<div class="col-sm-9 text-secondary">
-						  <input name="city" class="form-control" placeholder="{{ request.user.city }}">
+						  <input name="city" id="city-edit" class="form-control" placeholder="{{ request.user.city }}">
 						</div>
 					  </div>
 					  <hr>
@@ -155,7 +153,6 @@
 				  </div>
 				</div>
 			  </div>
-			  
 			</div>
 		  </div>
 </page-element>

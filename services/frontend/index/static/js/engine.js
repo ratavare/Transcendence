@@ -4,7 +4,7 @@ const pages = document.querySelectorAll("page-element");
 const l = new Map();
 for (const page of pages) {
 	document.body.removeChild(page);
-	console.log("removeChild: ", page);
+	// console.log("removeChild: ", page);
 	l.set(page.getAttribute("name"), page);
 }
 
@@ -57,7 +57,7 @@ async function checkRedirection(page) {
 }
 
 async function setPage(name) {
-	PageElement.onUnLoad();
+	PageElement.onUnload();
 	if (name == "" || name == "#") {
 		name = "home";
 		seturl("/home");
@@ -77,8 +77,7 @@ async function setPage(name) {
 		Array.from(pages).find((page) => page.getAttribute("default"));
 	if (page) {
 		name = page.getAttribute("name") || name;
-		// console.log("name:", name);
-
+		
 		const redirection = await checkRedirection(page);
 		if (redirection) return;
 
@@ -88,7 +87,12 @@ async function setPage(name) {
 		const newScript = document.createElement("script");
 		newScript.setAttribute("controller", "true");
 		newScript.src = "static/js/" + name + ".js";
-		if (name == "pong") newScript.type = "module";
+		if (
+			name == "pong" ||
+			name == "singleplayerpong" ||
+			name == "multiplayer_pong"
+		)
+			newScript.type = "module";
 		newScript.onload = function () {
 			console.log(`${name}.js loaded successfully`);
 		};
@@ -96,12 +100,17 @@ async function setPage(name) {
 		document.body.appendChild(newPage);
 		newPage.style.display = page.display;
 		pageActive = newPage;
-		if ("pong" == name) {
+		if (
+			"pong" == name ||
+			"singleplayerpong" == name ||
+			"multiplayer_pong" == name
+		) {
 			setTimeout(() => {
 				PageElement.onLoad(newPage);
 			}, 200);
 		}
 	} else pageActive = undefined;
+	
 }
 
 async function getProfile() {
@@ -116,8 +125,6 @@ async function getProfile() {
 		if (response == null) {
 			throw new Error("Failed to fetch profile");
 		}
-		// console.log("getProfile: ", response);
-
 		window.user = response;
 		return true;
 	} catch {

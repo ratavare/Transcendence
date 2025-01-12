@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
+// ************************************* THREEJS ************************************************
+
 PageElement.onLoad = () => {
 	// Constants
 	const SHAKE_INTENSITY = 10;
@@ -18,12 +20,18 @@ PageElement.onLoad = () => {
 
 	// Scene Setup
 	const canvas = document.getElementById("canvas");
+	const canvasContainer = document.getElementById("canvas-item");
+
 	const renderer = new THREE.WebGLRenderer({
 		canvas: canvas,
 		antialias: true,
 	});
 	renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8);
 	document.body.appendChild(renderer.domElement);
+
+	if (!canvasContainer.contains(canvas)) {
+		canvasContainer.appendChild(canvas);
+	}
 
 	const scene = new THREE.Scene();
 	const camera = new THREE.PerspectiveCamera(
@@ -280,14 +288,7 @@ PageElement.onLoad = () => {
 	// setInterval(saveSphereData, 1000);
 	renderer.setAnimationLoop(animate);
 
-	// ************************************* WEBSOCKET FUCNTIONS ************************************************
-
-	const lobby_id = window.props.get("id");
-	const token = localStorage.getItem("playerToken") || "";
-	const socket = new WebSocket(
-		`wss://localhost:8443/ws/${lobby_id}/?token=${token}`
-	);
-	let rendering = true;
+	// ************************************* WEBSOCKET ************************************************
 
 	function sendPayload(type, payload) {
 		socket.send(
@@ -298,26 +299,66 @@ PageElement.onLoad = () => {
 		);
 	}
 
+	async function checkLobby(lobbyId) {
+		try {
+			const data = await myFetch(
+				`https://localhost:8443/lobby/lobbies/${lobbyId}/`,
+				null,
+				"GET",
+				true
+			);
+		} catch (error) {
+			console.log(error);
+			seturl("/home");
+		}
+	};
+
+	let rendering = true;
+	const lobby_id = window.props.get("id");
+	checkLobby(lobby_id);
+	const token = localStorage.getItem("playerToken") || "";
+	const socket = new WebSocket(
+		`wss://localhost:8443/ws/${encodeURIComponent(
+			lobby_id
+		)}/?token=${token}`
+	);
+
+	// ISSUES MIGHT OCCUR!! Maybe remove popstate
+	window.addEventListener("popstate", () => {
+		const hash = window.location.hash;
+		if (hash.includes("?")) {
+			const lobbyId = window.props.get("id");
+			checkLobby(lobbyId);
+		}
+	});
+
+	const readyBtn = document.getElementById("readyBtn");
+	const overlayText = document.getElementById("overlay-text");
+	readyBtn.onclick = async () => {
+		readyBtn.classList.add("hidden");
+		sendPayload("ready", {
+			ready: true,
+		});
+		overlayText.textContent = "Waiting for the other player";
+		console.log("Ready button clicked");
+	};
+
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
 		switch (data.type) {
 			case "token":
 				localStorage.setItem("playerToken", data.payload);
 				break;
-			case "connect":
-				console.log(
-					`User ID: ${data.payload.id} | `,
-					data.payload.connectMessage
-				);
-				break;
 			case "readyBtn":
-				console.log("TEST: ", readyBtn.classList.contains("hidden"));
 				if (readyBtn.classList.contains("hidden")) {
 					readyBtn.classList.remove("hidden");
 				}
 				if (data.payload == "add") readyBtn.classList.add("hidden");
 				break;
 			case "message":
+				receiveChatMessage(data.payload);
+				break;
+			case "log":
 				console.log(data.payload);
 				break;
 			case "state":
@@ -349,40 +390,109 @@ PageElement.onLoad = () => {
 				break;
 			case "gameOver":
 				win(data.payload);
+				break;
 			case "paddleInit":
 				if (data.payload.player == "1") {
 					handlePaddleControls("p1");
 				} else if (data.payload.player == "2") {
 					handlePaddleControls("p2");
 				}
+				break;
+			case "error":
+				socket.close();
+				seturl("/home");
 		}
 	};
 
-	const readyBtn = document.getElementById("readyBtn");
-	readyBtn.onclick = async () => {
-		readyBtn.classList.add("hidden");
-		sendPayload("ready", {
-			ready: true,
-		});
-	};
-
 	socket.onopen = async () => {
-		sendPayload("connect", {
-			id: window.user.id,
-			connectMessage: `Welcome to the [${lobby_id}] lobby [${window.user.username}]!!`,
+		sendPayload("message", {
+			sender: "connect",
+			content: `${window.user.username} joined the lobby!`,
 		});
 	};
 
 	socket.onclose = () => {
 		console.log("Socket closed unexpectedly");
-		seturl("/lobby");
+		seturl("/home");
 	};
 
-	PageElement.onUnLoad = () => {
-		console.log("onUnLoad:pong");
-		sendPayload("message", `[${window.user.username}] disconnected.`);
-		renderer.dispose();
+	// ************************************* CHAT ************************************************
+
+	function receiveChatMessage(payload) {
+		let color = "white";
+		const messageList = document.getElementById("chat-message-list");
+		const messageListItem = document.createElement("li");
+		const chatContentElement = document.querySelector(".chat-content");
+
+		if (payload.sender == "connect" || payload.sender == "disconnect") {
+			if (payload.sender == "connect") color = "limegreen";
+			if (payload.sender == "disconnect") color = "red";
+			messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
+		} else {
+			if (payload.sender == window.user.username) color = "orangered";
+			messageListItem.innerHTML = `
+			<b style="color: ${color}">${payload.sender}: </b>
+			<span>${payload.content}</span>
+			`;
+		}
+		messageList.appendChild(messageListItem);
+		if (chatContentElement) {
+			chatContentElement.scrollTop = chatContentElement.scrollHeight;
+		}
+	}
+
+	function sendMessage(sender, content) {
+		sendPayload("message", {
+			sender: sender,
+			content: content,
+		});
+	};
+
+	async function getChat() {
+		try {
+			const data = await myFetch(
+				`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
+				null,
+				"GET",
+				true
+			);
+			for (const message of data.lobby.chat) {
+				receiveChatMessage(message);
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
+	function messageForm() {
+		const chatInputForm = document.getElementById("chat-input-form");
+		chatInputForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+
+			const chatInput = event.target.querySelector("#chat-input");
+			if (chatInput.value)
+				sendMessage(window.user.username, chatInput.value);
+			chatInput.value = "";
+		});
+	}
+
+	messageForm();
+	getChat();
+
+	window.onbeforeunload = () => {
+		sendMessage("disconnect", `${window.user.username} left the lobby`);
+	};
+
+	PageElement.onUnload = () => {
+		sendMessage("disconnect", `${window.user.username} left the lobby`);
+
 		socket.close();
-		PageElement.onUnLoad = () => {};
+
+		if (renderer) renderer.dispose();
+
+		document.removeEventListener("keyup", handlePaddleControls);
+		document.removeEventListener("keydown", handlePaddleControls);
+
+		PageElement.onUnload = () => {};
 	};
 };

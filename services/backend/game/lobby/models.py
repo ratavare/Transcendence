@@ -10,6 +10,10 @@ STATE_CHOICES = [
 	('paused', 'Paused'),
 ]
 
+class Message(models.Model):
+	sender = models.CharField(max_length=100, blank=True)
+	content = models.TextField(blank=True)
+
 class Position(models.Model):
 	x = models.IntegerField(default=0)
 	z = models.IntegerField(default=0)
@@ -26,6 +30,7 @@ class Lobby(models.Model):
 	ballPosition = models.ForeignKey(Position, related_name="BallPosition", on_delete=models.CASCADE, null=True, blank=True)
 	paddle1Position = models.ForeignKey(Position, related_name="Paddle1Position", on_delete=models.CASCADE, null=True, blank=True)
 	paddle2Position = models.ForeignKey(Position, related_name="Paddle2Position", on_delete=models.CASCADE, null=True, blank=True)
+	chat = models.ManyToManyField(Message)
 
 # signals to initialize positions when Lobby is created
 @receiver(post_save, sender=Lobby)

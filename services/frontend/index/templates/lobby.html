@@ -2,13 +2,12 @@
 	{% include 'navbar.html' with authenticated="true" %}
 	<div class="container mt-5">
 		<form method="POST" id="create-lobby-form">
-			<input placeholder="Create a lobby.." name="lobby_id">
-			<input class="btn btn-outline-secondary" type="submit">
+			<input placeholder="Create a lobby.." name="lobby_id" />
+			<input class="btn btn-outline-secondary" type="submit" />
 		</form>
 	</div>
 	<div class="container mt-5">
 		<h3>Join a Lobby:</h3>
 	</div>
-	<div class="container mt-5" id="lobby-list">
-	</div>
+	<div class="container mt-5" id="lobby-list"></div>
 </page-element>
