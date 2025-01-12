@@ -55,7 +55,7 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret, usernam
 			localStorage.setItem("refresh_token", refreshToken);
 			if (window.location.href.includes("code")) {
 				console.log("codeeeee");
-				// window.location.href = "https://localhost:8443/#/home";
+				window.location.href = "https://localhost:8443/#/home";
 			} else seturl("/home");
 		}
 	} else {
