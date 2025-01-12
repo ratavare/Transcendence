@@ -123,7 +123,7 @@ def handle_intra_oauth_login(request, code):
 	data = {
 		'grant_type': 'authorization_code',
 		'client_id': "u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725",
-		'client_secret': "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",
+		'client_secret': "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",
 		'redirect_uri': "https://localhost:8443/user_auth/login/",
 		'code': code
 	}
