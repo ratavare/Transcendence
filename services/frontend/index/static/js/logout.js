@@ -11,7 +11,6 @@ async function logoutFunc() {
 			localStorage.removeItem("refresh_token");
 			localStorage.removeItem("is_2fa_enabled");
 			localStorage.removeItem("otp_secret");
-			localStorage.removeItem("theme");
 			// alert('Successfully Logged Out');
 			seturl("/login");
 		} catch (error) {
