@@ -40,8 +40,8 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret, usernam
 						localStorage.setItem("is_2fa_enabled", "true");
 						otpModal.hide();
 						if (window.location.href.includes("code")) {
-							console.log("code");
-							// window.location.href = "https://localhost:8443/#/home";
+							// console.log("code");
+							window.location.href = "https://localhost:8443/#/home";
 						}
 						else
 							seturl("/home");
@@ -54,7 +54,7 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret, usernam
 			localStorage.setItem("access_token", accessToken);
 			localStorage.setItem("refresh_token", refreshToken);
 			if (window.location.href.includes("code")) {
-				console.log("codeeeee");
+				// console.log("codeeeee");
 				window.location.href = "https://localhost:8443/#/home";
 			} else seturl("/home");
 		}
