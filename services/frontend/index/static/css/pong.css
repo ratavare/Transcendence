@@ -35,6 +35,8 @@ h3 {
 	display: flex;
 	justify-content: center;
 	margin-top: 5px;
+	height: calc(100vh - 100px);
+	box-sizing: border-box;
 }
 
 .canvas-container {

@@ -120,20 +120,38 @@ async function getLobbies() {
 	});
 }
 
+// **************************************** TOURNAMENT **************************************************
+
+async function joinTournament(tournament_id) {
+	const body = JSON.stringify(window.user);
+	try {
+		const data = await myFetch(
+			`https://localhost:8443/tournament/${tournament_id}/`,
+			body,
+			"POST",
+			true
+		);
+		console.log('JOIN DATA:', data);
+		seturl(`/tournament?id=${tournament_id}`);
+	} catch (error) {
+		alert(error);
+	}
+}
+
 {
 	const createTournamentForm = document.getElementById("create-tournament-form");
-	console.log('AAAAAAAAAAAAAA: ', createTournamentForm);
 	createTournamentForm?.addEventListener("submit", async function (event) {
 		event.preventDefault();
 		const formData = new FormData(event.target);
 		try {
 			const data = await myFetch(
-				"https://localhost:8443/tournament/create/",
+				"https://localhost:8443/tournament/",
 				formData,
 				"POST",
 				true
 			);
-			console.log('DATA:', data);
+			console.log("CREATE DATA: ", data);
+			joinTournament(data.tournament_id)
 		} catch (error) {
 			console.log(error);
 			// seturl("/home");

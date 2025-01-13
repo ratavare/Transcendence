@@ -44,7 +44,7 @@ def getLobby(request, lobby_id):
 		return JsonResponse({'error': 'Lobby does not exist'}, status=404)
 
 def createLobby(request):
-	validator = RegexValidator('[+\/%!?,.$%#&*]', inverse_match=True)
+	validator = RegexValidator('[+/%!?,.$%#&*]', inverse_match=True)
 	try:
 		id = request.data.get('lobby_id')
 		validator(id)

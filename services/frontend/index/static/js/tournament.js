@@ -30,11 +30,13 @@ socket.onmessage = function (event) {
 		case "error":
 			socket.close();
 			seturl("/home");
+		case "message":
+			receiveChatMessage(data.payload);
 	}
 }
 
 socket.onopen = async () => {
-	sendPayload("log", {
+	sendPayload("message", {
 		sender: "connect",
 		content: `${window.user.username} joined the lobby!`,
 	});
@@ -61,3 +63,64 @@ socket.onclose = () => {
 		})
 	})
 }
+
+// **************************************** CHAT **************************************************
+
+function receiveChatMessage(payload) {
+	let color = "white";
+	const messageList = document.getElementById("chat-message-list-tournament");
+	const messageListItem = document.createElement("li");
+	const chatContentElement = document.getElementById("chat-content-tournament");
+
+	if (payload.sender == "connect" || payload.sender == "disconnect") {
+		if (payload.sender == "connect") color = "limegreen";
+		if (payload.sender == "disconnect") color = "red";
+		messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
+	} else {
+		if (payload.sender == window.user.username) color = "orangered";
+		messageListItem.innerHTML = `
+			<b style="color: ${color}">${payload.sender}: </b>
+			<span>${payload.content}</span>
+			`;
+	}
+	messageList.appendChild(messageListItem);
+	if (chatContentElement) {
+		chatContentElement.scrollTop = chatContentElement.scrollHeight;
+	}
+}
+
+function sendMessage(sender, content) {
+	sendPayload("message", {
+		sender: sender,
+		content: content,
+	});
+}
+
+/* async function getChat() {
+	try {
+		const data = await myFetch(
+			`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
+			null,
+			"GET",
+			true
+		);
+		for (const message of data.lobby.chat) {
+			receiveChatMessage(message);
+		}
+	} catch (error) {
+		console.log(error);
+	}
+} */
+
+function messageForm() {
+	const chatInputForm = document.getElementById("chat-input-form-tournament");
+	chatInputForm.addEventListener("submit", (event) => {
+		event.preventDefault();
+
+		const chatInput = event.target.querySelector("#chat-input-tournament");
+		if (chatInput.value) sendMessage(window.user.username, chatInput.value);
+		chatInput.value = "";
+	});
+}
+
+messageForm();

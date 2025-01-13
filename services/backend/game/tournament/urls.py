@@ -3,5 +3,6 @@ from . import views
 
 app_name = "tournament"
 urlpatterns = [
-	path('create/', views.tournamentView, name='create'),
+	path('', views.createTournament),
+	path('<str:tournament_id>/', views.joinTournament)
 ]

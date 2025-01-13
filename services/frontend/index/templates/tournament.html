@@ -5,8 +5,8 @@
 	<link rel="stylesheet" href="{% static 'css/tournament.css' %}">
 	<link rel="stylesheet" href="{% static 'css/chat.css' %}">
 
-	<div class="container">
-		<div class="bracket">
+	<div class="container-fluid">>
+		<div class="container bracket">
 			<ul>
 				<li>
 					<div id="" class="player-div">
@@ -56,16 +56,16 @@
 			</ul>
 		</div>
 		<div class="chat-container">
-			<div id="chat-content" class="chat-content">
-				<ul id="chat-message-list" style="list-style-type: none"></ul>
+			<div id="chat-content-tournament" class="chat-content">
+				<ul id="chat-message-list-tournament" style="list-style-type: none"></ul>
 			</div>
-			<form id="chat-input-form" class="chat-input">
+			<form id="chat-input-form-tournament" class="chat-input">
 				<input
-					id="chat-input"
-					class="chat-input"
-					type="text"
-					placeholder="Send a message..."
-					autocomplete="off"
+				id="chat-input-tournament"
+				class="chat-input"
+				type="text"
+				placeholder="Send a message..."
+				autocomplete="off"
 				/>
 			</form>
 		</div>

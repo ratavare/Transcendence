@@ -1,18 +1,15 @@
 
-.container {
+.container-fluid {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: center;
 	margin-top: 5px;
-	width: 100%;
 }
 
 .bracket {
 	display: flex;
-	padding-top: 20px;
-	position: absolute;
-	left: 35%;
-	top: 20%;
-	transform: translateX(-35%);
+	justify-content: center;
+	min-width: 80%;
+	min-height: 80%;
 }
 
 .bracket ul {
