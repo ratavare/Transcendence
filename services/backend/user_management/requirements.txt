@@ -9,4 +9,3 @@ Pillow
 djangorestframework_simplejwt
 pyotp
 qrcode
-channels

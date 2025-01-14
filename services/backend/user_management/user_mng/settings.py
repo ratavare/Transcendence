@@ -14,10 +14,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost"]
 
+ASGI_APPLICATION = "user_mng.asgi.application"
+
 CSRF_TRUSTED_ORIGINS = ["https://localhost:8443"]
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
 	'proxy_models',
     'user_messages.apps.UserMessagesConfig',
 	'user_friends.apps.UserFriendsConfig',
