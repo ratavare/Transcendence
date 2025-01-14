@@ -10,6 +10,49 @@ document
 		seturl("/multiplayer_pong");
 	});
 
+function putList(jsonArray, htmlId, type) {
+	const listDiv = document.getElementById(htmlId);
+
+	const previousList = listDiv.querySelector("ul");
+	previousList?.remove();
+	const list = document.createElement("ul");
+	list.classList.add("list-group");
+	let i = 0;
+	console.log("JSON ARRAY: ", jsonArray);
+	jsonArray.forEach((element) => {
+		console.log("ELEMENT: ", element);
+		Object.keys(element).forEach((id) => {
+			console.log("ELEMENT[ID]: ", element[id]);
+			const roomId = element[id];
+			list.innerHTML += `
+				<li id="item${i++}" class="list-group-item" style="display: flex;align-items: center;justify-content: space-around">
+					<p>${roomId}</p>
+					<button type="submit" class="btn col pull-right btn-success btn-xs" style="display: flex;" data-bs-dismiss="modal">Join ${type}</button>
+				</li>
+			`;
+		});
+	});
+	listDiv.appendChild(list);
+	listDiv.style.display = "block";
+
+	buttonConfigure(htmlId, type);
+}
+
+function buttonConfigure(htmlId, type) {
+	const listDiv = document.getElementById(htmlId);
+	const listItems = listDiv.querySelectorAll("li");
+	listItems?.forEach((item) => {
+		const button = item.querySelector("button");
+		const id = item.querySelector("p").textContent;
+		button.addEventListener("click", () => {
+			if (type == "Lobby") joinLobby(id);
+			else if (type == "Tournament") joinTournament(id);
+		});
+	});
+}
+
+// **************************************** LOBBY **************************************************
+
 async function joinLobby(lobby_id) {
 	const body = JSON.stringify(window.user);
 	try {
@@ -25,55 +68,6 @@ async function joinLobby(lobby_id) {
 	}
 }
 
-function buttonConfigure() {
-	const lobbies = lobbyListDiv.querySelectorAll("li");
-	lobbies?.forEach((item) => {
-		const button = item.querySelector("button");
-		const lobby_id = item.querySelector("p").textContent;
-		button.addEventListener("click", () => {
-			joinLobby(lobby_id);
-		});
-	});
-}
-
-function putLobbylist(lobbies) {
-	const previousList = lobbyListDiv.querySelector("ul");
-	previousList?.remove();
-	const lobbyList = document.createElement("ul");
-	lobbyList.classList.add("list-group");
-	let i = 0;
-	lobbies.forEach((lobby) => {
-		const lobbyItemList = document.createElement("li");
-		lobbyItemList.id = "item" + i++;
-		lobbyItemList.classList.add("list-group-item");
-		lobbyItemList.style =
-			"display: flex;align-items: center;justify-content: space-around";
-
-		const lobbyId = document.createElement("p");
-		lobbyId.textContent = lobby.lobby_id;
-
-		const joinLobbyBtn = document.createElement("button");
-		joinLobbyBtn.classList.add(
-			"btn",
-			"col",
-			"pull-right",
-			"btn-success",
-			"btn-xs"
-		);
-		joinLobbyBtn.textContent = "Join Lobby";
-		joinLobbyBtn.type = "submit";
-		joinLobbyBtn.style.display = "flex";
-
-		lobbyItemList.appendChild(lobbyId);
-		lobbyItemList.appendChild(joinLobbyBtn);
-		lobbyList.appendChild(lobbyItemList);
-	});
-	lobbyListDiv.appendChild(lobbyList);
-	lobbyListDiv.style.display = "block";
-
-	buttonConfigure();
-}
-
 async function getLobbies() {
 	try {
 		const data = await myFetch(
@@ -82,8 +76,7 @@ async function getLobbies() {
 			"GET",
 			true
 		);
-		// console.log(data.lobbies);
-		putLobbylist(data.lobbies);
+		putList(data.lobbies, "lobby-list", "Lobby");
 	} catch (error) {
 		console.log(error);
 	}
@@ -111,12 +104,13 @@ async function getLobbies() {
 }
 
 {
-	const joinLobbyBtn = document.getElementById("join-modal-btn");
+	const joinModalBtn = document.getElementById("join-modal-btn");
+	const lobbyListDiv = document.getElementById("lobby-list");
 
-	joinLobbyBtn?.addEventListener("click", async function (event) {
-		var lobbyListDiv = document.getElementById("lobby-list");
+	joinModalBtn?.addEventListener("click", async function (event) {
 		lobbyListDiv.style.display = "none";
 		getLobbies();
+		getTournaments();
 	});
 }
 
@@ -126,20 +120,35 @@ async function joinTournament(tournament_id) {
 	const body = JSON.stringify(window.user);
 	try {
 		const data = await myFetch(
-			`https://localhost:8443/tournament/${tournament_id}/`,
+			`https://localhost:8443/tournament/$${tournament_id}/`,
 			body,
 			"POST",
 			true
 		);
-		console.log('JOIN DATA:', data);
 		seturl(`/tournament?id=${tournament_id}`);
 	} catch (error) {
 		alert(error);
 	}
 }
 
+async function getTournaments() {
+	try {
+		const data = await myFetch(
+			"https://localhost:8443/tournament/tournaments/",
+			null,
+			"GET",
+			true
+		);
+		putList(data.tournaments, "tournament-list", "Tournament");
+	} catch (error) {
+		console.log(error);
+	}
+}
+
 {
-	const createTournamentForm = document.getElementById("create-tournament-form");
+	const createTournamentForm = document.getElementById(
+		"create-tournament-form"
+	);
 	createTournamentForm?.addEventListener("submit", async function (event) {
 		event.preventDefault();
 		const formData = new FormData(event.target);
@@ -150,12 +159,10 @@ async function joinTournament(tournament_id) {
 				"POST",
 				true
 			);
-			console.log("CREATE DATA: ", data);
-			joinTournament(data.tournament_id)
+			joinTournament(data.tournament_id);
 		} catch (error) {
 			console.log(error);
 			// seturl("/home");
 		}
 	});
 }
-

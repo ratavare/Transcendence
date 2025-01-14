@@ -1,5 +1,6 @@
 
 // ************************************* WEBSOCKET ************************************************
+{
 
 function sendPayload(type, payload) {
 	socket.send(
@@ -13,7 +14,7 @@ function sendPayload(type, payload) {
 const tournament_id = window.props.get("id");
 const token = localStorage.getItem("tournamentPlayerToken") || "";
 const socket = new WebSocket(
-	`wss://localhost:8443/ws/t/${encodeURIComponent(
+	`wss://localhost:8443/pong/t/${encodeURIComponent(
 		tournament_id
 	)}/?token=${token}`
 );
@@ -47,6 +48,19 @@ socket.onclose = () => {
 	// seturl("/home");
 };
 
+window.onbeforeunload = () => {
+	sendMessage("disconnect", `${window.user.username} left the lobby`);
+};
+
+PageElement.onUnload = () => {
+	sendMessage("disconnect", `${window.user.username} left the lobby`);
+
+	// socket.close();
+
+	PageElement.onUnload = () => {};
+};
+
+}
 
 // **************************************** HTML **************************************************
 

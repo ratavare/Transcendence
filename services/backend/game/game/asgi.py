@@ -21,8 +21,8 @@ application = ProtocolTypeRouter({
 	"http":get_asgi_application(),
 	"websocket": AuthMiddlewareStack(
 		URLRouter([
-			re_path(r'ws/(?P<lobby_id>\w+)/$', PongConsumer.as_asgi()),
-			re_path(r'ws/t/(?P<tournament_id>\w+)/$', TournamentConsumer.as_asgi())
+			re_path(r'pong/(?P<lobby_id>\w+)/$', PongConsumer.as_asgi()),
+			re_path(r'pong/t/(?P<tournament_id>\w+)/$', TournamentConsumer.as_asgi())
 		])
 	),
 })

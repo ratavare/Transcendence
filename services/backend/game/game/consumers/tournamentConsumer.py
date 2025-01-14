@@ -1,10 +1,11 @@
-import json
+import json, asyncio
 from tournament.models import Tournament
 from lobby.models import Message
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 tournaments = {}
+deleteTimers = {}
 
 class TournamentConsumer(AsyncWebsocketConsumer):
 
@@ -14,6 +15,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 		if self.tournament_id not in tournaments:
 			tournaments[self.tournament_id] = {"players": list()}
+		elif self.tournament_id in deleteTimers:
+			deleteTimers[self.tournament_id].cancel()
+			del deleteTimers[self.tournament_id]
 
 		token = (self.scope["query_string"].decode()).split('=')[1]
 		print('TOKEN: ', token, flush=True)
@@ -34,21 +38,27 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 		if tournament and self.user_id in tournament["players"]:
 			tournament["players"].remove(self.user_id)
+		
+		if self.tournament_id not in deleteTimers:
+			deleteTimers[self.tournament_id] = asyncio.create_task(self.deleteTournamentTask(tournament))
+	
+	async def deleteTournamentTask(self, tournament):
+		await asyncio.sleep(4)
 
 		if not tournament["players"]:
 			del tournaments[self.tournament_id]
-			await self.deleteLobbyDb()
+			await self.deleteTournamentDb()
 		else:
-			await self.groupSend('log', f'{self.user_id} left the lobby')
+			await self.groupSend('log', f'{self.user_id} left the tournament')
 		await self.channel_layer.group_discard(self.tournament_id, self.channel_name)
 
-	async def deleteLobbyDb(self):
+	async def deleteTournamentDb(self):
 		try:
-			dbTournament = await database_sync_to_async(Tournament.objects.get)(lobby_id=self.tournament_id)
+			dbTournament = await database_sync_to_async(Tournament.objects.get)(tournament_id=self.tournament_id)
 			await database_sync_to_async(dbTournament.delete)()
 		except Tournament.DoesNotExist:
-			print(f"Lobby {self.tournament_id} does not exist in the database", flush=True)
-			await self.sendMessage('log', "Lobby does not exist")
+			print(f"Tournament {self.tournament_id} does not exist in the database", flush=True)
+			await self.sendMessage('log', "Tournament does not exist")
 
 	async def receive(self, text_data):
 		try:

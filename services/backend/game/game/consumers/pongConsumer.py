@@ -1,6 +1,5 @@
 
-import json
-import asyncio
+import json, asyncio
 from lobby.models import Lobby, Message
 from .pongObjects import Pong, vars
 from channels.db import database_sync_to_async

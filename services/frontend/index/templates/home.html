@@ -61,9 +61,13 @@
 		}
 
 		h3 {
-			color: #000;
+			color: white;
 			font-size: 1.5em;
 			font-weight: bold;
+		}
+
+		h5 {
+			color: white;
 		}
 	</style>
 
@@ -365,7 +369,10 @@
 				<div class="modal-body">
 					<h3>Select a Lobby</h3>
 				</div>
-				<div class="modal-body" id="lobby-list"></div>
+				<div class="modal-body" style="display: flex;">
+					<div id="lobby-list"></div>
+					<div id="tournament-list"></div>
+				</div>
 				<div class="modal-footer">
 					<button
 						type="button"

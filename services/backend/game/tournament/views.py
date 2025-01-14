@@ -1,5 +1,4 @@
 import json
-from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Tournament
 from django.contrib.auth.models import User
@@ -7,23 +6,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-
-# id = "asdsad"
-
-
-# html ->  Create Tournament [...]
-# js -> fetch('/path/endpoint/t' ,POST, tournament_id)
-
-# Backend Django:
-# urls -> /path/endpoint/t -> functionView()
-# views -> functionView({
-#     criar entradaDB:
-#     if tourment_id
-#         newTournament = Tournament.objects.create(tournament_id=tournament_id)
-#         newTournament.save()
-#         return JsonResponse("success!!", DeprecationWarning)
-#     return
-# })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -60,4 +42,14 @@ def joinTournament(request, tournament_id):
 		return JsonResponse({'error': 'User does not exist'}, status=400)
 	except:
 		return JsonResponse({'error': 'Other error'}, status=400)
-	
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTournaments(request):
+	if request.method == "GET":
+		tournaments = Tournament.objects.all()
+		if not tournaments:
+			return JsonResponse({'error': 'No lobbies found'}, status=404)
+		all_tournaments = [{'tournament_id': tournament.tournament_id} for tournament in tournaments]
+		return JsonResponse({'tournaments': all_tournaments}, status=200)

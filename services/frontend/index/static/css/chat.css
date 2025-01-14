@@ -16,14 +16,14 @@
 		)
 		1;
 	padding: 5px;
-	overflow-y: auto;
+	overflow-y: scroll;
 }
 
 .chat-content {
 	display: flex;
 	justify-content: flex-start;
 	height: 100%;
-	overflow-y: auto;
+	overflow-y: scroll;
 	color: white;
 	font-size: 15px;
 	inline-size: 95%;
@@ -40,4 +40,17 @@
 	border-radius: 25px;
 	padding: 10px;
 	width: 100%;
+}
+
+::-webkit-scrollbar {
+	width: 2px;
+	height: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: linear-gradient(
+		-80deg,
+		rgb(73, 0, 128),
+		rgb(228, 50, 252)
+	);
 }

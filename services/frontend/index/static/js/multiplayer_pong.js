@@ -474,10 +474,9 @@ PageElement.onLoad = () => {
 		});
 	}
 
-	PageElement.onUnLoad = () => {
-		console.log("onUnLoad:pong");
+	PageElement.onUnload = () => {
 		sendPayload("message", `[${window.user.username}] disconnected.`);
 		renderer.dispose();
-		PageElement.onUnLoad = () => {};
+		PageElement.onUnload = () => {};
 	};
 };

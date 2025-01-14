@@ -119,7 +119,6 @@ async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = tr
 			body = JSON.stringify(myData);
 		}
 	}
-
 	const response = await fetch(viewUrl, {
 		method: method,
 		headers: headers,

@@ -525,10 +525,10 @@ PageElement.onLoad = () => {
 		});
 	}
 
-	PageElement.onUnLoad = () => {
-		console.log("onUnLoad:pong");
+	PageElement.onUnload = () => {
+		console.log("onUnload:pong");
 		sendPayload("message", `[${window.user.username}] disconnected.`);
 		renderer.dispose();
-		PageElement.onUnLoad = () => {};
+		PageElement.onUnload = () => {};
 	};
 };

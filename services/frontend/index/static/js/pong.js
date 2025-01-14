@@ -318,7 +318,7 @@ PageElement.onLoad = () => {
 	checkLobby(lobby_id);
 	const token = localStorage.getItem("playerToken") || "";
 	const socket = new WebSocket(
-		`wss://localhost:8443/ws/${encodeURIComponent(
+		`wss://localhost:8443/pong/${encodeURIComponent(
 			lobby_id
 		)}/?token=${token}`
 	);
