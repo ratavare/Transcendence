@@ -19,6 +19,7 @@ CSRF_TRUSTED_ORIGINS = ["https://localhost:8443"]
 # Application definition
 INSTALLED_APPS = [
 	'proxy_models',
+    'user_messages.apps.UserMessagesConfig',
 	'user_friends.apps.UserFriendsConfig',
 	'user_auth.apps.UserAuthConfig',
 	'user_profile.apps.UserProfileConfig',
