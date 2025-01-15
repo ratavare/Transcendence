@@ -1,7 +1,139 @@
 <page-element name="pms">
     {% include 'navbar.html' with authenticated="true" %}
-    <form id="message-form">
-        <input type="text" placeholder="Message">
-        <button type="submit">Send</button>
-    </form>
+    <style>
+        .bg-dark-transparent {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .list-group-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: none;
+            color: #ffffff;
+        }
+        .list-group-item:hover {
+            background-color: #333333;
+        }
+        .chat-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+        .chat-box {
+            width: 80%;
+            height: 80%;
+
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 20px rgba(255, 255, 255, 0.185); /* Optional shadow */
+            background-color: rgba(0, 0, 0, 0.2); /* Semi-transparent background */
+            padding: 20px;
+        }
+        .chat-header {
+            background-color:  rgba(0, 0, 0, 0.3);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .chat-area {
+            background-color: rgba(0, 0, 0, 0.3);
+            height: 550px;
+        }
+        .chat-input {
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        .form-control {
+            background-color: #1e1e1e;
+            border: 1px solid #333333;
+            color: #ffffff;
+        }
+        .form-control:focus {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border-color: #555555;
+            box-shadow: none;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            display: inline-block;  /* Ensures the message box resizes with the content */
+            max-width: 45%;         /* Limit the maximum width to 45% */
+            width: auto;            /* Let the width adjust based on the content */
+            word-wrap: break-word;  /* Ensure long words break */
+            padding: 8px 12px;      /* Add padding inside the message box */
+            border-radius: 12px;    /* Optional: Rounded corners for the message box */
+            margin-bottom: 8px;     /* Space between messages */
+            overflow-wrap: break-word; /* Ensure text wraps when needed */
+        }
+        .sent {
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: left;
+        }
+        .received {
+            background-color: #333333;
+            color: #ffffff;
+            margin-left: auto;
+        }
+
+        #message-input::placeholder {
+            color: #ffffff;  /* Gold color for the placeholder */
+            opacity: 0.5;
+        }
+    </style>
+    <div class="chat-wrapper">
+    <div class="chat-box border border-dark">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-12 col-md-4 col-lg-3 bg-dark-transparent border border-dark p-0"
+                style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+                    <ul class="list-group list-group-flush" 
+                    style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+                        <li class="list-group-item list-group-item-action">John Doe</li>
+                        <li class="list-group-item list-group-item-action">Jane Smith</li>
+                        <li class="list-group-item list-group-item-action">David Johnson</li>
+                        <li class="list-group-item list-group-item-action">Emily Davis</li>
+                    </ul>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="col-12 col-md-8 col-lg-9 d-flex flex-column">
+                    <!-- Chat Header -->
+                    <div class="chat-header py-3 px-4 border border-dark">
+                        <h5 class="mb-0 text-white">John Doe</h5>
+                    </div>
+
+                    <!-- Messages -->
+                    <div class="flex-grow-1 p-4 chat-area overflow-auto border border-dark" id="messages">
+                        <div class="text-end mb-3">
+                            <div class="message sent py-2 px-3 rounded">Hi, how are you?</div>
+                        </div>
+                        <div class="text-start mb-3">
+                            <div class="message received py-2 px-3 rounded">I'm good, thanks! What about you?</div>
+                        </div>
+                        <div class="text-end mb-3">
+                            <div class="message sent py-2 px-3 rounded">Doing great! Let's catch up later.</div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="bg-dark-transparent border border-dark p-3 chat-input">
+                        <form class="d-flex">
+                            <input type="text" class="form-control me-2" placeholder="Type a message..." id="message-input">
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
 </page-element>
