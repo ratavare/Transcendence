@@ -25,6 +25,9 @@ socket.onmessage = function (event) {
 		case "token":
 			localStorage.setItem("tournamentPlayerToken", data.payload);
 			break;
+		case "usernameInit":
+			bracketInitWs(data.payload);
+			break ;
 		case "log":
 			console.log(data.payload);
 			break;
@@ -39,7 +42,10 @@ socket.onmessage = function (event) {
 socket.onopen = async () => {
 	sendPayload("message", {
 		sender: "connect",
-		content: `${window.user.username} joined the lobby!`,
+		content: `${window.user.username} joined the tournament as player X!`,
+	});
+	sendPayload("usernameInit", {
+		username: `${window.user.username}`,
 	});
 };
 
@@ -49,35 +55,56 @@ socket.onclose = () => {
 };
 
 window.onbeforeunload = () => {
-	sendMessage("disconnect", `${window.user.username} left the lobby`);
+	sendMessage("disconnect", `${window.user.username} left the tournament`);
 };
 
 PageElement.onUnload = () => {
-	sendMessage("disconnect", `${window.user.username} left the lobby`);
+	// sendMessage("disconnect", `${window.user.username} left the tournament`);
 
 	// socket.close();
 
 	PageElement.onUnload = () => {};
 };
 
-}
 
-// **************************************** HTML **************************************************
+// **************************************** BRACKET **************************************************
 
-
+function playerInit(playerList)
 {
-	const playerSpanDivs = document.querySelectorAll(".player-div")
-	let i = 1;
-	playerSpanDivs.forEach((div) => {
-		div.addEventListener('click', (event) => {
-			let span = div.querySelector(".player-span");
-			span.textContent = window.user.username;
-			// let img = div.querySelector("img");
-			// img.src = 'path/to/img/'
-		})
-	})
+	for (let playerId in playerList) {
+		console.log("DB INDEX: ", parseInt(playerId) + 1);
+		const playerDiv = document.querySelector(".tournament-p" + (parseInt(playerId) + 1))
+		const playerName = playerDiv.querySelector("span");
+		playerName.textContent = playerList[playerId].username;
+	}
 }
 
+async function	bracketInitWs(payload) {
+	console.log("WS INDEX: ", parseInt(payload.index));
+	const playerDiv = document.querySelector(".tournament-p" + parseInt(payload.index))
+	const playerName = playerDiv.querySelector("span");
+	playerName.textContent = payload.username;
+}
+
+async function bracketInitDb(tournament_id)
+{
+	try{
+		const data = await myFetch(
+			`https://localhost:8443/tournament/$${tournament_id}/`,
+			null,
+			"GET",
+			true
+		);
+		console.log("Players: ", data.tournament.players);
+		playerInit(data.tournament.players);
+	} catch (error) {
+		console.log('Error: ', error);
+	}
+}
+
+bracketInitDb(tournament_id);
+
+}
 // **************************************** CHAT **************************************************
 
 function receiveChatMessage(payload) {

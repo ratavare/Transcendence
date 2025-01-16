@@ -106,9 +106,11 @@ async function getLobbies() {
 {
 	const joinModalBtn = document.getElementById("join-modal-btn");
 	const lobbyListDiv = document.getElementById("lobby-list");
+	const tournamentListDiv = document.getElementById("tournament-list")
 
 	joinModalBtn?.addEventListener("click", async function (event) {
 		lobbyListDiv.style.display = "none";
+		tournamentListDiv.style.display = "none";
 		getLobbies();
 		getTournaments();
 	});

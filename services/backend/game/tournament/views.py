@@ -1,6 +1,7 @@
 import json
 from django.http import JsonResponse
 from .models import Tournament
+from .serializers import TournamentSerializer
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -23,8 +24,14 @@ def createTournament(request):
 		except:
 			return JsonResponse({'error': 'Other error'}, status=400)
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
+def getJoinTournament(request, tournament_id):
+	if request.method == 'POST':
+		return joinTournament(request, tournament_id)
+	if request.method == 'GET':
+		return getTournament(request, tournament_id)
+
 def joinTournament(request, tournament_id):
 	try:
 		data = json.loads(request.body.decode('utf-8'))
@@ -37,12 +44,19 @@ def joinTournament(request, tournament_id):
 		selectedTorunament.save()
 		return JsonResponse({'status': 'success'}, status=200)
 	except Tournament.DoesNotExist:
-		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
+		return JsonResponse({'error': 'Tournament does not exist'}, status=400)
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User does not exist'}, status=400)
 	except:
 		return JsonResponse({'error': 'Other error'}, status=400)
 
+def getTournament(request, tournament_id):
+	try:
+		tournament = Tournament.objects.get(tournament_id=tournament_id)
+		serializer = TournamentSerializer(tournament)
+		return JsonResponse({'tournament': serializer.data}, status=200)
+	except Tournament.DoesNotExist:
+		return JsonResponse({'error': 'Tourament does not exist'})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

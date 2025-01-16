@@ -5,7 +5,7 @@
 	flex-direction: column;
 	height: 827px;
 	width: 300px;
-	margin-left: auto;
+	margin: 5px;
 	border: 2px solid;
 	border-image: linear-gradient(
 			-80deg,

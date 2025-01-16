@@ -5,55 +5,60 @@
 	<link rel="stylesheet" href="{% static 'css/tournament.css' %}">
 	<link rel="stylesheet" href="{% static 'css/chat.css' %}">
 
-	<div class="container-fluid">>
-		<div class="container bracket">
-			<ul>
-				<li>
-					<div id="" class="player-div">
-						<span>???</span>
-					</div>
-					<ul>
-						<li style="width: 600px">
-							<div id="" class="player-div">
-								<span>???</span>
-							</div>
-							<ul>
-								<li>
-									<div id="p1" class="player-div">
-										<img src="/static/assets/favicon.svg" />
-										<span  class="player-span">Player 1</span>
-									</div>
-								</li>
-								<li>
-									<div id="p2" class="player-div">
-										<img src="/static/assets/favicon.svg" />
-										<span  class="player-span">Player 2</span>
-									</div>
-								</li>
-							</ul>
-						</li>
-						<li style="width: 600px">
-							<div id="" class="player-div">
-								<span>???</span>
-							</div>
-							<ul>
-								<li>
-									<div id="p3" class="player-div">
-										<img src="/static/assets/favicon.svg" />
-										<span  class="player-span">Player 3</span>
-									</div>
-								</li>
-								<li>
-									<div id="p4" class="player-div">
-										<img src="/static/assets/favicon.svg" />
-										<span  class="player-span">Player 4</span>
-									</div>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-			</ul>
+	<div class="tournament-main-container ">
+		<div class="tournament-secondary-container">
+			<div class="container bracket">
+				<ul>
+					<li>
+						<div id="" class="player-div">
+							<span>???</span>
+						</div>
+						<ul>
+							<li style="width: 600px">
+								<div id="" class="player-div">
+									<span>???</span>
+								</div>
+								<ul>
+									<li>
+										<div class="player-div tournament-p1">
+											<img src="/static/assets/favicon.svg" />
+											<span>Player 1</span>
+										</div>
+									</li>
+									<li>
+										<div class="player-div tournament-p2">
+											<img src="/static/assets/favicon.svg" />
+											<span>Player 2</span>
+										</div>
+									</li>
+								</ul>
+							</li>
+							<li style="width: 600px">
+								<div id="" class="player-div">
+									<span>???</span>
+								</div>
+								<ul>
+									<li>
+										<div class="player-div tournament-p3">
+											<img src="/static/assets/favicon.svg" />
+											<span>Player 3</span>
+										</div>
+									</li>
+									<li>
+										<div class="player-div tournament-p4">
+											<img src="/static/assets/favicon.svg" />
+											<span>Player 4</span>
+										</div>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<button id="tournament-start-btn" class="btn btn-primary mb-2">Start</button>
+			</div>
 		</div>
 		<div class="chat-container">
 			<div id="chat-content-tournament" class="chat-content">

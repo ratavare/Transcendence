@@ -1,8 +1,17 @@
 
-.container-fluid {
+.tournament-main-container {
 	display: flex;
-	justify-content: center;
+	justify-content: space-evenly;
 	margin-top: 5px;
+	flex-direction: row;
+	width: 95%;
+}
+
+.tournament-secondary-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 80%;
 }
 
 .bracket {
@@ -65,6 +74,19 @@
 		-1px 1px rgba(0, 0, 0, 0.4);
 }
 
+.tournament-p1 {
+	--border-color: rgb(19, 19, 255);
+}
+.tournament-p2 {
+	--border-color: rgb(236, 153, 0);
+}
+.tournament-p3 {
+	--border-color: rgb(0, 186, 0);
+}
+.tournament-p4 {
+	--border-color: rgb(225, 188, 0);
+}
+
 .bracket li::before,
 .bracket li::after {
 	content: "";
@@ -117,17 +139,4 @@
 	width: 35px;
 	height: 35px;
 	padding-right: 5px;
-}
-
-#p1 {
-	--border-color: rgb(19, 19, 255);
-}
-#p2 {
-	--border-color: rgb(236, 153, 0);
-}
-#p3 {
-	--border-color: rgb(0, 186, 0);
-}
-#p4 {
-	--border-color: rgb(225, 188, 0);
 }

@@ -1,6 +1,7 @@
 import json, asyncio
 from tournament.models import Tournament
 from lobby.models import Message
+from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -11,16 +12,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 	async def connect(self):
 		self.tournament_id = self.scope["url_route"]["kwargs"]["tournament_id"]
-		print('Tournamenti Id: ', self.tournament_id, flush=True)
 
 		if self.tournament_id not in tournaments:
-			tournaments[self.tournament_id] = {"players": list()}
+			tournaments[self.tournament_id] = {"players": []}
 		elif self.tournament_id in deleteTimers:
 			deleteTimers[self.tournament_id].cancel()
 			del deleteTimers[self.tournament_id]
 
 		token = (self.scope["query_string"].decode()).split('=')[1]
-		print('TOKEN: ', token, flush=True)
 		self.user_id = token if token else self.channel_name
 
 		await self.channel_layer.group_add(self.tournament_id, self.channel_name)
@@ -31,17 +30,26 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			await self.sendMessage('token', self.user_id)
 
 		tournament = tournaments[self.tournament_id]
-		tournament["players"].append(self.user_id)
+		tournament["players"].append({"token": self.user_id, "username": None})
+
+		tournament = tournaments.get(self.tournament_id)
 
 	async def disconnect(self, close_code):
 		tournament = tournaments.get(self.tournament_id)
-
-		if tournament and self.user_id in tournament["players"]:
-			tournament["players"].remove(self.user_id)
+		player = self.getPlayer()
+		index = self.getPlayerIndex()
+		if index:
+			await self.groupSend('usernameInit', {
+				'username': "Player" + str(index),
+				'index': index,
+			})
+		tournament["players"].remove(player)
 		
 		if self.tournament_id not in deleteTimers:
 			deleteTimers[self.tournament_id] = asyncio.create_task(self.deleteTournamentTask(tournament))
-	
+		else:
+			self.removePlayer(player)
+
 	async def deleteTournamentTask(self, tournament):
 		await asyncio.sleep(4)
 
@@ -59,6 +67,16 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		except Tournament.DoesNotExist:
 			print(f"Tournament {self.tournament_id} does not exist in the database", flush=True)
 			await self.sendMessage('log', "Tournament does not exist")
+	
+	@database_sync_to_async
+	def removePlayer(self, player):
+		try:
+			dbTournament = Tournament.objects.get(tournament_id=self.tournament_id)
+			username = player['username']
+			user = User.objects.get(username=username)
+			dbTournament.players.remove(user)
+		except Exception as e:
+			return e
 
 	async def receive(self, text_data):
 		try:
@@ -66,6 +84,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			send_type = data.get('type')
 			payload = data.get('payload')
 
+			match(send_type):
+				case 'usernameInit':
+					self.playerUsernameInit(payload['username'])
+					index = self.getPlayerIndex()
+					if index:
+						payload.update({'index': index})
+
+			print("SENDTYPE: ", send_type, " | ", "PAYLOAD: ", payload, flush=True)
 			await self.groupSend(send_type, payload)
 
 		except:
@@ -86,3 +112,23 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 	async def sendMessage(self, send_type, payload):
 		await self.send(text_data=json.dumps({'type': send_type, 'payload': payload}))
+
+	def playerUsernameInit(self, username):
+		player = self.getPlayer()
+		player["username"] = username
+
+	def getPlayer(self):
+		tournament = tournaments.get(self.tournament_id)
+		if tournament:
+			for player in tournament["players"]:
+				if player["token"] == self.user_id:
+					return player
+
+	def getPlayerIndex(self):
+		tournament = tournaments.get(self.tournament_id)
+		index = 0
+		if tournament:
+			for player in tournament["players"]:
+				index = index + 1
+				if player["token"] == self.user_id:
+					return index
