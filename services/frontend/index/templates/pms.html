@@ -4,13 +4,18 @@
         .bg-dark-transparent {
             background-color: rgba(0, 0, 0, 0.2);
         }
+
+        .list-group {
+            max-height: 678px;
+            overflow-y: auto;
+        }
         .list-group-item {
             background-color: rgba(0, 0, 0, 0.2);
             border: none;
             color: #ffffff;
         }
         .list-group-item:hover {
-            background-color: #333333;
+            background-color: #ffffffaf;
         }
         .chat-wrapper {
             display: flex;
@@ -73,18 +78,51 @@
             overflow-wrap: break-word; /* Ensure text wraps when needed */
         }
         .sent {
-            background-color: #007bff;
+            background-color: #0040ff;
             color: #ffffff;
             text-align: left;
         }
         .received {
-            background-color: #333333;
+            background-color: #8102ff;
             color: #ffffff;
             margin-left: auto;
         }
 
         #message-input::placeholder {
-            color: #ffffff;  /* Gold color for the placeholder */
+            color: #ffffff;
+            opacity: 0.5;
+        }
+
+        #search-results {
+            display: none;
+            position: absolute;
+            background-color: #1e1e1e;
+            border: 1px solid #555555;
+            border-radius: 8px;
+            z-index: 1000;
+            max-height: 200px;
+            max-width: 190px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            color: #ffffff;
+        }
+
+        
+        #search-results .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: white;
+            max-width: 300px;
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+        }
+        
+        #search-results .dropdown-item:hover {
+            background-color: #333333;
+        }
+        #friend-search::placeholder {
+            color: #ffffff;
             opacity: 0.5;
         }
     </style>
@@ -93,10 +131,12 @@
         <div class="container-fluid">
             <div class="row">
                 <!-- Sidebar -->
-                <div class="col-12 col-md-4 col-lg-3 bg-dark-transparent border border-dark p-0"
-                style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
-                    <ul class="list-group list-group-flush" 
-                    style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+                <div class="col-12 col-md-4 col-lg-3 bg-dark-transparent border border-dark p-0" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+                    <div class="p-3 bg-dark-transparent" style="color: white;">
+                        <input type="text" id="friend-search" class="form-control" placeholder="Search friends..." oninput="filterFriends()" autocomplete="off">
+                        <ul class="dropdown-menu w-100" id="search-results"></ul>
+                    </div>
+                    <ul class="list-group list-group-flush" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
                         <li class="list-group-item list-group-item-action">John Doe</li>
                         <li class="list-group-item list-group-item-action">Jane Smith</li>
                         <li class="list-group-item list-group-item-action">David Johnson</li>
@@ -128,7 +168,7 @@
                     <div class="bg-dark-transparent border border-dark p-3 chat-input">
                         <form class="d-flex">
                             <input type="text" class="form-control me-2" placeholder="Type a message..." id="message-input">
-                            <button type="submit" class="btn btn-primary">Send</button>
+                            <button type="submit" class="btn btn-outline-primary">Send</button>
                         </form>
                     </div>
                 </div>
