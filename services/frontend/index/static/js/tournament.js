@@ -25,7 +25,7 @@ socket.onmessage = function (event) {
 		case "token":
 			localStorage.setItem("tournamentPlayerToken", data.payload);
 			break;
-		case "usernameInit":
+		case "bracketInitWs":
 			bracketInitWs(data.payload);
 			break ;
 		case "log":
@@ -43,9 +43,6 @@ socket.onopen = async () => {
 	sendPayload("message", {
 		sender: "connect",
 		content: `${window.user.username} joined the tournament as player X!`,
-	});
-	sendPayload("usernameInit", {
-		username: `${window.user.username}`,
 	});
 };
 
@@ -79,11 +76,19 @@ function playerInit(playerList)
 	}
 }
 
-async function	bracketInitWs(payload) {
-	console.log("WS INDEX: ", parseInt(payload.index));
-	const playerDiv = document.querySelector(".tournament-p" + parseInt(payload.index))
-	const playerName = playerDiv.querySelector("span");
-	playerName.textContent = payload.username;
+async function bracketInitWs(payload) {
+	const players = payload.players;
+	Object.entries(players).forEach(([userId, username], index) => {
+		console.log("PLAYER ", index + 1, ": ", username)
+		const playerDiv = document.querySelector(
+			".tournament-p" + (index + 1)
+		);
+		const playerName = playerDiv.querySelector("span");
+		if (username)
+			playerName.textContent = username;
+		else
+			playerName.textContent = "Player " + (index + 1);
+	});
 }
 
 async function bracketInitDb(tournament_id)
