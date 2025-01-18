@@ -1,15 +1,3 @@
-async function getFriendsData() {
-	try {
-		return await myFetch(
-			"https://localhost:8443/user_friends/api/",
-			null,
-			"GET",
-			true
-		);
-	} catch (error) {
-		console.log(error);
-	}
-}
 
 async function getFriends() {
     try {
@@ -28,7 +16,7 @@ async function filterFriends() {
     const friends = await getFriends();
 
     resultsDropdown.innerHTML = '';
-
+    
     if (filter === '') {
         resultsDropdown.style.display = 'none';
         return;
