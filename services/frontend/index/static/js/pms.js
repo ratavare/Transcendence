@@ -42,9 +42,20 @@ async function filterFriends() {
     resultsDropdown.style.display = matches > 0 ? 'block' : 'none';
 }
 
+async function getConversations() {
+    try {
+		return await myFetch(
+			"https://localhost:8443/user_messages/conversations/",
+			null,
+			"GET",
+			true
+		);
+	} catch (error) {
+		console.log(error);
+	}
+}
 
-
-
+getConversations()
 
 
 
