@@ -55,14 +55,25 @@ async function getConversations() {
 	}
 }
 
-async function loadPms() {
-	const conversations = await getConversations();
+function renderActiveConversations(conversations) {
+	const users_sidebar = document.getElementById('users-sidebar');
 	conversations.forEach( (conversation) => {
-		console.log(conversation);
+		const list_element = document.createElement('li');
+		list_element.classList.add("list-group-item", "list-group-item-action");
+		list_element.innerHTML = conversation.participants[0].username;
+		list_element.addEventListener('click', () => {
+			// renderMessages(conversation); // Missing implementation
+		})
+		users_sidebar.appendChild(list_element)
 	})
 }
 
-loadPms();
+async function loadPmsPage() {
+	const conversations = await getConversations();
+	renderActiveConversations(conversations);
+}
+
+loadPmsPage();
 
 
 
