@@ -133,7 +133,7 @@
                 <!-- Sidebar -->
                 <div class="col-12 col-md-4 col-lg-3 bg-dark-transparent border border-dark p-0" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
                     <div class="p-3 bg-dark-transparent" style="color: white;">
-                        <input type="text" id="friend-search" class="form-control" placeholder="Search friends..." oninput="filterFriends()" autocomplete="off">
+                        <input id="friend-search" type="text" class="form-control" placeholder="Search friends..." oninput="filterFriends()" autocomplete="off">
                         <ul class="dropdown-menu w-100" id="search-results"></ul>
                     </div>
                     <ul id="users-sidebar" class="list-group list-group-flush" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
@@ -145,25 +145,17 @@
                 <div class="col-12 col-md-8 col-lg-9 d-flex flex-column">
                     <!-- Chat Header -->
                     <div class="chat-header py-3 px-4 border border-dark">
-                        <h5 class="mb-0 text-white">John Doe</h5>
+                        <h5 id="chat-header" class="mb-0 text-white">John Doe</h5>
                     </div>
 
                     <!-- Messages -->
-                    <div class="flex-grow-1 p-4 chat-area overflow-auto border border-dark" id="messages">
-                        <div class="text-end mb-3">
-                            <div class="message text-end mb-3 sent py-2 px-3 rounded">Hi, how are you?</div>
-                        </div>
-                        <div class="text-start mb-3">
-                            <div class="message received py-2 px-3 rounded">I'm good, thanks! What about you?</div>
-                        </div>
-                        <div class="text-end mb-3">
-                            <div class="message sent py-2 px-3 rounded">Doing great! Let's catch up later.</div>
-                        </div>
+                    <div id="messages" class="flex-grow-1 p-4 chat-area overflow-auto border border-dark">
+                        <!-- * Messages will be populated here * -->
                     </div>
 
                     <!-- Chat Input -->
                     <div class="bg-dark-transparent border border-dark p-3 chat-input">
-                        <form class="d-flex">
+                        <form id="message-form" class="d-flex">
                             <input type="text" class="form-control me-2" placeholder="Type a message..." id="message-input">
                             <button type="submit" class="btn btn-outline-primary">Send</button>
                         </form>

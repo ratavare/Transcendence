@@ -9,10 +9,10 @@ class chatConsumer(AsyncWebsocketConsumer):
        self.username = self.scope["url_route"]["kwargs"]["username"]
        await self.accept()
 
-       await self.send(text_data=json.dumps({"message": self.username}))
+       await self.send(text_data=json.dumps({"message": f"{self.username} entered the chat." }))
 
     async def disconnect(self, close_code):
-       pass
+        pass
     
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)

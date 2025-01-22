@@ -16,6 +16,12 @@ ALLOWED_HOSTS = ["localhost"]
 
 ASGI_APPLICATION = "user_mng.asgi.application"
 
+CHANNEL_LAYERS = {
+	'default': {
+		'BACKEND': 'channels.layers.InMemoryChannelLayer',
+	},
+}
+
 CSRF_TRUSTED_ORIGINS = ["https://localhost:8443"]
 
 # Application definition
