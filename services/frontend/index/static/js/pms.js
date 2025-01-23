@@ -88,6 +88,9 @@ function renderActiveConversations(conversations) {
 				return ;
 			chat_header.innerHTML = username;
 			renderMessages(conversation);
+
+			activeSocket?.close();
+			activeSocket = setUpWS(conversation);
 		})
 		users_sidebar.appendChild(list_element)
 	})
@@ -100,49 +103,28 @@ async function loadPmsPage() {
 	renderActiveConversations(conversations);
 }
 
+let activeSocket;
+
 loadPmsPage();
 
-document.getElementById('message-form').addEventListener('submit', (event) => {
-	event.preventDefault();
-})
+function setUpWS(conversation) {
+	const chatSocket = new WebSocket(`wss://localhost:8443/chat/${conversation.id}/`);
+	chatSocket.onmessage = function (event) {
+		console.log(JSON.parse(event.data).message);
+	}
+	chatSocket.onclose = function (e) {
+		console.log('Closed connection');
+	}
+	chatSocket.onopen = function (e) {
+		// console.log(e.data.message);
+	}
+	document.getElementById('message-form').addEventListener('submit', (event) => {
+		event.preventDefault();
+		const input = document.getElementById('message-input').value.trim();
+		chatSocket.send(JSON.stringify({
+			message: input
+		}));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const chatSocket = new WebSocket(`wss://localhost:8443/chat/${window.user.username}/`);
-
-chatSocket.onmessage = function (event) {
-	console.log(JSON.parse(event.data).message);
+	})
+	return chatSocket;
 }
-
-chatSocket.onclose = function (e) {
-    console.log(e);
-}
-
-// chatSocket.onopen = function (e) {
-//     console.log(e.data.message);
-// }
