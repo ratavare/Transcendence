@@ -34,6 +34,20 @@ async function getMessages(conversationId) {
 		);
 	} catch (error) {
 		console.error(error);
+		return null;
+	}
+}
+
+async function startConversation(friend) {
+	try {
+		return await myFetch(
+			`https://localhost:8443/user_messages/conversations/create/${friend}/`,
+			null,
+			"POST",
+			true
+		);
+	} catch (error) {
+		console.error(error);
 	}
 }
 
@@ -98,8 +112,12 @@ async function filterFriends() {
 			const resultItem = document.createElement('li');
 			resultItem.className = 'dropdown-item';
 			resultItem.textContent = friend.username;
-			resultItem.onclick = () => {
-				// Needs implementation
+			resultItem.onclick = async () => {
+				const conversation = await startConversation(friend.username);
+				await renderMessages(conversation);
+				document.getElementById('chat-header').innerHTML = conversation.participants[1].username;
+				activeSocket?.close();
+				activeSocket = setUpWS(conversation);
 			};
 			resultsDropdown.appendChild(resultItem);
 			matches++;
@@ -132,18 +150,23 @@ function renderSentMessage(parentElem, content) {
 }
 
 async function renderMessages(conversation) {
+
+	document.querySelector('.chat-header').style.display = 'block';
+	document.getElementById('chat-input').style.display = 'block';
+
 	const messagesDiv = document.getElementById('messages');
+	messagesDiv.style.borderRadius = 0;
 	messagesDiv.innerHTML = '';
 
 	messages = await getMessages(conversation.id);
-
-	messages.forEach((message) => {
-
-		if (message.sender.username === window.user.username)
-			renderSentMessage(messagesDiv, message.content);
-		else
-			renderRecievedMessage(messagesDiv, message.content);
-	})
+	if (messages) {
+		messages.forEach((message) => {
+			if (message.sender.username === window.user.username)
+				renderSentMessage(messagesDiv, message.content);
+			else
+				renderRecievedMessage(messagesDiv, message.content);
+		})
+	}
 }
 
 function renderActiveConversations(conversations) {
@@ -151,7 +174,7 @@ function renderActiveConversations(conversations) {
 	conversations.forEach((conversation) => {
 		const list_element = document.createElement('li');
 		list_element.classList.add("list-group-item", "list-group-item-action");
-		const username = conversation.participants[0].username
+		const username = conversation.participants[1].username
 		list_element.innerHTML = username;
 		list_element.addEventListener('click', async () => {
 			const chat_header = document.getElementById('chat-header');

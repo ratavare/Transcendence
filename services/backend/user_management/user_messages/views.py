@@ -19,12 +19,13 @@ def getConversations(request):
 		serializer = ConversationSerializer(conversations, many=True)
 
 		data = serializer.data
-		for conversation in data:
-			filtered_paricipants = []
-			for participant in conversation['participants']:
-				if participant['id'] != user.id:
-					filtered_paricipants.append(participant)
-			conversation['participants'] = filtered_paricipants
+		# muito porco
+		# for conversation in data:
+		# 	filtered_paricipants = []
+		# 	for participant in conversation['participants']:
+		# 		if participant['id'] != user.id:
+		# 			filtered_paricipants.append(participant)
+		# 	conversation['participants'] = filtered_paricipants
 
 		return Response(data, status=200)
 
@@ -39,9 +40,29 @@ def getMessages(request, conversation_id):
 	try:
 		conversation = Conversation.objects.get(id=conversation_id)
 		messages = conversation.messages.order_by("timestamp")
+		
 		serializer = MessageSerializer(messages, many=True)
 
 		return Response(serializer.data)
 
 	except Conversation.DoesNotExist:
 		return Response({"error": "Conversation not found or access denied."}, status=404)
+
+@api_view(['POST'])
+def startConversation(request, friend):
+	try:
+		user = request.user
+		friend = User.objects.get(username=friend)
+
+		existing_conversation = Conversation.objects.filter(participants=user).filter(participants=friend).first()
+		if existing_conversation:
+			serializer = ConversationSerializer(existing_conversation)
+			return Response(serializer.data, status=200)
+
+		conversation = Conversation.objects.create()
+		conversation.participants.set([user, friend])
+		serializer = ConversationSerializer(conversation)
+
+		return Response(serializer.data, status=201)
+	except User.DoesNotExist:
+		return Response({"error": "Not a valid friend or user doesn't exist."}, status=404)

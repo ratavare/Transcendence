@@ -125,6 +125,11 @@
             color: #ffffff;
             opacity: 0.5;
         }
+        .audiowide-regular {
+          font-family: "Audiowide", serif;
+          font-weight: 300;
+          font-style: normal;
+        }
     </style>
     <div class="chat-wrapper">
     <div class="chat-box border border-dark">
@@ -144,17 +149,21 @@
                 <!-- Chat Area -->
                 <div class="col-12 col-md-8 col-lg-9 d-flex flex-column">
                     <!-- Chat Header -->
-                    <div class="chat-header py-3 px-4 border border-dark">
-                        <h5 id="chat-header" class="mb-0 text-white">John Doe</h5>
+                    <div class="chat-header py-3 px-4 border border-dark" style="display: none;">
+                        <h5 id="chat-header" class="mb-0 text-white"></h5>
                     </div>
 
                     <!-- Messages -->
-                    <div id="messages" class="flex-grow-1 p-4 chat-area overflow-auto border border-dark">
+                    <div id="messages" class="flex-grow-1 p-4 chat-area overflow-auto border border-dark" style="border-radius: 12px;">
+                        <h2 class="audiowide-regular" style="text-align: center; padding-bottom: 60px;">Start Chatting!</h3>
+                        <h5 class="audiowide-regular" style="text-align: center;"> Search for a friends to start a conversation,</h3>
+                        <h5 class="audiowide-regular" style="text-align: center;">or</h3>
+                        <h5 class="audiowide-regular" style="text-align: center;">Select one of your active conversations!</h3>
                         <!-- * Messages will be populated here * -->
                     </div>
 
                     <!-- Chat Input -->
-                    <div class="bg-dark-transparent border border-dark p-3 chat-input">
+                    <div id="chat-input" class="bg-dark-transparent border border-dark p-3 chat-input" style="display: none;">
                         <form id="message-form" class="d-flex">
                             <input type="text" class="form-control me-2" placeholder="Type a message..." id="message-input">
                             <button type="submit" class="btn btn-outline-primary">Send</button>
