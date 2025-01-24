@@ -4,7 +4,8 @@ from django.http import JsonResponse
 from django.db import models
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .serializers import ConversationSerializer
+from .serializers import ConversationSerializer, MessageSerializer
+from .models import Conversation
 
 @api_view(['GET'])
 def getConversations(request):
@@ -29,3 +30,18 @@ def getConversations(request):
 
 	except Exception as e:
 		return JsonResponse({'error': str(e)}, status=405)
+	
+@api_view(['GET'])
+def getMessages(request, conversation_id):
+	if not request.user.is_authenticated:
+		return Response({'error': 'Authentication required'}, status=401)
+	
+	try:
+		conversation = Conversation.objects.get(id=conversation_id)
+		messages = conversation.messages.order_by("timestamp")
+		serializer = MessageSerializer(messages, many=True)
+
+		return Response(serializer.data)
+
+	except Conversation.DoesNotExist:
+		return Response({"error": "Conversation not found or access denied."}, status=404)

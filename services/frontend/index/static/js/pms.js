@@ -1,4 +1,6 @@
 
+// *** FETCHES ***
+
 async function getFriends() {
 	try {
 		const data = await getFriendsData();
@@ -21,6 +23,60 @@ async function getConversations() {
 		console.error(error);
 	}
 }
+
+async function getMessages(conversationId) {
+	try {
+		return await myFetch(
+			`https://localhost:8443/user_messages/conversations/${conversationId}/`,
+			null,
+			"GET",
+			true
+		);
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+// *** WEB SOCKET ***
+
+function setUpWS(conversation) {
+	const chatSocket = new WebSocket(`wss://localhost:8443/chat/${conversation.id}/`);
+	chatSocket.onmessage = function (event) {
+		const data = JSON.parse(event.data);
+		const messagesDiv = document.getElementById('messages');
+		if (data.sender !== window.user.username)
+			renderRecievedMessage(messagesDiv, data.message);
+		else
+			renderSentMessage(messagesDiv, data.message);
+	}
+	chatSocket.onclose = function (e) {
+		console.log(`Closed connection: ${conversation.id}`);
+	}
+	chatSocket.onopen = function (e) {
+		console.log(`Opened connection: ${conversation.id}`);
+	}
+	document.getElementById('message-form').addEventListener('submit', (event) => {
+		event.preventDefault();
+
+		const input = document.getElementById('message-input');
+		message_content = input.value.trim();
+
+		if (!message_content)
+			return ;
+		if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN)
+			return ;
+
+		chatSocket.send(JSON.stringify({
+			message: message_content,
+			sender : window.user.username
+		}));
+
+		input.value = '';
+	})
+	return chatSocket;
+}
+
+// *** FILTERING ***
 
 async function filterFriends() {
 	const input = document.getElementById('friend-search');
@@ -53,25 +109,40 @@ async function filterFriends() {
 	resultsDropdown.style.display = matches > 0 ? 'block' : 'none';
 }
 
-function renderMessages(conversation) {
+// *** DOM UPDATES ***
+
+function renderRecievedMessage(parentElem, content) {
+	const messageWrapper = document.createElement('div')
+	const messageItem = document.createElement('div');
+	messageWrapper.classList.add('text-start', 'mb-3');
+	messageItem.classList.add('message', 'received', 'py-2', 'px-3', 'rounded');
+	messageItem.innerHTML = content;
+	messageWrapper.appendChild(messageItem);
+	parentElem.appendChild(messageWrapper);
+}
+
+function renderSentMessage(parentElem, content) {
+	const messageWrapper = document.createElement('div')
+	const messageItem = document.createElement('div');
+	messageWrapper.classList.add('text-end', 'mb-3');
+	messageItem.classList.add('message', 'text-end', 'mb-3', 'sent', 'py-2', 'px-3', 'rounded');
+	messageItem.innerHTML = content;
+	messageWrapper.appendChild(messageItem);
+	parentElem.appendChild(messageWrapper);
+}
+
+async function renderMessages(conversation) {
 	const messagesDiv = document.getElementById('messages');
 	messagesDiv.innerHTML = '';
 
-	conversation.messages.forEach((message) => {
-		const messageWrapper = document.createElement('div')
-		const messageItem = document.createElement('div');
-		if (message.sender.username === window.user.username) {
-			messageWrapper.classList.add('text-end', 'mb-3');
-			messageItem.classList.add('message', 'text-end', 'mb-3', 'sent', 'py-2', 'px-3', 'rounded');
-			messageItem.innerHTML = message.content;
-		}
-		else {
-			messageWrapper.classList.add('text-start', 'mb-3');
-			messageItem.classList.add('message', 'received', 'py-2', 'px-3', 'rounded');
-			messageItem.innerHTML = message.content;
-		}
-		messageWrapper.appendChild(messageItem);
-		messagesDiv.appendChild(messageWrapper);
+	messages = await getMessages(conversation.id);
+
+	messages.forEach((message) => {
+
+		if (message.sender.username === window.user.username)
+			renderSentMessage(messagesDiv, message.content);
+		else
+			renderRecievedMessage(messagesDiv, message.content);
 	})
 }
 
@@ -82,12 +153,12 @@ function renderActiveConversations(conversations) {
 		list_element.classList.add("list-group-item", "list-group-item-action");
 		const username = conversation.participants[0].username
 		list_element.innerHTML = username;
-		list_element.addEventListener('click', () => {
+		list_element.addEventListener('click', async () => {
 			const chat_header = document.getElementById('chat-header');
 			if (chat_header.innerHTML === username)
 				return ;
 			chat_header.innerHTML = username;
-			renderMessages(conversation);
+			await renderMessages(conversation);
 
 			activeSocket?.close();
 			activeSocket = setUpWS(conversation);
@@ -104,27 +175,4 @@ async function loadPmsPage() {
 }
 
 let activeSocket;
-
 loadPmsPage();
-
-function setUpWS(conversation) {
-	const chatSocket = new WebSocket(`wss://localhost:8443/chat/${conversation.id}/`);
-	chatSocket.onmessage = function (event) {
-		console.log(JSON.parse(event.data).message);
-	}
-	chatSocket.onclose = function (e) {
-		console.log('Closed connection');
-	}
-	chatSocket.onopen = function (e) {
-		// console.log(e.data.message);
-	}
-	document.getElementById('message-form').addEventListener('submit', (event) => {
-		event.preventDefault();
-		const input = document.getElementById('message-input').value.trim();
-		chatSocket.send(JSON.stringify({
-			message: input
-		}));
-
-	})
-	return chatSocket;
-}
