@@ -59,9 +59,10 @@ function setUpWS(conversation) {
 		const data = JSON.parse(event.data);
 		const messagesDiv = document.getElementById('messages');
 		if (data.sender !== window.user.username)
-			renderRecievedMessage(messagesDiv, data.message);
+			renderRecievedMessage(messagesDiv, data.message, Date.now());
 		else
-			renderSentMessage(messagesDiv, data.message);
+			renderSentMessage(messagesDiv, data.message, Date.now());
+		messagesDiv.scrollTop = messagesDiv.scrollHeight;
 	}
 	chatSocket.onclose = function (e) {
 		console.log(`Closed connection: ${conversation.id}`);
@@ -120,7 +121,7 @@ async function filterFriends() {
 				window.activeSocket = setUpWS(conversation);
 				document.getElementById('users-sidebar').appendChild(addSidebarUser(conversation));
 				resultsDropdown.style.display = 'none';
-				// Need to clean searchbar text from previous search.
+				input.value = '';
 			};
 			resultsDropdown.appendChild(resultItem);
 			matches++;
@@ -140,23 +141,34 @@ function addSidebarUser(conversation) {
 		return list_element
 }
 
-function renderRecievedMessage(parentElem, content) {
+function renderRecievedMessage(parentElem, content, timestamp) {
 	const messageWrapper = document.createElement('div')
 	const messageItem = document.createElement('div');
 	messageWrapper.classList.add('text-start', 'mb-3');
 	messageItem.classList.add('message', 'received', 'py-2', 'px-3', 'rounded');
 	messageItem.innerHTML = content;
 	messageWrapper.appendChild(messageItem);
+	const timestampElement = document.createElement('span');
+	timestampElement.classList.add('message-timestamp');
+	const messageDate = new Date(timestamp);
+	timestampElement.textContent = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	messageWrapper.appendChild(timestampElement);
 	parentElem.appendChild(messageWrapper);
 }
 
-function renderSentMessage(parentElem, content) {
+function renderSentMessage(parentElem, content, timestamp) {
 	const messageWrapper = document.createElement('div')
 	const messageItem = document.createElement('div');
 	messageWrapper.classList.add('text-end', 'mb-3');
 	messageItem.classList.add('message', 'text-end', 'mb-3', 'sent', 'py-2', 'px-3', 'rounded');
 	messageItem.innerHTML = content;
 	messageWrapper.appendChild(messageItem);
+	const timestampElement = document.createElement('span');
+	timestampElement.classList.add('message-timestamp');
+	const messageDate = new Date(timestamp);
+	timestampElement.style.textAlign = 'right';
+	timestampElement.textContent = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	messageWrapper.appendChild(timestampElement);
 	parentElem.appendChild(messageWrapper);
 }
 
@@ -173,11 +185,12 @@ async function renderMessages(conversation) {
 	if (messages) {
 		messages.forEach((message) => {
 			if (message.sender.username === window.user.username)
-				renderSentMessage(messagesDiv, message.content);
+				renderSentMessage(messagesDiv, message.content, message.timestamp);
 			else
-				renderRecievedMessage(messagesDiv, message.content);
+				renderRecievedMessage(messagesDiv, message.content, message.timestamp);
 		})
 	}
+	messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 function renderActiveConversations(conversations) {
@@ -213,5 +226,3 @@ if (window.activeSocket === undefined) {
 }
 
 loadPmsPage();
-
-// Need to implement a way to remove own user from the participants of the conversation.

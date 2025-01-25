@@ -130,6 +130,33 @@
           font-weight: 300;
           font-style: normal;
         }
+
+        /* Applies to all scrollable elements */
+        ::-webkit-scrollbar {
+            width: 8px; /* Width of the scrollbar */
+            height: 8px; /* Height of the scrollbar (for horizontal scrollbars) */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #1e1e1e; /* Color of the scrollbar thumb */
+            border-radius: 10px; /* Rounded corners for the thumb */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #333333; /* Color when hovering over the scrollbar thumb */
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: #000000; /* Background color of the scrollbar track */
+            border-radius: 10px; /* Rounded corners for the track */
+        }
+        .message-timestamp {
+            display: block;
+            font-size: 0.8rem;
+            color: #ccc; /* Light gray */
+            text-align: left; /* Align it to the right of the message bubble */
+            margin-top: 4px; /* Add spacing between the content and timestamp */
+        }
     </style>
     <div class="chat-wrapper">
     <div class="chat-box border border-dark">
