@@ -21,3 +21,24 @@ class ConversationSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Conversation
 		fields = ['id', 'participants', 'messages', 'updated_at']
+	
+	def to_representation(self, instance):
+		""" Customize the serialized representation.
+			The user that made the request wont be
+			shown in the serialized data """
+		
+		# Get the default serialized data
+		data = super().to_representation(instance)
+
+		# Get the current user from the context (provided in the view)
+		request = self.context.get('request')
+		if request and request.user.is_authenticated:
+			user_id = request.user.id
+
+			# Filter out the current user from participants
+			data['participants'] = [
+				participant for participant in data['participants'] 
+				if participant['id'] != user_id
+			]
+
+		return data

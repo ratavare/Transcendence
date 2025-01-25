@@ -115,9 +115,12 @@ async function filterFriends() {
 			resultItem.onclick = async () => {
 				const conversation = await startConversation(friend.username);
 				await renderMessages(conversation);
-				document.getElementById('chat-header').innerHTML = conversation.participants[1].username;
-				activeSocket?.close();
-				activeSocket = setUpWS(conversation);
+				document.getElementById('chat-header').innerHTML = conversation.participants[0].username;
+				window.activeSocket?.close();
+				window.activeSocket = setUpWS(conversation);
+				document.getElementById('users-sidebar').appendChild(addSidebarUser(conversation));
+				resultsDropdown.style.display = 'none';
+				// Need to clean searchbar text from previous search.
 			};
 			resultsDropdown.appendChild(resultItem);
 			matches++;
@@ -128,6 +131,14 @@ async function filterFriends() {
 }
 
 // *** DOM UPDATES ***
+
+function addSidebarUser(conversation) {
+	const list_element = document.createElement('li');
+		list_element.classList.add("list-group-item", "list-group-item-action");
+		const username = conversation.participants[0].username;
+		list_element.innerHTML = username;
+		return list_element
+}
 
 function renderRecievedMessage(parentElem, content) {
 	const messageWrapper = document.createElement('div')
@@ -172,30 +183,35 @@ async function renderMessages(conversation) {
 function renderActiveConversations(conversations) {
 	const users_sidebar = document.getElementById('users-sidebar');
 	conversations.forEach((conversation) => {
-		const list_element = document.createElement('li');
-		list_element.classList.add("list-group-item", "list-group-item-action");
-		const username = conversation.participants[1].username
-		list_element.innerHTML = username;
-		list_element.addEventListener('click', async () => {
+		const sidebarUser = addSidebarUser(conversation);
+		sidebarUser.addEventListener('click', async () => {
 			const chat_header = document.getElementById('chat-header');
-			if (chat_header.innerHTML === username)
+			if (chat_header.innerHTML === conversation.participants[0].username)
 				return ;
-			chat_header.innerHTML = username;
+			chat_header.innerHTML = conversation.participants[0].username;
 			await renderMessages(conversation);
 
-			activeSocket?.close();
-			activeSocket = setUpWS(conversation);
+			window.activeSocket?.close();
+			window.activeSocket = setUpWS(conversation);
 		})
-		users_sidebar.appendChild(list_element)
+		users_sidebar.appendChild(sidebarUser)
 	})
 }
 
 async function loadPmsPage() {
-	document.getElementById('friend-search').addEventListener('input', filterFriends);
-
 	const conversations = await getConversations();
+	// conversations.forEach((conversation) => {
+	// 	console.log(conversation.participants);
+	// })
+	
+	document.getElementById('friend-search').addEventListener('input', filterFriends);
 	renderActiveConversations(conversations);
 }
 
-let activeSocket;
+if (window.activeSocket === undefined) {
+	window.activeSocket = null;            // Global variable to track previous chat socket.
+}
+
 loadPmsPage();
+
+// Need to implement a way to remove own user from the participants of the conversation.

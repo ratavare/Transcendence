@@ -16,17 +16,12 @@ def getConversations(request):
 		user = request.user
 
 		conversations = user.conversations.all()
-		serializer = ConversationSerializer(conversations, many=True)
+		
+		# Passing context to the serializer will provide the user
+		# and have it removed from the serialized data.
+		serializer = ConversationSerializer(conversations, many=True, context={'request': request})
 
 		data = serializer.data
-		# muito porco
-		# for conversation in data:
-		# 	filtered_paricipants = []
-		# 	for participant in conversation['participants']:
-		# 		if participant['id'] != user.id:
-		# 			filtered_paricipants.append(participant)
-		# 	conversation['participants'] = filtered_paricipants
-
 		return Response(data, status=200)
 
 	except Exception as e:
@@ -61,7 +56,7 @@ def startConversation(request, friend):
 
 		conversation = Conversation.objects.create()
 		conversation.participants.set([user, friend])
-		serializer = ConversationSerializer(conversation)
+		serializer = ConversationSerializer(conversation, context={'request': request})
 
 		return Response(serializer.data, status=201)
 	except User.DoesNotExist:
