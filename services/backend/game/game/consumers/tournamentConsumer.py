@@ -1,5 +1,5 @@
 import json, asyncio
-from tournament.models import Tournament
+from tournament.models import Tournament, TournamentPlayer
 from lobby.models import Message
 from django.contrib.auth.models import User
 from collections import OrderedDict
@@ -52,8 +52,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		
 		if self.tournament_id not in deleteTimers:
 			deleteTimers[self.tournament_id] = asyncio.create_task(self.deleteTournamentTask(tournament))
-		else:
-			self.removePlayer(self.username)
 
 	async def deleteTournamentTask(self, tournament):
 		await asyncio.sleep(4)
@@ -65,6 +63,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			await self.deleteTournamentDb()
 		else:
 			await self.groupSend('log', f'{self.user_id} left the tournament')
+
+		await self.removePlayer(self.username)
+		await self.groupSend('bracketInitWs', {
+			'players': tournament["players"],
+		})
 		await self.channel_layer.group_discard(self.tournament_id, self.channel_name)
 
 	async def deleteTournamentDb(self):
@@ -80,7 +83,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		try:
 			dbTournament = Tournament.objects.get(tournament_id=self.tournament_id)
 			user = User.objects.get(username=username)
-			dbTournament.players.remove(user)
+			TournamentPlayer.objects.filter(tournament=dbTournament, player=user).delete()
 		except Exception as e:
 			return e
 

@@ -68,27 +68,29 @@ PageElement.onUnload = () => {
 
 function playerInit(playerList)
 {
-	for (let playerId in playerList) {
-		console.log("DB INDEX: ", parseInt(playerId) + 1);
-		const playerDiv = document.querySelector(".tournament-p" + (parseInt(playerId) + 1))
+	for (let i = 0; i < 4; i++) {
+		console.log("DB INDEX: ", parseInt(i) + 1);
+		const playerDiv = document.querySelector(".tournament-p" + (parseInt(i) + 1))
 		const playerName = playerDiv.querySelector("span");
-		playerName.textContent = playerList[playerId].username;
+		if (playerList[i])
+			playerName.textContent = playerList[i].username;
+		else
+			playerName.textContent = "Player " + (index + 1);
 	}
 }
 
 async function bracketInitWs(payload) {
 	const players = payload.players;
-	Object.entries(players).forEach(([userId, username], index) => {
-		console.log("PLAYER ", index + 1, ": ", username)
-		const playerDiv = document.querySelector(
-			".tournament-p" + (index + 1)
-		);
+	for (let i = 0; i < 4; i++) {
+		console.log("DB INDEX: ", parseInt(i) + 1);
+		username = Object.entries(players)[i][1];
+		const playerDiv = document.querySelector(".tournament-p" + (parseInt(i) + 1))
 		const playerName = playerDiv.querySelector("span");
 		if (username)
 			playerName.textContent = username;
 		else
 			playerName.textContent = "Player " + (index + 1);
-	});
+	}
 }
 
 async function bracketInitDb(tournament_id)
