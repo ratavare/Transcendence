@@ -63,6 +63,16 @@ function putLobbylist(lobbies) {
 		joinLobbyBtn.textContent = "Join Lobby";
 		joinLobbyBtn.type = "submit";
 		joinLobbyBtn.style.display = "flex";
+		joinLobbyBtn.addEventListener("click", () => {
+			const modal = document.getElementById("joinMatchModalLabel");
+			const backdrop = document.querySelector(".modal-backdrop");
+			if (modal) {
+				modal.style.display = "none";
+			}
+			if (backdrop) {
+				backdrop.remove();
+			}
+		});
 
 		lobbyItemList.appendChild(lobbyId);
 		lobbyItemList.appendChild(joinLobbyBtn);
@@ -128,3 +138,7 @@ async function getLobbies() {
 	})
 }
 
+var lobbyListDiv = document.getElementById("lobby-list");
+lobbyListDiv.style.display = "none";
+
+getLobbies();

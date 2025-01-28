@@ -265,7 +265,7 @@ PageElement.onLoad = () => {
 		socket.close();
 	});
 
-	function win(message) {
+	function win(status) {
 		console.log("MESSAGE:", message);
 		const modalElement = document.getElementById("quit");
 		const modal = new bootstrap.Modal(modalElement, {
@@ -277,6 +277,15 @@ PageElement.onLoad = () => {
 		winnerMsg.innerHTML = message;
 		readyBtn.style.display = "block";
 		rendering = False;
+		const body = {
+			"status": status,
+		};
+		myFetch(
+			`https://localhost:8443/profiles/update_win_loss/`,
+			body,
+			"POST",
+			true
+		);
 	}
 
 	// Modify the animate function to include swatting animation logic

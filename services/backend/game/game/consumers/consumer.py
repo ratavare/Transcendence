@@ -167,7 +167,17 @@ class Consumer(AsyncWebsocketConsumer):
 				await self.sendState()
 				await asyncio.sleep(0.016)
 				if winner:
-					await self.groupSend('gameOver', f"Player {winner} won!")
+					if self.player1Token == self.user_id:
+						if winner == 1:
+							await self.sendMessage('gameOver', 'win')
+						else:
+							await self.sendMessage('gameOver', 'loss')
+					if self.player2Token == self.user_id:
+						if winner == 2:
+							await self.sendMessage('gameOver', 'win')
+						else:
+							await self.sendMessage('gameOver', 'loss')
+						await self.sendMessage('gameOver', winner)
 					break
 		except Exception as e:
 			await self.sendMessage('log', f'Error is runLoop: {e}')
