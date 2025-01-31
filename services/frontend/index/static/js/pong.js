@@ -326,7 +326,7 @@ PageElement.onLoad = () => {
 	// ISSUES MIGHT OCCUR!! Maybe remove popstate
 	window.addEventListener("popstate", () => {
 		const hash = window.location.hash;
-		if (hash.includes("?")) {
+		if (hash.includes("pong?id")) {
 			const lobbyId = window.props.get("id");
 			checkLobby(lobbyId);
 		}

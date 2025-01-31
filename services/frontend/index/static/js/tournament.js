@@ -42,7 +42,7 @@ socket.onmessage = function (event) {
 socket.onopen = async () => {
 	sendPayload("message", {
 		sender: "connect",
-		content: `${window.user.username} joined the tournament as player X!`,
+		content: `${window.user.username} joined the tournament!`,
 	});
 };
 
@@ -51,14 +51,20 @@ socket.onclose = () => {
 	// seturl("/home");
 };
 
+window.addEventListener("popstate", () => {
+	const hash = window.location.hash;
+	if (hash.includes("tournament?id") && socket.readyState === WebSocket.OPEN)
+		socket.close();
+});
+
 window.onbeforeunload = () => {
 	sendMessage("disconnect", `${window.user.username} left the tournament`);
 };
 
 PageElement.onUnload = () => {
-	// sendMessage("disconnect", `${window.user.username} left the tournament`);
+	sendMessage("disconnect", `${window.user.username} left the tournament`);
 
-	// socket.close();
+	socket.close();
 
 	PageElement.onUnload = () => {};
 };
@@ -66,7 +72,7 @@ PageElement.onUnload = () => {
 
 // **************************************** BRACKET **************************************************
 
-function playerInit(playerList)
+function playerInitDb(playerList)
 {
 	for (let i = 0; i < 4; i++) {
 		console.log("DB INDEX: ", parseInt(i) + 1);
@@ -75,21 +81,22 @@ function playerInit(playerList)
 		if (playerList[i])
 			playerName.textContent = playerList[i].username;
 		else
-			playerName.textContent = "Player " + (index + 1);
+			playerName.textContent = "Player " + (i + 1);
 	}
 }
 
 async function bracketInitWs(payload) {
 	const players = payload.players;
 	for (let i = 0; i < 4; i++) {
-		console.log("DB INDEX: ", parseInt(i) + 1);
-		username = Object.entries(players)[i][1];
+		console.log("WS INDEX: ", parseInt(i) + 1);
 		const playerDiv = document.querySelector(".tournament-p" + (parseInt(i) + 1))
 		const playerName = playerDiv.querySelector("span");
-		if (username)
+		try {
+			username = Object.entries(players)[i][1];
 			playerName.textContent = username;
-		else
-			playerName.textContent = "Player " + (index + 1);
+		} catch {
+			playerName.textContent = "Player " + (i + 1);
+		}
 	}
 }
 
@@ -103,7 +110,7 @@ async function bracketInitDb(tournament_id)
 			true
 		);
 		console.log("Players: ", data.tournament.players);
-		playerInit(data.tournament.players);
+		playerInitDb(data.tournament.players);
 	} catch (error) {
 		console.log('Error: ', error);
 	}
@@ -111,7 +118,6 @@ async function bracketInitDb(tournament_id)
 
 bracketInitDb(tournament_id);
 
-}
 // **************************************** CHAT **************************************************
 
 function receiveChatMessage(payload) {
@@ -172,3 +178,5 @@ function messageForm() {
 }
 
 messageForm();
+
+}

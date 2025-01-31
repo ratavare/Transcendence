@@ -85,7 +85,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			user = User.objects.get(username=username)
 			TournamentPlayer.objects.filter(tournament=dbTournament, player=user).delete()
 		except Exception as e:
-			return e
+			print(f'Error removing player {username}: {e}', flush=True)
 
 	async def receive(self, text_data):
 		try:
@@ -113,19 +113,3 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 	async def sendMessage(self, send_type, payload):
 		await self.send(text_data=json.dumps({'type': send_type, 'payload': payload}))
-
-	def getPlayer(self):
-		tournament = tournaments.get(self.tournament_id)
-		if tournament:
-			for player in tournament["players"]:
-				if player["token"] == self.user_id:
-					return player
-
-	def getPlayerIndex(self):
-		tournament = tournaments.get(self.tournament_id)
-		index = 0
-		if tournament:
-			for player in tournament["players"]:
-				index = index + 1
-				if player["token"] == self.user_id:
-					return index
