@@ -169,18 +169,18 @@ PageElement.onLoad = () => {
 		const roughnessMap = textureLoader.load('media/walls/roughnessMap.png');
 		const heightMap = textureLoader.load('media/walls/heightMap.png');
 
-		const scaleX = dx / 50;
-		const scaleZ = dz / 50;
+		const scaleX = dx / 100;
+		const scaleZ = dz / 100;
 
 		const textures = [colorMap, normalMap, aoMap, metallicMap, roughnessMap, heightMap];
 		textures.forEach(texture => {
 			texture.wrapS = THREE.RepeatWrapping;
 			texture.wrapT = THREE.RepeatWrapping;
-			// texture.repeat.set(scaleX, scaleZ);
+			texture.repeat.set(scaleX, scaleZ);
 		});
 
 		const material = new THREE.MeshStandardMaterial({
-			color: color,
+			color: TABLE_COLOR,
 			map: colorMap,
 			normalMap: normalMap,
 			aoMap: aoMap,
@@ -279,6 +279,7 @@ PageElement.onLoad = () => {
 			cubeBoundingBox.intersectsBox(table2BoundingBox)
 		) {
 			cubeSpeedz *= -1;
+			cube.position.z += cubeSpeedz * 2;
 		}
 
 		if (cubeBoundingBox.intersectsBox(paddle1BoundingBox)) {
@@ -286,6 +287,7 @@ PageElement.onLoad = () => {
 			shakeDuration = SHAKE_DURATION;
 			increaseSpeed();
 			adjustCubeDirection(paddle1);
+			cube.position.x += cubeSpeedx * 2;
 		}
 
 		if (cubeBoundingBox.intersectsBox(paddle2BoundingBox)) {
@@ -293,6 +295,7 @@ PageElement.onLoad = () => {
 			shakeDuration = SHAKE_DURATION;
 			increaseSpeed();
 			adjustCubeDirection(paddle2);
+			cube.position.x += cubeSpeedx * 2;
 		}
 
 		if (paddle1BoundingBox.intersectsBox(table1BoundingBox)) {
@@ -357,112 +360,6 @@ PageElement.onLoad = () => {
 		cubeOutofBounds();
 
 		cubeBoundingBox.setFromObject(cube);
-	}
-
-	let sphereData = [];
-
-	let startTime = Date.now();
-
-	function saveSphereData() {
-		let time = 0;
-		let position = { x: cube.position.x, z: cube.position.z };
-		let speed = { x: cubeSpeedx, z: cubeSpeedz };
-		time = Date.now() - startTime;
-
-		if (sphereData.length == 0) {
-			sphereData.push({ time: time, position: position, speed: speed });
-		} else {
-			sphereData[0] = { time: time, position: position, speed: speed };
-		}
-		console.log(
-			"Time: " +
-				time +
-				" Position: " +
-				position.x +
-				", " +
-				position.z +
-				" Speed: " +
-				speed.x +
-				", " +
-				speed.z
-		);
-	}
-
-	saveSphereData();
-	setInterval(saveSphereData, 1000);
-
-	function calculateTrajectory() {
-		let data = sphereData[0];
-
-		let finalAngle = Math.atan2(data.speed["z"], data.speed["x"]);
-		finalAngle = finalAngle * (180 / Math.PI);
-
-		let distance = 0;
-		let finalPosition = { x: 0, z: 0 };
-
-		if (data.speed["x"] > 0) {
-			distance = 800 - data.position["x"];
-			finalPosition["x"] = 800;
-		} else if (data.speed["x"] < 0) {
-			distance = -800 - data.position["x"];
-			finalPosition["x"] = -800;
-		}
-
-		// Calculate the distance along the z axis using trigonometric functions
-		let angleRadians = Math.atan2(data.speed["z"], data.speed["x"]);
-		let zDistance = distance * Math.tan(angleRadians);
-		finalPosition["z"] = data.position["z"] + zDistance;
-
-		// Handle wall bounces
-		const topWallZ = -500;
-		const bottomWallZ = 500;
-
-		while (
-			finalPosition["z"] < topWallZ ||
-			finalPosition["z"] > bottomWallZ
-		) {
-			if (finalPosition["z"] < topWallZ) {
-				finalPosition["z"] = topWallZ + (topWallZ - finalPosition["z"]);
-			} else if (finalPosition["z"] > bottomWallZ) {
-				finalPosition["z"] =
-					bottomWallZ - (finalPosition["z"] - bottomWallZ);
-			}
-		}
-
-		return finalPosition;
-	}
-
-	function paddle1AI(paddle) {
-		const topWallZ = -449;
-		const bottomWallZ = 449;
-
-		// Calculate the final position of the cube using the calculateTrajectory function
-		let finalPosition = calculateTrajectory();
-
-		// Ensure the paddle moves towards the final position of the cube
-		if (cubeSpeedx < 0) {
-			if (paddle.position.z > finalPosition["z"]) {
-				// Move paddle up
-				if (paddle.position.z - AIPADDLE_SPEED < topWallZ) {
-					paddle.position.z = topWallZ;
-				} else if (
-					paddle.position.z - AIPADDLE_SPEED >=
-					finalPosition["z"]
-				) {
-					paddle.position.z -= AIPADDLE_SPEED;
-				}
-			} else if (paddle.position.z < finalPosition["z"]) {
-				// Move paddle down
-				if (paddle.position.z + AIPADDLE_SPEED > bottomWallZ) {
-					paddle.position.z = bottomWallZ;
-				} else if (
-					paddle.position.z + AIPADDLE_SPEED <=
-					finalPosition["z"]
-				) {
-					paddle.position.z += AIPADDLE_SPEED;
-				}
-			}
-		}
 	}
 
 	function animate() {

@@ -306,6 +306,7 @@ PageElement.onLoad = () => {
 			cubeBoundingBox.intersectsBox(table2BoundingBox)
 		) {
 			cubeSpeedz *= -1;
+			cube.position.z += cubeSpeedz * 2;
 		}
 
 		if (cubeBoundingBox.intersectsBox(paddle1BoundingBox)) {
@@ -313,7 +314,7 @@ PageElement.onLoad = () => {
 			shakeDuration = SHAKE_DURATION;
 			increaseSpeed();
 			adjustCubeDirection(paddle1);
-			cube.position.x += cubeSpeedx;
+			cube.position.x += cubeSpeedx * 2;
 		}
 
 		if (cubeBoundingBox.intersectsBox(paddle2BoundingBox)) {
@@ -321,7 +322,7 @@ PageElement.onLoad = () => {
 			shakeDuration = SHAKE_DURATION;
 			increaseSpeed();
 			adjustCubeDirection(paddle2);
-			cube.position.x += cubeSpeedx;
+			cube.position.x += cubeSpeedx * 2;
 		}
 
 		if (paddle1BoundingBox.intersectsBox(table1BoundingBox)) {
