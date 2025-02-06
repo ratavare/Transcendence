@@ -21,7 +21,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			return
 
 		if self.tournament_id not in tournaments:
-			tournaments[self.tournament_id] = {"players": OrderedDict()}
+			tournaments[self.tournament_id] = {"players": dict()}
 		elif self.tournament_id in deleteTimers:
 			deleteTimers[self.tournament_id].cancel()
 			del deleteTimers[self.tournament_id]
@@ -39,6 +39,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		tournament = tournaments[self.tournament_id]
 
 		tournament["players"][self.user_id] = self.username
+
+		try:
+			if list(tournament["players"]).index(self.user_id) == 0:
+				await self.sendMessage('startBtnInit', 'startBtnInit')
+		except Exception as e:
+			print("ERROR: ", e, flush=True)
 
 		await self.groupSend('bracketInitWs', {
 			'players': tournament["players"],
@@ -88,15 +94,28 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			print(f'Error removing player {username}: {e}', flush=True)
 
 	async def receive(self, text_data):
+		tournament = tournaments.get(self.tournament_id)
 		try:
 			data = json.loads(text_data)
+			print('DATA: ', data, flush=True)
 			send_type = data.get('type')
 			payload = data.get('payload')
 
+			if (send_type == "startGames"):
+				index = list(tournament["players"]).index(self.user_id)
+				if index == 0 or index == 1:
+					await self.sendMessage('startGame', {
+						'lobby_id': f'{self.tournament_id}Lobby1'
+					})
+				elif index == 2 or index == 3:
+					await self.sendMessage('startGame', {
+						'lobby_id': f'{self.tournament_id}Lobby2'
+					})
+				return
 			await self.groupSend(send_type, payload)
 
-		except:
-			await self.sendMessage('log', 'Type and Payload keys are required!')
+		except Exception as e:
+			await self.sendMessage('log', f'Type and Payload keys are required: {e}')
 
 	async def groupSend(self, send_type, payload):
 		await self.channel_layer.group_send(

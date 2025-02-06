@@ -15,5 +15,4 @@ class TournamentPlayer(models.Model):
 	joined_at = models.DateTimeField(default=now)
 
 	class Meta:
-		unique_together = ("tournament", "player")
 		ordering = ["joined_at"]

@@ -1,6 +1,5 @@
 
 // ************************************* WEBSOCKET ************************************************
-{
 
 function sendPayload(type, payload) {
 	socket.send(
@@ -24,6 +23,12 @@ socket.onmessage = function (event) {
 	switch (data.type) {
 		case "token":
 			localStorage.setItem("tournamentPlayerToken", data.payload);
+			break;
+		case "startGame":
+			lobbyRedirect(data.payload);
+			break ;
+		case "startBtnInit":
+			startBtnInit();
 			break;
 		case "bracketInitWs":
 			bracketInitWs(data.payload);
@@ -72,10 +77,19 @@ PageElement.onUnload = () => {
 
 // **************************************** BRACKET **************************************************
 
+function startBtnInit()
+{
+	const startBtn = document.getElementById("tournament-start-btn");
+	startBtn.style.display = 'block';
+	startBtn.addEventListener("click", async () => {
+		console.log("CLICK!");
+		sendPayload("startGames", "");
+	})
+}
+
 function playerInitDb(playerList)
 {
 	for (let i = 0; i < 4; i++) {
-		console.log("DB INDEX: ", parseInt(i) + 1);
 		const playerDiv = document.querySelector(".tournament-p" + (parseInt(i) + 1))
 		const playerName = playerDiv.querySelector("span");
 		if (playerList[i])
@@ -87,8 +101,8 @@ function playerInitDb(playerList)
 
 async function bracketInitWs(payload) {
 	const players = payload.players;
+
 	for (let i = 0; i < 4; i++) {
-		console.log("WS INDEX: ", parseInt(i) + 1);
 		const playerDiv = document.querySelector(".tournament-p" + (parseInt(i) + 1))
 		const playerName = playerDiv.querySelector("span");
 		try {
@@ -109,7 +123,7 @@ async function bracketInitDb(tournament_id)
 			"GET",
 			true
 		);
-		console.log("Players: ", data.tournament.players);
+		// console.log("Players: ", data.tournament.players);
 		playerInitDb(data.tournament.players);
 	} catch (error) {
 		console.log('Error: ', error);
@@ -118,6 +132,44 @@ async function bracketInitDb(tournament_id)
 
 bracketInitDb(tournament_id);
 
+// **************************************** LOBBY *************************************************
+
+async function createLobby(lobby_id)
+{
+	try {
+		const data = await myFetch(
+			"https://localhost:8443/lobby/lobbies/",
+			{"lobby_id": lobby_id},
+			"POST",
+			true
+		);
+		joinLobby(lobby_id);
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+async function joinLobby(lobby_id) {
+	const body = JSON.stringify(window.user);
+	try {
+		const data = await myFetch(
+			`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
+			body,
+			"POST",
+			true
+		);
+		seturl(`/pong?id=${lobby_id}`);
+	} catch (error) {
+		alert(error);
+	}
+}
+
+async function lobbyRedirect(payload)
+{
+	const lobby_id = payload.lobby_id;
+	createLobby(lobby_id);
+	seturl(`/pong?id=${lobby_id}`);
+}
 // **************************************** CHAT **************************************************
 
 function receiveChatMessage(payload) {
@@ -179,4 +231,3 @@ function messageForm() {
 
 messageForm();
 
-}

@@ -218,7 +218,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		game = serverLobby["game"]
 		try:
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
-			self.saveReadyStateDb(game, dbLobby, state)
+			await self.saveReadyStateDb(game, dbLobby, state)
 			
 			if dbLobby.player1Ready and dbLobby.player2Ready:
 				await self.groupSend('log', 'GAME START!')
