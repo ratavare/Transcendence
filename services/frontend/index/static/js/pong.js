@@ -7,6 +7,7 @@ PageElement.onLoad = () => {
 	// Constants
 	const SHAKE_INTENSITY = 10;
 	const PADDLE_COLOR = 0x008000;
+	const PADDLE_COLOR2 = 0x0000ff;
 	const TABLE_COLOR = 0x800080;
 	const PLANE_COLOR = 0x000000;
 	const POINT_LIGHT_INTENSITY = 5000000;
@@ -107,7 +108,7 @@ PageElement.onLoad = () => {
 			data.boundariesDepth,
 			data.boundariesHeight
 		);
-		paddle1 = makeParalellepiped(
+		paddle1 = makePaddle(
 			data.paddle1PositionX,
 			data.paddlePositionY,
 			data.paddle1PositionZ,
@@ -116,14 +117,14 @@ PageElement.onLoad = () => {
 			data.paddleLength,
 			PADDLE_COLOR
 		);
-		paddle2 = makeParalellepiped(
+		paddle2 = makePaddle(
 			data.paddle2PositionX,
 			data.paddlePositionY,
 			data.paddle2PositionZ,
 			data.paddleWidth,
 			data.paddleDepth,
 			data.paddleLength,
-			PADDLE_COLOR
+			PADDLE_COLOR2
 		);
 
 		scene.add(table1);
@@ -139,6 +140,47 @@ PageElement.onLoad = () => {
 		const box = new THREE.Mesh(new THREE.BoxGeometry(dx, dy, dz), material);
 		box.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
 		return box;
+	}
+
+
+	function makePaddle(x, y, z, dx, dy, dz, color)
+	{
+		const textureLoader = new THREE.TextureLoader();
+
+		const colorMap = textureLoader.load('static/images/paddles/red-scifi-metal_albedo.png');
+		const normalMap = textureLoader.load('static/images/paddles/red-scifi-metal_normal-ogl.png');
+		const aoMap = textureLoader.load('static/images/paddles/red-scifi-metal_ao.png');
+		const metallicMap = textureLoader.load('static/images/paddles/red-scifi-metal_metallic.png');
+		const roughnessMap = textureLoader.load('static/images/paddles/red-scifi-metal_roughness.png');
+		const heightMap = textureLoader.load('static/images/paddles/red-scifi-metal_height.png');
+
+		const scaleX = dx / 50;
+		const scaleZ = dz / 50;
+
+		const textures = [colorMap, normalMap, aoMap, metallicMap, roughnessMap, heightMap];
+		textures.forEach(texture => {
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			// texture.repeat.set(scaleX, scaleZ);
+		});
+
+		const material = new THREE.MeshStandardMaterial({
+			color: color,
+			map: colorMap,
+			normalMap: normalMap,
+			aoMap: aoMap,
+			metalnessMap: metallicMap,
+			roughnessMap: roughnessMap,
+			displacementMap: heightMap,
+			displacementScale: 0.1
+		});
+		material.aoMapIntensity = 1.0;
+		material.displacementBias = 0;
+
+		const box = new THREE.BoxGeometry(dx, dy, dz);
+		const mesh = new THREE.Mesh(box, material);
+		mesh.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
+		return (mesh)
 	}
 
 	function makeWall(x, y, z, dx, dy, dz) {

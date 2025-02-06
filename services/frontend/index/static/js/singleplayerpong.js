@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 PageElement.onLoad = () => {
-	console.log("singleplayerpong.js loaded fawfawfwafaw");
+	console.log("singleplayerpong.js loaded");
 
 	// Constants
 	const PADDLE_SPEED = 10;
