@@ -18,6 +18,7 @@ import qrcode
 from io import BytesIO
 import base64
 import requests
+from django.db import transaction
 
 from .forms import RegistrationForm
 
@@ -123,7 +124,7 @@ def handle_intra_oauth_login(request, code):
 	data = {
 		'grant_type': 'authorization_code',
 		'client_id': "u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725",
-		'client_secret': "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",
+		'client_secret': "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",
 		'redirect_uri': "https://localhost:8443/user_auth/login/",
 		'code': code
 	}
@@ -202,7 +203,7 @@ def authenticate_or_create_user_from_intra(user_info):
 	user, created = User.objects.get_or_create(username=username)
 	
 	if created:
-		profile = Profile.objects.create(user=user)
+		profile = Profile.objects.get_or_create(user=user)
 	
 	return user
 
