@@ -18,7 +18,6 @@ import qrcode
 from io import BytesIO
 import base64
 import requests
-from django.db import transaction
 
 from .forms import RegistrationForm
 
