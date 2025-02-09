@@ -31,11 +31,11 @@
 			</button>
 		</div>
 		<div class="card mb-3">
-			<div class="card-body">
+			<div  class="card-body">
 				<h3 style="color: black !important">Change Password</h3>
 				<form method="POST" id="form-password-change">
 					{% csrf_token %}
-					<div class="row mb-3">
+					<div id="current-password-container"  class="row mb-3">
 						<div class="col-sm-3">
 							<h6 class="mb-0">Current Password</h6>
 						</div>
@@ -52,7 +52,7 @@
 							/>
 						</div>
 					</div>
-					<hr />
+					<hr id="current-password-divider" />
 					<div class="row mb-3">
 						<div class="col-sm-3">
 							<h6 class="mb-0">New Password</h6>

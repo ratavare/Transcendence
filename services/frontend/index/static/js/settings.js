@@ -22,6 +22,14 @@ function getOtpContainer() {
 	return document.getElementById("otp-container");
 }
 
+function parseJwt(token) {
+	try {
+		return JSON.parse(atob(token.split(".")[1]));
+	} catch (e) {
+		return null;
+	}
+}
+
 function updateUI() {
 	if (get2fa()) {
 		getSetupContainer().style.display = "none";
@@ -29,6 +37,37 @@ function updateUI() {
 	} else {
 		getSetupContainer().style.display = "block";
 		getStatusContainer().style.display = "none";
+	}
+
+	const token = localStorage.getItem("access_token");
+	if (token) {
+		const userData = parseJwt(token);
+		console.log(userData);
+
+		// Get the user ID from the JWT
+		const userId = userData.user_id;
+
+		// Fetch the usable password status from the API using myFetch
+		myFetch(
+			`https://localhost:8443/user_auth/has_usable_password/${userId}/`,
+			null,
+			"GET",
+			true
+		)
+			.then((data) => {
+				// Check if the user has a usable password
+				if (data.has_password === false) {
+					document.getElementById(
+						"current-password-container"
+					).style.display = "none";
+					document.getElementById(
+						"current-password-divider"
+					).style.display = "none";
+				}
+			})
+			.catch((error) =>
+				console.error("Error fetching password status:", error)
+			);
 	}
 }
 

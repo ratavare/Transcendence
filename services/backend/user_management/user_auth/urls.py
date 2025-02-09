@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 app_name = "user_auth"
 urlpatterns = [
+	path('has_usable_password/<int:user_id>/', views.has_usable_password),
 	path('enable_2fa/', views.enable_2fa),
 	path('disable_2fa/', views.disable_2fa),
 	path('verify_otp/', views.verify_otp),
