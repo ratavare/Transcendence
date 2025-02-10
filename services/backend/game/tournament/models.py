@@ -6,8 +6,9 @@ from django.utils.timezone import now
 class Tournament(models.Model):
 	tournament_id = models.CharField(max_length=25, unique=True)
 	players = models.ManyToManyField(User, through="TournamentPlayer")
-	lobbies = models.ForeignKey(Lobby, on_delete=models.CASCADE, related_name="TournamentGame", null=True, blank=True)
-	winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="TournamentWinner", null=True, blank=True)
+	game1 = models.ForeignKey(Lobby, on_delete=models.CASCADE, related_name="Semifinal1", null=True, blank=True)
+	game2 = models.ForeignKey(Lobby, on_delete=models.CASCADE, related_name="Semifinal2", null=True, blank=True)
+	game3 = models.ForeignKey(Lobby, on_delete=models.CASCADE, related_name="Final", null=True, blank=True)
 
 class TournamentPlayer(models.Model):
 	tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)

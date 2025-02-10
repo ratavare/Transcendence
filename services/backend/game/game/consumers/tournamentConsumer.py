@@ -21,58 +21,104 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			return
 
 		if self.tournament_id not in tournaments:
-			tournaments[self.tournament_id] = {"players": dict()}
+			tournaments[self.tournament_id] = {"players": dict(), "spectators": dict(), "fullState": False}
 		elif self.tournament_id in deleteTimers:
 			deleteTimers[self.tournament_id].cancel()
 			del deleteTimers[self.tournament_id]
 
-		token = (self.scope["query_string"].decode()).split('=')[1]
+		token = (self.scope["query_string"].decode()).split("=")[1]
 		self.user_id = token if token else self.channel_name
 
 		await self.channel_layer.group_add(self.tournament_id, self.channel_name)
 		await self.accept()
 
-		await self.sendMessage('log', f"Welcome to the tournament {self.username}!")
 		if not token:
-			await self.sendMessage('token', self.user_id)
+			await self.sendMessage("token", self.user_id)
 
 		tournament = tournaments[self.tournament_id]
 
-		tournament["players"][self.user_id] = self.username
+		if tournament["players"].get(self.user_id) == "1v1" or tournament["players"].get(self.user_id) == "disconnecting":
+			tournament["players"][self.user_id] = self.username
+			await self.groupSend("message", {
+				"sender": "connect",
+				"content": f"{self.username} has returned to the tournament!",
+			})
+		elif len(tournament["players"]) < 4 and tournament["fullState"] == False:
+			tournament["players"][self.user_id] = self.username
+			await self.groupSend("message", {
+				"sender": "connect",
+				"content": f"Welcome to the tournament {self.username}!",
+			})
+		else:
+			tournament["spectators"][self.user_id] = self.username
+			await self.groupSend("message", {
+				"sender": "spectator",
+				"content": f"Welcome to the tournament as a spectator {self.username}!"
+			})
 
 		try:
 			if list(tournament["players"]).index(self.user_id) == 0:
-				await self.sendMessage('startBtnInit', 'startBtnInit')
+				await self.sendMessage("startBtnInit", "startBtnInit")
 		except Exception as e:
 			print("ERROR: ", e, flush=True)
 
-		await self.groupSend('bracketInitWs', {
-			'players': tournament["players"],
+		if len(tournament["players"]) == 4:
+			tournament["fullState"] = True
+
+		await self.groupSend("updateBracketWS", {
+			"players": tournament["players"],
+			"spectators": tournament["spectators"],
+			"fullState": tournament["fullState"]
 		})
 
 	async def disconnect(self, close_code):
 		tournament = tournaments.get(self.tournament_id)
 
 		if tournament and self.user_id in tournament["players"]:
-			tournament["players"][self.user_id] = None
-		
-		if self.tournament_id not in deleteTimers:
-			deleteTimers[self.tournament_id] = asyncio.create_task(self.deleteTournamentTask(tournament))
+			if tournament["players"][self.user_id] == "1v1":
+				await self.groupSend("message", {
+						"sender": "disconnect",
+						"content": f"{self.username} is moving to a 1v1 game!",
+					})
+			elif tournament["players"][self.user_id] != "disconnecting":
+				tournament["players"][self.user_id] = "disconnecting"
 
-	async def deleteTournamentTask(self, tournament):
+				await self.groupSend("message", {
+						"sender": "disconnect",
+						"content": f"{self.username} is disconnecting...",
+					})
+				
+				if self.tournament_id not in deleteTimers:
+					deleteTimers[self.tournament_id] = asyncio.create_task(self.deleteTournamentTask())
+
+	async def deleteTournamentTask(self):
 		await asyncio.sleep(4)
 
-		if tournament["players"].get(self.user_id) is None:
+		tournament = tournaments.get(self.tournament_id)
+		if not tournament:
+			return
+
+		if tournament["players"].get(self.user_id) == "disconnecting":
 			del tournament["players"][self.user_id]
-		if not tournament["players"]:
+
+		active_players = [p for p in tournament["players"].values() if p not in [None, "1v1"]]
+		active_1v1 = [p for p in tournament["players"].values() if p == "1v1"]
+
+		if not active_players and not active_1v1:
 			del tournaments[self.tournament_id]
 			await self.deleteTournamentDb()
 		else:
-			await self.groupSend('log', f'{self.user_id} left the tournament')
+			await self.groupSend("message", {
+				"sender": "disconnect",
+				"content": f"{self.username} left the lobby!",
+			})
+
+		if len(tournament["players"]) < 4:
+			tournament["fullState"] = False
 
 		await self.removePlayer(self.username)
-		await self.groupSend('bracketInitWs', {
-			'players': tournament["players"],
+		await self.groupSend("updateBracketWS", {
+			"players": tournament["players"],
 		})
 		await self.channel_layer.group_discard(self.tournament_id, self.channel_name)
 
@@ -82,7 +128,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			await database_sync_to_async(dbTournament.delete)()
 		except Tournament.DoesNotExist:
 			print(f"Tournament {self.tournament_id} does not exist in the database", flush=True)
-			await self.sendMessage('log', "Tournament does not exist")
+			await self.sendMessage("log", "Tournament does not exist")
 	
 	@database_sync_to_async
 	def removePlayer(self, username):
@@ -91,44 +137,49 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			user = User.objects.get(username=username)
 			TournamentPlayer.objects.filter(tournament=dbTournament, player=user).delete()
 		except Exception as e:
-			print(f'Error removing player {username}: {e}', flush=True)
+			print(f"Error removing player {username}: {e}", flush=True)
 
 	async def receive(self, text_data):
 		tournament = tournaments.get(self.tournament_id)
 		try:
 			data = json.loads(text_data)
-			print('DATA: ', data, flush=True)
-			send_type = data.get('type')
-			payload = data.get('payload')
+			send_type = data.get("type")
+			payload = data.get("payload")
 
+			print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: ", tournament['fullState'], flush=True)
 			if (send_type == "startGames"):
-				index = list(tournament["players"]).index(self.user_id)
-				if index == 0 or index == 1:
-					await self.sendMessage('startGame', {
-						'lobby_id': f'{self.tournament_id}Lobby1'
+
+				if tournament['fullState'] == False:
+					await self.groupSend("message", {
+						"sender": "disconnect",
+						"content": "Tournament not full yet! Waiting for players...",
 					})
-				elif index == 2 or index == 3:
-					await self.sendMessage('startGame', {
-						'lobby_id': f'{self.tournament_id}Lobby2'
-					})
+					return
+				
+				tournament["players"][self.user_id] = "1v1"
+
+				await self.groupSend("startGame", {
+					"players": tournament["players"],
+					"tournament_id": self.tournament_id
+				})
 				return
 			await self.groupSend(send_type, payload)
 
 		except Exception as e:
-			await self.sendMessage('log', f'Type and Payload keys are required: {e}')
+			await self.sendMessage("log", f"Type and Payload keys are required: {e}")
 
 	async def groupSend(self, send_type, payload):
 		await self.channel_layer.group_send(
 			self.tournament_id,
 			{
-				'type': 'sendTournament',
-				'send_type': send_type,
-				'payload': payload
+				"type": "sendTournament",
+				"send_type": send_type,
+				"payload": payload
 			}
 		)
 
 	async def sendTournament(self, event):
-		await self.sendMessage(event['send_type'], event['payload'])
+		await self.sendMessage(event["send_type"], event["payload"])
 
 	async def sendMessage(self, send_type, payload):
-		await self.send(text_data=json.dumps({'type': send_type, 'payload': payload}))
+		await self.send(text_data=json.dumps({"type": send_type, "payload": payload}))

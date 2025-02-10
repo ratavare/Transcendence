@@ -435,7 +435,8 @@ PageElement.onLoad = () => {
 			<span>${payload.content}</span>
 			`;
 		}
-		messageList.appendChild(messageListItem);
+		if (messageListItem)
+			messageList.appendChild(messageListItem);
 		if (chatContentElement) {
 			chatContentElement.scrollTop = chatContentElement.scrollHeight;
 		}

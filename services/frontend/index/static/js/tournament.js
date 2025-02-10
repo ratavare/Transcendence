@@ -1,5 +1,6 @@
 
 // ************************************* WEBSOCKET ************************************************
+{
 
 function sendPayload(type, payload) {
 	socket.send(
@@ -10,7 +11,7 @@ function sendPayload(type, payload) {
 	);
 }
 
-const tournament_id = window.props.get("id");
+let tournament_id = window.props.get("id");
 const token = localStorage.getItem("tournamentPlayerToken") || "";
 const socket = new WebSocket(
 	`wss://localhost:8443/pong/t/${encodeURIComponent(
@@ -30,8 +31,8 @@ socket.onmessage = function (event) {
 		case "startBtnInit":
 			startBtnInit();
 			break;
-		case "bracketInitWs":
-			bracketInitWs(data.payload);
+		case "updateBracketWS":
+			updateBracketWS(data.payload);
 			break ;
 		case "log":
 			console.log(data.payload);
@@ -45,10 +46,10 @@ socket.onmessage = function (event) {
 }
 
 socket.onopen = async () => {
-	sendPayload("message", {
-		sender: "connect",
-		content: `${window.user.username} joined the tournament!`,
-	});
+	// sendPayload("message", {
+	// 	sender: "connect",
+	// 	content: `${window.user.username} joined the tournament!`,
+	// });
 };
 
 socket.onclose = () => {
@@ -63,11 +64,11 @@ window.addEventListener("popstate", () => {
 });
 
 window.onbeforeunload = () => {
-	sendMessage("disconnect", `${window.user.username} left the tournament`);
+	// sendMessage("disconnect", `${window.user.username} left the tournament`);
 };
 
 PageElement.onUnload = () => {
-	sendMessage("disconnect", `${window.user.username} left the tournament`);
+	// sendMessage("disconnect", `${window.user.username} left the tournament`);
 
 	socket.close();
 
@@ -82,7 +83,6 @@ function startBtnInit()
 	const startBtn = document.getElementById("tournament-start-btn");
 	startBtn.style.display = 'block';
 	startBtn.addEventListener("click", async () => {
-		console.log("CLICK!");
 		sendPayload("startGames", "");
 	})
 }
@@ -99,9 +99,12 @@ function playerInitDb(playerList)
 	}
 }
 
-async function bracketInitWs(payload) {
-	const players = payload.players;
+async function updateBracketWS(payload)
+{
+	// if (payload.fullState)
+	// 	return ;
 
+	const players = payload.players;
 	for (let i = 0; i < 4; i++) {
 		const playerDiv = document.querySelector(".tournament-p" + (parseInt(i) + 1))
 		const playerName = playerDiv.querySelector("span");
@@ -114,7 +117,7 @@ async function bracketInitWs(payload) {
 	}
 }
 
-async function bracketInitDb(tournament_id)
+async function updateBracketDB(tournament_id)
 {
 	try{
 		const data = await myFetch(
@@ -123,14 +126,16 @@ async function bracketInitDb(tournament_id)
 			"GET",
 			true
 		);
-		// console.log("Players: ", data.tournament.players);
+		console.log("Players: ", data.tournament.players);
 		playerInitDb(data.tournament.players);
 	} catch (error) {
 		console.log('Error: ', error);
 	}
 }
 
-bracketInitDb(tournament_id);
+updateBracketDB(tournament_id);
+
+}
 
 // **************************************** LOBBY *************************************************
 
@@ -145,6 +150,7 @@ async function createLobby(lobby_id)
 		);
 		joinLobby(lobby_id);
 	} catch (error) {
+		console.log('Tried to create: ', lobby_id);
 		console.log(error);
 	}
 }
@@ -160,15 +166,26 @@ async function joinLobby(lobby_id) {
 		);
 		seturl(`/pong?id=${lobby_id}`);
 	} catch (error) {
+		console.log('Tried to join: ', lobby_id);
 		alert(error);
 	}
 }
 
 async function lobbyRedirect(payload)
 {
-	const lobby_id = payload.lobby_id;
-	createLobby(lobby_id);
-	seturl(`/pong?id=${lobby_id}`);
+	const players = payload.players;
+	for (let i = 0; i < 4; i++) {
+		try {
+			let username = Object.entries(players)[i][1]
+			console.log("i: ", i , " | t: ", `tournament_${payload.tournament_id}_${i % 2}`)
+			if (window.user.username == username && (i == 0 || i == 1))
+				createLobby(`tournament_${payload.tournament_id}_${i % 2}`);
+			else if (window.user.username == username && (i == 2 || i == 3))
+				joinLobby(`tournament_${payload.tournament_id}_${i % 2}`);
+		} catch {
+			console.log("e");
+		}
+	}
 }
 // **************************************** CHAT **************************************************
 
@@ -178,9 +195,10 @@ function receiveChatMessage(payload) {
 	const messageListItem = document.createElement("li");
 	const chatContentElement = document.getElementById("chat-content-tournament");
 
-	if (payload.sender == "connect" || payload.sender == "disconnect") {
+	if (payload.sender == "connect" || payload.sender == "disconnect" || payload.sender == "spectator") {
 		if (payload.sender == "connect") color = "limegreen";
 		if (payload.sender == "disconnect") color = "red";
+		if (payload.sender == "spectator") color = "grey";
 		messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
 	} else {
 		if (payload.sender == window.user.username) color = "orangered";
@@ -189,7 +207,8 @@ function receiveChatMessage(payload) {
 			<span>${payload.content}</span>
 			`;
 	}
-	messageList.appendChild(messageListItem);
+	if (messageListItem)
+		messageList.appendChild(messageListItem);
 	if (chatContentElement) {
 		chatContentElement.scrollTop = chatContentElement.scrollHeight;
 	}
