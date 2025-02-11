@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from .models import Lobby
+from tournament.models import Tournament
 from .serializers import LobbySerializer
 import json
 import logging
@@ -29,11 +30,11 @@ def lobby_detail(request, lobby_id):
 		return joinLobby(request, lobby_id)
 
 def getLobbies(request):
-	lobbies = Lobby.objects.all()
+	lobbies = Lobby.objects.filter(g1__isnull=False, g2__isnull=False, g3__isnull=False).values("lobby_id")
+	# lobbies = Lobby.objects.all().values("lobby_id")
 	if not lobbies:
-		return JsonResponse({'error': 'No lobbies found'}, status=404)
-	all_lobbies = [{'lobby_id': lobby.lobby_id} for lobby in lobbies]
-	return JsonResponse({'lobbies': all_lobbies}, status=200)
+		return JsonResponse({'error': "No lobbies found!"}, status=404)
+	return JsonResponse({'lobbies': list(lobbies)}, status=200)
 
 def getLobby(request, lobby_id):
 	try:
@@ -48,8 +49,7 @@ def createLobby(request):
 	try:
 		id = request.data.get('lobby_id')
 		validator(id)
-		newLobby = Lobby.objects.create(lobby_id=id)
-		newLobby.save()
+		Lobby.objects.create(lobby_id=id)
 		return JsonResponse({'lobby_id': id}, status=200)
 	except IntegrityError:
 		return JsonResponse({'error': 'Lobby already exists'}, status=400)

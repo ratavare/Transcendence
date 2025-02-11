@@ -1,7 +1,9 @@
 import json
 from django.http import JsonResponse
 from .models import Tournament, TournamentPlayer
+from lobby.models import Lobby
 from .serializers import TournamentSerializer
+from lobby.serializers import LobbySerializer
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -18,6 +20,10 @@ def createTournament(request):
 			id = request.data.get('tournament_id')
 			validator(id)
 			tournament = Tournament.objects.create(tournament_id=id)
+			tournament.game1 = Lobby.objects.create(lobby_id=f"tournament_{id}_1")
+			tournament.game2 = Lobby.objects.create(lobby_id=f"tournament_{id}_2")
+			tournament.game3 = Lobby.objects.create(lobby_id=f"tournament_{id}_3")
+			tournament.save()
 			return JsonResponse({'tournament_id': id}, status=200)
 		except ValidationError:
 				return JsonResponse({'error': 'Regex'}, status=400)
@@ -56,7 +62,7 @@ def getTournament(request, tournament_id):
 		serializer = TournamentSerializer(tournament)
 		return JsonResponse({'tournament': serializer.data}, status=200)
 	except Tournament.DoesNotExist:
-		return JsonResponse({'error': 'Tourament does not exist'})
+		return JsonResponse({'error': 'Tourament does not exist'}, status=404)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -67,3 +73,23 @@ def getTournaments(request):
 			return JsonResponse({'error': 'No lobbies found'}, status=404)
 		all_tournaments = [{'tournament_id': tournament.tournament_id} for tournament in tournaments]
 		return JsonResponse({'tournaments': all_tournaments}, status=200)
+	
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def joinTournamentLobby(request, lobby_id):
+	try:
+		data = json.loads(request.body.decode('utf-8'))
+		if isinstance(data, str):
+			data = json.loads(data)
+		username = data.get('username')
+		user = User.objects.get(username=username)
+
+		selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
+		selectedLobby.users.add(user)
+		selectedLobby.save()
+		serializer = LobbySerializer(selectedLobby)
+		return JsonResponse({'data': serializer.data}, status=200)
+	except Lobby.DoesNotExist:
+		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
+	except User.DoesNotExist:
+		return JsonResponse({'error': 'User does not exist'}, status=400)

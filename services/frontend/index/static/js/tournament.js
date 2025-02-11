@@ -2,6 +2,8 @@
 // ************************************* WEBSOCKET ************************************************
 {
 
+let inGame = false;
+
 function sendPayload(type, payload) {
 	socket.send(
 		JSON.stringify({
@@ -26,6 +28,7 @@ socket.onmessage = function (event) {
 			localStorage.setItem("tournamentPlayerToken", data.payload);
 			break;
 		case "startGame":
+			inGame = true;
 			lobbyRedirect(data.payload);
 			break ;
 		case "startBtnInit":
@@ -59,8 +62,12 @@ socket.onclose = () => {
 
 window.addEventListener("popstate", () => {
 	const hash = window.location.hash;
-	if (hash.includes("tournament?id") && socket.readyState === WebSocket.OPEN)
-		socket.close();
+	if (hash.includes("tournament?id"))
+	{
+		checkTournament(tournament_id);
+		if (socket.readyState === WebSocket.OPEN && !inGame)
+			socket.close();
+	}
 });
 
 window.onbeforeunload = () => {
@@ -69,8 +76,8 @@ window.onbeforeunload = () => {
 
 PageElement.onUnload = () => {
 	// sendMessage("disconnect", `${window.user.username} left the tournament`);
-
-	socket.close();
+	if (!inGame)
+		socket.close();
 
 	PageElement.onUnload = () => {};
 };
@@ -110,6 +117,8 @@ async function updateBracketWS(payload)
 		const playerName = playerDiv.querySelector("span");
 		try {
 			username = Object.entries(players)[i][1];
+			if (username == "1v1" || username == 'disconnecting')
+				throw {};
 			playerName.textContent = username;
 		} catch {
 			playerName.textContent = "Player " + (i + 1);
@@ -133,33 +142,23 @@ async function updateBracketDB(tournament_id)
 	}
 }
 
+checkTournament(tournament_id);
 updateBracketDB(tournament_id);
 
 }
 
 // **************************************** LOBBY *************************************************
 
-async function createLobby(lobby_id)
-{
-	try {
-		const data = await myFetch(
-			"https://localhost:8443/lobby/lobbies/",
-			{"lobby_id": lobby_id},
-			"POST",
-			true
-		);
-		joinLobby(lobby_id);
-	} catch (error) {
-		console.log('Tried to create: ', lobby_id);
-		console.log(error);
+async function joinTouranamentLobby(tournament_id, game) {
+	const body = {
+		'username': window.user.username,
+		't_id': tournament_id,
+		'game': game
 	}
-}
-
-async function joinLobby(lobby_id) {
-	const body = JSON.stringify(window.user);
+	const lobby_id = `tournament_${tournament_id}_${game}`;
 	try {
 		const data = await myFetch(
-			`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
+			`https://localhost:8443/tournament/joinTournamentLobby/${lobby_id}/`,
 			body,
 			"POST",
 			true
@@ -176,17 +175,33 @@ async function lobbyRedirect(payload)
 	const players = payload.players;
 	for (let i = 0; i < 4; i++) {
 		try {
-			let username = Object.entries(players)[i][1]
-			console.log("i: ", i , " | t: ", `tournament_${payload.tournament_id}_${i % 2}`)
+			let username = Object.entries(players)[i][1];
+			console.log(`Checking ${username} against ${window.user.username}`);
 			if (window.user.username == username && (i == 0 || i == 1))
-				createLobby(`tournament_${payload.tournament_id}_${i % 2}`);
+				joinTouranamentLobby(payload.tournament_id, 1);
 			else if (window.user.username == username && (i == 2 || i == 3))
-				joinLobby(`tournament_${payload.tournament_id}_${i % 2}`);
+				joinTouranamentLobby(payload.tournament_id, 2);
 		} catch {
 			console.log("e");
 		}
 	}
 }
+
+async function checkTournament(tournament_id)
+{
+	try {
+		const data = await myFetch(
+			`https://localhost:8443/tournament/$${tournament_id}/`,
+			null,
+			"GET",
+			true
+		);
+	} catch (error) {
+		alert(error)
+		seturl("/home");
+	}
+}
+
 // **************************************** CHAT **************************************************
 
 function receiveChatMessage(payload) {

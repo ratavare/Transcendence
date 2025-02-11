@@ -37,13 +37,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 		tournament = tournaments[self.tournament_id]
 
-		if tournament["players"].get(self.user_id) == "1v1" or tournament["players"].get(self.user_id) == "disconnecting":
-			tournament["players"][self.user_id] = self.username
-			await self.groupSend("message", {
-				"sender": "connect",
-				"content": f"{self.username} has returned to the tournament!",
-			})
-		elif len(tournament["players"]) < 4 and tournament["fullState"] == False:
+		if len(tournament["players"]) < 4 and tournament["fullState"] == False:
 			tournament["players"][self.user_id] = self.username
 			await self.groupSend("message", {
 				"sender": "connect",
@@ -75,21 +69,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		tournament = tournaments.get(self.tournament_id)
 
 		if tournament and self.user_id in tournament["players"]:
-			if tournament["players"][self.user_id] == "1v1":
-				await self.groupSend("message", {
-						"sender": "disconnect",
-						"content": f"{self.username} is moving to a 1v1 game!",
-					})
-			elif tournament["players"][self.user_id] != "disconnecting":
-				tournament["players"][self.user_id] = "disconnecting"
+			tournament["players"][self.user_id] = None
 
-				await self.groupSend("message", {
-						"sender": "disconnect",
-						"content": f"{self.username} is disconnecting...",
-					})
-				
-				if self.tournament_id not in deleteTimers:
-					deleteTimers[self.tournament_id] = asyncio.create_task(self.deleteTournamentTask())
+		if self.tournament_id not in deleteTimers:
+			deleteTimers[self.tournament_id] = asyncio.create_task(self.deleteTournamentTask())
 
 	async def deleteTournamentTask(self):
 		await asyncio.sleep(4)
@@ -98,13 +81,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if not tournament:
 			return
 
-		if tournament["players"].get(self.user_id) == "disconnecting":
-			del tournament["players"][self.user_id]
+		active_players = [p for p in tournament["players"].values() if p not in [None]]
 
-		active_players = [p for p in tournament["players"].values() if p not in [None, "1v1"]]
-		active_1v1 = [p for p in tournament["players"].values() if p == "1v1"]
-
-		if not active_players and not active_1v1:
+		if not active_players:
 			del tournaments[self.tournament_id]
 			await self.deleteTournamentDb()
 		else:
@@ -146,17 +125,18 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			send_type = data.get("type")
 			payload = data.get("payload")
 
-			print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: ", tournament['fullState'], flush=True)
 			if (send_type == "startGames"):
 
+				await self.groupSend("message", {
+						"sender": "connect",
+						"content": f"${tournament["fullState"]}",
+					})
 				if tournament['fullState'] == False:
 					await self.groupSend("message", {
 						"sender": "disconnect",
 						"content": "Tournament not full yet! Waiting for players...",
 					})
 					return
-				
-				tournament["players"][self.user_id] = "1v1"
 
 				await self.groupSend("startGame", {
 					"players": tournament["players"],

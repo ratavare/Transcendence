@@ -4,13 +4,10 @@ from lobby.serializers import UserSerializer, LobbySerializer
 
 class TournamentSerializer(serializers.ModelSerializer):
 	players = serializers.SerializerMethodField()
-	game1 = LobbySerializer(read_only=True)
-	game2 = LobbySerializer(read_only=True)
-	game3 = LobbySerializer(read_only=True)
 
 	class Meta:
 		model = Tournament
-		fields = ['tournament_id', 'players', 'game1', 'game2', 'game3']
+		fields = ['tournament_id', 'players']
 
 	def get_players(self, obj):
 		return [

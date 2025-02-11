@@ -18,11 +18,8 @@ function putList(jsonArray, htmlId, type) {
 	const list = document.createElement("ul");
 	list.classList.add("list-group");
 	let i = 0;
-	console.log("JSON ARRAY: ", jsonArray);
 	jsonArray.forEach((element) => {
-		console.log("ELEMENT: ", element);
 		Object.keys(element).forEach((id) => {
-			console.log("ELEMENT[ID]: ", element[id]);
 			const roomId = element[id];
 			list.innerHTML += `
 				<li id="item${i++}" class="list-group-item" style="display: flex;align-items: center;justify-content: space-around">
@@ -77,6 +74,7 @@ async function getLobbies() {
 			true
 		);
 		putList(data.lobbies, "lobby-list", "Lobby");
+		console.log("LOBBY LIST: ", data.lobbies);
 	} catch (error) {
 		console.log(error);
 	}
