@@ -117,8 +117,8 @@ async function filterFriends() {
 				const conversation = await startConversation(friend.username);
 				await renderMessages(conversation);
 				document.getElementById('chat-header').innerHTML = conversation.participants[0].username;
-				window.activeSocket?.close();
-				window.activeSocket = setUpWS(conversation);
+				window.pmsSocket?.close();
+				window.pmsSocket = setUpWS(conversation);
 				document.getElementById('users-sidebar').appendChild(addSidebarUser(conversation));
 				resultsDropdown.style.display = 'none';
 				input.value = '';
@@ -204,8 +204,8 @@ function renderActiveConversations(conversations) {
 			chat_header.innerHTML = conversation.participants[0].username;
 			await renderMessages(conversation);
 
-			window.activeSocket?.close();
-			window.activeSocket = setUpWS(conversation);
+			window.pmsSocket?.close();
+			window.pmsSocket = setUpWS(conversation);
 		})
 		users_sidebar.appendChild(sidebarUser)
 	})
@@ -213,16 +213,13 @@ function renderActiveConversations(conversations) {
 
 async function loadPmsPage() {
 	const conversations = await getConversations();
-	// conversations.forEach((conversation) => {
-	// 	console.log(conversation.participants);
-	// })
 	
 	document.getElementById('friend-search').addEventListener('input', filterFriends);
 	renderActiveConversations(conversations);
 }
 
-if (window.activeSocket === undefined) {
-	window.activeSocket = null;            // Global variable to track previous chat socket.
+if (window.pmsSocket === undefined) {
+	window.pmsSocket = null;            // Global variable to track previous chat socket.
 }
 
 loadPmsPage();
