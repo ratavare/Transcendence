@@ -120,7 +120,7 @@ async function joinTournament(tournament_id) {
 	const body = JSON.stringify(window.user);
 	try {
 		const data = await myFetch(
-			`https://localhost:8443/tournament/$${tournament_id}/`,
+			`https://localhost:8443/tournament/getJoin/${tournament_id}/`,
 			body,
 			"POST",
 			true

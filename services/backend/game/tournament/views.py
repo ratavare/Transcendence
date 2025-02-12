@@ -17,18 +17,21 @@ def createTournament(request):
 	if request.method == "POST":
 		validator = RegexValidator('[+/%!?,.$%#&*]', inverse_match=True)
 		try:
-			id = request.data.get('tournament_id')
-			validator(id)
-			tournament = Tournament.objects.create(tournament_id=id)
-			tournament.game1 = Lobby.objects.create(lobby_id=f"tournament_{id}_1")
-			tournament.game2 = Lobby.objects.create(lobby_id=f"tournament_{id}_2")
-			tournament.game3 = Lobby.objects.create(lobby_id=f"tournament_{id}_3")
+			tournament_id = request.data.get('tournament_id')
+			validator(tournament_id)
+			tournament = Tournament.objects.create(tournament_id=tournament_id)
+			game1 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_1")
+			game2 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_2")
+			game3 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_3")
+			tournament.game1 = game1
+			tournament.game1 = game2
+			tournament.game1 = game3
 			tournament.save()
-			return JsonResponse({'tournament_id': id}, status=200)
+			return JsonResponse({'tournament_id': tournament_id}, status=200)
 		except ValidationError:
 				return JsonResponse({'error': 'Regex'}, status=400)
 		except Exception as e:
-			return JsonResponse({'error': str(e)}, status=400)
+			return JsonResponse({'error': f"Other error: {str(e)}"}, status=400)
 
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
@@ -36,7 +39,12 @@ def getJoinTournament(request, tournament_id):
 	if request.method == 'POST':
 		return joinTournament(request, tournament_id)
 	if request.method == 'GET':
-		return getTournament(request, tournament_id)
+		try:
+			tournament = Tournament.objects.get(tournament_id=tournament_id)
+			tournamentSerializer = TournamentSerializer(tournament)
+			return JsonResponse({'tournament': tournamentSerializer.data}, status=200)
+		except Tournament.DoesNotExist:
+			return JsonResponse({'error': 'Tournament does not exist'}, status=404)
 
 def joinTournament(request, tournament_id):
 	try:
@@ -49,20 +57,20 @@ def joinTournament(request, tournament_id):
 		TournamentPlayer.objects.create(tournament=selectedTournament, player=user, joined_at=now())
 		selectedTournament.save()
 		return JsonResponse({'status': 'success'}, status=200)
-	except Tournament.DoesNotExist:
-		return JsonResponse({'error': 'Tournament does not exist'}, status=400)
-	except User.DoesNotExist:
-		return JsonResponse({'error': 'User does not exist'}, status=400)
+	# except Tournament.DoesNotExist:
+	# 	return JsonResponse({'error': 'Tournament does not exist'}, status=400)
+	# except User.DoesNotExist:
+	# 	return JsonResponse({'error': 'User does not exist'}, status=400)
 	except Exception as e:
-		return JsonResponse({'error': str(e)}, status=400)
+		return JsonResponse({'error': f"AAAAAAAAAA:{str(e)}"}, status=400)
 
-def getTournament(request, tournament_id):
-	try:
-		tournament = Tournament.objects.get(tournament_id=tournament_id)
-		serializer = TournamentSerializer(tournament)
-		return JsonResponse({'tournament': serializer.data}, status=200)
-	except Tournament.DoesNotExist:
-		return JsonResponse({'error': 'Tourament does not exist'}, status=404)
+# def getTournament(request, tournament_id):
+# 	try:
+# 		tournament = Tournament.objects.get(tournament_id=tournament_id)
+# 		tournamentSerializer = TournamentSerializer(tournament)
+# 		return JsonResponse({'tournament': tournamentSerializer.data}, status=200)
+# 	except Tournament.DoesNotExist:
+# 		return JsonResponse({'error': 'Tournament does not exist'}, status=404)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -87,8 +95,8 @@ def joinTournamentLobby(request, lobby_id):
 		selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
 		selectedLobby.users.add(user)
 		selectedLobby.save()
-		serializer = LobbySerializer(selectedLobby)
-		return JsonResponse({'data': serializer.data}, status=200)
+		lobbySerializer = LobbySerializer(selectedLobby)
+		return JsonResponse({'data': lobbySerializer.data}, status=200)
 	except Lobby.DoesNotExist:
 		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
 	except User.DoesNotExist:
