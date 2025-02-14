@@ -1,10 +1,10 @@
 // ************************************* WEBSOCKET ************************************************
+let socket = null;
 PageElement.onLoad = () => {
 	let inGame = false;
 	const tournament_id = window.props.get("id");
 	const token = localStorage.getItem("tournamentPlayerToken") || "";
-	let socket;
-	if (!socket) socket.close();
+	if (socket) socket.close();
 	socket = new WebSocket(
 		`wss://localhost:8443/pong/t/${encodeURIComponent(
 			tournament_id
@@ -52,8 +52,14 @@ PageElement.onLoad = () => {
 		if (hash.includes("tournament?id")) {
 			// const tournament_id = window.props.get("id");
 			// checkTournament(tournament_id);
-			// if (socket.readyState === WebSocket.OPEN && !inGame)
-			// 	socket.close();
+			if (socket)
+			{
+				sendMessage(
+					`${window.user.username}`,
+					"POPSTATE",
+				);
+				socket.close();
+			}
 		}
 	});
 
@@ -95,8 +101,7 @@ PageElement.onLoad = () => {
 			);
 			const playerName = playerDiv.querySelector("span");
 			try {
-				username = Object.entries(players)[i][1];
-				if (username == "1v1" || username == "disconnecting") throw {};
+				let username = Object.entries(players)[i][1];
 				playerName.textContent = username;
 			} catch {
 				playerName.textContent = "Player " + (i + 1);
@@ -105,7 +110,6 @@ PageElement.onLoad = () => {
 	}
 
 	async function updateBracketDB(tournament_id) {
-		console.log("IDDDDDDDDDDDDDDD: ", tournament_id);
 		try {
 			const data = await myFetch(
 				`https://localhost:8443/tournament/getJoin/${tournament_id}/`,
@@ -238,6 +242,8 @@ PageElement.onLoad = () => {
 
 	window.onbeforeunload = () => {
 		sendMessage("disconnect", `${window.user.username} has disconnected`);
+		if (socket)
+			socket.close();
 	};
 
 	PageElement.onUnload = () => {

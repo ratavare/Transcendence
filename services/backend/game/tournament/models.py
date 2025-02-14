@@ -23,7 +23,7 @@ class TournamentPlayer(models.Model):
 	tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
 	player = models.ForeignKey(User, on_delete=models.CASCADE)
 	joined_at = models.DateTimeField(default=now)
-	inGame = models.BooleanField(default=False)
+	is_returning = models.BooleanField(default=False)
 
 	class Meta:
 		ordering = ["joined_at"]
