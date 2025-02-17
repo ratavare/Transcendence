@@ -1,16 +1,30 @@
 // ************************************* WEBSOCKET ************************************************
 let socket = null;
-PageElement.onLoad = () => {
-	let inGame = false;
+
+PageElement.onLoad = async () => {
 	const tournament_id = window.props.get("id");
+	const status1 = await tournamentExists(tournament_id);
+	const status2 = await playerExists(tournament_id);
+
+	if (!status1 || !status2)
+	{
+		seturl("/home");
+		return;
+	}
+	else {
+		updateBracketDB(tournament_id);
+		messageForm();
+	}
+
 	const token = localStorage.getItem("tournamentPlayerToken") || "";
 	if (socket) socket.close();
+
 	socket = new WebSocket(
 		`wss://localhost:8443/pong/t/${encodeURIComponent(
 			tournament_id
 		)}/?token=${token}`
 	);
-
+	
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
 		switch (data.type) {
@@ -47,19 +61,44 @@ PageElement.onLoad = () => {
 		// seturl("/home");
 	};
 
-	window.addEventListener("popstate", () => {
+	async function tournamentExists(t_id) {
+		try {
+			const data = await myFetch(
+				`https://localhost:8443/tournament/getJoin/${t_id}/`,
+				null,
+				"GET",
+				true
+			);
+			return true;
+		} catch (error) {
+			console.log(error);
+			return false;
+		}
+	}
+
+	async function playerExists(t_id) {
+		try {
+			const data = await myFetch(
+				`https://localhost:8443/tournament/checkTournamentPlayer/${t_id}/${window.user.username}/`,
+				null,
+				"GET",
+				true
+			);
+			return true;
+		} catch (error) {
+			console.log(error);
+			return false;
+		}
+	}
+
+	window.addEventListener("popstate", async () => {
+		if (socket) socket.close();
 		const hash = window.location.hash;
 		if (hash.includes("tournament?id")) {
-			// const tournament_id = window.props.get("id");
-			// checkTournament(tournament_id);
-			if (socket)
-			{
-				sendMessage(
-					`${window.user.username}`,
-					"POPSTATE",
-				);
-				socket.close();
-			}
+			const tournament_id = window.props.get("id");
+			const status1 = await tournamentExists(tournament_id);
+			const status2 = await playerExists(tournament_id);
+			if (!status1 || !status2) seturl("/home");
 		}
 	});
 
@@ -76,6 +115,8 @@ PageElement.onLoad = () => {
 
 	function startBtnInit() {
 		const startBtn = document.getElementById("tournament-start-btn");
+		if (!startBtn)
+			return;
 		startBtn.style.display = "block";
 		startBtn.addEventListener("click", async () => {
 			sendPayload("startGames", "");
@@ -87,6 +128,8 @@ PageElement.onLoad = () => {
 			const playerDiv = document.querySelector(
 				".tournament-p" + (parseInt(i) + 1)
 			);
+			if (!playerDiv)
+				continue;
 			const playerName = playerDiv.querySelector("span");
 			if (playerList[i]) playerName.textContent = playerList[i].username;
 			else playerName.textContent = "Player " + (i + 1);
@@ -99,10 +142,12 @@ PageElement.onLoad = () => {
 			const playerDiv = document.querySelector(
 				".tournament-p" + (parseInt(i) + 1)
 			);
+			if (!playerDiv)
+				continue;
 			const playerName = playerDiv.querySelector("span");
 			try {
-				let username = Object.entries(players)[i][1];
-				playerName.textContent = username;
+				let playerData = Object.entries(players)[i][1];
+				playerName.textContent = playerData.username;
 			} catch {
 				playerName.textContent = "Player " + (i + 1);
 			}
@@ -150,13 +195,14 @@ PageElement.onLoad = () => {
 		const players = payload.players;
 		for (let i = 0; i < 4; i++) {
 			try {
-				let username = Object.entries(players)[i][1];
+				let playerData = Object.entries(players)[i][1];
+				let playerUsername = playerData.username;
 				console.log(
-					`Checking ${username} against ${window.user.username}`
+					`Checking ${playerUsername} against ${window.user.username}`
 				);
-				if (window.user.username == username && (i == 2 || i == 3))
+				if (window.user.username == playerUsername && (i == 2 || i == 3))
 					joinTouranamentLobby(payload.tournament_id, 1);
-				// else if (window.user.username == username && (i == 2 || i == 3))
+				// else if ((window.user.username == playerUsername && (i == 2 || i == 3))
 				// 	joinTouranamentLobby(payload.tournament_id, 2);
 			} catch {
 				console.log("e");
@@ -175,6 +221,9 @@ PageElement.onLoad = () => {
 		const chatContentElement = document.getElementById(
 			"chat-content-tournament"
 		);
+
+		if (!messageList || !messageListItem || !chatContentElement)
+			return;
 
 		if (
 			payload.sender == "connect" ||
@@ -237,18 +286,13 @@ PageElement.onLoad = () => {
 		});
 	}
 
-	updateBracketDB(tournament_id);
-	messageForm();
-
 	window.onbeforeunload = () => {
 		sendMessage("disconnect", `${window.user.username} has disconnected`);
-		if (socket)
-			socket.close();
+		if (socket) socket.close();
 	};
 
 	PageElement.onUnload = () => {
-		if (socket)
-			socket.close();
+		if (socket) socket.close();
 
 		PageElement.onUnload = () => {};
 	};

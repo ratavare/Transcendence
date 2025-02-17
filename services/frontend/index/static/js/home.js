@@ -59,6 +59,7 @@ async function joinLobby(lobby_id) {
 			"POST",
 			true
 		);
+		console.log("BBBBBBBBBBBBBB: ", data);
 		seturl(`/pong?id=${lobby_id}`);
 	} catch (error) {
 		alert(error);

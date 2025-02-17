@@ -57,20 +57,24 @@ def joinTournament(request, tournament_id):
 		TournamentPlayer.objects.create(tournament=selectedTournament, player=user, joined_at=now())
 		selectedTournament.save()
 		return JsonResponse({'status': 'success'}, status=200)
-	# except Tournament.DoesNotExist:
-	# 	return JsonResponse({'error': 'Tournament does not exist'}, status=400)
-	# except User.DoesNotExist:
-	# 	return JsonResponse({'error': 'User does not exist'}, status=400)
 	except Exception as e:
-		return JsonResponse({'error': f"AAAAAAAAAA:{str(e)}"}, status=400)
+		return JsonResponse({'error': str(e)}, status=400)
 
-# def getTournament(request, tournament_id):
-# 	try:
-# 		tournament = Tournament.objects.get(tournament_id=tournament_id)
-# 		tournamentSerializer = TournamentSerializer(tournament)
-# 		return JsonResponse({'tournament': tournamentSerializer.data}, status=200)
-# 	except Tournament.DoesNotExist:
-# 		return JsonResponse({'error': 'Tournament does not exist'}, status=404)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def checkTournamentPlayer(request, tournament_id, username):
+	try:
+		tournament = Tournament.objects.get(tournament_id=tournament_id)
+		player = User.objects.get(username=username)
+		if TournamentPlayer.objects.filter(tournament=tournament, player=player).exists():
+			return JsonResponse({"message": "User exists in Tournament"}, status=200)
+		return JsonResponse({'error': 'User not in Tournament'}, status=404)
+	except User.DoesNotExist:
+		return JsonResponse({"error": "User not found"}, status=404)
+	except Tournament.DoesNotExist:
+		return JsonResponse({"error": "Tournament not found"}, status=404)
+	except Exception as e:
+		return JsonResponse({'error': str(e)}, status=400)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -101,3 +105,15 @@ def joinTournamentLobby(request, lobby_id):
 		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User does not exist'}, status=400)
+	
+def getTournamentLobby(request, tournament_id, lobby_id):
+	try:
+		tournament = Tournament.objects.get(tournament_id=tournament_id)
+		lobby = Lobby.objects.get(lobby_id=lobby_id)
+		if tournament.game1 == lobby or tournament.game2 == lobby or tournament.game3 == lobby:
+			return JsonResponse({'status': f'{lobby_id} is from {tournament_id}'}, status=200)
+		return JsonResponse({'error': f'Tournament {tournament_id} has no game {lobby_id}'}, status=404)
+	except Tournament.DoesNotExist:
+		return JsonResponse({'error': 'Tournament does not exist'}, status=400)
+	except Lobby.DoesNotExist:
+		return JsonResponse({'error': 'Lobby does not exist'}, status=400)

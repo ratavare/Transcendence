@@ -86,7 +86,7 @@ def checkPlayer(request, lobby_id, player):
 		elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
 			return JsonResponse({'playerId': '2'}, status=200)
 		return JsonResponse({'playerId': '3'}, status=404)
-	return JsonResponse({'error': 'User not in Lobby'}, status=200)
+	return JsonResponse({'error': 'User not in Lobby'}, status=404)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
