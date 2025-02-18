@@ -1,8 +1,8 @@
 // ************************************* WEBSOCKET ************************************************
-let socket = null;
 
 PageElement.onLoad = async () => {
 	const tournament_id = window.props.get("id");
+	console.warn("A")
 	const status1 = await tournamentExists(tournament_id);
 	const status2 = await playerExists(tournament_id);
 
@@ -15,7 +15,7 @@ PageElement.onLoad = async () => {
 		updateBracketDB(tournament_id);
 		messageForm();
 	}
-
+	let socket = null;
 	const token = localStorage.getItem("tournamentPlayerToken") || "";
 	if (socket) socket.close();
 
@@ -56,8 +56,8 @@ PageElement.onLoad = async () => {
 		// });
 	};
 
-	socket.onclose = () => {
-		console.log("Socket closed unexpectedly");
+	socket.onclose = (e) => {
+		console.log(`Socket closed unexpectedly: ${e.reason}`);
 		// seturl("/home");
 	};
 
@@ -92,13 +92,17 @@ PageElement.onLoad = async () => {
 	}
 
 	window.addEventListener("popstate", async () => {
-		if (socket) socket.close();
 		const hash = window.location.hash;
 		if (hash.includes("tournament?id")) {
 			const tournament_id = window.props.get("id");
 			const status1 = await tournamentExists(tournament_id);
 			const status2 = await playerExists(tournament_id);
-			if (!status1 || !status2) seturl("/home");
+			console.warn("B")
+			if (!status1 || !status2) {
+				console.warn("C")
+				if (socket) socket.close();
+				seturl("/home");
+			}
 		}
 	});
 
@@ -200,10 +204,10 @@ PageElement.onLoad = async () => {
 				console.log(
 					`Checking ${playerUsername} against ${window.user.username}`
 				);
-				if (window.user.username == playerUsername && (i == 2 || i == 3))
+				if (window.user.username == playerUsername && (i == 0 || i == 1))
 					joinTouranamentLobby(payload.tournament_id, 1);
-				// else if ((window.user.username == playerUsername && (i == 2 || i == 3))
-				// 	joinTouranamentLobby(payload.tournament_id, 2);
+				else if (window.user.username == playerUsername && (i == 2 || i == 3))
+					joinTouranamentLobby(payload.tournament_id, 2);
 			} catch {
 				console.log("e");
 			}
@@ -287,12 +291,11 @@ PageElement.onLoad = async () => {
 	}
 
 	window.onbeforeunload = () => {
-		sendMessage("disconnect", `${window.user.username} has disconnected`);
+		sendMessage("disconnect", `${window.user.username} before unload`);
 		if (socket) socket.close();
 	};
 
 	PageElement.onUnload = () => {
-		if (socket) socket.close();
 
 		PageElement.onUnload = () => {};
 	};

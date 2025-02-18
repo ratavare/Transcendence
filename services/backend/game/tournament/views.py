@@ -22,10 +22,8 @@ def createTournament(request):
 			tournament = Tournament.objects.create(tournament_id=tournament_id)
 			game1 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_1")
 			game2 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_2")
-			game3 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_3")
 			tournament.game1 = game1
-			tournament.game1 = game2
-			tournament.game1 = game3
+			tournament.game2 = game2
 			tournament.save()
 			return JsonResponse({'tournament_id': tournament_id}, status=200)
 		except ValidationError:
@@ -110,10 +108,12 @@ def getTournamentLobby(request, tournament_id, lobby_id):
 	try:
 		tournament = Tournament.objects.get(tournament_id=tournament_id)
 		lobby = Lobby.objects.get(lobby_id=lobby_id)
-		if tournament.game1 == lobby or tournament.game2 == lobby or tournament.game3 == lobby:
+		if tournament.game1 == lobby or tournament.game2 == lobby:
 			return JsonResponse({'status': f'{lobby_id} is from {tournament_id}'}, status=200)
 		return JsonResponse({'error': f'Tournament {tournament_id} has no game {lobby_id}'}, status=404)
 	except Tournament.DoesNotExist:
 		return JsonResponse({'error': 'Tournament does not exist'}, status=400)
 	except Lobby.DoesNotExist:
 		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
+	except Exception as e:
+		return JsonResponse({'error': f'Unexpected error {str(e)}'}, status=400)

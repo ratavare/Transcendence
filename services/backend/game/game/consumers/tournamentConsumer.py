@@ -40,15 +40,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		self.is_returning = await self.checkReturningDB()
 	
 		await self.groupSend("message", {
-			"sender": self.username,
-			"content": f"Is returning: {self.is_returning}",
+			"sender": "returning",
+			"content": f"{self.is_returning}",
 		})
 
 		if self.is_returning or self.user_id in tournament["players"]:
 			tournament["players"][self.user_id] = {"username": self.username ,"status": "active"}
 			sender = "connect"
 			content = f"welcome back {self.username}"
-		elif len(tournament["players"]) < 4:
+		elif len(tournament["players"]) < 4 and self.user_id not in tournament["players"]:
 			tournament["players"][self.user_id] = {"username": self.username ,"status": "active"}
 			sender = "connect"
 			content = f"Welcome to the tournament {self.username}!"
@@ -74,17 +74,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		})
 
 		if self.is_returning:
-			await self.returningUpdateStatus(False)
+			await returningUpdateStatus(self.username, self.tournament_id, False)
 
 	async def disconnect(self, close_code):
 		tournament = tournaments.get(self.tournament_id)
 		if not tournament:
 			return
 	
-		if self.user_id in tournament["players"]:
-			tournament["players"][self.user_id] = {"username": self.username ,"status": "disconnecting"}
+		if self.user_id in tournament["players"] and tournament["players"][self.user_id]["status"] != "inGame":
+			tournament["players"][self.user_id]['status'] = "disconnecting"
 		if self.user_id in tournament["spectators"]:
-			tournament["spectators"][self.user_id] = {"username": self.username ,"status": "disconnecting"}
+			tournament["spectators"][self.user_id]['status'] = "disconnecting"
 	
 		if self.user_id not in deleteTimers:
 			deleteTimers[self.user_id] = asyncio.create_task(self.deleteTournamentTask(self.tournament_id, self.username))
@@ -94,18 +94,24 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	async def deleteTournamentTask(self, tournament_id, username):
 		await asyncio.sleep(4)
 
+		await self.groupSend("message", {
+			"sender": "disconnect",
+			"content": f"{username} deleteTournamentTask" ,
+		})
+
 		tournament = tournaments.get(tournament_id)
 		if not tournament:
 			return
 		
 		self.is_returning = await self.checkReturningDB()
 
-		await self.groupSend("log", f"Players: {tournament['players']}")
-		await self.groupSend("log", f"Spectator: {tournament['spectators']}")
+		# isEmpty = []
+		# for p, info in tournament["players"].items():
+		# 	if info["status"] == "disconnecting" or info["status"] == "disconnecting":
+		# 		isEmpty.append((p, info))
+		isEmpty = all(info["status"] == "disconnecting" for p, info in tournament["players"].items())
 
-		activePlayers = [p for p, info in tournament["players"].items() if info["status"] != "disconnecting"]
-
-		if not activePlayers:
+		if isEmpty:
 			del tournaments[tournament_id]
 			await self.deleteTournamentDB(tournament_id)
 		elif self.is_returning:
@@ -114,8 +120,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				"content": f"{username} left for a game!" ,
 			})
 		else:
+			await self.groupSend("message", {
+				"sender": "disconnect",
+				"content": f"{tournament["players"][self.user_id]["username"]} was removed from DB!" ,
+			})
 			await self.handleStillActive(tournament_id, username)
-			await self.groupSend("log", f"Player {username} removed from DB")
 		
 		if self.user_id in deleteTimers:
 			deleteTimers.pop(self.user_id, None)
@@ -204,27 +213,31 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			tournament = Tournament.objects.get(tournament_id=self.tournament_id)
 			tPlayer = TournamentPlayer.objects.get(tournament=tournament, player=user)
 		except Tournament.DoesNotExist:
-			print("Tournament.DoesNotExist!!!!!!!!!!!!!!!!!!!!!!!!", flush=True)
+			print("Tournament.DoesNotExist❌", flush=True)
 			return False
 		except User.DoesNotExist:
-			print("User.DoesNotExist!!!!!!!!!!!!!!!!!!!!!!!!", flush=True)
+			print("User.DoesNotExist❌", flush=True)
 			return False
 		except TournamentPlayer.DoesNotExist:
-			print("TournamentPlayer.DoesNotExist!!!!!!!!!!!!!!!!!!!!!!!!", flush=True)
+			print("TournamentPlayer.DoesNotExist❌", flush=True)
 			return False
 		return tPlayer.is_returning
 
 	async def gameStart(self):
 		tournament = tournaments.get(self.tournament_id)
-		await self.returningUpdateStatus(True)
+		for player in tournament["players"]:
+			username = tournament["players"][player]["username"]
+			tournament["players"][player] = {"username": username, "status": "inGame"}
+			await returningUpdateStatus(username, self.tournament_id, True)
 		await self.groupSend("startGame", {
 			"players": tournament["players"],
 			"tournament_id": self.tournament_id
 		})
 
-	@database_sync_to_async
-	def returningUpdateStatus(self, status):
-		t = Tournament.objects.get(tournament_id=self.tournament_id)
-		p = User.objects.get(username=self.username)
-		tPlayer = TournamentPlayer.objects.filter(tournament=t, player=p)
-		tPlayer.update(is_returning=status)
+@database_sync_to_async
+def returningUpdateStatus(username, tournament_id, status):
+	print(f"{username} is_returning = {status}", flush=True)
+	t = Tournament.objects.get(tournament_id=tournament_id)
+	p = User.objects.get(username=username)
+	tPlayer = TournamentPlayer.objects.filter(tournament=t, player=p)
+	tPlayer.update(is_returning=status)

@@ -22,7 +22,7 @@ PageElement.onLoad = () => {
 	const canvas = document.getElementById("canvas");
 	const canvasContainer = document.getElementById("canvas-item");
 
-	const renderer = new THREE.WebGLRenderer({
+	let renderer = new THREE.WebGLRenderer({
 		canvas: canvas,
 		antialias: true,
 	});
@@ -271,7 +271,7 @@ PageElement.onLoad = () => {
 		const winnerMsg = document.getElementById("winner-msg");
 		winnerMsg.innerHTML = message;
 		readyBtn.style.display = "block";
-		rendering = False;
+		rendering = false;
 	}
 
 	// Modify the animate function to include swatting animation logic
@@ -487,13 +487,13 @@ PageElement.onLoad = () => {
 		if (lobby_id.split('_')[0] == 'tournament')
 		{
 			try {
-				const data = await myFetch(`https://localhost:8443/tournament/${tournament_id}/${lobby_id}`, null, "GET", true);
-				alert("LOBBY FOUND!");
+				const data = await myFetch(`https://localhost:8443/tournament/getTournamentLobby/${tournament_id}/${lobby_id}`, null, "GET", true);
+				console.warn("DATA: ", data);
 				quitBtn.addEventListener("click", () => {
 					seturl(`/tournament?id=${tournament_id}`);
 				});
 			} catch (error) {
-				alert("LOBBY NOT FOUND!");
+				console.error("ERROR: ", error);
 				quitBtn.addEventListener("click", () => {
 					seturl("/home");
 				});
