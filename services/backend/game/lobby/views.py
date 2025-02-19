@@ -31,7 +31,6 @@ def lobby_detail(request, lobby_id):
 
 def getLobbies(request):
 	lobbies = Lobby.objects.filter(g1__isnull=False, g2__isnull=False).values("lobby_id")
-	# lobbies = Lobby.objects.all().values("lobby_id")
 	if not lobbies:
 		return JsonResponse({'error': "No lobbies found!"}, status=404)
 	return JsonResponse({'lobbies': list(lobbies)}, status=200)
@@ -93,7 +92,6 @@ def checkPlayer(request, lobby_id, player):
 def setReadyState(request, lobby_id):
 	lobby = Lobby.objects.get(lobby_id=lobby_id)
 	player = json.loads(request.body)
-	print("PLAYER: ", player, flush=True)
 	if player == "1":
 		lobby.player1Ready = True
 	if player == "2":

@@ -89,9 +89,9 @@ class Pong:
 	
 	def winCheck(self):
 		if self.player1Score == vars.POINTS_TO_WIN:
-			return 1
+			return self.player1Token
 		if self.player2Score == vars.POINTS_TO_WIN:
-			return 2
+			return self.player1Token
 		return 0
 
 	def move(self):

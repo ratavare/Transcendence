@@ -260,8 +260,8 @@ PageElement.onLoad = () => {
 		pointLight.position.copy(ball.position);
 	}
 
-	function win(message) {
-		console.log("MESSAGE:", message);
+	function win(payload) {
+		console.log("Payload:", payload);
 		const modalElement = document.getElementById("quit");
 		const modal = new bootstrap.Modal(modalElement, {
 			backdrop: "static",
@@ -269,7 +269,7 @@ PageElement.onLoad = () => {
 		});
 		modal.show();
 		const winnerMsg = document.getElementById("winner-msg");
-		winnerMsg.innerHTML = message;
+		winnerMsg.innerHTML = `Winner: ${payload.winner}`;
 		readyBtn.style.display = "block";
 		rendering = false;
 	}
@@ -477,11 +477,10 @@ PageElement.onLoad = () => {
 	getChat();
 
 	// ************************************* TOURNAMENTS ************************************************
-	
+
 	async function isTournamentLobby(lobby_id) {
 		console.log(lobby_id.split('_')[0])
 		console.log(lobby_id.split('_')[1])
-		console.log(lobby_id.split('_')[2])
 		const quitBtn = document.getElementById("quit-btn");
 		const tournament_id = lobby_id.split('_')[1]
 		if (lobby_id.split('_')[0] == 'tournament')

@@ -75,16 +75,16 @@
 }
 
 .tournament-p1 {
-	--border-color: rgb(19, 19, 255);
+	--border-color: rgb(19, 19, 255, 1);
 }
 .tournament-p2 {
-	--border-color: rgb(236, 153, 0);
+	--border-color: rgb(236, 153, 0, 1);
 }
 .tournament-p3 {
-	--border-color: rgb(0, 186, 0);
+	--border-color: rgb(0, 186, 0, 1);
 }
 .tournament-p4 {
-	--border-color: rgb(225, 188, 0);
+	--border-color: rgb(225, 188, 0, 1);
 }
 
 .bracket li::before,
@@ -93,7 +93,8 @@
 	position: absolute;
 	top: 0;
 	right: 50%;
-	border-top: 2px solid white;
+	border-top: 2px solid;
+	border-color: var(--after-content, white);;
 	width: 50%;
 	height: 40px;
 }

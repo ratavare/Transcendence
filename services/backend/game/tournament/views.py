@@ -58,21 +58,21 @@ def joinTournament(request, tournament_id):
 	except Exception as e:
 		return JsonResponse({'error': str(e)}, status=400)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def checkTournamentPlayer(request, tournament_id, username):
-	try:
-		tournament = Tournament.objects.get(tournament_id=tournament_id)
-		player = User.objects.get(username=username)
-		if TournamentPlayer.objects.filter(tournament=tournament, player=player).exists():
-			return JsonResponse({"message": "User exists in Tournament"}, status=200)
-		return JsonResponse({'error': 'User not in Tournament'}, status=404)
-	except User.DoesNotExist:
-		return JsonResponse({"error": "User not found"}, status=404)
-	except Tournament.DoesNotExist:
-		return JsonResponse({"error": "Tournament not found"}, status=404)
-	except Exception as e:
-		return JsonResponse({'error': str(e)}, status=400)
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def checkTournamentPlayer(request, tournament_id, username):
+# 	try:
+# 		tournament = Tournament.objects.get(tournament_id=tournament_id)
+# 		player = User.objects.get(username=username)
+# 		if TournamentPlayer.objects.filter(tournament=tournament, player=player).exists():
+# 			return JsonResponse({"message": "User exists in Tournament"}, status=200)
+# 		return JsonResponse({'error': 'User not in Tournament'}, status=404)
+# 	except User.DoesNotExist:
+# 		return JsonResponse({"error": "User not found"}, status=404)
+# 	except Tournament.DoesNotExist:
+# 		return JsonResponse({"error": "Tournament not found"}, status=404)
+# 	except Exception as e:
+# 		return JsonResponse({'error': str(e)}, status=400)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -86,12 +86,12 @@ def getTournaments(request):
 	
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def joinTournamentLobby(request, lobby_id):
+def joinTournamentLobby(request):
 	try:
-		data = json.loads(request.body.decode('utf-8'))
-		if isinstance(data, str):
-			data = json.loads(data)
+		data = json.loads(request.body)
 		username = data.get('username')
+		lobby_id = data.get('lobby_id')
+		print("❌USERNAME: ", username, " | ", "❌L_ID: ", lobby_id, flush=True)
 		user = User.objects.get(username=username)
 
 		selectedLobby = Lobby.objects.get(lobby_id=lobby_id)

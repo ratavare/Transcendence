@@ -15,7 +15,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		self.username = self.user.username
 		self.is_returning = False
 
-		if not self.user.is_authenticated:
+		if not self.user.is_authenticated or not tournamentExistsDB(self.tournament_id):
 			await self.close()
 			return
 
@@ -91,7 +91,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 		await self.channel_layer.group_discard(self.tournament_id, self.channel_name)
 
-	async def deleteTournamentTask(self, tournament_id, username):
+	async def deleteTournamentTask(self, t_id, username):
 		await asyncio.sleep(4)
 
 		await self.groupSend("message", {
@@ -99,7 +99,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			"content": f"{username} deleteTournamentTask" ,
 		})
 
-		tournament = tournaments.get(tournament_id)
+		tournament = tournaments.get(t_id)
 		if not tournament:
 			return
 		
@@ -112,8 +112,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		isEmpty = all(info["status"] == "disconnecting" for p, info in tournament["players"].items())
 
 		if isEmpty:
-			del tournaments[tournament_id]
-			await self.deleteTournamentDB(tournament_id)
+			del tournaments[t_id]
+			print("❌❌❌❌❌❌❌❌❌❌❌\n❌❌❌❌❌❌❌❌❌❌❌\n❌❌❌❌❌❌❌❌❌❌❌\n❌❌❌❌❌❌❌❌❌❌❌\n", flush=True)
+			await self.deleteTournamentDB(t_id)
 		elif self.is_returning:
 			await self.groupSend("message", {
 				"sender": "disconnect",
@@ -124,13 +125,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				"sender": "disconnect",
 				"content": f"{tournament["players"][self.user_id]["username"]} was removed from DB!" ,
 			})
-			await self.handleStillActive(tournament_id, username)
+			await self.handleStillActive(t_id, username)
 		
 		if self.user_id in deleteTimers:
 			deleteTimers.pop(self.user_id, None)
 
-	async def handleStillActive(self, tournament_id, username):
-		tournament = tournaments.get(tournament_id)
+	async def handleStillActive(self, t_id, username):
+		tournament = tournaments.get(t_id)
 
 		if self.user_id in tournament["players"]:
 			del tournament["players"][self.user_id]
@@ -142,25 +143,25 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				"content": f"{username} left the lobby!",
 		})
 		
-		await self.removePlayerDB(tournament_id, username)
+		await self.removePlayerDB(t_id, username)
 
-		tournament = tournaments.get(tournament_id)
+		tournament = tournaments.get(t_id)
 		await self.groupSend("updateBracketWS", {
 			"players": tournament["players"],
 		})
 
 	@database_sync_to_async
-	def deleteTournamentDB(self, tournament_id):
+	def deleteTournamentDB(self, t_id):
 		try:
-			dbTournament = Tournament.objects.get(tournament_id=tournament_id)
+			dbTournament = Tournament.objects.get(tournament_id=t_id)
 			dbTournament.delete()
 		except Tournament.DoesNotExist:
 			pass
 	
 	@database_sync_to_async
-	def removePlayerDB(self, tournament_id, username):
+	def removePlayerDB(self, t_id, username):
 		try:
-			dbTournament = Tournament.objects.get(tournament_id=tournament_id)
+			dbTournament = Tournament.objects.get(tournament_id=t_id)
 			user = User.objects.get(username=username)
 			TournamentPlayer.objects.filter(tournament=dbTournament, player=user).delete()
 		except Exception as e:
@@ -168,7 +169,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 
 	async def receive(self, text_data):
-		tournament = tournaments.get(self.tournament_id)
+		t_id = self.tournament_id
+		tournament = tournaments.get(t_id)
 		try:
 			data = json.loads(text_data)
 			send_type = data.get("type")
@@ -182,7 +184,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 					})
 					return
 
-				await self.gameStart()
+				await self.gameStart(t_id)
 				return
 
 			await self.groupSend(send_type, payload)
@@ -209,6 +211,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	@database_sync_to_async
 	def checkReturningDB(self):
 		try:
+			print("❌USERNAME: ", self.username, " | ", "❌T_ID: ", self.tournament_id, flush=True)
 			user = User.objects.get(username=self.username)
 			tournament = Tournament.objects.get(tournament_id=self.tournament_id)
 			tPlayer = TournamentPlayer.objects.get(tournament=tournament, player=user)
@@ -223,21 +226,28 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			return False
 		return tPlayer.is_returning
 
-	async def gameStart(self):
-		tournament = tournaments.get(self.tournament_id)
+	async def gameStart(self, t_id):
+		tournament = tournaments.get(t_id)
 		for player in tournament["players"]:
 			username = tournament["players"][player]["username"]
 			tournament["players"][player] = {"username": username, "status": "inGame"}
-			await returningUpdateStatus(username, self.tournament_id, True)
+			await returningUpdateStatus(username, t_id, True)
 		await self.groupSend("startGame", {
 			"players": tournament["players"],
-			"tournament_id": self.tournament_id
+			"tournament_id": t_id
 		})
 
 @database_sync_to_async
-def returningUpdateStatus(username, tournament_id, status):
-	print(f"{username} is_returning = {status}", flush=True)
-	t = Tournament.objects.get(tournament_id=tournament_id)
+def returningUpdateStatus(username, t_id, status):
+	t = Tournament.objects.get(tournament_id=t_id)
 	p = User.objects.get(username=username)
 	tPlayer = TournamentPlayer.objects.filter(tournament=t, player=p)
 	tPlayer.update(is_returning=status)
+
+@database_sync_to_async
+def tournamentExistsDB(t_id):
+	try:
+		tournament = Tournament.objects.get(tournament_id=t_id)
+	except Tournament.DoesNotExist:
+		return False
+	return True

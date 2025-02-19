@@ -2,19 +2,7 @@
 
 PageElement.onLoad = async () => {
 	const tournament_id = window.props.get("id");
-	console.warn("A")
-	const status1 = await tournamentExists(tournament_id);
-	const status2 = await playerExists(tournament_id);
 
-	if (!status1 || !status2)
-	{
-		seturl("/home");
-		return;
-	}
-	else {
-		updateBracketDB(tournament_id);
-		messageForm();
-	}
 	let socket = null;
 	const token = localStorage.getItem("tournamentPlayerToken") || "";
 	if (socket) socket.close();
@@ -50,60 +38,20 @@ PageElement.onLoad = async () => {
 	};
 
 	socket.onopen = async () => {
-		// sendPayload("message", {
-		// 	sender: "connect",
-		// 	content: `${window.user.username} joined the tournament!`,
-		// });
+
 	};
 
 	socket.onclose = (e) => {
 		console.log(`Socket closed unexpectedly: ${e.reason}`);
-		// seturl("/home");
+		seturl("/home");
 	};
-
-	async function tournamentExists(t_id) {
-		try {
-			const data = await myFetch(
-				`https://localhost:8443/tournament/getJoin/${t_id}/`,
-				null,
-				"GET",
-				true
-			);
-			return true;
-		} catch (error) {
-			console.log(error);
-			return false;
-		}
-	}
-
-	async function playerExists(t_id) {
-		try {
-			const data = await myFetch(
-				`https://localhost:8443/tournament/checkTournamentPlayer/${t_id}/${window.user.username}/`,
-				null,
-				"GET",
-				true
-			);
-			return true;
-		} catch (error) {
-			console.log(error);
-			return false;
-		}
-	}
 
 	window.addEventListener("popstate", async () => {
 		const hash = window.location.hash;
-		if (hash.includes("tournament?id")) {
-			const tournament_id = window.props.get("id");
-			const status1 = await tournamentExists(tournament_id);
-			const status2 = await playerExists(tournament_id);
-			console.warn("B")
-			if (!status1 || !status2) {
-				console.warn("C")
-				if (socket) socket.close();
-				seturl("/home");
-			}
-		}
+		if (hash.includes("tournament?id") || hash.includes("pong?id"))
+			return
+		if (socket) 
+			socket.close();
 	});
 
 	function sendPayload(type, payload) {
@@ -127,7 +75,8 @@ PageElement.onLoad = async () => {
 		});
 	}
 
-	function playerInitDb(playerList) {
+	async function semiFinalsInitWS(players)
+	{
 		for (let i = 0; i < 4; i++) {
 			const playerDiv = document.querySelector(
 				".tournament-p" + (parseInt(i) + 1)
@@ -135,20 +84,7 @@ PageElement.onLoad = async () => {
 			if (!playerDiv)
 				continue;
 			const playerName = playerDiv.querySelector("span");
-			if (playerList[i]) playerName.textContent = playerList[i].username;
-			else playerName.textContent = "Player " + (i + 1);
-		}
-	}
-
-	async function updateBracketWS(payload) {
-		const players = payload.players;
-		for (let i = 0; i < 4; i++) {
-			const playerDiv = document.querySelector(
-				".tournament-p" + (parseInt(i) + 1)
-			);
-			if (!playerDiv)
-				continue;
-			const playerName = playerDiv.querySelector("span");
+			// const profileImg = playerDiv.querySelector('img');
 			try {
 				let playerData = Object.entries(players)[i][1];
 				playerName.textContent = playerData.username;
@@ -156,6 +92,66 @@ PageElement.onLoad = async () => {
 				playerName.textContent = "Player " + (i + 1);
 			}
 		}
+	}
+
+	async function finalsInitWS() {
+		return;
+	}
+
+	async function updateBracketWS(payload) {
+		const players = payload.players;
+		semiFinalsInitWS(players);
+	}
+
+	function semiFinalsInitDB(playerList) {
+		for (let i = 0; i < 4; i++) {
+			const playerDiv = document.getElementById("div-semi" + (parseInt(i) + 1));
+			if (!playerDiv)
+				continue;
+			const playerName = playerDiv.querySelector("span");
+			// const profileImg = playerDiv.querySelector('img');
+			if (playerList && playerList[i]) {
+				playerName.textContent = playerList[i].username;
+			}
+			else playerName.textContent = "Player " + (i + 1);
+		}
+	}
+
+	function putFinals(winner, index, playerList)
+	{
+		for (let i = index - 2; i < index; i++) 
+		{
+			const finalsDiv = document.getElementById('finals' + (index / 2));
+			const pLi = document.getElementById("li-semi" + (parseInt(i) + 1))
+			const pDiv = document.getElementById("div-semi" + (parseInt(i) + 1));
+			const pClass = document.querySelector(".tournament-p" + (parseInt(i) + 1));
+			const pName = pDiv.querySelector("span");
+			const pStyle = getComputedStyle(pClass);
+			const pColor = pStyle.getPropertyValue('--border-color').trim();
+			console.log("pColor: ", pColor);
+
+			if (!winner)
+				pName.textContent = "???";
+			else if (winner == playerList[i].username) {
+				finalsDiv.classList.add("tournament-p" + (parseInt(i) + 1));
+				pLi.style.setProperty("--after-content", pColor);
+
+				//Add name
+				pName.textContent = playerList[i].username;
+			} else {
+				pDiv.style.background = pColor.replace(/[\d\.]+\)$/g, `${0.25})`);;
+				pName.textContent = "";
+			}
+		}
+	}
+
+	async function finalsInitDB(tournament) {
+		const winner1 = tournament.game1.winner.username;
+		const winner2 = tournament.game2.winner.username;
+		const playerList = tournament.players;
+
+		putFinals(winner1, 2, playerList);
+		putFinals(winner2, 4, playerList);
 	}
 
 	async function updateBracketDB(tournament_id) {
@@ -167,7 +163,8 @@ PageElement.onLoad = async () => {
 				true
 			);
 			console.log("Players: ", data.tournament.players);
-			playerInitDb(data.tournament.players);
+			semiFinalsInitDB(data.tournament.players);
+			finalsInitDB(data.tournament)
 		} catch (error) {
 			console.log("Error: ", error);
 		}
@@ -176,15 +173,14 @@ PageElement.onLoad = async () => {
 	// **************************************** LOBBY *************************************************
 
 	async function joinTouranamentLobby(tournament_id, game) {
+		const lobby_id = `tournament_${tournament_id}_${game}`;
 		const body = {
 			username: window.user.username,
-			t_id: tournament_id,
-			game: game,
+			lobby_id: lobby_id
 		};
-		const lobby_id = `tournament_${tournament_id}_${game}`;
 		try {
 			const data = await myFetch(
-				`https://localhost:8443/tournament/joinTournamentLobby/${lobby_id}/`,
+				`https://localhost:8443/tournament/joinTournamentLobby/`,
 				body,
 				"POST",
 				true
@@ -289,6 +285,9 @@ PageElement.onLoad = async () => {
 			chatInput.value = "";
 		});
 	}
+
+	updateBracketDB(tournament_id);
+	messageForm();
 
 	window.onbeforeunload = () => {
 		sendMessage("disconnect", `${window.user.username} before unload`);
