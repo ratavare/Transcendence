@@ -184,5 +184,6 @@ function getUrlParams() {
 		auth: queryParams.get("2fa"),
 		otp_secret: queryParams.get("otp_secret"),
 		username: queryParams.get("username"),
+		error: queryParams.get("error"),
 	};
 }

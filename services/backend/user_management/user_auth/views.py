@@ -136,7 +136,7 @@ def handle_intra_oauth_login(request, code):
 	data = {
 		'grant_type': 'authorization_code',
 		'client_id': "u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725",
-		'client_secret': "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",
+		'client_secret': "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",
 		'redirect_uri': "https://localhost:8443/user_auth/login/",
 		'code': code
 	}
@@ -153,7 +153,10 @@ def handle_intra_oauth_login(request, code):
 	
 	user_info = get_user_info_from_intra(access_token)
 	
-	user = authenticate_or_create_user_from_intra(user_info)
+	try:
+		user = authenticate_or_create_user_from_intra(user_info)
+	except ValueError as e:
+		return HttpResponseRedirect(f'https://localhost:8443/#/login?error={e}')
 	login(request, user)
 	refresh = RefreshToken.for_user(user)
 
@@ -210,15 +213,20 @@ def get_user_info_from_intra(access_token):
 		raise ValueError("Failed to fetch user info from Intra")
 
 def authenticate_or_create_user_from_intra(user_info):
-    username = user_info['login']
-    user, created = User.objects.get_or_create(username=username)
+	username = user_info['login']
+	user, created = User.objects.get_or_create(username=username)
     
-    if created:
-        user.set_unusable_password()
-        user.save()
-        Profile.objects.get_or_create(user=user)
+	logger.debug(f"User: {user}, created: {created}")
+
+	if not created and user.has_usable_password():
+		raise ValueError("User already exists with a password")
+	
+	if created:
+		user.set_unusable_password()
+		user.save()
+		Profile.objects.get_or_create(user=user)
     
-    return user
+	return user
 
 def handle_otp_verification(request):
 	"""
