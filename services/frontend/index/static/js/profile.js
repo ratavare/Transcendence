@@ -59,6 +59,11 @@ function editProfile() {
 	document.getElementById('bio-edit').value = window.user.bio || "";
 	document.getElementById('city-edit').value = window.user.city || "";
 	document.getElementById('id-date').value = window.user.birth_date;
+
+	// Disable username input if the user logged in via Intra
+	if (window.user.intra_login) {
+		document.getElementById("username-edit").disabled = true;
+	}
 }
 
 async function run() {

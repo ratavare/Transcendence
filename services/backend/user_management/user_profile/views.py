@@ -47,6 +47,7 @@ def profileView(request):
 			'city': profile.city,
 			'birth_date':profile.birth_date,
 			'id': user.pk,
+			'intra_login': profile.intra_login,
 		}
 		return JsonResponse(initial_data, status=200)
 	return JsonResponse({'error': "Test"}, status=400)

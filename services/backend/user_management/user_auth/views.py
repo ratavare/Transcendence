@@ -225,6 +225,8 @@ def authenticate_or_create_user_from_intra(user_info):
 		user.set_unusable_password()
 		user.save()
 		Profile.objects.get_or_create(user=user)
+		user.profile.intra_login = True
+		user.profile.save()
     
 	return user
 
