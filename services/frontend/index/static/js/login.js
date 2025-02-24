@@ -23,6 +23,7 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret, usernam
 				const otp = document.getElementById("otp-input").value;
 
 				try {
+					console.log("check 1\n");
 					const otpData = await myFetch(
 						"https://localhost:8443/user_auth/verify_otp/",
 						{
@@ -39,27 +40,31 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret, usernam
 						localStorage.setItem("refresh_token", refreshToken);
 						localStorage.setItem("is_2fa_enabled", "true");
 						otpModal.hide();
+						console.log("check 2\n");
 						if (window.location.href.includes("code")) {
 							// console.log("code");
 							window.location.href = "https://localhost:8443/#/home";
 						}
 						else
 							seturl("/home");
-					}
+					} else {
+						console.log("check 3\n");
+                        showErrorModal("Invalid OTP. Please try again.");
+                    }
 				} catch (otpError) {
-					alert("Invalid OTP. Please try again.");
+					console.log("check 4\n");
+					showErrorModal("Invalid OTP. Please try again.");
 				}
 			};
 		} else {
 			localStorage.setItem("access_token", accessToken);
 			localStorage.setItem("refresh_token", refreshToken);
 			if (window.location.href.includes("code")) {
-				// console.log("codeeeee");
 				window.location.href = "https://localhost:8443/#/home";
 			} else seturl("/home");
 		}
 	} else {
-		alert("Login failed. OAuth parameters missing.");
+		showErrorModal("Login failed. OAuth parameters missing.");
 	}
 }
 
@@ -80,11 +85,12 @@ document.getElementById("form-login").addEventListener("submit", async function 
 		console.log("login.js: ", error);
 		const messages = Object.values(error);
 		console.log("Login Failed. Reasons: ", messages);
-		messages.forEach(alert);
+		messages.forEach(showErrorModal);
 	}
 });
 
 document.getElementById("intra-login").addEventListener("click", function () {
+	console.log("check 7\n");
 	const { code, accessToken, refreshToken } = getUrlParams();
 
 	if (!code && !accessToken && !refreshToken) {

@@ -52,7 +52,7 @@ document
 				getOtpContainer().style.display = "block";
 				localStorage.setItem("otp_secret", data.otp_secret);
 			} else {
-				alert("Failed to activate 2FA.");
+				showErrorModal("Failed to activate 2FA.");
 			}
 		} catch (error) {
 			console.error("Error activating 2FA:", error);
@@ -79,9 +79,9 @@ document
 				getStatusContainer().style.display = "block";
 				localStorage.setItem("is_2fa_enabled", "true");
 				localStorage.removeItem("otp_secret");
-				alert("Successfully enabled 2FA");
+				showErrorModal("Successfully enabled 2FA");
 			} else {
-				alert("Invalid OTP code.");
+				showErrorModal("Invalid OTP code.");
 			}
 		} catch (error) {
 			console.error("Error verifying OTP:", error);
@@ -108,12 +108,12 @@ document
 				true
 			);
 			if (data.status === "success") {
-				alert("2FA has been disabled.");
+				showErrorModal("2FA has been disabled.");
 				getStatusContainer().style.display = "none";
 				getSetupContainer().style.display = "block";
 				localStorage.setItem("is_2fa_enabled", "false");
 			} else {
-				alert("Failed to disable 2FA.");
+				showErrorModal("Failed to disable 2FA.");
 			}
 		} catch (error) {
 			console.error("Error disabling 2FA:", error);
@@ -134,13 +134,13 @@ document
 				true
 			);
 			if (data.status === "success") {
-				alert(data.message);
+				showErrorModal(data.message);
 				seturl("/home");
 			} else {
-				alert(data.message);
+				showErrorModal(data.message);
 			}
 		} catch (error) {
-			alert(error);
+			showErrorModal(error);
 		}
 	});
 
@@ -160,15 +160,15 @@ document
 					true
 				);
 				if (data.status === "success") {
-					alert("Account deleted successfully");
+					showErrorModal("Account deleted successfully");
 					localStorage.clear();
 					seturl("/login");
 				} else {
-					alert("Failed to delete account: " + data.message);
+					showErrorModal("Failed to delete account: " + data.message);
 				}
 			} catch (error) {
 				console.error("Error deleting account:", error);
-				alert("Error deleting account");
+				showErrorModal("Error deleting account");
 			}
 		}
 	});

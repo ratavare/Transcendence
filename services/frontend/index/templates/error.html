@@ -1,0 +1,10 @@
+<page-element name="settings">
+	{% include 'navbar.html' with authenticated="true" %}
+	 <!-- Error Modal -->
+    <div id="errorModal" class="error-modal">
+        <div class="error-modal-content">
+            <span class="error-modal-close">&times;</span>
+            <p id="errorMessage"></p>
+        </div>
+    </div>
+</page-element>

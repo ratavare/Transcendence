@@ -1,108 +1,66 @@
 <page-element name="settings">
 	{% include 'navbar.html' with authenticated="true" %}
 	<div class="container mt-5">
-		<h2>Settings</h2>
-		<div id="2fa-setup" class="mb-3">
-			<button id="enable-2fa-button" class="btn btn-primary">
-				Enable 2FA
-			</button>
-		</div>
-		<div id="qr-container" class="mb-3"></div>
-		<div id="setup-key-container" class="mb-3" style="display: none">
-			<p>Setup Key: <span id="setup-key"></span></p>
-		</div>
-		<div id="otp-container" class="mb-3" style="display: none">
-			<input
-				type="text"
-				id="otp-code"
-				class="form-control mb-2"
-				placeholder="Enter OTP code"
-			/>
-			<button id="verify-otp-button" class="btn btn-success">
-				Verify OTP
-			</button>
-			<button id="cancel-2fa-button" class="btn btn-secondary">
-				Cancel
-			</button>
-		</div>
-		<div id="2fa-status" class="mb-3" style="display: none">
-			<button id="disable-2fa-button" class="btn btn-danger">
-				Disable 2FA
-			</button>
-		</div>
-		<div class="card mb-3">
-			<div class="card-body">
-				<h3 style="color: black !important">Change Password</h3>
-				<form method="POST" id="form-password-change">
-					{% csrf_token %}
-					<div class="row mb-3">
-						<div class="col-sm-3">
-							<h6 class="mb-0">Current Password</h6>
-						</div>
-						<div class="col-sm-9 text-secondary">
-							<input
-								name="current_password"
-								type="password"
-								id="current-password"
-								class="form-control border-dark"
-								style="
-									caret-color: black;
-									color: black !important;
-								"
-							/>
-						</div>
-					</div>
-					<hr />
-					<div class="row mb-3">
-						<div class="col-sm-3">
-							<h6 class="mb-0">New Password</h6>
-						</div>
-						<div class="col-sm-9 text-secondary">
-							<input
-								name="new_password"
-								type="password"
-								id="new-password"
-								class="form-control border-dark"
-								style="
-									caret-color: black;
-									color: black !important;
-								"
-							/>
-						</div>
-					</div>
-					<hr />
-					<div class="row mb-3">
-						<div class="col-sm-3">
-							<h6 class="mb-0">Confirm New Password</h6>
-						</div>
-						<div class="col-sm-9 text-secondary">
-							<input
-								name="confirm_new_password"
-								type="password"
-								id="confirm-new-password"
-								class="form-control border-dark"
-								style="
-									caret-color: black;
-									color: black !important;
-								"
-							/>
-						</div>
-					</div>
-					<hr />
-					<div class="row mb-3">
-						<div class="col-sm-12">
-							<button type="submit" class="btn btn-success">
-								Change Password
-							</button>
-						</div>
-					</div>
-				</form>
+		<h1 class="text-center">Settings</h1>
+
+		<!-- 2FA Section -->
+		<div class="card mb-3 p-3">
+			<h3>Two-Factor Authentication (2FA)</h3>	
+			<div id="2fa-section">
+				<div id="qr-container" class="mb-3"></div>
+				<div id="setup-key-container" class="mb-3" style="display: none">
+					<p class="text-white">Setup Key: 
+						<span id="setup-key" class="setup-key-box"></span>
+					</p>
+				</div>
+				
+				<div id="otp-container" class="mb-3" style="display: none; display: flex; align-items: center; display: none;">
+					<p class="text-white" style="margin-right: 10px;">OTP Code:</p>
+					<input type="text" id="otp-code" class="setup-key-box" placeholder="Enter OTP code" style="margin-right: 10px;" />
+					<button id="verify-otp-button" class="btn btn-success">
+						Verify OTP
+					</button>
+					<button id="cancel-2fa-button" class="btn btn-secondary">Cancel</button>
+				</div>
+				
+				<div id="2fa-status" class="mb-3" style="display: none">
+					<button id="disable-2fa-button" class="btn btn-danger">Disable 2FA</button>
+				</div>
+
+			</div>
+			<div id="2fa-setup">
+				<button id="enable-2fa-button" class="btn btn-primary w-100">
+					Generate 2FA
+				</button>
 			</div>
 		</div>
-		<div class="mb-3">
-			<button id="delete-account-button" class="btn btn-danger">
-				Delete Account
-			</button>
+
+		<!-- Change Password Section -->
+		<div class="card mb-3 p-3">
+			<h3>Change Password</h3>
+			<form method="POST" id="form-password-change">
+				{% csrf_token %}
+				<div class="mb-3">
+					<label for="current-password">Current Password</label>
+					<input name="current_password" type="password" id="current-password" class="form-control border-dark" />
+				</div>
+				<div class="mb-3">
+					<label for="new-password">New Password</label>
+					<input name="new_password" type="password" id="new-password" class="form-control border-dark" />
+				</div>
+				<div class="mb-3">
+					<label for="confirm-new-password">Confirm New Password</label>
+					<input name="confirm_new_password" type="password" id="confirm-new-password" class="form-control border-dark" />
+				</div>
+				<button type="submit" class="btn btn-success w-100">Change Password</button>
+			</form>
+		</div>
+
+		<!-- Delete Account Section -->
+		<div class="card p-3">
+			<h3>Delete Account</h3>
+			<p class="text-danger">This action is irreversible.</p>
+			<button id="delete-account-button" class="btn btn-danger w-100">Delete Account</button>
 		</div>
 	</div>
 </page-element>

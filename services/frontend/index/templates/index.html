@@ -10,6 +10,8 @@
 			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
 			rel="stylesheet"
 		/>
+		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 		<link
 			rel="icon"
@@ -118,6 +120,114 @@
 		label {
 			color: white !important; /* Ensure label text is white */
 		}
+
+		/* Error Modal Styles */
+        .error-modal {
+			display: none;
+			position: fixed;
+			/* Center the modal by top-left offset of 50% and translate */
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+
+			/* This covers the entire screen, so clicking outside closes the modal */
+			width: 100%;
+			height: 100%;
+			z-index: 9999;
+
+			/* Darker overlay */
+			background-color: rgba(0, 0, 0, 0.7);
+		}
+
+		/* Centered, smaller box */
+		.error-modal-content {
+			position: relative;
+			margin: auto;
+			background-color: #000000c0; /* Semi-transparent dark background */
+			padding: 20px;
+			border-radius: 1.1rem;
+			width: 300px; /* You can adjust width as desired */
+			box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.65);
+			text-align: center;
+
+			/* Optional fade-in animation for a smoother appearance */
+			animation: fadeIn 0.3s ease-in-out;
+		}
+
+		.error-modal-header {
+			font-size: 18px;
+			font-weight: bold;
+			margin-bottom: 10px;
+			color: #ffffff; /* Ensure the title color is white */
+		}
+
+		#errorMessage {
+			color: #ffffff;
+			font-size: 14px;
+			margin-bottom: 15px;
+		}
+
+		#errorMessage ul {
+			padding-left: 20px; /* Add padding to the left for bullet points */
+		}
+
+		#errorMessage li {
+			list-style-type: disc; /* Use disc bullet points */
+		}
+
+		/* The OK button */
+		#errorOkBtn {
+			background-color: #7300a8; /* Purple that matches your page theme */
+			color: #fff;
+			border: none;
+			padding: 8px 16px;
+			border-radius: 0.5rem;
+			cursor: pointer;
+			font-size: 14px;
+			transition: background-color 0.2s ease;
+		}
+
+		#errorOkBtn:hover {
+			background-color: #8f28d0; /* Slightly lighter purple on hover */
+		}
+
+		/* Fade-in animation */
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translate(-50%, -55%);
+			}
+			to {
+				opacity: 1;
+				transform: translate(-50%, -50%);
+			}
+		}
+		
+		/* Center and resize QR code */
+		.qr-code-img {
+			width: 120px; /* Adjust size */
+			height: 120px;
+			display: block;
+			margin: 0 auto;
+		}
+
+		/* Improve setup key visibility */
+		.setup-key-box {
+			color: white !important;
+			font-weight: bold;
+			background: rgba(255, 255, 255, 0.15);
+			padding: 5px 10px;
+			border-radius: 5px;
+			display: inline-block;
+		}
+
+		/* Text alignment for labels */
+		p.text-white {
+			font-size: 1rem;
+			font-weight: bold;
+			margin-bottom: 5px;
+		}
+
 	</style>
 	<body>
 		<div id="easter-egg" hidden="true">
@@ -126,6 +236,13 @@
 				src="https://i.seadn.io/gae/gI7SnOY9Upv4skFj6CoLbszEQUOhRtazugsRkK3jJq9icQff4Q3ltjgHebMm93cvbGv7YG1VV75b4swZKuvKsA29x63Luy-MjGp1?auto=format&dpr=1&w=5"
 			/>
 		</div>
+		<div id="errorModal" class="error-modal">
+			<div class="error-modal-content">
+				<div class="error-modal-header">Error</div>
+				<p id="errorMessage"></p>
+				<button id="errorOkBtn">OK</button>
+			</div>
+		</div>		
 		<script model="" src="{% static 'js/customElement.js' %}"></script>
 		{% include 'home.html' %}
 		{% include 'register.html' %}
@@ -141,6 +258,7 @@
 		<script src="{% static 'js/engine.js' %}"></script>
 		<script src="{% static 'js/utils.js' %}"></script>
 		<script src="{% static 'js/logout.js' %}"></script>
+		<script src="{% static 'js/errorModal.js' %}"></script>
 	</body>
 </html>
 	

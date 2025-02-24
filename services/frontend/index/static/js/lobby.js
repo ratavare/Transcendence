@@ -9,7 +9,7 @@ async function joinLobby(lobby_id) {
 		);
 		seturl(`/pong?id=${lobby_id}`);
 	} catch (error) {
-		alert(error);
+		showErrorModal(error);
 	}
 }
 
