@@ -19,6 +19,7 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 		<script type="importmap">
 			{
 				"imports": {
@@ -31,6 +32,61 @@
 	<style>
 		.hidden {
 			display: none !important;
+		}
+		
+		.navbar-nav {
+			gap: 20px; /* Adjust spacing as needed */
+			display: flex;
+			width: 100%;
+			align-items: center;
+		}
+
+		.nav-item {
+			padding: 0 10px; /* Adjust spacing between items */
+		}
+
+		.message-icon {
+			margin-left: auto; /* Pushes only the message icon to the right */
+		}
+
+		.navbar-nav .nav-link {
+			font-family: inherit; /* Matches navbar title */
+			font-weight: 600;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+			transition: color 0.2s ease, transform 0.2s ease;
+			text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+			display: flex;
+    		align-items: center;
+		}
+
+		.navbar-nav .nav-link:hover {
+			color: #d1d1d1;
+			transform: scale(1.05);
+			display: flex;
+			align-items: center;
+		}
+
+		.nav-link i {
+			font-size: 1.5rem; /* Increase icon size */
+			transition: color 0.2s ease, transform 0.2s ease;
+		}
+
+		.nav-link i:hover {
+			color: #d1d1d1;
+			transform: scale(1.1);
+		}
+
+		/* Ensure the message icon is not moved when navbar collapses */
+		@media (max-width: 991px) { /* This can be adjusted based on your breakpoint for collapse */
+			.message-icon {
+				margin-left: 0; /* Remove right alignment when collapsed */
+				order: 999; /* Push the message icon to the end of the list */
+			}
+
+			.navbar-nav {
+				justify-content: center; /* Center the items when collapsed */
+			}
 		}
 
 		body {
@@ -134,6 +190,29 @@
 		}
 		.status-offline {
 			background-color: red;
+		}
+
+		h5 {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.card-body h5 {
+			margin-top: 10px;
+		}
+
+		.status-text {
+			margin-left: 8px;
+			padding: 2px 8px;
+			font-size: 0.75rem;
+			border-radius: 12px;
+			background-color: rgba(128, 128, 128, 0.5);
+			color: white;
+			text-transform: uppercase;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
 		}
 
 	</style>
