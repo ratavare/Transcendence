@@ -189,7 +189,10 @@ function renderFriends(friends) {
 			<div class="card hover-img">
 				<div class="card-body p-4 text-center border-bottom">
 					<img src="${imageURL}" class="profile-image" width="80" height="80">
-					<h5 class="fw-semibold mb-0" style="color: white">@${friend.username}</h5>
+					<h5 class="fw-semibold mb-0" style="color: white">
+                        @${friend.username}
+                        <span class="status-indicator status-offline" data-username="${friend.username}"></span>
+                    </h5>
 				</div>
 				<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
 					<button class="btn btn-outline-danger me-2 remove-friend" type="submit" data-dest="${friend.username}">Remove Friend</button>
