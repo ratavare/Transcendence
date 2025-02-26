@@ -6,8 +6,8 @@ from django.utils.timezone import now
 class Tournament(models.Model):
 	tournament_id = models.CharField(max_length=25, unique=True)
 	players = models.ManyToManyField(User, through="TournamentPlayer")
-	game1 = models.OneToOneField(Lobby, on_delete=models.CASCADE, related_name="g1", null=True, blank=True)
-	game2 = models.OneToOneField(Lobby, on_delete=models.CASCADE, related_name="g2", null=True, blank=True)
+	game1 = models.OneToOneField(Lobby, on_delete=models.SET_NULL, related_name="g1", null=True, blank=True)
+	game2 = models.OneToOneField(Lobby, on_delete=models.SET_NULL, related_name="g2", null=True, blank=True)
 
 	def delete(self, *args, **kwargs):
 		if self.game1:

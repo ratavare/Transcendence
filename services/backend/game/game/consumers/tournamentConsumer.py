@@ -18,7 +18,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		self.is_returning = False
 		self.user_id =  str(self.user.id)
 
-		if not self.user.is_authenticated or not await self.tournamentExistsDB(self.tournament_id):
+		t_exists = await self.tournamentExistsDB(self.tournament_id)
+		print(f"⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️\n{t_exists}\nTournament_id: {self.tournament_id}\n{self.user.is_authenticated}\n⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️\n", flush=True)
+		if not self.user.is_authenticated or not t_exists:
+			print(f"⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️\nCLOSE\n⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️", flush=True)
 			await self.close()
 			return
 
@@ -110,7 +113,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_discard(self.tournament_id, self.channel_name)
 
 	async def deleteTournamentTask(self, t_id, username):
-		await asyncio.sleep(2)
+		await asyncio.sleep(4)
 
 		async with self.tournaments_lock:
 			tournament = tournaments[t_id]
@@ -167,7 +170,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			user = User.objects.get(username=username)
 			TournamentPlayer.objects.filter(tournament=dbTournament, player=user).delete()
 		except Exception as e:
-			print(f"⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️{e}", flush=True)
+			print(f"⚠️{e}", flush=True)
 
 
 	async def receive(self, text_data):
@@ -217,6 +220,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			tournament = Tournament.objects.get(tournament_id=self.tournament_id)
 			tPlayer = TournamentPlayer.objects.get(tournament=tournament, player=user)
 		except Exception:
+			print()
 			return False
 		return tPlayer.is_returning
 
