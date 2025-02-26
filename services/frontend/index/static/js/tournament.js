@@ -1,24 +1,21 @@
 // ************************************* WEBSOCKET ************************************************
 
 PageElement.onLoad = async () => {
-	const tournament_id = window.props.get("id");
+	let tournament_id;
+	if (window.location.hash.includes("/tournament?id"))
+		tournament_id = window.props.get("id");
+	else
+		return;
 
-	let socket = null;
-	const token = localStorage.getItem("tournamentPlayerToken") || "";
-	if (socket) socket.close();
-
-	socket = new WebSocket(
+	let socket = new WebSocket(
 		`wss://localhost:8443/pong/t/${encodeURIComponent(
 			tournament_id
-		)}/?token=${token}`
+		)}/`
 	);
 	
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
 		switch (data.type) {
-			case "token":
-				localStorage.setItem("tournamentPlayerToken", data.payload);
-				break;
 			case "startGame":
 				inGame = true;
 				lobbyRedirect(data.payload);
@@ -43,16 +40,7 @@ PageElement.onLoad = async () => {
 
 	socket.onclose = (e) => {
 		console.log(`Socket closed unexpectedly: ${e.reason}`);
-		seturl("/home");
 	};
-
-	window.addEventListener("popstate", async () => {
-		const hash = window.location.hash;
-		if (hash.includes("tournament?id") || hash.includes("pong?id"))
-			return
-		if (socket) 
-			socket.close();
-	});
 
 	function sendPayload(type, payload) {
 		socket.send(
@@ -86,8 +74,8 @@ PageElement.onLoad = async () => {
 			const playerName = playerDiv.querySelector("span");
 			// const profileImg = playerDiv.querySelector('img');
 			try {
-				let playerData = Object.entries(players)[i][1];
-				playerName.textContent = playerData.username;
+				let username = Object.entries(players)[i][1];
+				playerName.textContent = username;
 			} catch {
 				playerName.textContent = "Player " + (i + 1);
 			}
@@ -146,8 +134,10 @@ PageElement.onLoad = async () => {
 	}
 
 	async function finalsInitDB(tournament) {
-		const winner1 = tournament.game1.winner.username;
-		const winner2 = tournament.game2.winner.username;
+		let winner1, winner2;
+		winner1 = tournament.game1.winner;
+		winner2 = tournament.game2.winner;
+		console.log(winner1);
 		const playerList = tournament.players;
 
 		putFinals(winner1, 2, playerList);
@@ -155,6 +145,8 @@ PageElement.onLoad = async () => {
 	}
 
 	async function updateBracketDB(tournament_id) {
+		if (!tournament_id)
+			return;
 		try {
 			const data = await myFetch(
 				`https://localhost:8443/tournament/getJoin/${tournament_id}/`,
@@ -164,7 +156,7 @@ PageElement.onLoad = async () => {
 			);
 			console.log("Players: ", data.tournament.players);
 			semiFinalsInitDB(data.tournament.players);
-			finalsInitDB(data.tournament)
+			finalsInitDB(data.tournament);
 		} catch (error) {
 			console.log("Error: ", error);
 		}
@@ -195,15 +187,11 @@ PageElement.onLoad = async () => {
 		const players = payload.players;
 		for (let i = 0; i < 4; i++) {
 			try {
-				let playerData = Object.entries(players)[i][1];
-				let playerUsername = playerData.username;
-				console.log(
-					`Checking ${playerUsername} against ${window.user.username}`
-				);
+				let playerUsername = Object.entries(players)[i][1];
 				if (window.user.username == playerUsername && (i == 0 || i == 1))
 					joinTouranamentLobby(payload.tournament_id, 1);
-				else if (window.user.username == playerUsername && (i == 2 || i == 3))
-					joinTouranamentLobby(payload.tournament_id, 2);
+				// else if (window.user.username == playerUsername && (i == 2 || i == 3))
+				// 	joinTouranamentLobby(payload.tournament_id, 2);
 			} catch {
 				console.log("e");
 			}
@@ -289,12 +277,18 @@ PageElement.onLoad = async () => {
 	updateBracketDB(tournament_id);
 	messageForm();
 
+	window.addEventListener("popstate", () => {
+		if (window.location.hash.includes("/tournament?id")) return;
+		if (socket) socket.close();
+	})
+
 	window.onbeforeunload = () => {
 		sendMessage("disconnect", `${window.user.username} before unload`);
 		if (socket) socket.close();
 	};
 
 	PageElement.onUnload = () => {
+		sendMessage("disconnect", `${window.user.username} unload`);
 
 		PageElement.onUnload = () => {};
 	};
