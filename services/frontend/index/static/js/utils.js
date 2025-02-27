@@ -91,9 +91,8 @@ async function myImageFetch(viewUrl, myData = null, method = 'POST', requireAuth
 async function getProfileImage(username) {
     try {
 		const response = await myImageFetch(`https://localhost:8443/user_profile/profile/picture/${username}/`, null, 'GET', true);
-        if (response.ok) {
+        if (response.status === 200) {
             const contentType = response.headers.get('Content-Type');
-            
             if (contentType && contentType.startsWith('image/')) {
                 const blob = await response.blob();
                 const imageUrl = URL.createObjectURL(blob);
@@ -103,7 +102,7 @@ async function getProfileImage(username) {
             }
         } else {
             const errorText = await response.text();
-            console.error("Error fetching profile image:", errorText);
+            console.log(`${username}: `, JSON.parse(errorText).error);
 			return '/static/assets/melhor_icone.png';
         }
     } catch (error) {
