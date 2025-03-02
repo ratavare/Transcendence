@@ -91,7 +91,7 @@ class Pong:
 		if self.player1Score == vars.POINTS_TO_WIN:
 			return self.player1Token
 		if self.player2Score == vars.POINTS_TO_WIN:
-			return self.player1Token
+			return self.player2Token
 		return 0
 
 	def move(self):

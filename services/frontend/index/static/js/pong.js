@@ -44,17 +44,17 @@ PageElement.onLoad = () => {
 	camera.position.set(0, 500, 0);
 	controls.update();
 
-	// Skybox
-	const loader = new THREE.CubeTextureLoader();
-	const skybox = loader.load([
-		"media/skybox/right.png", // Right
-		"media/skybox/left.png", // Left
-		"media/skybox/top.png", // Top
-		"media/skybox/bottom.png", // Bottom
-		"media/skybox/front.png", // Front
-		"media/skybox/back.png", // Back
-	]);
-	scene.background = skybox;
+	// // Skybox
+	// const loader = new THREE.CubeTextureLoader();
+	// const skybox = loader.load([
+	// 	"media/skybox/right.png", // Right
+	// 	"media/skybox/left.png", // Left
+	// 	"media/skybox/top.png", // Top
+	// 	"media/skybox/bottom.png", // Bottom
+	// 	"media/skybox/front.png", // Front
+	// 	"media/skybox/back.png", // Back
+	// ]);
+	// scene.background = skybox;
 
 	// Sphere
 	const ballLoader = new THREE.TextureLoader();

@@ -15,7 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 @permission_classes([IsAuthenticated])
 def createTournament(request):
 	if request.method == "POST":
-		validator = RegexValidator('[+/%!?,.$%#&*]', inverse_match=True)
+		validator = RegexValidator('[+/%!?,.$%#&*~-]', inverse_match=True)
 		try:
 			tournament_id = request.data.get('tournament_id')
 			validator(tournament_id)
@@ -74,15 +74,29 @@ def joinTournament(request, tournament_id):
 # 	except Exception as e:
 # 		return JsonResponse({'error': str(e)}, status=400)
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def getReadyState(request, tournament_id):
+# 	try:
+# 		user = request.user
+# 		tournament = Tournament.objects.get(tournament_id=tournament_id)
+# 		user = User.objects.get(username=user.username)
+# 		player = TournamentPlayer.objects.get(tournament=tournament, player=user)
+# 		return JsonResponse({'state': player.is_ready}, status=200)
+# 	except Tournament.DoesNotExist:
+# 		return JsonResponse({'error': 'Tournament does not exist'}, status=400)
+# 	except User.DoesNotExist:
+# 		return JsonResponse({'error': 'User does not exist'}, status=400)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getTournaments(request):
-	if request.method == "GET":
-		tournaments = Tournament.objects.all()
-		if not tournaments:
-			return JsonResponse({'error': 'No lobbies found'}, status=404)
-		all_tournaments = [{'tournament_id': tournament.tournament_id} for tournament in tournaments]
-		return JsonResponse({'tournaments': all_tournaments}, status=200)
+	tournaments = Tournament.objects.all()
+	if not tournaments:
+		return JsonResponse({'error': 'No lobbies found'}, status=404)
+	all_tournaments = [{'tournament_id': tournament.tournament_id} for tournament in tournaments]
+	return JsonResponse({'tournaments': all_tournaments}, status=200)
 	
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

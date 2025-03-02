@@ -19,15 +19,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		self.user_id =  str(self.user.id)
 
 		t_exists = await self.tournamentExistsDB(self.tournament_id)
-		print(f"⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️\n{t_exists}\nTournament_id: {self.tournament_id}\n{self.user.is_authenticated}\n⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️\n", flush=True)
 		if not self.user.is_authenticated or not t_exists:
-			print(f"⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️\nCLOSE\n⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️", flush=True)
 			await self.close()
 			return
 
 		async with self.tournaments_lock:
 			if self.tournament_id not in tournaments:
-				tournaments[self.tournament_id] = {"players": {}, "spectators": {}, "pong_players": {}}
+				tournaments[self.tournament_id] = {"players": {}, "spectators": {}, "pong_players": {}, "ready_players": {}}
 
 		async with self.delete_timers_lock:
 			if self.user_id in deleteTimers:
@@ -40,30 +38,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		async with self.tournaments_lock:
 			tournament = tournaments[self.tournament_id]
 
-		self.is_returning = await self.checkReturningDB()
+		self.is_returning = await self.is_returningDB()
+		self.is_ready = await self.is_readyDB()
 		await self.playerSetup()
-	
-		await self.groupSend("message", {
-			"sender": "returning",
-			"content": f"{self.is_returning}",
-		})
 
-		try:
-			async with self.tournaments_lock:
-				if list(tournament["players"]).index(self.user_id) == 0:
-					await self.sendMessage("startBtnInit", "startBtnInit")
-		except Exception as e:
-			print("ERROR: ", e, flush=True)
+		await self.sendMessage("readyBtnInit", f"{self.is_ready}")
 
-		async with self.tournaments_lock:
-			await self.groupSend("updateBracketWS", {
-				"players": tournament["players"],
-				"spectators": tournament["spectators"]
-			})
-
-		if self.is_returning:
-			self.is_returning = False
-			await self.returningUpdateStatus(self.username, self.tournament_id, False)
+		self.is_returning = False
+		await self.setReturningState(self.username, self.tournament_id, False)
 
 	async def playerSetup(self):
 		async with self.tournaments_lock:
@@ -91,8 +73,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		})
 
 	async def disconnect(self, close_code):
-
-		print(f"❌❌❌❌❌❌❌❌❌❌\n❌❌❌❌❌❌❌❌❌❌\n", flush=True)
 		await self.groupSend("message", {
 			"sender": "disconnect",
 			"content": f"{self.username} is diconnecting..." ,
@@ -120,12 +100,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			if not tournament:
 				return
 			
-			self.is_returning = await self.checkReturningDB()
-			await self.groupSend("message", {
-				"sender": "disconnect",
-				"content": f"{username} deleteTournamentTask | return: {self.is_returning}" ,
-			})
-			print(f"❌❌❌❌❌❌❌❌❌❌\n{not tournament['players']}\n{self.is_returning}\n{not tournament['pong_players']}\n{not tournament['players'] and not tournament['pong_players']}\n❌❌❌❌❌❌❌❌❌❌\n", flush=True)
+			self.is_returning = await self.is_returningDB()
 			if not tournament["players"] and not tournament["pong_players"] and not self.is_returning:
 				del tournaments[t_id]
 				await self.deleteTournamentDB(t_id)
@@ -181,15 +156,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			send_type = data.get("type")
 			payload = data.get("payload")
 
-			if (send_type == "startGames"):
-				if len(tournament['players']) < 4:
+			if (send_type == "ready"):
+				if self.user_id in tournament["players"] and self.user_id not in tournament["ready_players"]:
+					tournament["ready_players"][self.user_id] = self.username
+					await self.setReadyState(self.username, t_id, True)
 					await self.groupSend("message", {
-						"sender": "disconnect",
-						"content": "Tournament not full yet! Waiting for players...",
-					})
-					return
-
-				await self.gameStart(t_id)
+						"sender": "connect",
+						"content": f"{self.username} is ready!" 
+		 			})
+				if len(tournament['ready_players']) == 4:
+					await self.countdown()
+					await self.gameStart(t_id)
 				return
 
 			await self.groupSend(send_type, payload)
@@ -214,15 +191,25 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		await self.send(text_data=json.dumps({"type": send_type, "payload": payload}))
 
 	@database_sync_to_async
-	def checkReturningDB(self):
+	def is_returningDB(self):
 		try:
 			user = User.objects.get(username=self.username)
 			tournament = Tournament.objects.get(tournament_id=self.tournament_id)
 			tPlayer = TournamentPlayer.objects.get(tournament=tournament, player=user)
 		except Exception:
-			print()
 			return False
 		return tPlayer.is_returning
+	
+	@database_sync_to_async
+	def is_readyDB(self):
+		try:
+			user = User.objects.get(username=self.username)
+			tournament = Tournament.objects.get(tournament_id=self.tournament_id)
+			tPlayer = TournamentPlayer.objects.get(tournament=tournament, player=user)
+		except Exception:
+			return False
+		print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", flush=True)
+		return tPlayer.is_ready
 
 	async def gameStart(self, t_id):
 		tournament = tournaments[t_id]
@@ -232,18 +219,25 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		for player in tournament["players"]:
 			username = tournament["players"][player]
 			tournament["pong_players"][player] = username
-			await self.returningUpdateStatus(username, t_id, True)
+			await self.setReturningState(username, t_id, True)
 		await self.groupSend("startGame", {
 			"players": tournament["players"],
 			"tournament_id": t_id
 		})
 
 	@database_sync_to_async
-	def returningUpdateStatus(self, username, t_id, status):
+	def setReturningState(self, username, t_id, status):
 		t = Tournament.objects.get(tournament_id=t_id)
 		p = User.objects.get(username=username)
 		tPlayer = TournamentPlayer.objects.filter(tournament=t, player=p)
 		tPlayer.update(is_returning=status)
+
+	@database_sync_to_async
+	def setReadyState(self, username, t_id, status):
+		t = Tournament.objects.get(tournament_id=t_id)
+		p = User.objects.get(username=username)
+		tPlayer = TournamentPlayer.objects.filter(tournament=t, player=p)
+		tPlayer.update(is_ready=status)
 
 	@database_sync_to_async
 	def tournamentExistsDB(self, t_id):
@@ -252,3 +246,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		except Tournament.DoesNotExist:
 			return False
 		return True
+
+	async def countdown(self):
+		await self.groupSend("message", {
+				"sender": "connect",
+				"content": "Game will start in..."
+			})
+		for i in range(3, 0, -1):
+			await self.groupSend("message", {
+				"sender": "connect",
+				"content": f"{i}..."
+			})
+			await asyncio.sleep(1)
