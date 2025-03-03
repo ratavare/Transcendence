@@ -309,3 +309,4 @@ async function loadFriendsPage() {
 }
 
 loadFriendsPage();
+console.log(JSON.parse(sessionStorage.getItem("onlineUsers")) || 'Undefined')
