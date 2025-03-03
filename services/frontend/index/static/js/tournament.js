@@ -76,7 +76,6 @@ PageElement.onLoad = async () => {
 			if (!playerDiv)
 				continue;
 			const playerName = playerDiv.querySelector("span");
-			console.log("Bracket update");
 			try {
 				let username = Object.entries(players)[i][1];
 				playerName.textContent = username;
@@ -92,6 +91,7 @@ PageElement.onLoad = async () => {
 
 	async function updateBracketWS(payload) {
 		const players = payload.players;
+		console.log("WS players: ", players);
 		semiFinalsInitWS(players);
 	}
 
@@ -205,8 +205,8 @@ PageElement.onLoad = async () => {
 				"GET",
 				true
 			);
-			console.log("Players: ", data.tournament.players);
-			console.log("Spectators: ", data.tournament.spectators);
+			console.log("DB Players: ", data.tournament.players);
+			// console.log("DB Spectators: ", data.tournament.spectators);
 
 			if (data.tournament.game1.winner != null || data.tournament.game2.winner != null)
 				finalsInitDB(data.tournament);

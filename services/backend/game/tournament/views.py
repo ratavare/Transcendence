@@ -54,6 +54,8 @@ def joinTournament(request, tournament_id):
 		username = data.get('username')
 		user = User.objects.get(username=username)
 		selectedTournament = Tournament.objects.get(tournament_id=tournament_id)
+		if selectedTournament.players.filter(username=username).exists():
+			return JsonResponse({'status': 'User already exists'}, status=200)
 		TournamentPlayer.objects.create(tournament=selectedTournament, player=user, joined_at=now())
 		selectedTournament.save()
 		return JsonResponse({'status': 'success'}, status=200)
@@ -107,7 +109,6 @@ def joinTournamentLobby(request):
 		data = json.loads(request.body)
 		username = data.get('username')
 		lobby_id = data.get('lobby_id')
-		print("❌USERNAME: ", username, " | ", "❌L_ID: ", lobby_id, flush=True)
 		user = User.objects.get(username=username)
 
 		selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
