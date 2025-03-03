@@ -111,7 +111,6 @@ async function getProfileImage(username) {
 }
 
 async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = true) {
-	// console.log("myFetch: ", viewUrl);
 	const headers = {
 		"X-CSRFToken": getCookie("csrftoken"),
 		Accept: "application/json",
