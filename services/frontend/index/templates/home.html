@@ -223,6 +223,7 @@
 					<h4>Insert a lobby name:</h4>
 					<div class="container mt-5">
 						<form method="POST" id="create-lobby-form">
+							{% csrf_token %}
 							<input
 								placeholder="Create a lobby.."
 								name="lobby_id"
