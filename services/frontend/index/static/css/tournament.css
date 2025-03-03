@@ -93,8 +93,9 @@
 	position: absolute;
 	top: 0;
 	right: 50%;
-	border-top: 2px solid;
-	border-color: var(--li-before-after, white);
+	border-top: solid;
+	border-width: var(--li-before-after-bw, 2px);
+	border-color: var(--li-before-after-bc, white);
 	width: 50%;
 	height: 40px;
 }
@@ -102,8 +103,9 @@
 .bracket li::after {
 	right: auto;
 	left: 50%;
-	border-left: 2px solid;
-	border-color: var(--li-after, white);
+	border-left: solid;
+	border-width: var(--li-after-bw, 2px);
+	border-color: var(--li-after-bc, white);
 }
 
 .bracket li:only-child::after,
@@ -121,8 +123,9 @@
 }
 
 .bracket li:last-child::before {
-	border-right: 2px solid;
-	border-color: var(--li-last, white);
+	border-right: solid;
+	border-width: var(--li-last-bw, 2px);
+	border-color: var(--li-last-bc, white);
 	border-radius: 0 5px 0 0;
 }
 .bracket li:first-child::after {
@@ -134,8 +137,9 @@
 	position: absolute;
 	top: 0;
 	left: 50%;
-	border-left: 2px solid;
-	border-color: var(--ul-after, white);
+	border-left: solid;
+	border-width: var(--ul-after-bw, 2px);
+	border-color: var(--ul-after-bc, white);
 	width: 0;
 	height: 40px;
 }
@@ -146,10 +150,14 @@
 	padding-right: 5px;
 }
 
-#TournamentReadyBtn {
+#TournamentReadyBtn, .spectateBtn {
 	text-align: center;
 	font-size: 1.5rem;
 	border-radius: 25px;
 	padding-right: 20px;
 	padding-left: 20px;
+}
+
+.spectateBtn {
+	position: absolute;
 }

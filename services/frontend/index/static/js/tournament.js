@@ -16,9 +16,11 @@ PageElement.onLoad = async () => {
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
 		switch (data.type) {
-			case "startGame":
-				inGame = true;
-				lobbyRedirect(data.payload);
+			case "startSemifinals":
+				semifinalsRedirect(data.payload);
+				break;
+			case "startFinals":
+				finalsRedirect(data.payload);
 				break;
 			case "readyBtnInit":
 				readyBtnInit(data.payload);
@@ -130,13 +132,16 @@ PageElement.onLoad = async () => {
 				// Change bracket lines' color
 				finalsDiv.classList.add("tournament-p" + (parseInt(i) + 1));
 				const pFinalName = finalsDiv.querySelector("span");
-				pLi.style.setProperty(playerLiProperty, pColor);
-				semifinalsUl.style.setProperty("--ul-after", pColor);
+				pLi.style.setProperty(playerLiProperty + "-bc", pColor);
+				pLi.style.setProperty(playerLiProperty + "-bw", "5px");
+				semifinalsUl.style.setProperty("--ul-after-bc", pColor);
+				semifinalsUl.style.setProperty("--ul-after-bw", "5px");
 				pDiv.style.background = pColor
 				pDiv.classList.remove("tournament-p" + (parseInt(i) + 1));
 	
 				//Add name
 				pFinalName.textContent = playerList[i].username;
+				pDiv.textContent = playerList[i].username;
 			} else {
 				pName.textContent = playerList[i].username;
 				pDiv.classList.remove("tournament-p" + (parseInt(i) + 1));
@@ -145,7 +150,7 @@ PageElement.onLoad = async () => {
 					`${0.25})`
 				);
 			}
-			console.log(pName);
+			
 		}
 	}
 
@@ -168,6 +173,28 @@ PageElement.onLoad = async () => {
 		putFinals(winner2, 4, playerList);
 	}
 
+	// function buttonsInit(tournament)
+	// {
+	// 	const playerList = tournament.players;
+	// 	const spectatorList = tournament.spectators;
+
+	// 	for (let key in spectatorList)
+	// 	{
+	// 		if (window.user.username == playerList[key].username) {
+	// 			const finalsSpectateBtn = document.getElementById("final-spcetateBtn");
+	// 			finalsSpectateBtn.style.display = "block";
+	// 		}
+	// 	}
+	// 	for (let key in playerList)
+	// 	{
+	// 		if (window.user.username == playerList[key].username)
+	// 		{
+	// 			const semifinalsSpectateBtn = document.getElementById("semi-spectateBtn-" + parseInt((key / 2) + 1));
+	// 			semifinalsSpectateBtn.style.display = "none";
+	// 		}
+	// 	}
+	// }
+
 	async function updateBracketDB(tournament_id) {
 		if (!tournament_id)
 			return;
@@ -179,9 +206,15 @@ PageElement.onLoad = async () => {
 				true
 			);
 			console.log("Players: ", data.tournament.players);
-			// if (data.tournament.game1.winner == null || data.tournament.game2.winner == null)
-			semiFinalsInitDB(data.tournament.players);
-			finalsInitDB(data.tournament);
+			console.log("Spectators: ", data.tournament.spectators);
+
+			if (data.tournament.game1.winner != null || data.tournament.game2.winner != null)
+				finalsInitDB(data.tournament);
+			else if (data.tournament.game3.winner != null) putWinner();
+			else semiFinalsInitDB(data.tournament.players);
+
+
+			// buttonsInit(data.tournament);
 		} catch (error) {
 			console.log("Error: ", error);
 		}
@@ -208,7 +241,11 @@ PageElement.onLoad = async () => {
 		}
 	}
 
-	async function lobbyRedirect(payload) {
+	async function finalsRedirect(payload) {
+		
+	}
+
+	async function semifinalsRedirect(payload) {
 		const players = payload.players;
 		for (let i = 0; i < 4; i++) {
 			try {
@@ -307,7 +344,6 @@ PageElement.onLoad = async () => {
 	})
 
 	window.onbeforeunload = () => {
-		sendMessage("disconnect", `${window.user.username} before unload`);
 		if (socket) socket.close();
 	};
 
