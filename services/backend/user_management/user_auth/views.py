@@ -78,9 +78,9 @@ def verify_otp(request):
 	logging.debug(f"Verifying OTP: {otp} for user: {user.username} with otp_secret: {otp_secret} and profile: {profile}")
 	if profile and otp_secret:
 		totp = pyotp.TOTP(otp_secret)
-		profile.otp_secret = otp_secret
-		profile.save()
 		if totp.verify(otp):
+			profile.otp_secret = otp_secret
+			profile.save()
 			return JsonResponse({'status': 'success'}, status=200)
 	return JsonResponse({'status': 'error', 'error': 'Invalid OTP'}, status=400)
 

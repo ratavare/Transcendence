@@ -123,6 +123,7 @@ document
 				alert("Invalid OTP code.");
 			}
 		} catch (error) {
+			alert("Invalid OTP code.")
 			console.error("Error verifying OTP:", error);
 		}
 	});
