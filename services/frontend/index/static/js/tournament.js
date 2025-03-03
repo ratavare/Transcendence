@@ -19,7 +19,7 @@ PageElement.onLoad = async () => {
 			case "startSemifinals":
 				semifinalsRedirect(data.payload);
 				break;
-			case "startFinals":
+			case "startFinal":
 				finalsRedirect(data.payload);
 				break;
 			case "readyBtnInit":
@@ -57,14 +57,22 @@ PageElement.onLoad = async () => {
 
 	async function readyBtnInit(payload)
 	{
+		console.log("Payload: ", payload.is_ready);
 		const readyBtn = document.getElementById("TournamentReadyBtn");
-		if (payload == "False") readyBtn.style.display = "block";
+		if (payload.is_ready == false) readyBtn.style.display = "block"
 		else readyBtn.style.display = "none";
 
 		readyBtn.addEventListener("click", () => {
 			readyBtn.style.display = "none";
-			sendPayload("ready", { ready: true });
+			sendPayload("ready", { stage: payload.stage });
 		})
+	}
+
+	function getPlayerColor(index)
+	{
+		const pClass = document.querySelector(".tournament-p" + parseInt(index));
+		const pStyle = getComputedStyle(pClass);
+		return (pStyle.getPropertyValue('--border-color').trim());
 	}
 
 	async function semiFinalsInitWS(players)
@@ -115,13 +123,10 @@ PageElement.onLoad = async () => {
 			const semifinalsUl = document.getElementById("ul-semi" + (index / 2));
 			const pLi = document.getElementById("li-p" + (parseInt(i) + 1))
 			
-			const pClass = document.querySelector(".tournament-p" + (parseInt(i) + 1));
 			const pDiv = document.getElementById("div-p" + (parseInt(i) + 1));
 			const pName = pDiv.querySelector("span");
 		
-			const pStyle = getComputedStyle(pClass);
-			const pColor = pStyle.getPropertyValue('--border-color').trim();
-			// console.log("pColor: ", pColor);
+			const pColor = getPlayerColor(parseInt(i) + 1);
 
 			let playerLiProperty;
 			if (i % 2 == 0) playerLiProperty = "--li-after";
@@ -206,7 +211,7 @@ PageElement.onLoad = async () => {
 				true
 			);
 			console.log("DB Players: ", data.tournament.players);
-			// console.log("DB Spectators: ", data.tournament.spectators);
+			console.log("DB Spectators: ", data.tournament.spectators);
 
 			if (data.tournament.game1.winner != null || data.tournament.game2.winner != null)
 				finalsInitDB(data.tournament);
@@ -242,7 +247,8 @@ PageElement.onLoad = async () => {
 	}
 
 	async function finalsRedirect(payload) {
-		
+		void payload;
+		console.log("START FINAL GAME");
 	}
 
 	async function semifinalsRedirect(payload) {
@@ -263,7 +269,6 @@ PageElement.onLoad = async () => {
 	// **************************************** CHAT **************************************************
 
 	function receiveChatMessage(payload) {
-		let color = "white";
 		const messageList = document.getElementById(
 			"chat-message-list-tournament"
 		);
@@ -275,17 +280,20 @@ PageElement.onLoad = async () => {
 		if (!messageList || !messageListItem || !chatContentElement)
 			return;
 
-		if (payload.sender == "connect") color = "limegreen";
-		if (payload.sender == "disconnect") color = "red";
-		if (payload.sender == "spectator") color = "grey";
-			messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
-		if (payload.sender == window.user.username) {
-			color = "orangered";
-			messageListItem.innerHTML = `
-			<b style="color: ${color}">${payload.sender}: </b>
-			<span>${payload.content}</span>
-			`;
-		}
+		const colorMap = {
+			[window.user.username]: "orangered",
+			"connect": "limegreen",
+			"disconnect": "red",
+			"spectator": "grey"
+		};
+		
+		let color = colorMap[payload.sender] || "white";
+
+		if (payload.sender === window.user.username || color == "white")
+			messageListItem.innerHTML = `<b style="color: ${color}">${payload.sender}: </b><span>${payload.content}</span>`
+		else
+			messageListItem.innerHTML =  `<i style="color: ${color}">${payload.content}</i>`;
+
 		if (messageListItem) messageList.appendChild(messageListItem);
 		if (chatContentElement) {
 			chatContentElement.scrollTop = chatContentElement.scrollHeight;
