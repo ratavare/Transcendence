@@ -12,6 +12,8 @@ async function logoutFunc() {
 			localStorage.removeItem("is_2fa_enabled");
 			localStorage.removeItem("otp_secret");
 			// alert('Successfully Logged Out');
+			console.log(window.statusSocket);
+			window.statusSocket?.close();
 			seturl("/login");
 		} catch (error) {
 			console.log(error);

@@ -76,6 +76,7 @@ document.getElementById("form-login").addEventListener("submit", async function 
 		);
 		console.log("Login successful ", data);
 		processLogin(data.access, data.refresh, data.is_2fa_enabled, data.otp_secret, data.username);
+		onlineStatus();
 	} catch (error) {
 		console.log("login.js: ", error);
 		const messages = Object.values(error);

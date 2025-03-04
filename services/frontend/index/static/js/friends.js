@@ -11,7 +11,10 @@ async function addAcceptedFriendToFriendsList(dest) {
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
 				<img src="${imageURL}" class="profile-image" width="80" height="80">
-				<h5 class="fw-semibold mb-0" style="color: white">@${dest}</h5>
+				<h5 class="fw-semibold mb-0" style="color: white">
+				@${dest}
+				<span class="status-text" data-username="${dest}">Offline</span>
+				</h5>
 			</div>
 			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
 				<button class="btn btn-outline-danger me-2 remove-friend" type="submit" data-dest="${dest}">Remove Friend</button>
@@ -28,6 +31,13 @@ async function addAcceptedFriendToFriendsList(dest) {
 	);
 	friendsList.appendChild(card);
 	increaseCounter(document.getElementById("friends-count"));
+	const sessionFriends = JSON.parse(sessionStorage.getItem("onlineUsers"));
+	if (dest in sessionFriends) {
+		const indicator = card.querySelector('.status-text');
+		indicator.classList.remove('status-offline');
+		indicator.classList.add('status-online');
+		indicator.innerHTML = 'ONLINE';
+	}
 }
 
 async function addPossibleFriendToSentFriendRequests(dest) {
@@ -208,6 +218,12 @@ function renderFriends(friends) {
 			deleteFriend,
 			friendsCount
 		);
+		// const sessionFriends = JSON.parse(sessionStorage.getItem("onlineUsers")) || {};
+		// if (friend.username in sessionFriends) {
+		// 	const indicator = card.querySelector('.status-text');
+		// 	indicator.classList.add('status-online');
+		// 	indicator.innerHTML = 'ONLINE';
+		// }
 	});
 	results.appendChild(membersContainer);
 }
@@ -309,4 +325,3 @@ async function loadFriendsPage() {
 }
 
 loadFriendsPage();
-console.log(JSON.parse(sessionStorage.getItem("onlineUsers")) || 'Undefined')
