@@ -9,6 +9,7 @@ PageElement.onLoad = () => {
 	const SHAKE_INTENSITY = 10;
 	const SHAKE_DURATION = 10;
 	const PADDLE_COLOR = 0x008000;
+	const PADDLE_COLOR2 = 0x0000ff;
 	const TABLE_COLOR = 0x800080;
 	const PLANE_COLOR = 0x000000;
 	const CUBE_COLOR = 0x00ff00;
@@ -26,6 +27,7 @@ PageElement.onLoad = () => {
 	let paddle2Speed = 0;
 	let gamePaused = false;
 	let beginGame = false;
+
 
 	// get Overlay
 
@@ -96,24 +98,8 @@ PageElement.onLoad = () => {
 	// Paddles and Table
 	const table1 = makeWall(-1300, -50, 500, 2500, 100, 100);
 	const table2 = makeWall(-1300, -50, -600, 2500, 100, 100);
-	const paddle1 = makeParalellepiped(
-		-810,
-		-15,
-		-50,
-		10,
-		30,
-		100,
-		PADDLE_COLOR
-	);
-	const paddle2 = makeParalellepiped(
-		800,
-		-15,
-		-50,
-		10,
-		30,
-		100,
-		PADDLE_COLOR
-	);
+	const paddle1 = makePaddle(-810, -15, -50, 10, 30, 100, PADDLE_COLOR);
+	const paddle2 = makePaddle(800, -15, -50, 10, 30, 100, PADDLE_COLOR2);
 
 	scene.add(table1);
 	scene.add(table2);
@@ -133,28 +119,62 @@ PageElement.onLoad = () => {
 		return box;
 	}
 
-	function makeWall(x, y, z, dx, dy, dz) {
+	function makePaddle(x, y, z, dx, dy, dz, color)
+	{
 		const textureLoader = new THREE.TextureLoader();
 
-		const colorMap = textureLoader.load("media/walls/colorMap.png");
-		const normalMap = textureLoader.load("media/walls/normalMap.png");
-		const aoMap = textureLoader.load("media/walls/aoMap.png");
-		const metallicMap = textureLoader.load("media/walls/metallicMap.png");
-		const roughnessMap = textureLoader.load("media/walls/roughnessMap.png");
-		const heightMap = textureLoader.load("media/walls/heightMap.png");
+		const colorMap = textureLoader.load('static/images/paddles/red-scifi-metal_albedo.png');
+		const normalMap = textureLoader.load('static/images/paddles/red-scifi-metal_normal-ogl.png');
+		const aoMap = textureLoader.load('static/images/paddles/red-scifi-metal_ao.png');
+		const metallicMap = textureLoader.load('static/images/paddles/red-scifi-metal_metallic.png');
+		const roughnessMap = textureLoader.load('static/images/paddles/red-scifi-metal_roughness.png');
+		const heightMap = textureLoader.load('static/images/paddles/red-scifi-metal_height.png');
+
+		const scaleX = dx / 50;
+		const scaleZ = dz / 50;
+
+		const textures = [colorMap, normalMap, aoMap, metallicMap, roughnessMap, heightMap];
+		textures.forEach(texture => {
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			// texture.repeat.set(scaleX, scaleZ);
+		});
+
+		const material = new THREE.MeshStandardMaterial({
+			color: color,
+			map: colorMap,
+			normalMap: normalMap,
+			aoMap: aoMap,
+			metalnessMap: metallicMap,
+			roughnessMap: roughnessMap,
+			displacementMap: heightMap,
+			displacementScale: 0.1
+		});
+		material.aoMapIntensity = 1.0;
+		material.displacementBias = 0;
+
+		const box = new THREE.BoxGeometry(dx, dy, dz);
+		const mesh = new THREE.Mesh(box, material);
+		mesh.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
+		return (mesh)
+	}
+
+	function makeWall(x, y, z, dx, dy, dz)
+	{
+		const textureLoader = new THREE.TextureLoader();
+
+		const colorMap = textureLoader.load('media/walls/colorMap.png');
+		const normalMap = textureLoader.load('media/walls/normalMap.png');
+		const aoMap = textureLoader.load('media/walls/aoMap.png');
+		const metallicMap = textureLoader.load('media/walls/metallicMap.png');
+		const roughnessMap = textureLoader.load('media/walls/roughnessMap.png');
+		const heightMap = textureLoader.load('media/walls/heightMap.png');
 
 		const scaleX = dx / 100;
 		const scaleZ = dz / 100;
 
-		const textures = [
-			colorMap,
-			normalMap,
-			aoMap,
-			metallicMap,
-			roughnessMap,
-			heightMap,
-		];
-		textures.forEach((texture) => {
+		const textures = [colorMap, normalMap, aoMap, metallicMap, roughnessMap, heightMap];
+		textures.forEach(texture => {
 			texture.wrapS = THREE.RepeatWrapping;
 			texture.wrapT = THREE.RepeatWrapping;
 			texture.repeat.set(scaleX, scaleZ);
@@ -168,7 +188,7 @@ PageElement.onLoad = () => {
 			metalnessMap: metallicMap,
 			roughnessMap: roughnessMap,
 			displacementMap: heightMap,
-			displacementScale: 0.1,
+			displacementScale: 0.1
 		});
 		material.aoMapIntensity = 1.0;
 		material.displacementBias = 0;
@@ -176,39 +196,43 @@ PageElement.onLoad = () => {
 		const box = new THREE.BoxGeometry(dx, dy, dz);
 		const mesh = new THREE.Mesh(box, material);
 		mesh.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
-		return mesh;
+		return (mesh)
 	}
 
-	function handlePaddleControls() {
-		document.addEventListener("keydown", (event) => {
-			switch (event.key) {
-				case "w":
-					beginGame = true;
-					paddle1Speed = -PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
-				case "s":
-					beginGame = true;
-					paddle1Speed = PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
-				case "ArrowUp":
-					beginGame = true;
-					paddle2Speed = -PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
-				case "ArrowDown":
-					beginGame = true;
-					paddle2Speed = PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
-				case "p":
-					gamePaused = !gamePaused;
-					break;
-			}
-		});
+	let keydownHandler, keyupHandler;
 
-		document.addEventListener("keyup", (event) => {
+	function handlePaddleControls() 
+	{
+		keydownHandler = (event) => {
+			switch (event.key) 
+			{
+			case 'w':
+				beginGame = true;
+				paddle1Speed = -PADDLE_SPEED;
+				overlayContainer.style.display = 'none';
+				break;
+			case 's':
+				beginGame = true;
+				paddle1Speed = PADDLE_SPEED;
+				overlayContainer.style.display = 'none';
+				break;
+			case 'ArrowUp':
+				beginGame = true;
+				paddle2Speed = -PADDLE_SPEED;
+				overlayContainer.style.display = 'none';
+				break;
+			case 'ArrowDown':
+				beginGame = true;
+				paddle2Speed = PADDLE_SPEED;
+				overlayContainer.style.display = 'none';
+				break;
+			case 'p':
+				gamePaused = !gamePaused;
+				break;
+			}
+		};
+
+		keyupHandler = (event) => {
 			switch (event.key) {
 				case "w":
 				case "s":
@@ -219,7 +243,10 @@ PageElement.onLoad = () => {
 					paddle2Speed = 0;
 					break;
 			}
-		});
+		};
+
+		document.addEventListener("keydown", keydownHandler);
+		document.addEventListener("keyup", keyupHandler);
 	}
 
 	function movePaddles() {
@@ -257,6 +284,7 @@ PageElement.onLoad = () => {
 			cubeBoundingBox.intersectsBox(table2BoundingBox)
 		) {
 			cubeSpeedz *= -1;
+			cube.position.z += cubeSpeedz * 2;
 		}
 
 		if (cubeBoundingBox.intersectsBox(paddle1BoundingBox)) {
@@ -264,6 +292,7 @@ PageElement.onLoad = () => {
 			shakeDuration = SHAKE_DURATION;
 			increaseSpeed();
 			adjustCubeDirection(paddle1);
+			cube.position.x += cubeSpeedx * 2;
 		}
 
 		if (cubeBoundingBox.intersectsBox(paddle2BoundingBox)) {
@@ -271,6 +300,7 @@ PageElement.onLoad = () => {
 			shakeDuration = SHAKE_DURATION;
 			increaseSpeed();
 			adjustCubeDirection(paddle2);
+			cube.position.x += cubeSpeedx * 2;
 		}
 
 		if (paddle1BoundingBox.intersectsBox(table1BoundingBox)) {
@@ -337,112 +367,6 @@ PageElement.onLoad = () => {
 		cubeBoundingBox.setFromObject(cube);
 	}
 
-	let sphereData = [];
-
-	let startTime = Date.now();
-
-	function saveSphereData() {
-		let time = 0;
-		let position = { x: cube.position.x, z: cube.position.z };
-		let speed = { x: cubeSpeedx, z: cubeSpeedz };
-		time = Date.now() - startTime;
-
-		if (sphereData.length == 0) {
-			sphereData.push({ time: time, position: position, speed: speed });
-		} else {
-			sphereData[0] = { time: time, position: position, speed: speed };
-		}
-		console.log(
-			"Time: " +
-				time +
-				" Position: " +
-				position.x +
-				", " +
-				position.z +
-				" Speed: " +
-				speed.x +
-				", " +
-				speed.z
-		);
-	}
-
-	saveSphereData();
-	setInterval(saveSphereData, 1000);
-
-	function calculateTrajectory() {
-		let data = sphereData[0];
-
-		let finalAngle = Math.atan2(data.speed["z"], data.speed["x"]);
-		finalAngle = finalAngle * (180 / Math.PI);
-
-		let distance = 0;
-		let finalPosition = { x: 0, z: 0 };
-
-		if (data.speed["x"] > 0) {
-			distance = 800 - data.position["x"];
-			finalPosition["x"] = 800;
-		} else if (data.speed["x"] < 0) {
-			distance = -800 - data.position["x"];
-			finalPosition["x"] = -800;
-		}
-
-		// Calculate the distance along the z axis using trigonometric functions
-		let angleRadians = Math.atan2(data.speed["z"], data.speed["x"]);
-		let zDistance = distance * Math.tan(angleRadians);
-		finalPosition["z"] = data.position["z"] + zDistance;
-
-		// Handle wall bounces
-		const topWallZ = -500;
-		const bottomWallZ = 500;
-
-		while (
-			finalPosition["z"] < topWallZ ||
-			finalPosition["z"] > bottomWallZ
-		) {
-			if (finalPosition["z"] < topWallZ) {
-				finalPosition["z"] = topWallZ + (topWallZ - finalPosition["z"]);
-			} else if (finalPosition["z"] > bottomWallZ) {
-				finalPosition["z"] =
-					bottomWallZ - (finalPosition["z"] - bottomWallZ);
-			}
-		}
-
-		return finalPosition;
-	}
-
-	function paddle1AI(paddle) {
-		const topWallZ = -449;
-		const bottomWallZ = 449;
-
-		// Calculate the final position of the cube using the calculateTrajectory function
-		let finalPosition = calculateTrajectory();
-
-		// Ensure the paddle moves towards the final position of the cube
-		if (cubeSpeedx < 0) {
-			if (paddle.position.z > finalPosition["z"]) {
-				// Move paddle up
-				if (paddle.position.z - AIPADDLE_SPEED < topWallZ) {
-					paddle.position.z = topWallZ;
-				} else if (
-					paddle.position.z - AIPADDLE_SPEED >=
-					finalPosition["z"]
-				) {
-					paddle.position.z -= AIPADDLE_SPEED;
-				}
-			} else if (paddle.position.z < finalPosition["z"]) {
-				// Move paddle down
-				if (paddle.position.z + AIPADDLE_SPEED > bottomWallZ) {
-					paddle.position.z = bottomWallZ;
-				} else if (
-					paddle.position.z + AIPADDLE_SPEED <=
-					finalPosition["z"]
-				) {
-					paddle.position.z += AIPADDLE_SPEED;
-				}
-			}
-		}
-	}
-
 	function animate() {
 		if (player1Score < 7 && player2Score < 7) {
 			renderer.render(scene, camera);
@@ -464,20 +388,31 @@ PageElement.onLoad = () => {
 	}
 
 	handlePaddleControls();
+	window.addEventListener('beforeunload', stopGame);
 	renderer.setAnimationLoop(animate);
 
-	{
-		const startButton = document.getElementById("startBtn");
-		startButton.addEventListener("click", function () {
-			document.getElementById("overlay").style.display = "none";
-			// Add any additional logic to start the game here
-		});
-	}
+	document.addEventListener("visibilitychange", () => {
+		if (document.hidden) {
+			stopGame();
+		}
+	});
+	
+	window.addEventListener("hashchange", () => {
+		stopGame();
+	});
+	
+	function stopGame() {
+		gamePaused = true; // Pause the game
+		renderer.setAnimationLoop(null); // Stop the game loop
+		renderer.dispose(); // Free up GPU resources
+		renderer.domElement.remove(); // Remove renderer from the DOM
 
-	PageElement.onUnLoad = () => {
-		console.log("onUnLoad:pong");
-		sendPayload("message", `[${window.user.username}] disconnected.`);
-		renderer.dispose();
-		PageElement.onUnLoad = () => {};
-	};
+		// Remove event listeners
+		if (keydownHandler && keyupHandler) {
+			document.removeEventListener("keydown", keydownHandler);
+			document.removeEventListener("keyup", keyupHandler);
+		}
+
+		console.log("Game stopped.");
+	}
 };

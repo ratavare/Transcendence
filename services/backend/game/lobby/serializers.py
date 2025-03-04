@@ -23,8 +23,9 @@ class LobbySerializer(serializers.ModelSerializer):
 	paddle1Position = PositionSerializer(read_only=True)
 	paddle2Position = PositionSerializer(read_only=True)
 	chat = MessageSerializer(many=True, read_only=True)
+	winner = UserSerializer(read_only=True)
 
 	class Meta:
 		model = Lobby
-		fields = ['lobby_id', 'created_at', 'users', 'gameState', 'player1Score', 'player2Score', 'ballPosition', 'paddle1Position', 'paddle2Position', 'chat']
+		fields = ['lobby_id', 'created_at', 'users', 'gameState', 'player1Score', 'player2Score', 'ballPosition', 'paddle1Position', 'paddle2Position', 'chat', 'winner']
 	

@@ -1,6 +1,75 @@
 <page-element name="home" authenticated="">
 	{% load static %} {% include 'navbar.html' with authenticated="true" %}
 
+	<style>
+		.custom-modal-size {
+			max-width: 25%;
+			/* Adjust as needed */
+		}
+
+		/* Add custom styles for the button */
+		.btn-primary {
+            background-color: #52127cb2; /* Green background */
+            border: none; /* Remove borders */
+            color: white; /* White text */
+            padding: 15px 32px; /* Some padding */
+            text-align: center; /* Centered text */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Make the container inline-block */
+            font-size: 16px; /* Increase font size */
+            margin: 4px 2px; /* Some margin */
+            transition-duration: 0.4s; /* 0.4 seconds transition effect to hover */
+            cursor: pointer; /* Pointer/hand icon */
+            border-radius: 12px; /* Rounded corners */
+			width: 50%;
+			height: 50%;
+        }
+
+        .btn-primary:hover {
+            background-color: rgb(70, 33, 104); /* White background on hover */
+            color: black; /* Black text on hover */
+            border: 2px solid #642291; /* Green border on hover */
+        }
+
+		.play-button {
+        background-color: #6c0f9e; /* Custom background color */
+        border: none; /* Remove borders */
+        color: white; /* White text */
+        padding: 15px 32px; /* Some padding */
+        text-align: center; /* Centered text */
+        text-decoration: none; /* Remove underline */
+        display: inline-block; /* Make the button inline-block */
+        font: inherit;
+        font-size: 16px; /* Increase font size */
+        margin: 4px 2px; /* Some margin */
+        cursor: pointer; /* Pointer/hand icon */
+        border-radius: none; /* Rounded corners */
+        transition: background-color 0.3s; /* Smooth transition */
+		display: flex;
+        justify-content: center;
+        align-items: center;
+		width: 50%;
+    	}
+
+		.center-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+
+		.play-button:hover {
+			background-color: #3f118a;
+			/* Darker green on hover */
+		}
+
+		h3 {
+			color: #000;
+			font-size: 1.5em;
+			font-weight: bold;
+		}
+	</style>
+
 	<!-- Add image here -->
 	<div class="container mt-4">
 		<div
@@ -11,61 +80,18 @@
 				alt="lettering"
 				class="img-fluid"
 			/>
-			<button
-				class="btn btn-primary mb-2 play-button"
-				data-bs-toggle="modal"
-				data-bs-target="#playModal"
-			>
-				Play
-			</button>
 		</div>
 	</div>
 
-	<style>
-		.custom-modal-size {
-			max-width: 25%;
-			/* Adjust as needed */
-		}
-
-		.play-button {
-			background-color: #810cc0;
-			/* Custom background color */
-			border: none;
-			/* Remove borders */
-			color: white;
-			/* White text */
-			padding: 15px 32px;
-			/* Some padding */
-			text-align: center;
-			/* Centered text */
-			text-decoration: none;
-			/* Remove underline */
-			display: inline-block;
-			/* Make the button inline-block */
-			font: inherit;
-			font-size: 16px;
-			/* Increase font size */
-			margin: 4px 2px;
-			/* Some margin */
-			cursor: pointer;
-			/* Pointer/hand icon */
-			border-radius: none;
-			/* Rounded corners */
-			transition: background-color 0.3s;
-			/* Smooth transition */
-		}
-
-		.play-button:hover {
-			background-color: #6200ff;
-			/* Darker green on hover */
-		}
-
-		h3 {
-			color: #000;
-			font-size: 1.5em;
-			font-weight: bold;
-		}
-	</style>
+	<div class="center-container">
+		<button
+			class="btn btn-primary mb-2 play-button"
+			data-bs-toggle="modal"
+			data-bs-target="#playModal"
+		>
+			Play
+		</button>
+	</div>
 
 	<!-- Play Modal -->
 	<div
@@ -101,7 +127,7 @@
 						</button>
 						<button
 							id="join-modal-btn"
-							class="btn btn-secondary"
+							class="btn btn-primary mb-2"
 							data-bs-toggle="modal"
 							data-bs-target="#joinMatchModal"
 							data-bs-dismiss="modal"
@@ -110,8 +136,10 @@
 						</button>
 						<button
 							id="tournament-btn"
-							class="btn btn-secondary"
+							class="btn btn-primary mb-2"
 							style="margin-top: 8px;"
+							data-bs-toggle="modal"
+							data-bs-target="#createTournamentModal"
 							data-bs-dismiss="modal"
 						>
 							Create Tournament
@@ -159,21 +187,21 @@
 					<div class="d-flex flex-column align-items-center">
 						<button
 							id="createSingleplayerMatch"
-							class="btn btn-secondary mb-2"
+							class="btn btn-primary mb-2"
 							data-bs-dismiss="modal"
 						>
 							Create Singleplayer Match
 						</button>
 						<button
 							id="createLocalMultiplayerMatch"
-							class="btn btn-secondary mb-2"
+							class="btn btn-primary mb-2"
 							data-bs-dismiss="modal"
 						>
 							Create Local Multiplayer Match
 						</button>
 						<button
 							id="createOnlineMultiplayerMatch"
-							class="btn btn-secondary"
+							class="btn btn-primary mb-2"
 							data-bs-toggle="modal"
 							data-bs-target="#createLobbyModal"
 							data-bs-dismiss="modal"
@@ -265,6 +293,77 @@
 		</div>
 	</div>
 
+	<!-- Create a tournament Modal-->
+	<div
+		class="modal fade"
+		id="createTournamentModal"
+		tabindex="-1"
+		aria-labelledby="createTournamentModalLabel"
+		aria-hidden="true"
+	>
+		<div class="modal-dialog custom-modal-size">
+			<div
+				class="modal-content"
+				style="background-color: #000000; color: #ffffff"
+			>
+				<div class="modal-header">
+					<h5 class="modal-title" id="createTournamentModalLabel">
+						Create Tournament
+					</h5>
+					<button
+						type="button"
+						class="btn-close"
+						data-bs-dismiss="modal"
+						aria-label="Close"
+					></button>
+				</div>
+				<div class="modal-body">
+					<h4>Insert a tournament name:</h4>
+					<div class="container mt-5">
+						<form method="POST" id="create-tournament-form">
+							{% csrf_token %}
+							<input
+								placeholder="Create a tournament.."
+								name="tournament_id"
+								style="
+									background-color: #000000;
+									border: 2px solid #505050;
+									padding: 10px;
+									border-radius: 5px;
+									color: #ffffff;
+								"
+								onfocus="this.style.backgroundColor='#3b3b3b'"
+								onblur="this.style.backgroundColor='#000000'"
+							/>
+							<input
+								class="btn btn-outline-secondary"
+								type="submit"
+								data-bs-dismiss="modal"
+								style="
+									background-color: #000000;
+									border: 2px solid #3b3b3b;
+									padding: 10px;
+									border-radius: 5px;
+									color: #ffffff;
+									margin-top: 10px;
+								"
+							/>
+						</form>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button
+						type="button"
+						class="btn btn-secondary"
+						data-bs-dismiss="modal"
+					>
+						Close
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<!-- Join Match Modal -->
 	<div
 		class="modal fade"
@@ -292,7 +391,10 @@
 				<div class="modal-body">
 					<h3>Select a Lobby</h3>
 				</div>
-				<div class="modal-body" id="lobby-list"></div>
+				<div class="modal-body" style="display: flex;">
+					<div id="lobby-list"></div>
+					<div id="tournament-list"></div>
+				</div>
 				<div class="modal-footer">
 					<button
 						type="button"
@@ -305,4 +407,5 @@
 			</div>
 		</div>
 	</div>
+
 </page-element>
