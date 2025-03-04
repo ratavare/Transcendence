@@ -1,5 +1,5 @@
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
@@ -17,36 +17,28 @@ import pyotp
 import qrcode
 from io import BytesIO
 import base64
+import requests
 
 from .forms import RegistrationForm
 
 import logging
 logger = logging.getLogger(__name__)
-# logging.basicConfig(level=logging.DEBUG)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def enable_2fa(request):
 	user = request.user
-
-	# Ensure the user has a profile (if it's not auto-created)
-	profile, created = Profile.objects.get_or_create(user=user)
-
-	# Generate a new secret
 	otp_secret = pyotp.random_base32()
 
-	# Generate a TOTP provisioning URI
 	totp = pyotp.TOTP(otp_secret)
 	uri = totp.provisioning_uri(user.username, issuer_name="Transcendence")
 
-	# Generate a QR code for the URI
 	qr = qrcode.make(uri)
 	buffer = BytesIO()
 	qr.save(buffer, format="PNG")
 	buffer.seek(0)
 	qr_base64 = base64.b64encode(buffer.read()).decode('utf-8')
 
-	# Return the QR code and the OTP secret (temporarily)
 	return JsonResponse({'qr_code': qr_base64, 'otp_secret': otp_secret}, status=200)
 
 @api_view(['POST'])
@@ -61,17 +53,21 @@ def disable_2fa(request):
 	return JsonResponse({'status': 'error', 'error': 'Profile not found'}, status=400)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def verify_otp(request):
-	user = request.user
+	if request.user.is_authenticated:
+		user = request.user
+	else:
+		user = User.objects.filter(username=request.data.get('username')).first()
 	otp = request.data.get('otp')
-	otp_secret = request.data.get('otp_secret')
 	profile = getattr(user, 'profile', None)
+	otp_secret = request.data.get('otp_secret')
+	logging.debug(f"Verifying OTP: {otp} for user: {user.username} with otp_secret: {otp_secret} and profile: {profile}")
 	if profile and otp_secret:
 		totp = pyotp.TOTP(otp_secret)
+		profile.otp_secret = otp_secret
+		profile.save()
 		if totp.verify(otp):
-			profile.otp_secret = otp_secret
-			profile.save()
 			return JsonResponse({'status': 'success'}, status=200)
 	return JsonResponse({'status': 'error', 'error': 'Invalid OTP'}, status=400)
 
@@ -92,63 +88,156 @@ def registerView(request):
 		}, status=200)
 	return JsonResponse({'error': form.errors}, status=409)
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def loginView(request):
-	step = request.POST.get('step', '1')  # Default to step 1
+	logging.debug("Handling login")
+	if request.method == 'GET':
+		code = request.GET.get('code')
+		if code:
+			return handle_intra_oauth_login(request, code)
+		return JsonResponse({'error': 'Missing authorization code'}, status=400)
 
-	# Step 1: Verify credentials and check for 2FA
-	if step == '1':
-		form = AuthenticationForm(request, data=request.POST)
-		if form.is_valid():
-			user = form.get_user()
+	elif request.method == 'POST':
+		step = request.POST.get('step', '1')
+		
+		if 'code' in request.POST:
+			return handle_intra_oauth_login(request, request.POST['code'])
+		
+		if step == '1':
+			logging.debug("Handling regular login")
+			return handle_regular_login(request)
+		elif step == '2':
+			return handle_otp_verification(request)
+		else:
+			return JsonResponse({'error': 'Invalid step'}, status=400)
 
-			# Check if 2FA is enabled
-			profile = getattr(user, 'profile', None)
-			is_2fa_enabled = bool(profile and profile.otp_secret)
+	return JsonResponse({'error': 'Method not allowed'}, status=405)
+	
+def handle_intra_oauth_login(request, code):
+	"""
+	Handle login via Intra OAuth.
+	"""
 
-			if is_2fa_enabled:
-				# Return a flag to prompt for 2FA in frontend
-				return JsonResponse({'status': '2fa_required'}, status=200)
+	token_url = 'https://api.intra.42.fr/oauth/token'
+	data = {
+		'grant_type': 'authorization_code',
+		'client_id': "u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725",
+		'client_secret': "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",
+		'redirect_uri': "https://localhost:8443/user_auth/login/",
+		'code': code
+	}
+	
+	response = requests.post(token_url, data=data)
+	if response.status_code != 200:
+		return JsonResponse({'error': 'Failed to get access token'}, status=400)
+	
+	tokens = response.json()
+	access_token = tokens.get('access_token')
+	
+	if not access_token:
+		return JsonResponse({'error': 'Tokens missing'}, status=400)
+	
+	user_info = get_user_info_from_intra(access_token)
+	
+	user = authenticate_or_create_user_from_intra(user_info)
+	login(request, user)
+	refresh = RefreshToken.for_user(user)
 
-			# Log in user if no 2FA
-			login(request, user)
-			refresh = RefreshToken.for_user(user)
-			return JsonResponse({
-				'status': 'success',
-				'username': user.username,
-				'access': str(refresh.access_token),
-				'refresh': str(refresh),
-				'is_2fa_enabled': is_2fa_enabled,
-			}, status=200)
+	profile = getattr(user, 'profile', None)
+	is_2fa_enabled = bool(profile and profile.otp_secret)
 
-		return JsonResponse({'error': form.errors}, status=400)
+	otp_secret = profile.otp_secret if profile else ''
 
-	# Step 2: Validate OTP
-	elif step == '2':
-		username = request.POST.get('username')
-		otp = request.POST.get('otp')
+	redirect_url = f'https://localhost:8443/#/login?code={code}&access_token={refresh.access_token}&refresh_token={refresh}&2fa={is_2fa_enabled}&otp_secret={otp_secret}&username={user.username}'
+	return HttpResponseRedirect(redirect_url)
 
-		user = User.objects.filter(username=username).first()
-		if not user:
-			return JsonResponse({'error': 'Invalid username'}, status=400)
+def handle_regular_login(request):
+	"""
+	Handle regular login with username/password.
+	"""
+	logging.debug("Handling regular login")
+	form = AuthenticationForm(request, data=request.POST)
+	if form.is_valid():
+		user = form.get_user()
 
 		profile = getattr(user, 'profile', None)
-		totp = pyotp.TOTP(profile.otp_secret) if profile else None
+		is_2fa_enabled = bool(profile and profile.otp_secret)
 
-		if totp and totp.verify(otp):
-			# Log in user
-			login(request, user)
-			refresh = RefreshToken.for_user(user)
-			return JsonResponse({
-				'status': 'success',
-				'username': user.username,
-				'access': str(refresh.access_token),
-				'refresh': str(refresh),
-			}, status=200)
-		return JsonResponse({'error': 'Invalid OTP'}, status=400)
+		# if is_2fa_enabled:
+		# 	return JsonResponse({'status': '2fa_required'}, status=200)
+
+		login(request, user)
+		refresh = RefreshToken.for_user(user)
+		return JsonResponse({
+			'status': 'success',
+			'username': user.username,
+			'access': str(refresh.access_token),
+			'refresh': str(refresh),
+			'otp_secret': profile.otp_secret if profile else '',
+			'is_2fa_enabled': is_2fa_enabled,
+		}, status=200)
+
+	return JsonResponse({'error': form.errors}, status=400)
+
+def get_user_info_from_intra(access_token):
+	"""
+	Fetch user information from Intra using the access token.
+	This is an example, you would call Intra API to get user details.
+	"""
+	user_info_url = "https://api.intra.42.fr/v2/me"
+	headers = {"Authorization": f"Bearer {access_token}"}
+	response = requests.get(user_info_url, headers=headers)
+	
+	if response.status_code == 200:
+		return response.json()
 	else:
-		return JsonResponse({'error': 'Invalid step'}, status=400)
+		raise ValueError("Failed to fetch user info from Intra")
+
+def authenticate_or_create_user_from_intra(user_info):
+	"""
+	Authenticate or create a new user in your system using information from Intra.
+	"""
+	username = user_info['login']
+	user, created = User.objects.get_or_create(username=username)
+	
+	if created:
+		profile = Profile.objects.create(user=user)
+	
+	return user
+
+def handle_otp_verification(request):
+	"""
+	Handle OTP verification when 2FA is enabled.
+	"""
+	username = request.POST.get('username')
+	otp = request.POST.get('otp')
+	
+	if not username or not otp:
+		return JsonResponse({'error': 'Username and OTP are required'}, status=400)
+	
+	user = User.objects.filter(username=username).first()
+	if not user:
+		return JsonResponse({'error': 'Invalid username'}, status=400)
+	
+	profile = getattr(user, 'profile', None)
+	if not profile or not profile.otp_secret:
+		return JsonResponse({'error': '2FA is not enabled for this user'}, status=400)
+	
+	totp = pyotp.TOTP(profile.otp_secret)
+	
+	if totp.verify(otp):
+		login(request, user)
+		refresh = RefreshToken.for_user(user)
+		
+		return JsonResponse({
+			'status': 'success',
+			'username': user.username,
+			'access': str(refresh.access_token),
+			'refresh': str(refresh),
+		}, status=200)
+	
+	return JsonResponse({'error': 'Invalid OTP'}, status=400)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -166,7 +255,6 @@ def userSearchView(request):
 	
 	if not userSearched:
 		return JsonResponse({'error': 'No users found!'}, status=404)
-	# gets all users that contain 'userSearched'; Not sensitive to case
 	all_users = User.objects.filter(username__icontains=userSearched)
 	
 	users = []
@@ -187,7 +275,6 @@ def changePasswordView(request):
 	confirm_new_password = request.POST.get('confirm_new_password')
 
 	if not user.check_password(current_password):
-		logger.debug("mano do ceu")
 		return JsonResponse({'error': 'Current password is incorrect'}, status=400)
 
 	if new_password != confirm_new_password:

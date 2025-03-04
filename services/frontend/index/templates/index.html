@@ -46,7 +46,10 @@
 
 		h1,
 		h2,
-		h3 {
+		h3, 
+		h4, 
+		h5, 
+		h6 {
 			color: white;
 		}
 
@@ -62,15 +65,20 @@
 			border-radius: 1.1rem;
 			border-bottom-left-radius: 1.1rem;
 			margin-bottom: 1.5rem;
-			box-shadow: 0 4px 10px 0 rgba(122, 122, 143, 0.65),
-				0 4px 10px 0 rgba(124, 124, 143, 0.54);
+			box-shadow: 0 4px 10px 0 rgba(122, 122, 143, 0.65), 0 4px 10px 0 rgba(124, 124, 143, 0.54);
 		}
 
-		#profile-pic {
+		.profile-image {
 		    width: 150px;
 		    height: 150px;
 		    object-fit: cover; /* Ensures the image covers the box while preserving aspect ratio */
 		    border-radius: 50%; /* To keep the rounded shape */
+			transition: transform 0.3s;
+		}
+
+		.profile-image:hover {
+			transform: scale(0.9);
+			cursor: pointer;
 		}
 
 		.form-control {

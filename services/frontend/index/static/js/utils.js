@@ -88,6 +88,29 @@ async function myImageFetch(viewUrl, myData = null, method = 'POST', requireAuth
     return response;
 }
 
+async function getProfileImage(username) {
+    try {
+		const response = await myImageFetch(`https://localhost:8443/user_profile/profile/picture/${username}/`, null, 'GET', true);
+        if (response.ok) {
+            const contentType = response.headers.get('Content-Type');
+            
+            if (contentType && contentType.startsWith('image/')) {
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                return imageUrl;
+            } else {
+                console.error("Expected image but received:", contentType);
+            }
+        } else {
+            const errorText = await response.text();
+            console.error("Error fetching profile image:", errorText);
+			return '/static/assets/melhor_icone.png';
+        }
+    } catch (error) {
+        console.error("Fetch error: ", error);
+    }
+}
+
 async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = true) {
 	// console.log("myFetch: ", viewUrl);
 	const headers = {
@@ -147,4 +170,18 @@ async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = tr
 		throw data.error || "Unknown error";
 	}
 	return data;
+}
+
+function getUrlParams() {
+	const hash = window.location.hash.substring(1);
+	const queryParams = new URLSearchParams(hash.split("?")[1]);
+
+	return {
+		code: queryParams.get("code"),
+		accessToken: queryParams.get("access_token"),
+		refreshToken: queryParams.get("refresh_token"),
+		auth: queryParams.get("2fa"),
+		otp_secret: queryParams.get("otp_secret"),
+		username: queryParams.get("username"),
+	};
 }

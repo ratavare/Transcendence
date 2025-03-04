@@ -3,8 +3,8 @@
 	{% include 'navbar.html' with authenticated="true" %}
 	<title>Profile</title>
 	<div class="container mt-5">
-		<div class="form-group row" align="center">
-			<h1 class="mb-4">My Profile</h1>
+		<div class="form-group row" align="center">	
+			<h1 id="profile-h1" class="mb-4">My Profile</h1>
 		</div>
 	</div>
 	 <div class="container" id="userprofile">
@@ -14,7 +14,7 @@
 			  <div class="card">
 				<div class="card-body">
 				  <div class="d-flex flex-column align-items-center text-center">
-					<img id="profile-pic" alt="Admin">
+					<img id="profile-pic" class="profile-image" style="pointer-events: none;" alt="Admin">
 					<div class="mt-3">
 						<h4 id="username">{{ request.user.username }}</h4>
 						<p class="text-muted font-size-sm" id="city"></p>
@@ -24,82 +24,16 @@
 						<!-- Change photo button -->
 						<button id="change-photo-button" class="btn btn-primary">Change Photo</button>
 					</div>
+				  </div>
+				</div>
+				  </div>
 				</div>
 				<div class="col-md-8">
-					<div class="card mb-3">
-						<div class="card-body" id="profile-view">
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Username</h6>
-								</div>
-								<div
-									class="col-sm-9 text-secondary"
-									id="username"
-								></div>
-							</div>
-							<hr />
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Full Name</h6>
-								</div>
-								<div
-									class="col-sm-9 text-secondary"
-									id="fullname"
-								></div>
-							</div>
-							<hr />
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Email</h6>
-								</div>
-								<div
-									class="col-sm-9 text-secondary"
-									id="email"
-								></div>
-							</div>
-							<hr />
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Bio</h6>
-								</div>
-								<div
-									class="col-sm-9 text-secondary"
-									id="bio"
-								></div>
-							</div>
-							<hr />
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">City</h6>
-								</div>
-								<div
-									class="col-sm-9 text-secondary"
-									id="city"
-								></div>
-							</div>
-							<hr />
-							<div class="row mb-3">
-								<div class="col-sm-3">
-									<h6 class="mb-0">Birth Date</h6>
-								</div>
-								<div
-									class="col-sm-9 text-secondary"
-									id="birth-date"
-								></div>
-							</div>
-							<hr />
-							<div class="row mb-3">
-								<div class="col-sm-1">
-									<a
-										class="btn btn-info"
-										onclick="editProfile()"
-										>Edit</a
-									>
-								</div>
-								<div class="col-sm-3">
-									<a class="btn btn-danger">Delete</a>
-								</div>
-							</div>
+				  <div class="card mb-3">
+					<div class="card-body" id="profile-view">
+					  <div class="row mb-3">
+						<div class="col-sm-3">
+						  <h6 class="mb-0">Username</h6>
 						</div>
 						<div class="col-sm-9 text-secondary" id="profile-username">
 						</div>
@@ -147,10 +81,7 @@
 					  <hr>
 					  <div class="row mb-3">
 						<div class="col-sm-1">
-						  <a class="btn btn-info " onclick="editProfile()">Edit</a>
-						</div>
-						<div class="col-sm-3">
-						  <a class="btn btn-danger " >Delete</a>
+						  <a id="edit-profile-btn" class="btn btn-info " onclick="editProfile()">Edit</a>
 						</div>
 					  </div>
 					</div>
@@ -223,6 +154,5 @@
 				</div>
 			  </div>
 			</div>
-		</div>
-	</div>
+		  </div>
 </page-element>

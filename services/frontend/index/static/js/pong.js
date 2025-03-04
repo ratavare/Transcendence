@@ -22,7 +22,7 @@ PageElement.onLoad = () => {
 	const canvas = document.getElementById("canvas");
 	const canvasContainer = document.getElementById("canvas-item");
 
-	let renderer = new THREE.WebGLRenderer({
+	const renderer = new THREE.WebGLRenderer({
 		canvas: canvas,
 		antialias: true,
 	});

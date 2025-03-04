@@ -6,3 +6,4 @@ djangorestframework
 requests
 python-dotenv
 Pillow
+djangorestframework_simplejwt
