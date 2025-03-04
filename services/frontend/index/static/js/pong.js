@@ -229,8 +229,10 @@ PageElement.onLoad = () => {
 		return mesh;
 	}
 
+	let keydownHandler, keyupHandler;
+
 	function handlePaddleControls(player) {
-		document.addEventListener("keydown", (event) => {
+		keydownHandler = (event) => {
 			let payload = null;
 			let payload2 = null;
 			switch (event.key) {
@@ -254,9 +256,9 @@ PageElement.onLoad = () => {
 			if (payload2) {
 				sendPayload("pause", payload2);
 			}
-		});
+		};
 
-		document.addEventListener("keyup", (event) => {
+		keyupHandler = (event) => {
 			let payload = null;
 			switch (event.key) {
 				case "w":
@@ -271,7 +273,7 @@ PageElement.onLoad = () => {
 			if (payload) {
 				sendPayload(player, payload);
 			}
-		});
+		};
 	}
 
 	function updatePaddlePositions(payloadData) {
@@ -563,4 +565,28 @@ PageElement.onLoad = () => {
 
 		PageElement.onUnload = () => {};
 	};
+
+	document.addEventListener("visibilitychange", () => {
+		if (document.hidden) {
+			stopGame();
+		}
+	});
+	
+	window.addEventListener("hashchange", () => {
+		stopGame();
+	});
+	
+	function stopGame() {
+		renderer.setAnimationLoop(null); // Stop the game loop
+		renderer.dispose(); // Free up GPU resources
+		renderer.domElement.remove(); // Remove renderer from the DOM
+
+		// Remove event listeners
+		if (keydownHandler && keyupHandler) {
+			document.removeEventListener("keydown", keydownHandler);
+			document.removeEventListener("keyup", keyupHandler);
+		}
+
+		console.log("Game stopped.");
+	}
 };
