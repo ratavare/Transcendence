@@ -16,4 +16,4 @@ python manage.py migrate
 
 echo "${BOLD_ORANGE}Starting the server...${NC}"
 python -u manage.py runserver 0.0.0.0:8002
-daphne -p 8002 game.asgi:application
+# daphne -p 8002 game.asgi:application

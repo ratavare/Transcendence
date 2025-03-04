@@ -103,7 +103,8 @@ async function setPage(name) {
 		if (
 			"pong" == name ||
 			"singleplayerpong" == name ||
-			"multiplayer_pong" == name
+			"multiplayer_pong" == name ||
+			"tournament" == name
 		) {
 			setTimeout(() => {
 				PageElement.onLoad(newPage);
