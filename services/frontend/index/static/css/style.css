@@ -109,6 +109,7 @@ label {
     background-color: #8f28d0;
     cursor: pointer;
     transform: translateY(-2px);
+    color: white;
 }
 
 .button-style:active {
