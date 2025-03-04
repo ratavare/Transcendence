@@ -45,7 +45,7 @@ document
 				true
 			);
 			if (data.qr_code) {
-				getQrContainer().innerHTML = `<img src="data:image/png;base64,${data.qr_code}" />`;
+				getQrContainer().innerHTML = `<img src="data:image/png;base64,${data.qr_code}" class="qr-code-img"/>`;
 				document.getElementById("setup-key").textContent =
 					data.otp_secret;
 				getSetupKeyContainer().style.display = "block";
@@ -147,28 +147,23 @@ document
 document
 	.getElementById("delete-account-button")
 	.addEventListener("click", async function () {
-		if (
-			confirm(
-				"Are you sure you want to delete your account? This action cannot be undone."
-			)
-		) {
-			try {
-				const data = await myFetch(
-					"https://localhost:8443/user_auth/delete_account/",
-					null,
-					"POST",
-					true
-				);
-				if (data.status === "success") {
-					showErrorModal("Account deleted successfully");
-					localStorage.clear();
-					seturl("/login");
-				} else {
-					showErrorModal("Failed to delete account: " + data.message);
-				}
-			} catch (error) {
-				console.error("Error deleting account:", error);
-				showErrorModal("Error deleting account");
+		showErrorModal("Your account will be deleted permanently.", false);
+		try {
+			const data = await myFetch(
+				"https://localhost:8443/user_auth/delete_account/",
+				null,
+				"POST",
+				true
+			);
+			if (data.status === "success") {
+				showErrorModal("Account deleted successfully");
+				localStorage.clear();
+				seturl("/login");
+			} else {
+				showErrorModal("Failed to delete account: " + data.message);
 			}
+		} catch (error) {
+			console.error("Error deleting account:", error);
+			showErrorModal("Error deleting account");
 		}
 	});

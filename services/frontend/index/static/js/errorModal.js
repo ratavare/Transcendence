@@ -2,34 +2,28 @@ document.addEventListener('DOMContentLoaded', function () {
     var modal = document.getElementById('errorModal');
     var okButton = document.getElementById('errorOkBtn');
 
-    // OK button click handler
     okButton.onclick = function () {
         modal.style.display = 'none';
     };
 
-    // Click outside the modal to close
     window.onclick = function (event) {
         if (event.target === modal) {
             modal.style.display = 'none';
         }
     };
 
-    // Function to show the error modal
-    window.showErrorModal = function (message) {
+    window.showErrorModal = function (message, isError = true) {
         let messages = '';
 
         if (typeof message === 'string' || (Array.isArray(message) && message.length === 1)) {
-            // Split the message by commas and create a list
-            //messages = message.split(',').map(msg => `<li>${msg.trim()}</li>`).join('');
             messages = `<p>${message}</p>`;
-        } else if (Array.isArray(message)) {
-            // If message is an array, create a list
+        } else if (Array.isArray(message)) { // message is an array
             messages = message.map(msg => `<li>${msg.trim()}</li>`).join('');
-        } else if (typeof message === 'object') {
-            // If message is an object, create a list from its values
+        } else if (typeof message === 'object') { // message is an object
             messages = Object.values(message).map(msg => `<li>${msg.trim()}</li>`).join('');
         }
 
+        document.querySelector('.error-modal-header').innerText = isError ? 'Warning' : 'Error';
         document.getElementById('errorMessage').innerHTML = `<ul>${messages}</ul>`;
         modal.style.display = 'flex';
     };
