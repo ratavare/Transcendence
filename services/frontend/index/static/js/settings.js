@@ -22,6 +22,14 @@ function getOtpContainer() {
 	return document.getElementById("otp-container");
 }
 
+function parseJwt(token) {
+	try {
+		return JSON.parse(atob(token.split(".")[1]));
+	} catch (e) {
+		return null;
+	}
+}
+
 function updateUI() {
 	if (get2fa()) {
 		getSetupContainer().style.display = "none";
@@ -29,6 +37,37 @@ function updateUI() {
 	} else {
 		getSetupContainer().style.display = "block";
 		getStatusContainer().style.display = "none";
+	}
+
+	const token = localStorage.getItem("access_token");
+	if (token) {
+		const userData = parseJwt(token);
+		console.log(userData);
+
+		// Get the user ID from the JWT
+		const userId = userData.user_id;
+
+		// Fetch the usable password status from the API using myFetch
+		myFetch(
+			`https://localhost:8443/user_auth/has_usable_password/${userId}/`,
+			null,
+			"GET",
+			true
+		)
+			.then((data) => {
+				// Check if the user has a usable password
+				if (data.has_password === false) {
+					document.getElementById(
+						"current-password-container"
+					).style.display = "none";
+					document.getElementById(
+						"current-password-divider"
+					).style.display = "none";
+				}
+			})
+			.catch((error) =>
+				console.error("Error fetching password status:", error)
+			);
 	}
 }
 
@@ -45,14 +84,14 @@ document
 				true
 			);
 			if (data.qr_code) {
-				getQrContainer().innerHTML = `<img src="data:image/png;base64,${data.qr_code}" />`;
+				getQrContainer().innerHTML = `<img src="data:image/png;base64,${data.qr_code}" class="qr-code-img"/>`;
 				document.getElementById("setup-key").textContent =
 					data.otp_secret;
 				getSetupKeyContainer().style.display = "block";
 				getOtpContainer().style.display = "block";
 				localStorage.setItem("otp_secret", data.otp_secret);
 			} else {
-				alert("Failed to activate 2FA.");
+				showErrorModal("Failed to activate 2FA.");
 			}
 		} catch (error) {
 			console.error("Error activating 2FA:", error);
@@ -79,12 +118,12 @@ document
 				getStatusContainer().style.display = "block";
 				localStorage.setItem("is_2fa_enabled", "true");
 				localStorage.removeItem("otp_secret");
-				alert("Successfully enabled 2FA");
+				showErrorModal("Successfully enabled 2FA", false);
 			} else {
-				alert("Invalid OTP code.");
+				showErrorModal("Invalid OTP code.");
 			}
 		} catch (error) {
-			console.error("Error verifying OTP:", error);
+			showErrorModal("Invalid OTP code.");
 		}
 	});
 
@@ -108,12 +147,12 @@ document
 				true
 			);
 			if (data.status === "success") {
-				alert("2FA has been disabled.");
+				showErrorModal("2FA has been disabled.", false);
 				getStatusContainer().style.display = "none";
 				getSetupContainer().style.display = "block";
 				localStorage.setItem("is_2fa_enabled", "false");
 			} else {
-				alert("Failed to disable 2FA.");
+				showErrorModal("Failed to disable 2FA.");
 			}
 		} catch (error) {
 			console.error("Error disabling 2FA:", error);
@@ -134,41 +173,36 @@ document
 				true
 			);
 			if (data.status === "success") {
-				alert(data.message);
+				showErrorModal(data.message);
 				seturl("/home");
 			} else {
-				alert(data.message);
+				showErrorModal(data.message);
 			}
 		} catch (error) {
-			alert(error);
+			showErrorModal(error);
 		}
 	});
 
 document
 	.getElementById("delete-account-button")
 	.addEventListener("click", async function () {
-		if (
-			confirm(
-				"Are you sure you want to delete your account? This action cannot be undone."
-			)
-		) {
-			try {
-				const data = await myFetch(
-					"https://localhost:8443/user_auth/delete_account/",
-					null,
-					"POST",
-					true
-				);
-				if (data.status === "success") {
-					alert("Account deleted successfully");
-					localStorage.clear();
-					seturl("/login");
-				} else {
-					alert("Failed to delete account: " + data.message);
-				}
-			} catch (error) {
-				console.error("Error deleting account:", error);
-				alert("Error deleting account");
+		showErrorModal("Your account will be deleted permanently.", false);
+		try {
+			const data = await myFetch(
+				"https://localhost:8443/user_auth/delete_account/",
+				null,
+				"POST",
+				true
+			);
+			if (data.status === "success") {
+				showErrorModal("Account deleted successfully");
+				localStorage.clear();
+				seturl("/login");
+			} else {
+				showErrorModal("Failed to delete account: " + data.message);
 			}
+		} catch (error) {
+			console.error("Error deleting account:", error);
+			showErrorModal("Error deleting account");
 		}
 	});

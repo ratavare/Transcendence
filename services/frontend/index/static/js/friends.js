@@ -220,19 +220,6 @@ function displaySearchResults(users) {
 
 function clearPreviousResults() {
 	document.getElementById("friends-search-list")?.remove();
-	document.getElementById("no-users")?.remove();
-}
-
-function displayNoUsersMessage() {
-	const membersCount = document.getElementById("members-count");
-	if (membersCount) {
-		membersCount.textContent = "0";
-	}
-	const results = document.getElementById("search-results");
-	const nousers = document.createElement("h4");
-	nousers.id = "no-users";
-	nousers.innerHTML = "No users found";
-	results.appendChild(nousers);
 }
 
 async function handleSearchForm(event) {
@@ -242,7 +229,7 @@ async function handleSearchForm(event) {
 	const formData = new FormData(event.target);
 	const data = await friendsSearchUser(formData);
 	if (data) displaySearchResults(data.users);
-	else displayNoUsersMessage();
+	else document.getElementById("members-count").textContent = "0";
 }
 
 // *** RENDER FUNCTIONS ***

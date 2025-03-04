@@ -6,4 +6,5 @@ urlpatterns = [
 	path('profile/', views.profileView),
     path('profile/picture/<str:username>/', views.profilePicture),
     path('profile/<str:username>/', views.foreignProfile),
+    path('profile/updatewinloss/', views.updateWinLoss),
 ]

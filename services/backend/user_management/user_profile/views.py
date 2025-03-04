@@ -47,6 +47,9 @@ def profileView(request):
 			'city': profile.city,
 			'birth_date':profile.birth_date,
 			'id': user.pk,
+			'intra_login': profile.intra_login,
+			'wins': profile.wins,
+			'losses': profile.losses,
 		}
 		return JsonResponse(initial_data, status=200)
 	return JsonResponse({'error': "Test"}, status=400)
@@ -94,3 +97,22 @@ def foreignProfile(request, username):
 		'id': user.pk,
 	}
 	return JsonResponse(initial_data, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def updateWinLoss(request, status):
+	try:
+		user = request.user
+		profile = Profile.objects.get(user=user)
+	except Profile.DoesNotExist:
+		return JsonResponse({'error': 'Profile Not Found'}, status=404)
+
+	if request.method == 'POST':
+		status = request.POST.get('status')
+		if(status == 'win'):
+			profile.wins += 1
+		elif(status == 'loss'):
+			profile.losses += 1
+		profile.save()
+		return JsonResponse({'status': 'success'}, status=200)
+	return JsonResponse({'error': 'Invalid Request'}, status=400)

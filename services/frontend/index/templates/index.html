@@ -10,12 +10,15 @@
 			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
 			rel="stylesheet"
 		/>
+		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 		<link
 			rel="icon"
 			href="{% static 'assets/favicon.svg' %}"
 			type="image/svg+xml"
 		/>
+		<link rel="stylesheet" href="{% static 'css/style.css' %}">
 		<script type="importmap">
 			{
 				"imports": {
@@ -25,100 +28,6 @@
 			}
 		</script>
 	</head>
-	<style>
-		.hidden {
-			display: none !important;
-		}
-
-		body {
-			background: linear-gradient(
-				-80deg,
-				black,
-				rgb(23, 13, 113),
-				rgb(73, 0, 128),
-				black
-			);
-			background-repeat: no-repeat;
-			background-attachment: fixed;
-			height: 100%;
-			/* margin-top:20px; */
-		}
-
-		h1,
-		h2,
-		h3, 
-		h4, 
-		h5, 
-		h6 {
-			color: white;
-		}
-
-		.card {
-			position: relative;
-			display: flex;
-			flex-direction: column;
-			min-width: 0;
-			word-wrap: break-word;
-			background-color: #00000069;
-			background-clip: border-box;
-			border: 0 solid transparent;
-			border-radius: 1.1rem;
-			border-bottom-left-radius: 1.1rem;
-			margin-bottom: 1.5rem;
-			box-shadow: 0 4px 10px 0 rgba(122, 122, 143, 0.65), 0 4px 10px 0 rgba(124, 124, 143, 0.54);
-		}
-
-		.profile-image {
-		    width: 150px;
-		    height: 150px;
-		    object-fit: cover; /* Ensures the image covers the box while preserving aspect ratio */
-		    border-radius: 50%; /* To keep the rounded shape */
-			transition: transform 0.3s;
-		}
-
-		.profile-image:hover {
-			transform: scale(0.9);
-			cursor: pointer;
-		}
-
-		.form-control {
-			color: white;
-			background-color: transparent;
-			border: 1px solid white;
-		}
-
-		input,
-		textarea,
-		select {
-			color: white !important; /* Force white text color */
-			background-color: transparent; /* Optional: Keeps background transparent */
-			border: 1px solid rgba(255, 255, 255, 0.5); /* Optional: Light border for better visibility */
-		}
-
-		/* Ensure the placeholder text color is slightly transparent white */
-		input::placeholder,
-		textarea::placeholder {
-			color: rgba(
-				255,
-				255,
-				255,
-				0.7
-			); /* Light transparency for placeholder */
-		}
-
-		/* Handle focus state and prevent color changes while typing */
-		input:focus,
-		textarea:focus {
-			color: white !important; /* Force white text color while typing */
-			background-color: transparent !important; /* Keeps background transparent on focus */
-			border: 1px solid rgba(255, 255, 255, 0.7); /* Optional: Slightly darker border on focus */
-		}
-
-		/* Label color */
-		label {
-			color: white !important; /* Ensure label text is white */
-		}
-	</style>
 	<body>
 		<div id="easter-egg" hidden="true">
 			<p>Easter Egg 14/10/2024</p>
@@ -126,6 +35,13 @@
 				src="https://i.seadn.io/gae/gI7SnOY9Upv4skFj6CoLbszEQUOhRtazugsRkK3jJq9icQff4Q3ltjgHebMm93cvbGv7YG1VV75b4swZKuvKsA29x63Luy-MjGp1?auto=format&dpr=1&w=5"
 			/>
 		</div>
+		<div id="errorModal" class="error-modal">
+			<div class="error-modal-content">
+				<div class="error-modal-header"></div>
+				<p id="errorMessage"></p>
+				<button id="errorOkBtn">OK</button>
+			</div>
+		</div>	
 		<script model="" src="{% static 'js/customElement.js' %}"></script>
 		{% include 'home.html' %}
 		{% include 'register.html' %}
@@ -141,5 +57,6 @@
 		<script src="{% static 'js/engine.js' %}"></script>
 		<script src="{% static 'js/utils.js' %}"></script>
 		<script src="{% static 'js/logout.js' %}"></script>
+		<script src="{% static 'js/errorModal.js' %}"></script>
 	</body>
 </html>

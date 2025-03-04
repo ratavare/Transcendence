@@ -1,7 +1,12 @@
 function handleOAuthRedirect() {
-	const { code, accessToken, refreshToken, auth, otp_secret, username } =
+	const { code, accessToken, refreshToken, auth, otp_secret, username, error } =
 		getUrlParams();
 
+	if (error) {
+		alert(error);
+		seturl("/login");
+	}
+	
 	if (accessToken && refreshToken) {
 		processLogin(accessToken, refreshToken, auth, otp_secret, username);
 	}
