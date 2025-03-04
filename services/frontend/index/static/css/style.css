@@ -40,16 +40,21 @@ h6 {
 }
 
 .profile-image {
-    width: 150px;
-    height: 150px;
+    width: 180px;
+    height: 180px;
     object-fit: cover;
     border-radius: 50%;
-    transition: transform 0.3s;
+    transition: transform 0.3s ease-in-out;
+    margin-top: 10px; 
 }
 
 .profile-image:hover {
-    transform: scale(0.9);
+    transform: scale(0.95); 
     cursor: pointer;
+}
+
+#change-photo-button {
+    margin-bottom: 10px; 
 }
 
 .form-control {
@@ -77,7 +82,6 @@ textarea::placeholder {
     );
 }
 
-/*Focus state and prevent color changes while typing */
 input:focus,
 textarea:focus {
     color: white !important;
@@ -89,7 +93,79 @@ label {
     color: white !important;
 }
 
-/* Error Modal Styles */
+.button-style {
+    width: 100%;
+    padding: 10px;
+    background-color: #7300a8;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 16px;
+    transition: all 0.3s ease; 
+}
+
+.button-style:hover {
+    background-color: #8f28d0;
+    cursor: pointer;
+    transform: translateY(-2px);
+}
+
+.button-style:active {
+    background-color: #660072;
+    transform: translateY(2px);
+}
+
+.cancel-button {
+    background-color: #e74c3c;
+}
+
+.cancel-button:hover {
+    background-color: #c0392b;
+}
+
+.save-button {
+    background-color: #2ecc71;
+}
+
+.save-button:hover {
+    background-color: #27ae60;
+}
+
+#edit-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+button.fa {
+    width: 100%;
+    background-color: #7300a8;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    padding: 5px;
+}
+
+button.fa:active {
+    background-color: red;
+    transform: translateY(2px); 
+    color: white;
+}
+
+button.fa:hover {
+    background-color: #55007d; 
+    color: white;
+    cursor: pointer;
+}
+
+button.set:active {
+    transform: translateY(2px);
+}
+
+/* Error Modal */
 .error-modal {
     display: none;
     position: fixed;
@@ -147,31 +223,17 @@ label {
 }
 
 #errorOkBtn:hover {
-    background-color: #8f28d0; /* Lighter on hover */
+    background-color: #8f28d0;
 }
 
-/* Fade-in animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -55%);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%);
-    }
-}
-
-/* Center and resize QR code */
 .qr-code-img {
-    width: 200px; /* Adjust size */
+    width: 200px;
     height: 200px;
     display: block; 
     margin-top: 10px;
     margin-bottom: 20px;
 }
 
-/* Improve setup key visibility */
 .setup-key-box {
     color: white !important;
     font-weight: bold;
@@ -181,7 +243,6 @@ label {
     display: inline-block;
 }
 
-/* Text alignment for labels */
 p.text-white {
     font-size: 1rem;
     font-weight: bold;

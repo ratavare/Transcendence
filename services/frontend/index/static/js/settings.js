@@ -79,12 +79,12 @@ document
 				getStatusContainer().style.display = "block";
 				localStorage.setItem("is_2fa_enabled", "true");
 				localStorage.removeItem("otp_secret");
-				showErrorModal("Successfully enabled 2FA");
+				showErrorModal("Successfully enabled 2FA", false);
 			} else {
 				showErrorModal("Invalid OTP code.");
 			}
 		} catch (error) {
-			console.error("Error verifying OTP:", error);
+			showErrorModal("Invalid OTP code.");
 		}
 	});
 
@@ -108,7 +108,7 @@ document
 				true
 			);
 			if (data.status === "success") {
-				showErrorModal("2FA has been disabled.");
+				showErrorModal("2FA has been disabled.", false);
 				getStatusContainer().style.display = "none";
 				getSetupContainer().style.display = "block";
 				localStorage.setItem("is_2fa_enabled", "false");

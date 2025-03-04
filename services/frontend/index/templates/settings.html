@@ -6,32 +6,31 @@
 		<!-- 2FA Section -->
 		<div class="card mb-3 p-3">
 			<h3>Two-Factor Authentication (2FA)</h3>	
-			<div id="2fa-section">
-				<div id="qr-container"></div>
-				<div id="setup-key-container" class="mb-3" style="display: none">
-					<p class="text-white">Setup Key: 
-						<span id="setup-key" class="setup-key-box"></span>
-					</p>
-				</div>
+			<div id="2fa-section" class="row d-flex align-items-center" style="height: 100%;">
+				<div id="qr-container" class="col-md-4 d-flex justify-content-center align-items-center"></div>
 				
-				<div id="otp-container" class="mb-3" style="display: none; display: flex; align-items: center; display: none;">
-					<p class="text-white" style="margin-right: 10px;">OTP Code:</p>
-					<input type="text" id="otp-code" class="setup-key-box" placeholder="Enter OTP code" style="margin-right: 10px;" />
-					<button id="verify-otp-button" class="btn btn-success">
-						Verify OTP
-					</button>
-					<button id="cancel-2fa-button" class="btn btn-secondary">Cancel</button>
+				<div class="col-md-8 d-flex justify-content-center align-items-center flex-column">
+					<div id="setup-key-container" class="mb-3 w-100" style="display: none">
+						<p class="text-white">Setup Key: 
+							<span id="setup-key" class="setup-key-box"></span>
+						</p>
+					</div>
+					
+					<div id="otp-container" class="mb-3 w-100" style="display: none; display: flex; align-items: center; display: none;">
+						<p class="text-white" style="margin-right: 10px;">OTP Code:</p>
+						<input type="text" id="otp-code" class="setup-key-box" placeholder="Enter OTP code" style="margin-right: 10px;" />
+						<button id="verify-otp-button" class="btn btn-success">
+							Verify OTP
+						</button>
+						<button id="cancel-2fa-button" class="btn btn-secondary">Cancel</button>
+					</div>
 				</div>
-				
-				<div id="2fa-status" class="mb-3" style="display: none">
-					<button id="disable-2fa-button" class="btn btn-danger">Disable 2FA</button>
-				</div>
-
+			</div>
+			<div id="2fa-status" style="display: none">
+				<button id="disable-2fa-button" class="w-100 fa">Disable 2FA</button>
 			</div>
 			<div id="2fa-setup">
-				<button id="enable-2fa-button" class="btn btn-primary w-100">
-					Generate 2FA
-				</button>
+				<button id="enable-2fa-button" class="w-100 fa">Generate 2FA</button>
 			</div>
 		</div>
 
@@ -52,7 +51,7 @@
 					<label for="confirm-new-password">Confirm New Password</label>
 					<input name="confirm_new_password" type="password" id="confirm-new-password" class="form-control border-dark" />
 				</div>
-				<button type="submit" class="btn btn-success w-100">Change Password</button>
+				<button type="submit" class="btn btn-success w-100 set">Change Password</button>
 			</form>
 		</div>
 
@@ -60,7 +59,7 @@
 		<div class="card p-3">
 			<h3>Delete Account</h3>
 			<p class="text-danger">This action is irreversible.</p>
-			<button id="delete-account-button" class="btn btn-danger w-100">Delete Account</button>
+			<button id="delete-account-button" class="btn btn-danger w-100 set">Delete Account</button>
 		</div>
 	</div>
 </page-element>

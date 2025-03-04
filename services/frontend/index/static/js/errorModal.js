@@ -23,7 +23,11 @@ document.addEventListener('DOMContentLoaded', function () {
             messages = Object.values(message).map(msg => `<li>${msg.trim()}</li>`).join('');
         }
 
-        document.querySelector('.error-modal-header').innerText = isError ? 'Warning' : 'Error';
+        if (isError) {
+            document.querySelector('.error-modal-header').innerText = 'Error';
+        } else {
+            document.querySelector('.error-modal-header').innerText = 'Warning';
+        }
         document.getElementById('errorMessage').innerHTML = `<ul>${messages}</ul>`;
         modal.style.display = 'flex';
     };

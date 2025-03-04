@@ -61,6 +61,11 @@ function editProfile() {
 	document.getElementById('id-date').value = window.user.birth_date;
 }
 
+function cancelEdit() {
+	document.getElementById('profile-view').style.display = 'block';
+	document.getElementById('profile-edit').style.display = 'none';
+}
+
 async function run() {
 	document.getElementById('change-photo-button').addEventListener('click', () => {
 		document.getElementById('file-input').click();
@@ -101,10 +106,9 @@ async function run() {
 	const saveChangesButton = document.getElementById('saveChangesButton');
 	
 	if (formProfile && saveChangesButton) {
-		saveChangesButton.classList.add("hidden");
-
+		document.getElementById('saveChangesButton').disabled = true;
         formProfile.addEventListener('input', function () {
-            saveChangesButton.classList.remove('hidden');
+			document.getElementById('saveChangesButton').disabled = false;
         });
     }
 	formProfile?.addEventListener('submit', async function(event) {
