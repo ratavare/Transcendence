@@ -103,10 +103,6 @@ PageElement.onLoad = async () => {
 		}
 	}
 
-	async function finalsInitWS() {
-		return;
-	}
-
 	async function updateBracketWS(payload) {
 		const players = payload.players;
 		console.log("WS players: ", players);
@@ -202,39 +198,15 @@ PageElement.onLoad = async () => {
 	}
 
 	async function finalsInitDB(tournament) {
-		let winner1, winner2;
-		const playerList = tournament.players;
 		if (tournament.game1.winner == null || tournament.game2.winner == null)
 			return
-
+		let winner1, winner2;
+		const playerList = tournament.players;
 		winner1 = tournament.game1.winner.username;
 		winner2 = tournament.game2.winner.username;
-
 		putFinals(winner1, 2, playerList);
 		putFinals(winner2, 4, playerList);
 	}
-
-	// function buttonsInit(tournament)
-	// {
-	// 	const playerList = tournament.players;
-	// 	const spectatorList = tournament.spectators;
-
-	// 	for (let key in spectatorList)
-	// 	{
-	// 		if (window.user.username == playerList[key].username) {
-	// 			const finalsSpectateBtn = document.getElementById("final-spcetateBtn");
-	// 			finalsSpectateBtn.style.display = "block";
-	// 		}
-	// 	}
-	// 	for (let key in playerList)
-	// 	{
-	// 		if (window.user.username == playerList[key].username)
-	// 		{
-	// 			const semifinalsSpectateBtn = document.getElementById("semi-spectateBtn-" + parseInt((key / 2) + 1));
-	// 			semifinalsSpectateBtn.style.display = "none";
-	// 		}
-	// 	}
-	// }
 
 	async function updateBracketDB(tournament_id) {
 		if (!tournament_id)
@@ -246,17 +218,12 @@ PageElement.onLoad = async () => {
 				"GET",
 				true
 			);
-			console.log("DB Players: ", data.tournament.players);
-			console.log("DB Spectators: ", data.tournament.spectators);
-
 			if (data.tournament.game1.winner != null || data.tournament.game2.winner != null)
 				finalsInitDB(data.tournament);
 			else semiFinalsInitDB(data.tournament.players);
+
 			if (data.tournament.game3.winner != null)
 				putWinner(data.tournament);
-
-
-			// buttonsInit(data.tournament);
 		} catch (error) {
 			console.log("Error: ", error);
 		}
@@ -284,9 +251,7 @@ PageElement.onLoad = async () => {
 	}
 
 	async function finalsRedirect(payload) {
-		console.log("START FINAL GAME");
 		const players = payload.players;
-		console.log("FINALS PLAYERS: ", players);
 		for (let i = 0; i < 2; i++) {
 			try {
 				let playerUsername = Object.entries(players)[i][1];
@@ -300,7 +265,6 @@ PageElement.onLoad = async () => {
 
 	async function semifinalsRedirect(payload) {
 		const players = payload.players;
-		console.log("SEMIFINALS PLAYERS: ", players);
 		for (let i = 0; i < 4; i++) {
 			try {
 				let playerUsername = Object.entries(players)[i][1];
@@ -317,13 +281,9 @@ PageElement.onLoad = async () => {
 	// **************************************** CHAT **************************************************
 
 	function receiveChatMessage(payload) {
-		const messageList = document.getElementById(
-			"chat-message-list-tournament"
-		);
+		const messageList = document.getElementById("chat-message-list-tournament");
 		const messageListItem = document.createElement("li");
-		const chatContentElement = document.getElementById(
-			"chat-content-tournament"
-		);
+		const chatContentElement = document.getElementById("chat-content-tournament");
 
 		if (!messageList || !messageListItem || !chatContentElement)
 			return;
@@ -369,7 +329,7 @@ PageElement.onLoad = async () => {
 	} catch (error) {
 		console.log(error);
 	}
-} */
+	} */
 
 	function messageForm() {
 		const chatInputForm = document.getElementById(

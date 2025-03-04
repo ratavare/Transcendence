@@ -106,7 +106,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		tournament["winner1"] = tournamentObject.game1.winner
 		tournament["winner2"] = tournamentObject.game2.winner
 		tournament["winner3"] = tournamentObject.game3.winner
-		print("\nWINNERS: ", tournament["winner1"], tournament["winner2"], tournament["winner3"], "\n", flush=True)
 
 	async def removeLosers(self, t_id):
 		async with self.tournaments_lock:
@@ -117,7 +116,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				w2 = str(tournament["winner2"]).strip()
 				w3 = str(tournament["winner3"]).strip()
 				if (w1.strip() != username.strip() and w2.strip() != username.strip() and w3.strip() != username.strip()):
-					print(f"\n{username} is not a winner. Is now spectator.\n", flush=True)
 					del tournament["players"][self.user_id]
 					tournament["spectators"][self.user_id] = username
 
@@ -127,11 +125,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		w2 = tournament["winner2"]
 		w1_username = w1.username if w1 and hasattr(w1, 'username') else None
 		w2_username = w2.username if w2 and hasattr(w2, 'username') else None
-		print("\nWINNERS: ", w1, w2, "\n", flush=True)
+		stage = "semifinals"
 		if w1 or w2:
 			stage = "final"
-		else:
-			stage = "semifinals"
 		await self.sendMessage("readyBtnInit", {
 			"winner1": w1_username,
 			"winner2": w2_username,
@@ -149,7 +145,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			"spectators": tournaments[self.tournament_id]["spectators"],
 		})
 
-
 	async def disconnect(self, close_code):
 		await self.groupSend("message", {
 			"sender": "disconnect",
@@ -159,6 +154,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			tournament = tournaments[self.tournament_id]
 			if not tournament:
 				return
+
 			if self.user_id in tournament["players"]:
 				del tournament["players"][self.user_id]
 			if self.user_id in tournament["spectators"]:
@@ -171,7 +167,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_discard(self.tournament_id, self.channel_name)
 
 	async def deleteTournamentTask(self, t_id, username):
-		await asyncio.sleep(4)
+		await asyncio.sleep(3)
 
 		async with self.tournaments_lock:
 			tournament = tournaments[t_id]
@@ -179,18 +175,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				return
 			
 			self.is_returning = await self.is_returningDB()
-			await self.groupSend("message", {
-					"sender": "disconnect",
-					"content": f"deleteTournamentTask, is_returning: {self.is_returning}" ,
-				})
-			
 			if self.is_returning:
 				await self.groupSend("message", {
 					"sender": "disconnect",
 					"content": f"{username} left for a game!" ,
 				})
 			else:
-				await self.handleStillActive(t_id, tournament, username)
+				await self.handlePlayersLeaving(t_id, tournament, username)
+				await self.removePlayerDB(t_id, username)
 
 			if not tournament["players"] and not tournament["pong_players"] and not self.is_returning:
 				del tournaments[t_id]
@@ -201,12 +193,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	async def force_disconnect(self, event):
 		await self.close()
 
-	async def handleStillActive(self, t_id, tournament, username):
+	async def handlePlayersLeaving(self, t_id, tournament, username):
 		await self.groupSend("message", {
 				"sender": "disconnect",
 				"content": f"{username} left the tournament!",
 		})
-		await self.removePlayerDB(t_id, username)
 		await self.groupSend("updateBracketWS", {
 			"players": tournament["players"],
 			"spectators": tournament["spectators"],
@@ -216,7 +207,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 	@database_sync_to_async
 	def deleteTournamentDB(self, t_id):
-		print("Deleting Tournament", t_id, flush=True)
 		try:
 			tournament = Tournament.objects.get(tournament_id=t_id)
 			tournament.delete()
@@ -275,8 +265,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			await self.setReadyStateDB(self.username, t_id, True)
 			await self.groupSend("message", {
 				"sender": "connect",
-				"content": f"{self.username} is ready!" 
+				"content": f"{self.username} is ready!"
 			})
+
+		await asyncio.sleep(1)
 		if len(tournament['ready_players']) == 4:
 			await self.countdown()
 			await self.startStage(t_id, "startSemifinals")
@@ -288,7 +280,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			await self.setReadyStateDB(self.username, t_id, True)
 			await self.groupSend("message", {
 				"sender": "connect",
-				"content": f"{self.username} is ready!" 
+				"content": f"{self.username} is ready!"
 			})
 		if len(tournament['ready_players']) == 2:
 			await self.countdown()
