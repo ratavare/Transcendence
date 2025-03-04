@@ -31,6 +31,7 @@ class Lobby(models.Model):
 	paddle1Position = models.ForeignKey(Position, related_name="Paddle1Position", on_delete=models.CASCADE, null=True, blank=True)
 	paddle2Position = models.ForeignKey(Position, related_name="Paddle2Position", on_delete=models.CASCADE, null=True, blank=True)
 	chat = models.ManyToManyField(Message)
+	winner = models.ForeignKey(User, related_name="GameWinner", on_delete=models.CASCADE, null=True, blank=True)
 
 # signals to initialize positions when Lobby is created
 @receiver(post_save, sender=Lobby)

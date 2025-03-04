@@ -45,17 +45,17 @@ PageElement.onLoad = () => {
 	camera.position.set(0, 500, 0);
 	controls.update();
 
-	// Skybox
-	const loader = new THREE.CubeTextureLoader();
-	const skybox = loader.load([
-		"media/skybox/right.png", // Right
-		"media/skybox/left.png", // Left
-		"media/skybox/top.png", // Top
-		"media/skybox/bottom.png", // Bottom
-		"media/skybox/front.png", // Front
-		"media/skybox/back.png", // Back
-	]);
-	scene.background = skybox;
+	// // Skybox
+	// const loader = new THREE.CubeTextureLoader();
+	// const skybox = loader.load([
+	// 	"media/skybox/right.png", // Right
+	// 	"media/skybox/left.png", // Left
+	// 	"media/skybox/top.png", // Top
+	// 	"media/skybox/bottom.png", // Bottom
+	// 	"media/skybox/front.png", // Front
+	// 	"media/skybox/back.png", // Back
+	// ]);
+	// scene.background = skybox;
 
 	// Sphere
 	const ballLoader = new THREE.TextureLoader();
@@ -302,13 +302,8 @@ PageElement.onLoad = () => {
 		pointLight.position.copy(ball.position);
 	}
 
-	const quitBtn = document.getElementById("quit-btn");
-	quitBtn.addEventListener("click", () => {
-		socket.close();
-	});
-
-	function win(status) {
-		console.log("MESSAGE:", message);
+	function win(payload) {
+		console.log("Payload:", payload);
 		const modalElement = document.getElementById("quit");
 		const modal = new bootstrap.Modal(modalElement, {
 			backdrop: "static",
@@ -316,18 +311,9 @@ PageElement.onLoad = () => {
 		});
 		modal.show();
 		const winnerMsg = document.getElementById("winner-msg");
-		winnerMsg.innerHTML = message;
+		winnerMsg.innerHTML = `Winner: ${payload.winner}`;
 		readyBtn.style.display = "block";
-		rendering = False;
-		const body = {
-			"status": status,
-		};
-		myFetch(
-			`https://localhost:8443/profiles/update_win_loss/`,
-			body,
-			"POST",
-			true
-		);
+		rendering = false;
 	}
 
 	// Modify the animate function to include swatting animation logic
@@ -350,26 +336,24 @@ PageElement.onLoad = () => {
 		);
 	}
 
-	async function checkLobby(lobbyId) {
+	async function checkDatabase(url) {
 		try {
-			const data = await myFetch(
-				`https://localhost:8443/lobby/lobbies/${lobbyId}/`,
-				null,
-				"GET",
-				true
-			);
+			const data = await myFetch(url, null, "GET", true);
 		} catch (error) {
 			console.log(error);
 			seturl("/home");
 		}
-	};
+	}
 
 	let rendering = true;
 	const lobby_id = window.props.get("id");
-	checkLobby(lobby_id);
+	checkDatabase(`https://localhost:8443/lobby/lobbies/${lobby_id}/`);
+	checkDatabase(
+		`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`
+	);
 	const token = localStorage.getItem("playerToken") || "";
 	const socket = new WebSocket(
-		`wss://localhost:8443/ws/${encodeURIComponent(
+		`wss://localhost:8443/pong/${encodeURIComponent(
 			lobby_id
 		)}/?token=${token}`
 	);
@@ -377,9 +361,12 @@ PageElement.onLoad = () => {
 	// ISSUES MIGHT OCCUR!! Maybe remove popstate
 	window.addEventListener("popstate", () => {
 		const hash = window.location.hash;
-		if (hash.includes("?")) {
+		if (hash.includes("pong?id")) {
 			const lobbyId = window.props.get("id");
-			checkLobby(lobbyId);
+			checkDatabase(`https://localhost:8443/lobby/lobbies/${lobbyId}/`);
+			checkDatabase(
+				`https://localhost:8443/lobby/lobbies/${lobbyId}/${window.user.username}/`
+			);
 		}
 	});
 
@@ -464,7 +451,6 @@ PageElement.onLoad = () => {
 
 	socket.onclose = () => {
 		console.log("Socket closed unexpectedly");
-		seturl("/home");
 	};
 
 	// ************************************* CHAT ************************************************
@@ -486,7 +472,7 @@ PageElement.onLoad = () => {
 			<span>${payload.content}</span>
 			`;
 		}
-		messageList.appendChild(messageListItem);
+		if (messageListItem) messageList.appendChild(messageListItem);
 		if (chatContentElement) {
 			chatContentElement.scrollTop = chatContentElement.scrollHeight;
 		}
@@ -497,7 +483,7 @@ PageElement.onLoad = () => {
 			sender: sender,
 			content: content,
 		});
-	};
+	}
 
 	async function getChat() {
 		try {
@@ -527,8 +513,39 @@ PageElement.onLoad = () => {
 		});
 	}
 
+	
+
 	messageForm();
 	getChat();
+
+	// ************************************* TOURNAMENTS ************************************************
+
+	async function isTournamentLobby(lobby_id) {
+		console.log(lobby_id.split('_')[0])
+		console.log(lobby_id.split('_')[1])
+		const quitBtn = document.getElementById("quit-btn");
+		const tournament_id = lobby_id.split('_')[1]
+		if (lobby_id.split('_')[0] == 'tournament')
+		{
+			try {
+				const data = await myFetch(`https://localhost:8443/tournament/getTournamentLobby/${tournament_id}/${lobby_id}`, null, "GET", true);
+				console.warn("DATA: ", data);
+				quitBtn.addEventListener("click", () => {
+					seturl(`/tournament?id=${tournament_id}`);
+					setTimeout(() => {
+						window.location.reload();
+					}, 100);
+				});
+			} catch (error) {
+				console.error("ERROR: ", error);
+				quitBtn.addEventListener("click", () => {
+					seturl("/home");
+				});
+			}
+		}
+	}
+
+	isTournamentLobby(lobby_id)
 
 	window.onbeforeunload = () => {
 		sendMessage("disconnect", `${window.user.username} left the lobby`);

@@ -15,7 +15,7 @@ class PageElement extends HTMLElement {
 	};
 
 	static onUnload = (page) => {
-		// console.log("PageElement.onLoad");
+		console.log("PageElement.onLoad");
 	};
 }
 

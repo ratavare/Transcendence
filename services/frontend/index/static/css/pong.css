@@ -1,0 +1,145 @@
+h1 {
+	color: rgb(255, 255, 255);
+	font-family: "Nunito", sans-serif;
+	text-align: center;
+	font-size: 3rem;
+	/* font-weight: bold; */
+	position: relative;
+	top: 0px;
+}
+
+h2 {
+	font-family: "Courier New", Courier, monospace;
+	font-size: 4rem;
+	margin: 0;
+}
+
+h3 {
+	color: firebrick;
+	font-family: "Courier New", Courier, monospace;
+	text-align: center;
+	font-size: 1rem;
+	bottom: 0px;
+	position: relative;
+}
+
+.player1 {
+	color: red;
+}
+
+.player2 {
+	color: blue;
+}
+
+.game-container {
+	display: flex;
+	justify-content: center;
+	margin-top: 5px;
+	box-sizing: border-box;
+}
+
+.canvas-container {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	margin: 5px;
+}
+
+.canvas-item {
+	border: 2px solid;
+	border-image: linear-gradient(
+			-80deg,
+			rgb(73, 0, 128),
+			rgb(228, 50, 252),
+			rgb(73, 0, 128),
+			rgb(228, 50, 252)
+		)
+		1;
+}
+
+.info-container {
+	display: flex;
+	justify-content: space-around;
+	border: 2px solid;
+	margin-top: 7px;
+	border-image: linear-gradient(
+			-80deg,
+			rgb(73, 0, 128),
+			rgb(228, 50, 252),
+			rgb(73, 0, 128),
+			rgb(228, 50, 252)
+		)
+		1;
+}
+
+::-webkit-scrollbar {
+	width: 2px;
+	height: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: linear-gradient(
+		-80deg,
+		rgb(73, 0, 128),
+		rgb(228, 50, 252)
+	);
+}
+
+#readyBtn {
+	text-align: center;
+	font-size: 1.5rem;
+	background-color: linear-gradient(
+		-80deg,
+		black,
+		rgb(23, 13, 113),
+		rgb(73, 0, 128),
+		black
+	);
+	color: linear-gradient(
+		-80deg,
+		black,
+		rgb(23, 13, 113),
+		rgb(73, 0, 128),
+		black
+	);
+	border-radius: 25px;
+	padding-right: 20px;
+	padding-left: 20px;
+	top: 15%;
+}
+
+#canvas {
+	width: 100%;
+	height: 100%;
+}
+
+.overlay-container {
+	display: flex;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	align-items: center;
+	justify-content: center;
+}
+
+.overlay {
+	position: absolute;
+	width: 300px;
+	height: 300px;
+	background-color: rgba(76, 0, 101, 0.453);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+	flex-direction: column;
+}
+
+.overlay button {
+	padding: 3px 6px;
+	/* Reduced padding */
+	font-size: 1rem;
+	/* Reduced font size */
+	cursor: pointer;
+	position: relative;
+	margin-top: -30px;
+}
