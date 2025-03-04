@@ -63,14 +63,14 @@ PageElement.onLoad = async () => {
 	{
 		const username = window.user.username;
 		const readyBtn = document.getElementById("TournamentReadyBtn");
-		console.warn(payload.stage, payload.is_ready, payload.is_ready, payload.stage == "final")
+		console.warn(payload.stage, payload.is_ready, payload.stage == "final")
 		if (payload.is_ready) readyBtn.style.display = "none";
 		else if (payload.stage == "final")
 		{
 			if (payload.winner1 && payload.winner2 && (username == payload.winner1 || username == payload.winner2))
 				readyBtn.style.display = "block"
 		}
-		else {readyBtn.style.display = "block"; console.log("APPEAR")}
+		else readyBtn.style.display = "block";
 
 		readyBtn.addEventListener("click", () => {
 			readyBtn.style.display = "none";
@@ -105,7 +105,6 @@ PageElement.onLoad = async () => {
 
 	async function updateBracketWS(payload) {
 		const players = payload.players;
-		console.log("WS players: ", players);
 		semiFinalsInitWS(players);
 	}
 

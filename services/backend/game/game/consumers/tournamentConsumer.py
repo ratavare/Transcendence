@@ -262,29 +262,29 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	async def semiFinalsUpdateReady(self, t_id, tournament):
 		if self.user_id in tournament["players"] and self.user_id not in tournament["ready_players"]:
 			tournament["ready_players"][self.user_id] = self.username
-			await self.setReadyStateDB(self.username, t_id, True)
+			await self.setReturningState(self.username, t_id, True)
 			await self.groupSend("message", {
 				"sender": "connect",
 				"content": f"{self.username} is ready!"
 			})
 
-		await asyncio.sleep(1)
 		if len(tournament['ready_players']) == 4:
 			await self.countdown()
-			await self.startStage(t_id, "startSemifinals")
+			await self.startStage(t_id, "startSemifinals", False)
 			await self.lockPlayersDB(tournament, t_id)
 	
 	async def finalsUpdateReady(self, t_id, tournament):
 		if self.user_id in tournament["players"] and self.user_id not in tournament["ready_players"]:
 			tournament["ready_players"][self.user_id] = self.username
-			await self.setReadyStateDB(self.username, t_id, True)
+			await self.setReturningState(self.username, t_id, True)
 			await self.groupSend("message", {
 				"sender": "connect",
 				"content": f"{self.username} is ready!"
 			})
+		print("\nREADY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", flush=True)
 		if len(tournament['ready_players']) == 2:
 			await self.countdown()
-			await self.startStage(t_id, "startFinal")
+			await self.startStage(t_id, "startFinal", True)
 
 	@database_sync_to_async
 	def is_returningDB(self):
@@ -306,7 +306,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			return False
 		return tPlayer.is_ready
 
-	async def startStage(self, t_id, stage):
+	async def startStage(self, t_id, stage, readyState):
 		tournament = tournaments[t_id]
 		if not tournament:
 			return
@@ -315,10 +315,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			username = tournament["players"][player]
 			tournament["pong_players"][player] = username
 			await self.setReturningState(username, t_id, True)
-			if stage == "semifinals":
-				await self.setReadyStateDB(username, t_id, False)
-			else:
-				await self.setReadyStateDB(username, t_id, True)
+			await self.setReadyStateDB(username, t_id, readyState)
 
 		await self.groupSend(stage, {
 			"players": tournament["ready_players"],
