@@ -44,6 +44,10 @@ PageElement.onLoad = async () => {
 		console.log(`Socket closed unexpectedly: ${e.reason}`);
 	};
 
+	socket.onerror = (e) => {
+		console.error(e);
+	}
+
 	function sendPayload(type, payload) {
 		socket.send(
 			JSON.stringify({
@@ -57,10 +61,16 @@ PageElement.onLoad = async () => {
 
 	async function readyBtnInit(payload)
 	{
-		console.log("Payload: ", payload.is_ready);
+		const username = window.user.username;
 		const readyBtn = document.getElementById("TournamentReadyBtn");
-		if (payload.is_ready == false) readyBtn.style.display = "block"
-		else readyBtn.style.display = "none";
+		console.warn(payload.stage, payload.is_ready, payload.is_ready, payload.stage == "final")
+		if (payload.is_ready) readyBtn.style.display = "none";
+		else if (payload.stage == "final")
+		{
+			if (payload.winner1 && payload.winner2 && (username == payload.winner1 || username == payload.winner2))
+				readyBtn.style.display = "block"
+		}
+		else {readyBtn.style.display = "block"; console.log("APPEAR")}
 
 		readyBtn.addEventListener("click", () => {
 			readyBtn.style.display = "none";
@@ -159,10 +169,36 @@ PageElement.onLoad = async () => {
 		}
 	}
 
-	function putWinner()
+	function putWinner(tournament)
 	{
-		const finalLi = document.getElementById("li-final" + index / 2);
-		finalLi.style.setProperty("--li-after", pColor);
+		if (tournament.game3.winner == null)
+			return;
+	
+		let winnerIndex;
+		const playerList = tournament.players;
+		let winner = tournament.game3.winner.username;
+
+		for (let i = 0; i < playerList.length; i++) {
+			if (playerList[i].username == winner)
+				winnerIndex = i;
+		}
+
+		let playerLiProperty;
+		if (parseInt(winnerIndex / 2) + 1 == 1) playerLiProperty = "--li-after";
+		else playerLiProperty = "--li-last";
+		
+		const pColor = getPlayerColor(parseInt(winnerIndex) + 1);
+		const finalLi = document.getElementById("li-final" + (parseInt(winnerIndex / 2) + 1));
+		const winnerUl = document.getElementById("ul-winner");
+		const winnerDiv = document.getElementById("tournament-winner");
+		const winnerName = winnerDiv.querySelector("span");
+	
+		finalLi.style.setProperty(playerLiProperty + "-bc", pColor);
+		finalLi.style.setProperty(playerLiProperty + "-bw", "5px");
+		winnerUl.style.setProperty("--ul-after-bc", pColor);
+		winnerUl.style.setProperty("--ul-after-bw", "5px");
+		winnerDiv.classList.add("tournament-p" + (parseInt(winnerIndex) + 1));
+		winnerName.innerHTML = winner;
 	}
 
 	async function finalsInitDB(tournament) {
@@ -215,8 +251,9 @@ PageElement.onLoad = async () => {
 
 			if (data.tournament.game1.winner != null || data.tournament.game2.winner != null)
 				finalsInitDB(data.tournament);
-			else if (data.tournament.game3.winner != null) putWinner();
 			else semiFinalsInitDB(data.tournament.players);
+			if (data.tournament.game3.winner != null)
+				putWinner(data.tournament);
 
 
 			// buttonsInit(data.tournament);
@@ -247,12 +284,23 @@ PageElement.onLoad = async () => {
 	}
 
 	async function finalsRedirect(payload) {
-		void payload;
 		console.log("START FINAL GAME");
+		const players = payload.players;
+		console.log("FINALS PLAYERS: ", players);
+		for (let i = 0; i < 2; i++) {
+			try {
+				let playerUsername = Object.entries(players)[i][1];
+				if (window.user.username == playerUsername)
+					joinTouranamentLobby(payload.tournament_id, 3);
+			} catch {
+				console.log("Final redirection error");
+			}
+		}
 	}
 
 	async function semifinalsRedirect(payload) {
 		const players = payload.players;
+		console.log("SEMIFINALS PLAYERS: ", players);
 		for (let i = 0; i < 4; i++) {
 			try {
 				let playerUsername = Object.entries(players)[i][1];
@@ -261,7 +309,7 @@ PageElement.onLoad = async () => {
 				else if (window.user.username == playerUsername && (i == 2 || i == 3))
 					joinTouranamentLobby(payload.tournament_id, 2);
 			} catch {
-				console.log("e");
+				console.log("Semifinal redirection error");
 			}
 		}
 	}

@@ -490,6 +490,9 @@ PageElement.onLoad = () => {
 				console.warn("DATA: ", data);
 				quitBtn.addEventListener("click", () => {
 					seturl(`/tournament?id=${tournament_id}`);
+					setTimeout(() => {
+						window.location.reload();
+					}, 100);
 				});
 			} catch (error) {
 				console.error("ERROR: ", error);
@@ -498,7 +501,6 @@ PageElement.onLoad = () => {
 				});
 			}
 		}
-		
 	}
 
 	isTournamentLobby(lobby_id)

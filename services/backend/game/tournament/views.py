@@ -125,7 +125,7 @@ def getTournamentLobby(request, tournament_id, lobby_id):
 	try:
 		tournament = Tournament.objects.get(tournament_id=tournament_id)
 		lobby = Lobby.objects.get(lobby_id=lobby_id)
-		if tournament.game1 == lobby or tournament.game2 == lobby:
+		if tournament.game1 == lobby or tournament.game2 == lobby or tournament.game3 == lobby:
 			return JsonResponse({'status': f'{lobby_id} is from {tournament_id}'}, status=200)
 		return JsonResponse({'error': f'Tournament {tournament_id} has no game {lobby_id}'}, status=404)
 	except Tournament.DoesNotExist:
