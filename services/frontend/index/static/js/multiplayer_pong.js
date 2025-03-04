@@ -28,6 +28,7 @@ PageElement.onLoad = () => {
 	let gamePaused = false;
 	let beginGame = false;
 
+
 	// get Overlay
 
 	const overlay = document.getElementById("overlay");
@@ -198,10 +199,11 @@ PageElement.onLoad = () => {
 		return (mesh)
 	}
 
+	let keydownHandler, keyupHandler;
+
 	function handlePaddleControls() 
 	{
-		document.addEventListener('keydown', (event) => 
-		{
+		keydownHandler = (event) => {
 			switch (event.key) 
 			{
 			case 'w':
@@ -228,9 +230,9 @@ PageElement.onLoad = () => {
 				gamePaused = !gamePaused;
 				break;
 			}
-		});
+		};
 
-		document.addEventListener("keyup", (event) => {
+		keyupHandler = (event) => {
 			switch (event.key) {
 				case "w":
 				case "s":
@@ -241,7 +243,10 @@ PageElement.onLoad = () => {
 					paddle2Speed = 0;
 					break;
 			}
-		});
+		};
+
+		document.addEventListener("keydown", keydownHandler);
+		document.addEventListener("keyup", keyupHandler);
 	}
 
 	function movePaddles() {
@@ -383,20 +388,31 @@ PageElement.onLoad = () => {
 	}
 
 	handlePaddleControls();
+	window.addEventListener('beforeunload', stopGame);
 	renderer.setAnimationLoop(animate);
 
-	{
-		const startButton = document.getElementById("startBtn");
-		startButton.addEventListener("click", function () {
-			document.getElementById("overlay").style.display = "none";
-			// Add any additional logic to start the game here
-		});
-	}
+	document.addEventListener("visibilitychange", () => {
+		if (document.hidden) {
+			stopGame();
+		}
+	});
+	
+	window.addEventListener("hashchange", () => {
+		stopGame();
+	});
+	
+	function stopGame() {
+		gamePaused = true; // Pause the game
+		renderer.setAnimationLoop(null); // Stop the game loop
+		renderer.dispose(); // Free up GPU resources
+		renderer.domElement.remove(); // Remove renderer from the DOM
 
-	PageElement.onUnLoad = () => {
-		console.log("onUnLoad:pong");
-		sendPayload("message", `[${window.user.username}] disconnected.`);
-		renderer.dispose();
-		PageElement.onUnLoad = () => {};
-	};
+		// Remove event listeners
+		if (keydownHandler && keyupHandler) {
+			document.removeEventListener("keydown", keydownHandler);
+			document.removeEventListener("keyup", keyupHandler);
+		}
+
+		console.log("Game stopped.");
+	}
 };

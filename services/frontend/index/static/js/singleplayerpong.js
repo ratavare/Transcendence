@@ -29,6 +29,7 @@ PageElement.onLoad = () => {
 	let paddle2Speed = 0;
 	let gamePaused = false;
 	let beginGame = false;
+	let intervalId;
 
 	// get Overlay
 
@@ -228,49 +229,6 @@ PageElement.onLoad = () => {
 		return mesh;
 	}
 
-	function handlePaddleControls() {
-		document.addEventListener("keydown", (event) => {
-			switch (event.key) {
-				case "w":
-					beginGame = true;
-					paddle2Speed = -PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
-				case "s":
-					beginGame = true;
-					paddle2Speed = PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
-				case "ArrowUp":
-					beginGame = true;
-					paddle2Speed = -PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
-				case "ArrowDown":
-					beginGame = true;
-					paddle2Speed = PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
-				case "p":
-					gamePaused = !gamePaused;
-					break;
-			}
-		});
-
-		document.addEventListener("keyup", (event) => {
-			switch (event.key) {
-				case "w":
-				case "s":
-					paddle2Speed = 0;
-					break;
-				case "ArrowUp":
-				case "ArrowDown":
-					paddle2Speed = 0;
-					break;
-			}
-		});
-	}
-
 	function movePaddles() {
 		paddle1.position.z += paddle1Speed;
 		paddle2.position.z += paddle2Speed;
@@ -388,17 +346,17 @@ PageElement.onLoad = () => {
 
 		cubeBoundingBox.setFromObject(cube);
 	}
-
+	
 	let sphereData = [];
-
+	
 	let startTime = Date.now();
-
+	
 	function saveSphereData() {
 		let time = 0;
 		let position = { x: cube.position.x, z: cube.position.z };
 		let speed = { x: cubeSpeedx, z: cubeSpeedz };
 		time = Date.now() - startTime;
-
+		
 		if (sphereData.length == 0) {
 			sphereData.push({ time: time, position: position, speed: speed });
 		} else {
@@ -415,15 +373,15 @@ PageElement.onLoad = () => {
 				speed.x +
 				", " +
 				speed.z
-		);
+			);
 	}
-
+	
 	saveSphereData();
-	setInterval(saveSphereData, 1000);
+	intervalId = setInterval(saveSphereData, 1000);
 
 	function calculateTrajectory() {
 		let data = sphereData[0];
-
+		
 		let finalAngle = Math.atan2(data.speed["z"], data.speed["x"]);
 		finalAngle = finalAngle * (180 / Math.PI);
 
@@ -437,7 +395,7 @@ PageElement.onLoad = () => {
 			distance = -800 - data.position["x"];
 			finalPosition["x"] = -800;
 		}
-
+		
 		// Calculate the distance along the z axis using trigonometric functions
 		let angleRadians = Math.atan2(data.speed["z"], data.speed["x"]);
 		let zDistance = distance * Math.tan(angleRadians);
@@ -446,7 +404,7 @@ PageElement.onLoad = () => {
 		// Handle wall bounces
 		const topWallZ = -500;
 		const bottomWallZ = 500;
-
+		
 		while (
 			finalPosition["z"] < topWallZ ||
 			finalPosition["z"] > bottomWallZ
@@ -458,14 +416,14 @@ PageElement.onLoad = () => {
 					bottomWallZ - (finalPosition["z"] - bottomWallZ);
 			}
 		}
-
+		
 		return finalPosition;
 	}
-
+	
 	function paddle1AI(paddle) {
 		const topWallZ = -449;
 		const bottomWallZ = 449;
-
+		
 		// Calculate the final position of the cube using the calculateTrajectory function
 		let finalPosition = calculateTrajectory();
 
@@ -495,6 +453,57 @@ PageElement.onLoad = () => {
 		}
 	}
 
+	
+
+	let keydownHandler, keyupHandler;
+
+	function handlePaddleControls() {
+		keydownHandler = (event) => {
+			switch (event.key) 
+			{
+				case "w":
+					beginGame = true;
+					paddle1Speed = -PADDLE_SPEED;
+					overlayContainer.style.display = "none";
+					break;
+				case "s":
+					beginGame = true;
+					paddle1Speed = PADDLE_SPEED;
+					overlayContainer.style.display = "none";
+					break;
+				case "ArrowUp":
+					beginGame = true;
+					paddle2Speed = -PADDLE_SPEED;
+					overlayContainer.style.display = "none";
+					break;
+				case "ArrowDown":
+					beginGame = true;
+					paddle2Speed = PADDLE_SPEED;
+					overlayContainer.style.display = "none";
+					break;
+				case "p":
+					gamePaused = !gamePaused;
+					break;
+			}
+		};
+
+		keyupHandler = (event) => {
+			switch (event.key) {
+				case "w":
+				case "s":
+					paddle1Speed = 0;
+					break;
+				case "ArrowUp":
+				case "ArrowDown":
+					paddle2Speed = 0;
+					break;
+			}
+		};
+
+		document.addEventListener("keydown", keydownHandler);
+		document.addEventListener("keyup", keyupHandler);
+	}
+
 	function animate() {
 		if (player1Score < 7 && player2Score < 7) {
 			renderer.render(scene, camera);
@@ -515,21 +524,36 @@ PageElement.onLoad = () => {
 		}
 	}
 
-	handlePaddleControls();
-	renderer.setAnimationLoop(animate);
+	// Function to stop the game
+	function stopGame() {
+		gamePaused = true; // Pause the game
+		clearInterval(intervalId); // Stop saving sphere data
+		renderer.setAnimationLoop(null); // Stop the game loop
+		renderer.dispose(); // Free up GPU resources
+		renderer.domElement.remove(); // Remove renderer from the DOM
 
-	{
-		const startButton = document.getElementById("startBtn");
-		startButton.addEventListener("click", function () {
-			document.getElementById("overlay").style.display = "none";
-			// Add any additional logic to start the game here
-		});
+		// Remove event listeners
+		if (keydownHandler && keyupHandler) {
+			document.removeEventListener("keydown", keydownHandler);
+			document.removeEventListener("keyup", keyupHandler);
+		}
+
+		console.log("Game stopped.");
 	}
 
-	PageElement.onUnLoad = () => {
-		console.log("onUnLoad:pong");
-		sendPayload("message", `[${window.user.username}] disconnected.`);
-		renderer.dispose();
-		PageElement.onUnLoad = () => {};
-	};
+		// Set up event listeners for stopping the game
+		document.addEventListener("visibilitychange", () => {
+			if (document.hidden) {
+				stopGame();
+			}
+		});
+
+		// Stop the game when the user refreshes or leaves
+		window.addEventListener("hashchange", () => {
+			stopGame();
+		});
+
+	handlePaddleControls();
+	renderer.setAnimationLoop(animate);
+	
 };
