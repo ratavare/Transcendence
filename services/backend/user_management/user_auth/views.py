@@ -21,6 +21,11 @@ import requests
 
 from .forms import RegistrationForm
 
+# ENV variables
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -135,8 +140,8 @@ def handle_intra_oauth_login(request, code):
 	token_url = 'https://api.intra.42.fr/oauth/token'
 	data = {
 		'grant_type': 'authorization_code',
-		'client_id': "u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725",
-		'client_secret': "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",
+		'client_id': os.getenv('CLIENT_ID'),
+		'client_secret': os.getenv('CLIENT_SECRET'),
 		'redirect_uri': "https://localhost:8443/user_auth/login/",
 		'code': code
 	}
