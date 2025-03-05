@@ -31,10 +31,8 @@ async function addAcceptedFriendToFriendsList(dest) {
 	);
 	friendsList.appendChild(card);
 	increaseCounter(document.getElementById("friends-count"));
-	const sessionFriends = JSON.parse(sessionStorage.getItem("onlineUsers"));
-	if (dest in sessionFriends) {
+	if (window.activeFriends.has(friend.username)) {
 		const indicator = card.querySelector('.status-text');
-		indicator.classList.remove('status-offline');
 		indicator.classList.add('status-online');
 		indicator.innerHTML = 'ONLINE';
 	}
@@ -218,12 +216,11 @@ function renderFriends(friends) {
 			deleteFriend,
 			friendsCount
 		);
-		// const sessionFriends = JSON.parse(sessionStorage.getItem("onlineUsers")) || {};
-		// if (friend.username in sessionFriends) {
-		// 	const indicator = card.querySelector('.status-text');
-		// 	indicator.classList.add('status-online');
-		// 	indicator.innerHTML = 'ONLINE';
-		// }
+		if (window.activeFriends.has(friend.username)) {
+			const indicator = card.querySelector('.status-text');
+			indicator.classList.add('status-online');
+			indicator.innerHTML = 'ONLINE';
+		}
 	});
 	results.appendChild(membersContainer);
 }

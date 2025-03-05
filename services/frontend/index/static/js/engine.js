@@ -116,7 +116,6 @@ async function setPage(name) {
 async function getProfile() {
 	try {
 		if (localStorage.key("access_token") == null) return false;
-		// console.log("access_token: oh");
 		const response = await myFetch(
 			"https://localhost:8443/user_profile/profile/",
 			null,
@@ -126,6 +125,8 @@ async function getProfile() {
 			throw new Error("Failed to fetch profile");
 		}
 		window.user = response;
+		if (!window.statusSocket)
+			onlineStatus();
 		return true;
 	} catch {
 		window.user = null;
