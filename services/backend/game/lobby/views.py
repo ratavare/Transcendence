@@ -30,9 +30,9 @@ def lobby_detail(request, lobby_id):
 		return joinLobby(request, lobby_id)
 
 def getLobbies(request):
-	lobbies = Lobby.objects.filter(g1__isnull=False, g2__isnull=False, g3__isnull=False).values("lobby_id")
+	lobbies = Lobby.objects.filter(g1__isnull=True, g2__isnull=True, g3__isnull=True).values("lobby_id")
 	if not lobbies:
-		return JsonResponse({'error': "No lobbies found!"}, status=404)
+		return JsonResponse({'error': f"No lobbies found!"}, status=404)
 	return JsonResponse({'lobbies': list(lobbies)}, status=200)
 
 def getLobby(request, lobby_id):

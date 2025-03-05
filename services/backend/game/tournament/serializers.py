@@ -10,7 +10,7 @@ class TournamentSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Tournament
-		fields = ['tournament_id', 'players', 'game1', 'game2', 'game3']
+		fields = ['tournament_id', 'players', 'player_names', 'game1', 'game2', 'game3']
 
 	def get_players(self, obj):
 		return [

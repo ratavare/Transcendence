@@ -63,11 +63,10 @@ PageElement.onLoad = async () => {
 	{
 		const username = window.user.username;
 		const readyBtn = document.getElementById("TournamentReadyBtn");
-		console.warn(payload.stage, payload.is_ready, payload.stage == "final")
-		if (payload.is_ready) readyBtn.style.display = "none";
+		if (payload.is_ready || payload.winner3) readyBtn.style.display = "none";
 		else if (payload.stage == "final")
 		{
-			if (payload.winner1 && payload.winner2 && (username == payload.winner1 || username == payload.winner2))
+			if ((payload.winner1 || payload.winner2) && (username == payload.winner1 || username == payload.winner2))
 				readyBtn.style.display = "block"
 		}
 		else readyBtn.style.display = "block";
@@ -81,101 +80,47 @@ PageElement.onLoad = async () => {
 	function getPlayerColor(index)
 	{
 		const pClass = document.querySelector(".tournament-p" + parseInt(index));
+		if (!pClass) {
+			return "transparent";
+		}
 		const pStyle = getComputedStyle(pClass);
 		return (pStyle.getPropertyValue('--border-color').trim());
 	}
 
-	async function semiFinalsInitWS(players)
-	{
-		for (let i = 0; i < 4; i++) {
-			const playerDiv = document.querySelector(
-				".tournament-p" + (parseInt(i) + 1)
-			);
-			if (!playerDiv)
-				continue;
-			const playerName = playerDiv.querySelector("span");
-			try {
-				let username = Object.entries(players)[i][1];
-				playerName.textContent = username;
-			} catch {
-				playerName.textContent = "Player " + (i + 1);
-			}
-		}
-	}
+	// ************** UPDATE BRACKET WEBSOCKET **************
 
 	async function updateBracketWS(payload) {
 		const players = payload.players;
-		semiFinalsInitWS(players);
-	}
-
-	function semiFinalsInitDB(playerList) {
-		for (let i = 0; i < 4; i++) {
-			const playerDiv = document.getElementById("div-p" + (parseInt(i) + 1));
-			if (!playerDiv)
-				continue;
-			const playerName = playerDiv.querySelector("span");
-			// const profileImg = playerDiv.querySelector('img');
-			if (playerList && playerList[i]) {
-				playerName.textContent = playerList[i].username;
-			}
-			else playerName.textContent = "Player " + (i + 1);
-		}
-	}
-
-	function putFinals(winner, index, playerList) {
-		for (let i = index - 2; i < index; i++) {
-			const finalsDiv = document.getElementById('div-final' + (index / 2));
-			const semifinalsUl = document.getElementById("ul-semi" + (index / 2));
-			const pLi = document.getElementById("li-p" + (parseInt(i) + 1))
-			
-			const pDiv = document.getElementById("div-p" + (parseInt(i) + 1));
-			const pName = pDiv.querySelector("span");
-		
-			const pColor = getPlayerColor(parseInt(i) + 1);
-
-			let playerLiProperty;
-			if (i % 2 == 0) playerLiProperty = "--li-after";
-			else playerLiProperty = "--li-last";
-			
-			if (!winner || playerList[i] == null) {pName.textContent = "???"; console.log("null");}
-			else if (winner == playerList[i].username) {
-				// Change bracket lines' color
-				finalsDiv.classList.add("tournament-p" + (parseInt(i) + 1));
-				const pFinalName = finalsDiv.querySelector("span");
-				pLi.style.setProperty(playerLiProperty + "-bc", pColor);
-				pLi.style.setProperty(playerLiProperty + "-bw", "5px");
-				semifinalsUl.style.setProperty("--ul-after-bc", pColor);
-				semifinalsUl.style.setProperty("--ul-after-bw", "5px");
-				pDiv.style.background = pColor
-				pDiv.classList.remove("tournament-p" + (parseInt(i) + 1));
+		const winner1 = payload.winner1;
+		const winner2 = payload.winner2;
+		const winner3 = payload.winner3;
 	
-				//Add name
-				pFinalName.textContent = playerList[i].username;
-				pDiv.textContent = playerList[i].username;
-			} else {
-				pName.textContent = playerList[i].username;
-				pDiv.classList.remove("tournament-p" + (parseInt(i) + 1));
-				pDiv.style.background = pColor.replace(
-					/[\d\.]+\)$/g,
-					`${0.25})`
-				);
-			}
-			
+		if (payload["stage"] == "final"){
+			if (payload["state"] == "disconnect")
+				sendPayload("setTournamentWinner", {players: players})
 		}
+	
+		updateSemifinals(players);
+		if (winner1 || winner2)
+			updateFinal(winner1, winner2, players);
+		if (winner3)
+			updateWinner(winner1, winner2, winner3, players);
 	}
 
-	function putWinner(tournament)
+	// ************** UPDATE BRACKET DATABSE **************
+
+	function updateWinner(winner1, winner2, winner3, playerList)
 	{
-		if (tournament.game3.winner == null)
-			return;
-	
 		let winnerIndex;
-		const playerList = tournament.players;
-		let winner = tournament.game3.winner.username;
 
 		for (let i = 0; i < playerList.length; i++) {
-			if (playerList[i].username == winner)
+			if (playerList[i] == winner3)
 				winnerIndex = i;
+		}
+
+		if (winnerIndex === undefined) {
+			console.warn("Winner not found in playerList");
+			return;
 		}
 
 		let playerLiProperty;
@@ -187,50 +132,114 @@ PageElement.onLoad = async () => {
 		const winnerUl = document.getElementById("ul-winner");
 		const winnerDiv = document.getElementById("tournament-winner");
 		const winnerName = winnerDiv.querySelector("span");
-	
+
+		// Change background of finalist brackets
+		for (let i = 0; i < 4; i++) {
+			if (playerList[i] == winner1)
+				document.getElementById("div-final1").style.background = getPlayerColor(parseInt(i) + 1);
+			if (playerList[i] == winner2)
+				document.getElementById("div-final2").style.background = getPlayerColor(parseInt(i) + 1);
+		}
+		
+		// Change bracket borders
 		finalLi.style.setProperty(playerLiProperty + "-bc", pColor);
 		finalLi.style.setProperty(playerLiProperty + "-bw", "5px");
 		winnerUl.style.setProperty("--ul-after-bc", pColor);
 		winnerUl.style.setProperty("--ul-after-bw", "5px");
 		winnerDiv.classList.add("tournament-p" + (parseInt(winnerIndex) + 1));
-		winnerName.innerHTML = winner;
+
+		// Change winner bracket name and background
+		winnerName.innerHTML = winner3;
+		winnerDiv.style.backgroundColor = pColor;
+		
 	}
 
-	async function finalsInitDB(tournament) {
-		if (tournament.game1.winner == null || tournament.game2.winner == null)
-			return
-		let winner1, winner2;
-		const playerList = tournament.players;
-		winner1 = tournament.game1.winner.username;
-		winner2 = tournament.game2.winner.username;
+	function putFinals(winner, index, playerList) {
+		for (let i = index - 2; i < index; i++) {
+			const finalsDiv = document.getElementById('div-final' + (index / 2));
+			const semifinalsUl = document.getElementById("ul-semi" + (index / 2));
+			const pLi = document.getElementById("li-p" + (parseInt(i) + 1))
+			const pDiv = document.getElementById("div-p" + (parseInt(i) + 1));
+			const pName = pDiv.querySelector("span");
+			if (!pName)
+				return ;
+			const pColor = getPlayerColor(parseInt(i) + 1);
+		
+			let playerLiProperty;
+			if (i % 2 == 0) playerLiProperty = "--li-after";
+			else playerLiProperty = "--li-last";
+			
+			if (!winner || playerList[i] == null) 
+				pName.textContent = "???"
+			else if (winner == playerList[i]) {
+				// Change bracket lines' color
+				finalsDiv.classList.add("tournament-p" + (parseInt(i) + 1));
+				const pFinalName = finalsDiv.querySelector("span");
+				pLi.style.setProperty(playerLiProperty + "-bc", pColor);
+				pLi.style.setProperty(playerLiProperty + "-bw", "5px");
+				semifinalsUl.style.setProperty("--ul-after-bc", pColor);
+				semifinalsUl.style.setProperty("--ul-after-bw", "5px");
+				pDiv.style.background = pColor
+	
+				//Add name
+				pFinalName.textContent = playerList[i];
+				pDiv.textContent = playerList[i];
+			}
+		}
+	}
+
+	async function updateFinal(winner1, winner2,  playerList) {
 		putFinals(winner1, 2, playerList);
 		putFinals(winner2, 4, playerList);
 	}
 
-	async function updateBracketDB(tournament_id) {
-		if (!tournament_id)
-			return;
-		try {
-			const data = await myFetch(
-				`https://localhost:8443/tournament/getJoin/${tournament_id}/`,
-				null,
-				"GET",
-				true
-			);
-			if (data.tournament.game1.winner != null || data.tournament.game2.winner != null)
-				finalsInitDB(data.tournament);
-			else semiFinalsInitDB(data.tournament.players);
-
-			if (data.tournament.game3.winner != null)
-				putWinner(data.tournament);
-		} catch (error) {
-			console.log("Error: ", error);
-		}
+	function updateSemifinals(players) {
+		const playerValues = Object.values(players)
+		playerValues.forEach((username, i) => {
+			const playerDiv = document.getElementById("div-p" + (parseInt(i) + 1));
+			if (!playerDiv || !username) return ;
+			const playerName = playerDiv.querySelector("span");
+			if (!playerName) return
+			// const profileImg = playerDiv.querySelector('img');
+			playerName.textContent = username || "Player " + (i + 1);
+		})
 	}
+
+	// async function updateBracketDB(tournament_id) {
+	// 	if (!tournament_id)
+	// 		return;
+	// 	try {
+	// 		const data = await myFetch(
+	// 			`https://localhost:8443/tournament/getJoin/${tournament_id}/`,
+	// 			null,
+	// 			"GET",
+	// 			true
+	// 		);
+	// 		let players = data.tournament.player_names;
+	// 		if (!players)
+	// 			players = data.tournament.players;
+			
+			
+	// 		const winner1 = data.tournament.game1.winner;
+	// 		const winner2 = data.tournament.game2.winner;
+	// 		const winner3 = data.tournament.game3.winner;
+	// 		console.log(players, winner1, winner2, winner3);
+
+	// 		updateSemifinals(players, 1);
+	// 		if (winner1 != null || winner2 != null) {
+	// 			updateFinal(winner1.username, winner2.username, players);
+	// 		}
+	// 		if (winner3 != null) {
+	// 			updateWinner(winner1.usermame, winner2.username, winner3.username, players);
+	// 		}
+	// 	} catch (error) {
+	// 		console.log("Error: ", error);
+	// 	}
+	// }
 
 	// **************************************** LOBBY *************************************************
 
-	async function joinTouranamentLobby(tournament_id, game) {
+	async function joinTournamentLobby(tournament_id, game) {
 		const lobby_id = `tournament_${tournament_id}_${game}`;
 		const body = {
 			username: window.user.username,
@@ -255,7 +264,7 @@ PageElement.onLoad = async () => {
 			try {
 				let playerUsername = Object.entries(players)[i][1];
 				if (window.user.username == playerUsername)
-					joinTouranamentLobby(payload.tournament_id, 3);
+					joinTournamentLobby(payload.tournament_id, 3);
 			} catch {
 				console.log("Final redirection error");
 			}
@@ -268,9 +277,9 @@ PageElement.onLoad = async () => {
 			try {
 				let playerUsername = Object.entries(players)[i][1];
 				if (window.user.username == playerUsername && (i == 0 || i == 1))
-					joinTouranamentLobby(payload.tournament_id, 1);
+					joinTournamentLobby(payload.tournament_id, 1);
 				else if (window.user.username == playerUsername && (i == 2 || i == 3))
-					joinTouranamentLobby(payload.tournament_id, 2);
+					joinTournamentLobby(payload.tournament_id, 2);
 			} catch {
 				console.log("Semifinal redirection error");
 			}
@@ -346,7 +355,7 @@ PageElement.onLoad = async () => {
 		});
 	}
 
-	updateBracketDB(tournament_id);
+	// updateBracketDB(tournament_id);
 	messageForm();
 
 	window.addEventListener("popstate", () => {
