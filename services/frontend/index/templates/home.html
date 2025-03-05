@@ -68,6 +68,29 @@
 			font-size: 1.5em;
 			font-weight: bold;
 		}
+
+		/* Style for the lobby list items */
+		.lobby-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 10px;
+			margin-bottom: 10px;
+			background-color: #f8f9fa; /* Light grey background */
+			border: 1px solid #dee2e6; /* Light grey border */
+			border-radius: 5px; /* Rounded corners */
+			transition: background-color 0.3s; /* Smooth transition */
+		}
+
+		.lobby-item:hover {
+			background-color: #e9ecef; /* Slightly darker grey on hover */
+		}
+
+		/* Style for the lobby ID text */
+		.lobby-id {
+			font-size: 18px;
+			color: #343a40; /* Dark grey text */
+		}
 	</style>
 
 	<!-- Add image here -->
@@ -248,9 +271,9 @@
 					></button>
 				</div>
 				<div class="modal-body">
-					<h4>Insert a lobby name:</h4>
+					<h4 style="text-align: center;">Insert a lobby name:</h4>
 					<div class="container mt-5">
-						<form method="POST" id="create-lobby-form">
+						<form method="POST" id="create-lobby-form" style="display: flex; flex-direction: column; align-items: center;">
 							{% csrf_token %}
 							<input
 								placeholder="Create a lobby.."
@@ -261,6 +284,9 @@
 									padding: 10px;
 									border-radius: 5px;
 									color: #ffffff;
+									width: 100%;
+									max-width: 300px;
+									margin-bottom: 10px;
 								"
 								onfocus="this.style.backgroundColor='#3b3b3b'"
 								onblur="this.style.backgroundColor='#000000'"
@@ -275,7 +301,8 @@
 									padding: 10px;
 									border-radius: 5px;
 									color: #ffffff;
-									margin-top: 10px;
+									width: 100%;
+									max-width: 300px;
 								"
 							/>
 						</form>
@@ -294,7 +321,7 @@
 		</div>
 	</div>
 
-	<!-- Create a tournament Modal-->
+	<!-- Create a tournament Modal -->
 	<div
 		class="modal fade"
 		id="createTournamentModal"
@@ -319,9 +346,9 @@
 					></button>
 				</div>
 				<div class="modal-body">
-					<h4>Insert a tournament name:</h4>
+					<h4 style="text-align: center; line-height: 2;">Insert a tournament name:</h4>
 					<div class="container mt-5">
-						<form method="POST" id="create-tournament-form">
+						<form method="POST" id="create-tournament-form" style="display: flex; flex-direction: column; align-items: center;">
 							{% csrf_token %}
 							<input
 								placeholder="Create a tournament.."
@@ -332,6 +359,9 @@
 									padding: 10px;
 									border-radius: 5px;
 									color: #ffffff;
+									width: 100%;
+									max-width: 300px;
+									margin-bottom: 10px;
 								"
 								onfocus="this.style.backgroundColor='#3b3b3b'"
 								onblur="this.style.backgroundColor='#000000'"
@@ -346,7 +376,8 @@
 									padding: 10px;
 									border-radius: 5px;
 									color: #ffffff;
-									margin-top: 10px;
+									width: 100%;
+									max-width: 300px;
 								"
 							/>
 						</form>

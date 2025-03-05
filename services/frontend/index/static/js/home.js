@@ -12,29 +12,59 @@ document
 
 function putList(jsonArray, htmlId, type) {
 	const listDiv = document.getElementById(htmlId);
+	if (!listDiv) return;
 
+	// Remove previous list if it exists
 	const previousList = listDiv.querySelector("ul");
 	previousList?.remove();
+
+
 	const list = document.createElement("ul");
 	list.classList.add("list-group");
+
 	let i = 0;
 	jsonArray.forEach((element) => {
 		Object.keys(element).forEach((id) => {
 			const roomId = element[id];
-			list.innerHTML += `
-				<li id="item${i++}" class="list-group-item" style="display: flex;align-items: center;justify-content: space-around">
-					<p>${roomId}</p>
-					<button type="submit" class="btn col pull-right btn-success btn-xs" style="display: flex;" data-bs-dismiss="modal">Join ${type}</button>
-				</li>
-			`;
+
+			const listItem = document.createElement("li");
+			listItem.id = `item${i++}`;
+			listItem.className = "list-group-item d-flex align-items-center justify-content-around";
+
+			// Room ID paragraph
+			const roomParagraph = document.createElement("p");
+			roomParagraph.textContent = roomId;
+
+			// Join button
+			const joinButton = document.createElement("button");
+			joinButton.type = "submit";
+			joinButton.className = "btn col pull-right btn-success btn-xs";
+			joinButton.style.display = "flex";
+			joinButton.setAttribute("data-bs-dismiss", "modal");
+			joinButton.textContent = `Join ${type}`;
+
+			// Add event listener to the button
+			joinButton.addEventListener("click", () => {
+				console.log(`Joining ${type}: ${roomId}`);
+				// Implement actual join logic here
+			});
+
+			// Append elements
+			listItem.appendChild(roomParagraph);
+			listItem.appendChild(joinButton);
+			list.appendChild(listItem);
 		});
 	});
+
+	// Append list to the container
 	listDiv.appendChild(list);
 	listDiv.style.display = "block";
 
+	// Configure buttons
 	buttonConfigure(htmlId, type);
 }
-
+	
+	
 function buttonConfigure(htmlId, type) {
 	const listDiv = document.getElementById(htmlId);
 	const listItems = listDiv.querySelectorAll("li");
@@ -75,7 +105,6 @@ async function getLobbies() {
 			true
 		);
 		putList(data.lobbies, "lobby-list", "Lobby");
-		console.log("LOBBY LIST: ", data.lobbies);
 	} catch (error) {
 		console.log(error);
 	}

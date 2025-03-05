@@ -524,34 +524,27 @@ PageElement.onLoad = () => {
 		}
 	}
 
-	// Function to stop the game
-	function stopGame() {
-		gamePaused = true; // Pause the game
-		clearInterval(intervalId); // Stop saving sphere data
-		renderer.setAnimationLoop(null); // Stop the game loop
-		renderer.dispose(); // Free up GPU resources
-		renderer.domElement.remove(); // Remove renderer from the DOM
+    // Function to stop the game
+    function stopGame() {
+        gamePaused = true; // Pause the game
+        clearInterval(intervalId); // Stop saving sphere data
+        renderer.setAnimationLoop(null); // Stop the game loop
+        renderer.dispose(); // Free up GPU resources
+        renderer.domElement.remove(); // Remove renderer from the DOM
 
-		// Remove event listeners
-		if (keydownHandler && keyupHandler) {
-			document.removeEventListener("keydown", keydownHandler);
-			document.removeEventListener("keyup", keyupHandler);
-		}
+        // Remove event listeners
+        if (keydownHandler && keyupHandler) {
+            document.removeEventListener("keydown", keydownHandler);
+            document.removeEventListener("keyup", keyupHandler);
+        }
 
-		console.log("Game stopped.");
-	}
+        console.log("Game stopped.");
+    }
 
-		// Set up event listeners for stopping the game
-		document.addEventListener("visibilitychange", () => {
-			if (document.hidden) {
-				stopGame();
-			}
-		});
-
-		// Stop the game when the user refreshes or leaves
-		window.addEventListener("hashchange", () => {
-			stopGame();
-		});
+    // Stop the game when the user refreshes or leaves
+    window.addEventListener("hashchange", () => {
+        stopGame();
+    });
 
 	handlePaddleControls();
 	renderer.setAnimationLoop(animate);

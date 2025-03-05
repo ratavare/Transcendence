@@ -565,12 +565,6 @@ PageElement.onLoad = () => {
 
 		PageElement.onUnload = () => {};
 	};
-
-	document.addEventListener("visibilitychange", () => {
-		if (document.hidden) {
-			stopGame();
-		}
-	});
 	
 	window.addEventListener("hashchange", () => {
 		stopGame();

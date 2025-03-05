@@ -24,43 +24,39 @@ function buttonConfigure() {
 	});
 }
 
-function putLobbylist(lobbies) {
-	const previousList = lobbyListDiv.querySelector("ul");
-	previousList?.remove();
-	const lobbyList = document.createElement("ul");
-	lobbyList.classList.add("list-group");
-	let i = 0;
-	lobbies.forEach((lobby) => {
-		const lobbyItemList = document.createElement("li");
-		lobbyItemList.id = "item" + i++;
-		lobbyItemList.classList.add("list-group-item");
-		lobbyItemList.style =
-			"display: flex;align-items: center;justify-content: space-around";
+async function putLobbylist(lobbies) {
+    const lobbyListDiv = document.getElementById("lobby-list");
+    if (!lobbyListDiv) return;
 
-		const lobbyId = document.createElement("p");
-		lobbyId.textContent = lobby.lobby_id;
+	console.warn("HELLO");
+    lobbies.forEach((lobby) => {
+        // Prevent duplicate entries
+        // if (document.querySelector(`[data-lobby-id="${lobby.lobby_id}"]`)) return;
 
-		const joinLobbyBtn = document.createElement("button");
-		joinLobbyBtn.classList.add(
-			"btn",
-			"col",
-			"pull-right",
-			"btn-success",
-			"btn-xs"
-		);
-		joinLobbyBtn.textContent = "Join Lobby";
-		joinLobbyBtn.type = "submit";
-		joinLobbyBtn.style.display = "flex";
+        // const card = document.createElement("div");
+        // card.className = "col-sm-6 col-lg-4";
+        // card.setAttribute("data-lobby-id", lobby.lobby_id);
+        // card.innerHTML = `
+        //     <div class="card hover-img">
+        //         <div class="card-body p-4 text-center border-bottom">
+        //             <h5 class="fw-semibold mb-0" style="color: white">Lobby ID: ${lobby.lobby_id}</h5>
+        //         </div>
+        //         <div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
+        //             <button class="btn btn-primary mb-2 play-button" data-lobby-id="${lobby.lobby_id}">Join Lobby</button>
+        //         </div>
+        //     </div>
+        // `;
 
-		lobbyItemList.appendChild(lobbyId);
-		lobbyItemList.appendChild(joinLobbyBtn);
-		lobbyList.appendChild(lobbyItemList);
-	});
-	lobbyListDiv.appendChild(lobbyList);
-	lobbyListDiv.style.display = "block";
+        // Click event for joining lobby using the correct class
+        card.querySelector(".play-button").addEventListener("click", () => {
+            console.log(`Joining lobby: ${lobby.lobby_id}`);
+            // Implement actual join logic here
+        });
 
-	buttonConfigure();
+        lobbyListDiv.appendChild(card);
+    });
 }
+
 
 async function getLobbies() {
 	try {

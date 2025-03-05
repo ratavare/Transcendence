@@ -391,11 +391,6 @@ PageElement.onLoad = () => {
 	window.addEventListener('beforeunload', stopGame);
 	renderer.setAnimationLoop(animate);
 
-	document.addEventListener("visibilitychange", () => {
-		if (document.hidden) {
-			stopGame();
-		}
-	});
 	
 	window.addEventListener("hashchange", () => {
 		stopGame();
