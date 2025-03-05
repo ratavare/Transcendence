@@ -21,8 +21,26 @@ import requests
 
 from .forms import RegistrationForm
 
+# ENV variables
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 import logging
 logger = logging.getLogger(__name__)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def has_usable_password(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        
+        # Check if the user has a usable password
+        has_password = user.has_usable_password()
+        
+        return JsonResponse({'has_password': has_password})
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -65,9 +83,9 @@ def verify_otp(request):
 	logging.debug(f"Verifying OTP: {otp} for user: {user.username} with otp_secret: {otp_secret} and profile: {profile}")
 	if profile and otp_secret:
 		totp = pyotp.TOTP(otp_secret)
-		profile.otp_secret = otp_secret
-		profile.save()
 		if totp.verify(otp):
+			profile.otp_secret = otp_secret
+			profile.save()
 			return JsonResponse({'status': 'success'}, status=200)
 	return JsonResponse({'status': 'error', 'error': 'Invalid OTP'}, status=400)
 
@@ -122,8 +140,8 @@ def handle_intra_oauth_login(request, code):
 	token_url = 'https://api.intra.42.fr/oauth/token'
 	data = {
 		'grant_type': 'authorization_code',
-		'client_id': "u-s4t2ud-790e83da699ea6cd705470f3c9ee6f0162ce72a1a28f1775537fe2415f4f2725",
-		'client_secret': "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",
+		'client_id': os.getenv('CLIENT_ID'),
+		'client_secret': os.getenv('CLIENT_SECRET'),
 		'redirect_uri': "https://localhost:8443/user_auth/login/",
 		'code': code
 	}
@@ -140,7 +158,10 @@ def handle_intra_oauth_login(request, code):
 	
 	user_info = get_user_info_from_intra(access_token)
 	
-	user = authenticate_or_create_user_from_intra(user_info)
+	try:
+		user = authenticate_or_create_user_from_intra(user_info)
+	except ValueError as e:
+		return HttpResponseRedirect(f'https://localhost:8443/#/login?error={e}')
 	login(request, user)
 	refresh = RefreshToken.for_user(user)
 
@@ -190,20 +211,28 @@ def get_user_info_from_intra(access_token):
 	response = requests.get(user_info_url, headers=headers)
 	
 	if response.status_code == 200:
+		user_info = response.json()
+		user_info['has_password'] = bool(user_info.get('password')) if 'password' in user_info else False
 		return response.json()
 	else:
 		raise ValueError("Failed to fetch user info from Intra")
 
 def authenticate_or_create_user_from_intra(user_info):
-	"""
-	Authenticate or create a new user in your system using information from Intra.
-	"""
 	username = user_info['login']
 	user, created = User.objects.get_or_create(username=username)
+    
+	logger.debug(f"User: {user}, created: {created}")
+
+	if not created and user.has_usable_password():
+		raise ValueError("User already exists with a password")
 	
 	if created:
-		profile = Profile.objects.create(user=user)
-	
+		user.set_unusable_password()
+		user.save()
+		Profile.objects.get_or_create(user=user)
+		user.profile.intra_login = True
+		user.profile.save()
+    
 	return user
 
 def handle_otp_verification(request):
@@ -269,29 +298,35 @@ def userSearchView(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def changePasswordView(request):
-	user = request.user
-	current_password = request.POST.get('current_password')
-	new_password = request.POST.get('new_password')
-	confirm_new_password = request.POST.get('confirm_new_password')
+    user = request.user
+    current_password = request.POST.get('current_password')
+    new_password = request.POST.get('new_password')
+    confirm_new_password = request.POST.get('confirm_new_password')
 
-	if not user.check_password(current_password):
-		return JsonResponse({'error': 'Current password is incorrect'}, status=400)
+    if not new_password or not confirm_new_password:
+        return JsonResponse({'error': 'New password and confirmation are required'}, status=400)
 
-	if new_password != confirm_new_password:
-		return JsonResponse({'error': 'New passwords do not match'}, status=400)
+    if new_password != confirm_new_password:
+        return JsonResponse({'error': 'New passwords do not match'}, status=400)
 
-	if new_password == current_password:
-		return JsonResponse({'error': "New password can't be the same as old one"}, status=400)
+    # Only require current_password if the user has a usable password.
+    if user.has_usable_password():
+        if not current_password:
+            return JsonResponse({'error': 'Current password is required'}, status=400)
+        if not user.check_password(current_password):
+            return JsonResponse({'error': 'Current password is incorrect'}, status=400)
+        if new_password == current_password:
+            return JsonResponse({'error': "New password can't be the same as the old one"}, status=400)
 
-	try:
-		user.set_password(new_password)
-		user.save()
-		update_session_auth_hash(request, user)
-		return JsonResponse({'status': 'success', 'message': 'Password changed successfully'}, status=200)
-	except ValidationError as e:
-		return JsonResponse({'error': str(e)}, status=400)
-	except Exception as e:
-		return JsonResponse({'error': 'An error occurred while changing the password'}, status=500)
+    try:
+        user.set_password(new_password)
+        user.save()
+        update_session_auth_hash(request, user)
+        return JsonResponse({'status': 'success', 'message': 'Password changed successfully'}, status=200)
+    except ValidationError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': 'An error occurred while changing the password'}, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

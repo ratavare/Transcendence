@@ -6,7 +6,7 @@ async function updateProfile(formData) {
 		window.location.reload();
 	} catch(error) {
 		console.log("Profile change failed. Reason:", error);
-		alert("Profile change failed. Reason:", error);
+        showErrorModal("Profile change failed. Please check that the username is unique and the email is valid.");
 	}
 }
 
@@ -17,11 +17,11 @@ async function uploadProfilePicture(file) {
 
 		await myFetch(`https://localhost:8443/user_profile/profile/picture/${window.user.username}/`, formData, 'POST', true);
 
-		alert('Profile picture updated successfully!');
+		//showErrorModal('Profile picture updated successfully!');
 		window.location.reload(); // Refresh might not be the best way
 	} catch (error) {
 		console.error("Error uploading profile picture:", error);
-		alert('Failed to upload profile picture. Please try again.');
+        showErrorModal("Profile picture change failed.");
 	}
 }
 
@@ -33,6 +33,8 @@ async function fillProfile(user) {
         document.getElementById('profile-bio').innerText = user.bio || "";
         document.getElementById('profile-city').innerText = user.city || "";
         document.getElementById('profile-birth-date').innerText = user.birth_date || "";
+		document.getElementById('profile-wins').innerText = user.wins || 0;
+		document.getElementById('profile-losses').innerText = user.losses || 0;
 	} catch (error) {
 		console.error("Fetch error: ", error);
 	}
@@ -47,6 +49,16 @@ function editProfile() {
 	document.getElementById('bio-edit').value = window.user.bio || "";
 	document.getElementById('city-edit').value = window.user.city || "";
 	document.getElementById('id-date').value = window.user.birth_date;
+
+	// Disable username input if the user logged in via Intra
+	if (window.user.intra_login) {
+		document.getElementById("username-edit").disabled = true;
+	}
+}
+
+function cancelEdit() {
+	document.getElementById('profile-view').style.display = 'block';
+	document.getElementById('profile-edit').style.display = 'none';
 }
 
 async function run() {
@@ -70,11 +82,11 @@ async function run() {
 			const file = event.target.files[0];
 			if (file) {
 				if (file.size > 2 * 1024 * 1024) {
-					alert('File size must be less than 2MB.');
+                    showErrorModal('File size must be less than 2MB.');
 					return;
 				}
 				if (!file.type.startsWith('image/')) {
-					alert('Please upload a valid image file.');
+                    showErrorModal('Please upload a valid image file.');
 					return;
 				}
 				uploadProfilePicture(file);
@@ -89,10 +101,9 @@ async function run() {
 	const saveChangesButton = document.getElementById('saveChangesButton');
 	
 	if (formProfile && saveChangesButton) {
-		saveChangesButton.classList.add("hidden");
-
+		document.getElementById('saveChangesButton').disabled = true;
         formProfile.addEventListener('input', function () {
-            saveChangesButton.classList.remove('hidden');
+			document.getElementById('saveChangesButton').disabled = false;
         });
     }
 	formProfile?.addEventListener('submit', async function(event) {

@@ -140,7 +140,6 @@ async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = tr
 			body = JSON.stringify(myData);
 		}
 	}
-
 	const response = await fetch(viewUrl, {
 		method: method,
 		headers: headers,
@@ -182,5 +181,6 @@ function getUrlParams() {
 		auth: queryParams.get("2fa"),
 		otp_secret: queryParams.get("otp_secret"),
 		username: queryParams.get("username"),
+		error: queryParams.get("error"),
 	};
 }

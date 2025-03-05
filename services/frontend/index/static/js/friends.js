@@ -163,19 +163,23 @@ function displayNoUsersMessage() {
 }
 
 async function handleSearchForm(event) {
+	console.log('sdfsdf')
 	event.preventDefault();
 	clearPreviousResults();
 
 	const formData = new FormData(event.target);
 	const data = await friendsSearchUser(formData);
-	if (data) displaySearchResults(data.users);
-	else displayNoUsersMessage();
+	if (data)
+		displaySearchResults(data.users);
+	else
+		displayNoUsersMessage();
 }
 
 // *** RENDER FUNCTIONS ***
 
 function renderUserSearch() {
 	const formUsers = document.getElementById("form-users");
+	console.log(formUsers)
 	if (formUsers) {
 		formUsers.addEventListener("submit", handleSearchForm);
 	}
@@ -311,7 +315,7 @@ async function loadFriendsPage() {
 	try {
 		const { friends, friendRequests, sentFriendRequests } =
 			await getFriendsData();
-
+				
 		renderUserSearch();
 		renderFriends(friends);
 		renderFriendRequests(friendRequests);

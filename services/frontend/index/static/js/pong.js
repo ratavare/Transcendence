@@ -7,6 +7,7 @@ PageElement.onLoad = () => {
 	// Constants
 	const SHAKE_INTENSITY = 10;
 	const PADDLE_COLOR = 0x008000;
+	const PADDLE_COLOR2 = 0x0000ff;
 	const TABLE_COLOR = 0x800080;
 	const PLANE_COLOR = 0x000000;
 	const POINT_LIGHT_INTENSITY = 5000000;
@@ -44,17 +45,17 @@ PageElement.onLoad = () => {
 	camera.position.set(0, 500, 0);
 	controls.update();
 
-	// Skybox
-	const loader = new THREE.CubeTextureLoader();
-	const skybox = loader.load([
-		"media/skybox/right.png", // Right
-		"media/skybox/left.png", // Left
-		"media/skybox/top.png", // Top
-		"media/skybox/bottom.png", // Bottom
-		"media/skybox/front.png", // Front
-		"media/skybox/back.png", // Back
-	]);
-	scene.background = skybox;
+	// // Skybox
+	// const loader = new THREE.CubeTextureLoader();
+	// const skybox = loader.load([
+	// 	"media/skybox/right.png", // Right
+	// 	"media/skybox/left.png", // Left
+	// 	"media/skybox/top.png", // Top
+	// 	"media/skybox/bottom.png", // Bottom
+	// 	"media/skybox/front.png", // Front
+	// 	"media/skybox/back.png", // Back
+	// ]);
+	// scene.background = skybox;
 
 	// Sphere
 	const ballLoader = new THREE.TextureLoader();
@@ -107,7 +108,7 @@ PageElement.onLoad = () => {
 			data.boundariesDepth,
 			data.boundariesHeight
 		);
-		paddle1 = makeParalellepiped(
+		paddle1 = makePaddle(
 			data.paddle1PositionX,
 			data.paddlePositionY,
 			data.paddle1PositionZ,
@@ -116,14 +117,14 @@ PageElement.onLoad = () => {
 			data.paddleLength,
 			PADDLE_COLOR
 		);
-		paddle2 = makeParalellepiped(
+		paddle2 = makePaddle(
 			data.paddle2PositionX,
 			data.paddlePositionY,
 			data.paddle2PositionZ,
 			data.paddleWidth,
 			data.paddleDepth,
 			data.paddleLength,
-			PADDLE_COLOR
+			PADDLE_COLOR2
 		);
 
 		scene.add(table1);
@@ -139,6 +140,47 @@ PageElement.onLoad = () => {
 		const box = new THREE.Mesh(new THREE.BoxGeometry(dx, dy, dz), material);
 		box.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
 		return box;
+	}
+
+
+	function makePaddle(x, y, z, dx, dy, dz, color)
+	{
+		const textureLoader = new THREE.TextureLoader();
+
+		const colorMap = textureLoader.load('static/images/paddles/red-scifi-metal_albedo.png');
+		const normalMap = textureLoader.load('static/images/paddles/red-scifi-metal_normal-ogl.png');
+		const aoMap = textureLoader.load('static/images/paddles/red-scifi-metal_ao.png');
+		const metallicMap = textureLoader.load('static/images/paddles/red-scifi-metal_metallic.png');
+		const roughnessMap = textureLoader.load('static/images/paddles/red-scifi-metal_roughness.png');
+		const heightMap = textureLoader.load('static/images/paddles/red-scifi-metal_height.png');
+
+		const scaleX = dx / 50;
+		const scaleZ = dz / 50;
+
+		const textures = [colorMap, normalMap, aoMap, metallicMap, roughnessMap, heightMap];
+		textures.forEach(texture => {
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			// texture.repeat.set(scaleX, scaleZ);
+		});
+
+		const material = new THREE.MeshStandardMaterial({
+			color: color,
+			map: colorMap,
+			normalMap: normalMap,
+			aoMap: aoMap,
+			metalnessMap: metallicMap,
+			roughnessMap: roughnessMap,
+			displacementMap: heightMap,
+			displacementScale: 0.1
+		});
+		material.aoMapIntensity = 1.0;
+		material.displacementBias = 0;
+
+		const box = new THREE.BoxGeometry(dx, dy, dz);
+		const mesh = new THREE.Mesh(box, material);
+		mesh.position.set(x + dx / 2, y + dy / 2, z + dz / 2);
+		return (mesh)
 	}
 
 	function makeWall(x, y, z, dx, dy, dz) {
@@ -260,13 +302,8 @@ PageElement.onLoad = () => {
 		pointLight.position.copy(ball.position);
 	}
 
-	const quitBtn = document.getElementById("quit-btn");
-	quitBtn.addEventListener("click", () => {
-		socket.close();
-	});
-
-	function win(message) {
-		console.log("MESSAGE:", message);
+	function win(payload) {
+		console.log("Payload:", payload);
 		const modalElement = document.getElementById("quit");
 		const modal = new bootstrap.Modal(modalElement, {
 			backdrop: "static",
@@ -274,9 +311,9 @@ PageElement.onLoad = () => {
 		});
 		modal.show();
 		const winnerMsg = document.getElementById("winner-msg");
-		winnerMsg.innerHTML = message;
+		winnerMsg.innerHTML = `Winner: ${payload.winner}`;
 		readyBtn.style.display = "block";
-		rendering = False;
+		rendering = false;
 	}
 
 	// Modify the animate function to include swatting animation logic
@@ -299,26 +336,24 @@ PageElement.onLoad = () => {
 		);
 	}
 
-	async function checkLobby(lobbyId) {
+	async function checkDatabase(url) {
 		try {
-			const data = await myFetch(
-				`https://localhost:8443/lobby/lobbies/${lobbyId}/`,
-				null,
-				"GET",
-				true
-			);
+			const data = await myFetch(url, null, "GET", true);
 		} catch (error) {
 			console.log(error);
 			seturl("/home");
 		}
-	};
+	}
 
 	let rendering = true;
 	const lobby_id = window.props.get("id");
-	checkLobby(lobby_id);
+	checkDatabase(`https://localhost:8443/lobby/lobbies/${lobby_id}/`);
+	checkDatabase(
+		`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`
+	);
 	const token = localStorage.getItem("playerToken") || "";
 	const socket = new WebSocket(
-		`wss://localhost:8443/ws/${encodeURIComponent(
+		`wss://localhost:8443/pong/${encodeURIComponent(
 			lobby_id
 		)}/?token=${token}`
 	);
@@ -326,9 +361,12 @@ PageElement.onLoad = () => {
 	// ISSUES MIGHT OCCUR!! Maybe remove popstate
 	window.addEventListener("popstate", () => {
 		const hash = window.location.hash;
-		if (hash.includes("?")) {
+		if (hash.includes("pong?id")) {
 			const lobbyId = window.props.get("id");
-			checkLobby(lobbyId);
+			checkDatabase(`https://localhost:8443/lobby/lobbies/${lobbyId}/`);
+			checkDatabase(
+				`https://localhost:8443/lobby/lobbies/${lobbyId}/${window.user.username}/`
+			);
 		}
 	});
 
@@ -413,7 +451,6 @@ PageElement.onLoad = () => {
 
 	socket.onclose = () => {
 		console.log("Socket closed unexpectedly");
-		seturl("/home");
 	};
 
 	// ************************************* CHAT ************************************************
@@ -435,7 +472,7 @@ PageElement.onLoad = () => {
 			<span>${payload.content}</span>
 			`;
 		}
-		messageList.appendChild(messageListItem);
+		if (messageListItem) messageList.appendChild(messageListItem);
 		if (chatContentElement) {
 			chatContentElement.scrollTop = chatContentElement.scrollHeight;
 		}
@@ -446,7 +483,7 @@ PageElement.onLoad = () => {
 			sender: sender,
 			content: content,
 		});
-	};
+	}
 
 	async function getChat() {
 		try {
@@ -476,8 +513,39 @@ PageElement.onLoad = () => {
 		});
 	}
 
+	
+
 	messageForm();
 	getChat();
+
+	// ************************************* TOURNAMENTS ************************************************
+
+	async function isTournamentLobby(lobby_id) {
+		console.log(lobby_id.split('_')[0])
+		console.log(lobby_id.split('_')[1])
+		const quitBtn = document.getElementById("quit-btn");
+		const tournament_id = lobby_id.split('_')[1]
+		if (lobby_id.split('_')[0] == 'tournament')
+		{
+			try {
+				const data = await myFetch(`https://localhost:8443/tournament/getTournamentLobby/${tournament_id}/${lobby_id}`, null, "GET", true);
+				console.warn("DATA: ", data);
+				quitBtn.addEventListener("click", () => {
+					seturl(`/tournament?id=${tournament_id}`);
+					setTimeout(() => {
+						window.location.reload();
+					}, 100);
+				});
+			} catch (error) {
+				console.error("ERROR: ", error);
+				quitBtn.addEventListener("click", () => {
+					seturl("/home");
+				});
+			}
+		}
+	}
+
+	isTournamentLobby(lobby_id)
 
 	window.onbeforeunload = () => {
 		sendMessage("disconnect", `${window.user.username} left the lobby`);

@@ -23,7 +23,7 @@ class vars():
 	PADDLE_WIDTH = 10
 	PADDLE_LENGTH = 100
 	PADDLE_DEPTH = 30
-	POINTS_TO_WIN = 7
+	POINTS_TO_WIN = 1
 
 class Paddle():
 	def __init__(self, positionX=0, positionZ=0):
@@ -89,9 +89,9 @@ class Pong:
 	
 	def winCheck(self):
 		if self.player1Score == vars.POINTS_TO_WIN:
-			return 1
+			return self.player1Token
 		if self.player2Score == vars.POINTS_TO_WIN:
-			return 2
+			return self.player2Token
 		return 0
 
 	def move(self):

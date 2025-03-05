@@ -1,7 +1,12 @@
 function handleOAuthRedirect() {
-	const { code, accessToken, refreshToken, auth, otp_secret, username } =
+	const { code, accessToken, refreshToken, auth, otp_secret, username, error } =
 		getUrlParams();
 
+	if (error) {
+		alert(error);
+		seturl("/login");
+	}
+	
 	if (accessToken && refreshToken) {
 		processLogin(accessToken, refreshToken, auth, otp_secret, username);
 	}
@@ -76,7 +81,6 @@ document.getElementById("form-login").addEventListener("submit", async function 
 		);
 		console.log("Login successful ", data);
 		processLogin(data.access, data.refresh, data.is_2fa_enabled, data.otp_secret, data.username);
-		// onlineStatus();
 	} catch (error) {
 		console.log("login.js: ", error);
 		const messages = Object.values(error);

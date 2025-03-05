@@ -24,7 +24,7 @@
 			console.log("register.js: ", error);
 			const messages = Object.values(error);
 			console.log("Registration Failed. Reasons: ", messages);
-			messages.forEach(alert);
+			messages.forEach(showErrorModal);
 		}
 	});
 }

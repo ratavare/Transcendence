@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from .models import Lobby
+from tournament.models import Tournament
 from .serializers import LobbySerializer
 import json
 import logging
@@ -29,11 +30,10 @@ def lobby_detail(request, lobby_id):
 		return joinLobby(request, lobby_id)
 
 def getLobbies(request):
-	lobbies = Lobby.objects.all()
+	lobbies = Lobby.objects.filter(g1__isnull=False, g2__isnull=False, g3__isnull=False).values("lobby_id")
 	if not lobbies:
-		return JsonResponse({'error': 'No lobbies found'}, status=404)
-	all_lobbies = [{'lobby_id': lobby.lobby_id} for lobby in lobbies]
-	return JsonResponse({'lobbies': all_lobbies}, status=200)
+		return JsonResponse({'error': "No lobbies found!"}, status=404)
+	return JsonResponse({'lobbies': list(lobbies)}, status=200)
 
 def getLobby(request, lobby_id):
 	try:
@@ -44,12 +44,11 @@ def getLobby(request, lobby_id):
 		return JsonResponse({'error': 'Lobby does not exist'}, status=404)
 
 def createLobby(request):
-	validator = RegexValidator('[+\/%!?,.$%#&*]', inverse_match=True)
+	validator = RegexValidator('[+/%!?,.$%#&*]', inverse_match=True)
 	try:
 		id = request.data.get('lobby_id')
 		validator(id)
-		newLobby = Lobby.objects.create(lobby_id=id)
-		newLobby.save()
+		Lobby.objects.create(lobby_id=id)
 		return JsonResponse({'lobby_id': id}, status=200)
 	except IntegrityError:
 		return JsonResponse({'error': 'Lobby already exists'}, status=400)
@@ -86,14 +85,13 @@ def checkPlayer(request, lobby_id, player):
 		elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
 			return JsonResponse({'playerId': '2'}, status=200)
 		return JsonResponse({'playerId': '3'}, status=404)
-	return JsonResponse({'error': 'User not in Lobby'}, status=200)
+	return JsonResponse({'error': 'User not in Lobby'}, status=404)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def setReadyState(request, lobby_id):
 	lobby = Lobby.objects.get(lobby_id=lobby_id)
 	player = json.loads(request.body)
-	print("PLAYER: ", player, flush=True)
 	if player == "1":
 		lobby.player1Ready = True
 	if player == "2":

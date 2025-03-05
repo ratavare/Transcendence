@@ -1,18 +1,22 @@
 
 from pathlib import Path
 from datetime import timedelta
+
+# ENV
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-vtndmb6%^xs)#cqs&nl9-35u10ju*&+8z11mxj!wkj6v&ip5f='
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["localhost", "10.12.8.4"]
 
 ASGI_APPLICATION = "user_mng.asgi.application"
 
@@ -22,7 +26,7 @@ CHANNEL_LAYERS = {
 	},
 }
 
-CSRF_TRUSTED_ORIGINS = ["https://localhost:8443"]
+CSRF_TRUSTED_ORIGINS = ["https://localhost:8443", "https://10.12.8.4:8443"]
 
 # Application definition
 INSTALLED_APPS = [

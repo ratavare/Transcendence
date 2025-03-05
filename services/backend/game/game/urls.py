@@ -19,4 +19,5 @@ from django.urls import path, include
 app_name = "game"
 urlpatterns = [
 	path('lobby/', include('lobby.urls')),
+	path('tournament/', include('tournament.urls')),
 ]
