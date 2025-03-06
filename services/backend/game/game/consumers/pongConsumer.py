@@ -73,18 +73,18 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def deleteLobbyTask(self, lobby):
 		await asyncio.sleep(3)
+		game = lobby["game"]
 
 		if not lobby["players"]:
 			await self.deleteLobbyWS(lobby)
 			await self.deleteLobbyDB()
 		else:
 			try:
-				winner_id = lobby['game'].player1Token if lobby['game'].player1Token is not self.user_id else lobby['game'].player2Token
+				winner_id = game.player1Token if game.player1Token is not self.user_id else game.player2Token
 				winner_username = lobby["players"][winner_id]
-				if lobby['game'].running == False:
-					await self.groupSend('gameOver', {"winner": winner_username })
-					await self.updateWinnerDB(winner_username)
+				if game.running == False:
 					await self.setReturningDB(self.username, False)
+					await self.win(game, winner_username, self.lobby_id)
 			except Exception as e:
 				print(f"Error: {e}", flush=True)
 
@@ -178,13 +178,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 				await self.sendState()
 				await asyncio.sleep(0.016)
 				if winner:
-					await self.groupSend('gameOver', {"winner": lobby["players"][winner]})
-					await self.updateWinnerDB(lobby["players"][winner])
+					await self.win(game, lobby["players"][winner], self.lobby_id)
 					break
 		except Exception as e:
 			await self.sendMessage('log', f'Error is runLoop: {e}')
 		finally:
 			await self.sendMessage('log', 'Game End')
+
+	async def win(self, lobby_game, winner_username, lobby_id):
+		await self.groupSend('gameOver', {"winner": winner_username})
+		await self.updateWinnerDB(winner_username)
+		await self.updateGameHistory(lobby_game, self.lobby_id)
 
 	async def sendState(self):
 		lobby = lobbies.get(self.lobby_id)
@@ -294,3 +298,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 					t_player.save()
 		except Exception as e:
 			print(f"Set retuning error: {e}", flush=True)
+
+	@database_sync_to_async
+	def updateGameHistory(self, game, lobby_id):
+		gameHistory = GameHistory.objects.get(game_id=lobby_id)
+		gameHistory.player1Score = game.player1Score
+		gameHistory.player2Score = game.player2Score
+		gameHistory.save()
