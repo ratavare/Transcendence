@@ -55,12 +55,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		self.is_returning = False
 		await self.setReturningStateDB(self.username, self.tournament_id, False)
 
-		# w1 = self.getWinnerUsername(tournament["winner1"])
-		# w2 = self.getWinnerUsername(tournament["winner2"])
-
-		# if w1 and w2 and len(tournament["players"]) == 1:
-		# 	await self.setFinalWinnerDB(tournament, self.tournament_id)
-
 	async def connectTimerDeletion(self):
 		async with self.delete_timers_lock:
 			if self.user_id in deleteTimers:

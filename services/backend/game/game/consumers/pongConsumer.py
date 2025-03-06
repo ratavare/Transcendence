@@ -179,8 +179,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				await asyncio.sleep(0.016)
 				if winner:
 					await self.groupSend('gameOver', {"winner": lobby["players"][winner]})
-					await self.updateWinnerDb(lobby["players"][winner])
-					await self.updateGameHistory()
+					await self.updateWinnerDB(lobby["players"][winner])
 					break
 		except Exception as e:
 			await self.sendMessage('log', f'Error is runLoop: {e}')
