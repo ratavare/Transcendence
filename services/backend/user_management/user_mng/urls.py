@@ -24,4 +24,5 @@ urlpatterns = [
 	path('user_auth/', include('user_auth.urls')),
 	path('user_profile/', include('user_profile.urls')),
 	path('user_friends/', include('user_friends.urls')),
+    path('user_messages/', include('user_messages.urls')),
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

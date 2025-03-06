@@ -1,3 +1,4 @@
+
 async function updateProfile(formData) {
 	try {
 		console.log(formData);
@@ -36,19 +37,6 @@ async function fillProfile(user) {
 		document.getElementById('profile-losses').innerText = user.losses || 0;
 	} catch (error) {
 		console.error("Fetch error: ", error);
-	}
-}
-
-async function getForeignProfile(username) {
-	try {
-		return await myFetch(
-			`https://localhost:8443/user_profile/profile/${username}/`,
-			null,
-			"GET",
-			true
-		);
-	} catch (error) {
-		console.log(error);
 	}
 }
 

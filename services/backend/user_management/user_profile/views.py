@@ -79,7 +79,7 @@ def profilePicture(request, username):
 				return response
 			else:
 				logging.info("No profile picture found.")
-				return JsonResponse({'error': 'No profile picture found'}, status=404)
+				return JsonResponse({'error': 'No profile picture found'}, status=202)
 
 def foreignProfile(request, username):
 	try:

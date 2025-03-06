@@ -1,0 +1,204 @@
+<page-element name="pms">
+    {% include 'navbar.html' with authenticated="true" %}
+    <style>
+        .bg-dark-transparent {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .list-group {
+            max-height: 678px;
+            overflow-y: auto;
+        }
+        .list-group-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: none;
+            color: #ffffff;
+        }
+        .list-group-item:hover {
+            background-color: #ffffffaf;
+        }
+        .chat-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+        .chat-box {
+            width: 80%;
+            height: 80%;
+
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 20px rgba(255, 255, 255, 0.185); /* Optional shadow */
+            background-color: rgba(0, 0, 0, 0.2); /* Semi-transparent background */
+            padding: 20px;
+        }
+        .chat-header {
+            background-color:  rgba(0, 0, 0, 0.3);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .chat-area {
+            background-color: rgba(0, 0, 0, 0.3);
+            height: 550px;
+        }
+        .chat-input {
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        .form-control {
+            background-color: #1e1e1e;
+            border: 1px solid #333333;
+            color: #ffffff;
+        }
+        .form-control:focus {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border-color: #555555;
+            box-shadow: none;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            display: inline-block;  /* Ensures the message box resizes with the content */
+            max-width: 45%;         /* Limit the maximum width to 45% */
+            width: auto;            /* Let the width adjust based on the content */
+            word-wrap: break-word;  /* Ensure long words break */
+            padding: 8px 12px;      /* Add padding inside the message box */
+            border-radius: 12px;    /* Optional: Rounded corners for the message box */
+            margin-bottom: 8px;     /* Space between messages */
+            overflow-wrap: break-word; /* Ensure text wraps when needed */
+        }
+        .sent {
+            background-color: #0040ff;
+            color: #ffffff;
+            text-align: left;
+        }
+        .received {
+            background-color: #8102ff;
+            color: #ffffff;
+            margin-left: auto;
+        }
+
+        #message-input::placeholder {
+            color: #ffffff;
+            opacity: 0.5;
+        }
+
+        #search-results {
+            display: none;
+            position: absolute;
+            background-color: #1e1e1e;
+            border: 1px solid #555555;
+            border-radius: 8px;
+            z-index: 1000;
+            max-height: 200px;
+            max-width: 190px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            color: #ffffff;
+        }
+
+        
+        #search-results .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: white;
+            max-width: 300px;
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+        }
+        
+        #search-results .dropdown-item:hover {
+            background-color: #333333;
+        }
+        #friend-search::placeholder {
+            color: #ffffff;
+            opacity: 0.5;
+        }
+        .audiowide-regular {
+          font-family: "Audiowide", serif;
+          font-weight: 300;
+          font-style: normal;
+        }
+
+        /* Applies to all scrollable elements */
+        ::-webkit-scrollbar {
+            width: 8px; /* Width of the scrollbar */
+            height: 8px; /* Height of the scrollbar (for horizontal scrollbars) */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #1e1e1e; /* Color of the scrollbar thumb */
+            border-radius: 10px; /* Rounded corners for the thumb */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #333333; /* Color when hovering over the scrollbar thumb */
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: #000000; /* Background color of the scrollbar track */
+            border-radius: 10px; /* Rounded corners for the track */
+        }
+        .message-timestamp {
+            display: block;
+            font-size: 0.8rem;
+            color: #ccc; /* Light gray */
+            text-align: left; /* Align it to the right of the message bubble */
+            margin-top: 4px; /* Add spacing between the content and timestamp */
+        }
+    </style>
+    <div class="chat-wrapper">
+    <div class="chat-box border border-dark">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-12 col-md-4 col-lg-3 bg-dark-transparent border border-dark p-0" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+                    <div class="p-3 bg-dark-transparent" style="color: white;">
+                        <input id="friend-search" type="text" class="form-control" placeholder="Search friends..." oninput="filterFriends()" autocomplete="off">
+                        <ul class="dropdown-menu w-100" id="search-results"></ul>
+                    </div>
+                    <ul id="users-sidebar" class="list-group list-group-flush" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+                        <!-- * Users will be populated here * -->
+                    </ul>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="col-12 col-md-8 col-lg-9 d-flex flex-column">
+                    <!-- Chat Header -->
+                    <div class="chat-header py-3 px-4 border border-dark" style="display: none;">
+                        <h5 id="chat-header" class="mb-0 text-white"></h5>
+                    </div>
+
+                    <!-- Messages -->
+                    <div id="messages" class="flex-grow-1 p-4 chat-area overflow-auto border border-dark" style="border-radius: 12px;">
+                        <h2 class="audiowide-regular" style="text-align: center; padding-bottom: 60px;">Start Chatting!</h3>
+                        <h5 class="audiowide-regular" style="text-align: center;"> Search for a friends to start a conversation,</h3>
+                        <h5 class="audiowide-regular" style="text-align: center;">or</h3>
+                        <h5 class="audiowide-regular" style="text-align: center;">Select one of your active conversations!</h3>
+                        <!-- * Messages will be populated here * -->
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div id="chat-input" class="bg-dark-transparent border border-dark p-3 chat-input" style="display: none;">
+                        <form id="message-form" class="d-flex">
+                            <input type="text" class="form-control me-2" placeholder="Type a message..." id="message-input">
+                            <button type="submit" class="btn btn-outline-primary">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</page-element>
