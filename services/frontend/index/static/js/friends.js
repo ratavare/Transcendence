@@ -163,7 +163,6 @@ function displayNoUsersMessage() {
 }
 
 async function handleSearchForm(event) {
-	console.log('sdfsdf')
 	event.preventDefault();
 	clearPreviousResults();
 
@@ -179,10 +178,7 @@ async function handleSearchForm(event) {
 
 function renderUserSearch() {
 	const formUsers = document.getElementById("form-users");
-	console.log(formUsers)
-	if (formUsers) {
-		formUsers.addEventListener("submit", handleSearchForm);
-	}
+	formUsers?.addEventListener("submit", handleSearchForm);
 }
 
 function renderFriends(friends) {
@@ -324,5 +320,6 @@ async function loadFriendsPage() {
 		console.error("Error loading friends page: ", error);
 	}
 }
+
 
 loadFriendsPage();
