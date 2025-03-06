@@ -239,11 +239,13 @@ PageElement.onLoad = () => {
 				case "W":
 				case "w":
 				case "ArrowUp":
+					console.log("W pressed");
 					payload = { direction: -1 };
 					break;
 				case "s":
 				case "S":
 				case "ArrowDown":
+					console.log("S pressed");
 					payload = { direction: 1 };
 					break;
 				case "p":
@@ -374,6 +376,7 @@ PageElement.onLoad = () => {
 
 	const readyBtn = document.getElementById("readyBtn");
 	const overlayText = document.getElementById("overlay-text");
+	const overlayContainer = document.getElementById("overlay-container");
 	readyBtn.onclick = async () => {
 		readyBtn.classList.add("hidden");
 		sendPayload("ready", {
@@ -402,6 +405,7 @@ PageElement.onLoad = () => {
 				console.log(data.payload);
 				break;
 			case "state":
+				overlayContainer.style.display = "none";
 				updateBall(data.payload);
 				updatePaddlePositions(data.payload);
 				break;
