@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 	'rest_framework',
 	'lobby.apps.LobbyConfig',
 	'tournament.apps.TournamentConfig',
+    'match_history.apps.MatchHistoryConfig',
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
