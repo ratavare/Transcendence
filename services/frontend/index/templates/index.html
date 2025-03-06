@@ -32,6 +32,190 @@
 			}
 		</script>
 	</head>
+	<style>
+		.hidden {
+			display: none !important;
+		}
+		
+		.navbar-nav {
+			gap: 20px; /* Adjust spacing as needed */
+			display: flex;
+			width: 100%;
+			align-items: center;
+		}
+
+		.nav-item {
+			padding: 0 10px; /* Adjust spacing between items */
+		}
+
+		.message-icon {
+			margin-left: auto; /* Pushes only the message icon to the right */
+		}
+
+		.navbar-nav .nav-link {
+			font-family: inherit; /* Matches navbar title */
+			font-weight: 600;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+			transition: color 0.2s ease, transform 0.2s ease;
+			text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+			display: flex;
+    		align-items: center;
+		}
+
+		.navbar-nav .nav-link:hover {
+			color: #d1d1d1;
+			transform: scale(1.05);
+			display: flex;
+			align-items: center;
+		}
+
+		.nav-link i {
+			font-size: 1.5rem; /* Increase icon size */
+			transition: color 0.2s ease, transform 0.2s ease;
+		}
+
+		.nav-link i:hover {
+			color: #d1d1d1;
+			transform: scale(1.1);
+		}
+
+		/* Ensure the message icon is not moved when navbar collapses */
+		@media (max-width: 991px) { /* This can be adjusted based on your breakpoint for collapse */
+			.message-icon {
+				margin-left: 0; /* Remove right alignment when collapsed */
+				order: 999; /* Push the message icon to the end of the list */
+			}
+
+			.navbar-nav {
+				justify-content: center; /* Center the items when collapsed */
+			}
+		}
+
+		body {
+			background: linear-gradient(
+				-80deg,
+				black,
+				rgb(23, 13, 113),
+				rgb(73, 0, 128),
+				black
+			);
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			height: 100%;
+			/* margin-top:20px; */
+		}
+
+		h1,
+		h2,
+		h3, 
+		h4, 
+		h5, 
+		h6 {
+			color: white;
+		}
+
+		.card {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			min-width: 0;
+			word-wrap: break-word;
+			background-color: #00000069;
+			background-clip: border-box;
+			border: 0 solid transparent;
+			border-radius: 1.1rem;
+			border-bottom-left-radius: 1.1rem;
+			margin-bottom: 1.5rem;
+			box-shadow: 0 4px 10px 0 rgba(122, 122, 143, 0.65), 0 4px 10px 0 rgba(124, 124, 143, 0.54);
+		}
+
+		.profile-image {
+			width: 150px;
+			height: 150px;
+			object-fit: cover; /* Ensures the image covers the box while preserving aspect ratio */
+			border-radius: 50%; /* To keep the rounded shape */
+			transition: transform 0.3s;
+		}
+
+		.profile-image:hover {
+			transform: scale(0.9);
+			cursor: pointer;
+		}
+
+		.form-control {
+			color: white;
+			background-color: transparent;
+			border: 1px solid white;
+		}
+
+		input,
+		textarea,
+		select {
+			color: white !important; /* Force white text color */
+			background-color: transparent; /* Optional: Keeps background transparent */
+			border: 1px solid rgba(255, 255, 255, 0.5); /* Optional: Light border for better visibility */
+		}
+
+		/* Ensure the placeholder text color is slightly transparent white */
+		input::placeholder,
+		textarea::placeholder {
+			color: rgba(
+				255,
+				255,
+				255,
+				0.7
+			); /* Light transparency for placeholder */
+		}
+
+		/* Handle focus state and prevent color changes while typing */
+		input:focus,
+		textarea:focus {
+			color: white !important; /* Force white text color while typing */
+			background-color: transparent !important; /* Keeps background transparent on focus */
+			border: 1px solid rgba(255, 255, 255, 0.7); /* Optional: Slightly darker border on focus */
+		}
+
+		/* Label color */
+		label {
+			color: white !important; /* Ensure label text is white */
+		}
+
+		.status-text {
+			margin-left: 8px;
+			padding: 2px 8px;
+			font-size: 0.75rem;
+			border-radius: 12px;
+			background-color: rgba(128, 128, 128, 0.5);
+			color: white;
+			text-transform: uppercase;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.status-indicator {
+			display: inline-block;
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+			margin-left: 5px;
+		}
+		.status-online {
+			background-color: green;
+		}
+
+		h5 {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.card-body h5 {
+			margin-top: 10px;
+		}
+
+
+	</style>
 	<body>
 		<div id="easter-egg" hidden="true">
 			<p>Easter Egg 14/10/2024</p>
