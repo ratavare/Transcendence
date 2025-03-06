@@ -74,15 +74,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def deleteLobbyTask(self, lobby):
 		await asyncio.sleep(3)
 
-		print("\nTASK", flush=True)
 		if not lobby["players"]:
-			print("\nDELETING LOBBY", flush=True)
 			await self.deleteLobbyWS(lobby)
 			await self.deleteLobbyDB()
 		else:
 			try:
-				print("\nLEAVING LOBBY", flush=True)
-				await self.groupSend('log', f'{self.username} left the lobby')
 				winner_id = lobby['game'].player1Token if lobby['game'].player1Token is not self.user_id else lobby['game'].player2Token
 				winner_username = lobby["players"][winner_id]
 				if lobby['game'].running == False:
@@ -289,7 +285,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 	@database_sync_to_async
 	def setReturningDB(self, username, state):
 		try:
-			print(username, state, "\n",flush=True)
 			user = User.objects.get(username=username)
 			lobby = Lobby.objects.get(lobby_id=self.lobby_id)
 			tournaments = Tournament.objects.filter(game1=lobby) | Tournament.objects.filter(game2=lobby) | Tournament.objects.filter(game3=lobby)
