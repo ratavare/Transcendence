@@ -20,5 +20,5 @@ app_name = "game"
 urlpatterns = [
 	path('lobby/', include('lobby.urls')),
 	path('tournament/', include('tournament.urls')),
-    path('match_history/', include('match_history.urls')),
+	path('match_history/', include('match_history.urls')),
 ]

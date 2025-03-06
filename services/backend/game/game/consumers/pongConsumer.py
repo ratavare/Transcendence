@@ -1,6 +1,7 @@
 
 import json, asyncio
 from lobby.models import Lobby, Message
+from match_history.models import GameHistory
 from django.contrib.auth.models import User
 from .pongObjects import Pong, vars
 from channels.db import database_sync_to_async
@@ -169,6 +170,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				if winner:
 					await self.groupSend('gameOver', {"winner": lobby["players"][winner]})
 					await self.updateWinnerDb(lobby["players"][winner])
+					await self.updateGameHistory()
 					break
 		except Exception as e:
 			await self.sendMessage('log', f'Error is runLoop: {e}')
