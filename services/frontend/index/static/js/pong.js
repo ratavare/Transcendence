@@ -521,8 +521,6 @@ PageElement.onLoad = () => {
 	// ************************************* TOURNAMENTS ************************************************
 
 	async function isTournamentLobby(lobby_id) {
-		console.log(lobby_id.split('_')[0])
-		console.log(lobby_id.split('_')[1])
 		const quitBtn = document.getElementById("quit-btn");
 		const tournament_id = lobby_id.split('_')[1]
 		if (lobby_id.split('_')[0] == 'tournament')
@@ -536,13 +534,14 @@ PageElement.onLoad = () => {
 						window.location.reload();
 					}, 100);
 				});
+				return ;
 			} catch (error) {
-				console.error("ERROR: ", error);
-				quitBtn.addEventListener("click", () => {
-					seturl("/home");
-				});
+				console.error("Error: ", error);
 			}
 		}
+		quitBtn.addEventListener("click", () => {
+			seturl("/home");
+		});
 	}
 
 	isTournamentLobby(lobby_id)

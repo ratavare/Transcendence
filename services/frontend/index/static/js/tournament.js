@@ -90,63 +90,70 @@ PageElement.onLoad = async () => {
 	// ************** UPDATE BRACKET WEBSOCKET **************
 
 	async function updateBracketWS(payload) {
-		const players = payload.players;
-		const winner1 = payload.winner1;
-		const winner2 = payload.winner2;
-		const winner3 = payload.winner3;
-	
-		if (payload["stage"] == "final"){
-			if (payload["state"] == "disconnect")
-				sendPayload("setTournamentWinner", {players: players})
+		console.log("UPDATE BRACKET");
+
+		try {
+			let players;
+			if (payload.state == "connect")
+				players = Object.values(payload.players);
+			else if (payload.state == "disconnect")
+				players = Object.values(payload.player_names);
+
+			const winner1 = payload.winner1;
+			const winner2 = payload.winner2;
+			const winner3 = payload.winner3;
+			
+			console.log(winner1, winner2, winner3, players, players.length);
+			if (payload.stage != "final" || payload.state != "disconnect")
+				updateSemifinals(players);
+			if (winner1 || winner2)
+				updateFinal(winner1, winner2, players);
+			if (winner3)
+				updateWinner(winner1, winner2, winner3, players);
+		} catch (e) {
+			console.error("Update Bracket Error: ", e);
 		}
-	
-		updateSemifinals(players);
-		if (winner1 || winner2)
-			updateFinal(winner1, winner2, players);
-		if (winner3)
-			updateWinner(winner1, winner2, winner3, players);
 	}
 
 	// ************** UPDATE BRACKET DATABSE **************
 
+	function getWinnerIndex(playerList, winner3)
+	{
+		let idx;
+		for (let i = 0; i < 4; i++) {
+			if (playerList[i] == winner3)
+				idx = i;
+		}
+		if (idx === undefined) return undefined;
+		return idx;
+	}
+
 	function updateWinner(winner1, winner2, winner3, playerList)
 	{
-		let winnerIndex;
-
-		for (let i = 0; i < playerList.length; i++) {
-			if (playerList[i] == winner3)
-				winnerIndex = i;
-		}
-
-		if (winnerIndex === undefined) {
-			console.warn("Winner not found in playerList");
-			return;
-		}
-
+		winnerIdx = getWinnerIndex(playerList, winner3)
+		if (winnerIdx === undefined) return;
 		let playerLiProperty;
-		if (parseInt(winnerIndex / 2) + 1 == 1) playerLiProperty = "--li-after";
+		if (parseInt(winnerIdx / 2) + 1 == 1) playerLiProperty = "--li-after";
 		else playerLiProperty = "--li-last";
 		
-		const pColor = getPlayerColor(parseInt(winnerIndex) + 1);
-		const finalLi = document.getElementById("li-final" + (parseInt(winnerIndex / 2) + 1));
+		const pColor = getPlayerColor(parseInt(winnerIdx) + 1);
+		const finalLi = document.getElementById("li-final" + (parseInt(winnerIdx / 2) + 1));
 		const winnerUl = document.getElementById("ul-winner");
 		const winnerDiv = document.getElementById("tournament-winner");
 		const winnerName = winnerDiv.querySelector("span");
 
 		// Change background of finalist brackets
-		for (let i = 0; i < 4; i++) {
-			if (playerList[i] == winner1)
-				document.getElementById("div-final1").style.background = getPlayerColor(parseInt(i) + 1);
-			if (playerList[i] == winner2)
-				document.getElementById("div-final2").style.background = getPlayerColor(parseInt(i) + 1);
-		}
-		
+		if (winner3 == winner1)
+			document.getElementById("div-final1").style.background = getPlayerColor(parseInt(winnerIdx) + 1);
+		if (winner3  == winner2)
+			document.getElementById("div-final2").style.background = getPlayerColor(parseInt(winnerIdx) + 1);
+	
 		// Change bracket borders
 		finalLi.style.setProperty(playerLiProperty + "-bc", pColor);
 		finalLi.style.setProperty(playerLiProperty + "-bw", "5px");
 		winnerUl.style.setProperty("--ul-after-bc", pColor);
 		winnerUl.style.setProperty("--ul-after-bw", "5px");
-		winnerDiv.classList.add("tournament-p" + (parseInt(winnerIndex) + 1));
+		winnerDiv.classList.add("tournament-p" + (parseInt(winnerIdx) + 1));
 
 		// Change winner bracket name and background
 		winnerName.innerHTML = winner3;
@@ -155,22 +162,23 @@ PageElement.onLoad = async () => {
 	}
 
 	function putFinals(winner, index, playerList) {
+		
 		for (let i = index - 2; i < index; i++) {
 			const finalsDiv = document.getElementById('div-final' + (index / 2));
 			const semifinalsUl = document.getElementById("ul-semi" + (index / 2));
 			const pLi = document.getElementById("li-p" + (parseInt(i) + 1))
 			const pDiv = document.getElementById("div-p" + (parseInt(i) + 1));
+			if (!pDiv) return ;
 			const pName = pDiv.querySelector("span");
-			if (!pName)
-				return ;
+			if (!pName) return ;
 			const pColor = getPlayerColor(parseInt(i) + 1);
 		
 			let playerLiProperty;
 			if (i % 2 == 0) playerLiProperty = "--li-after";
 			else playerLiProperty = "--li-last";
 			
-			if (!winner || playerList[i] == null) 
-				pName.textContent = "???"
+			if (!winner) 
+				pName.textContent = playerList[i]
 			else if (winner == playerList[i]) {
 				// Change bracket lines' color
 				finalsDiv.classList.add("tournament-p" + (parseInt(i) + 1));
@@ -180,6 +188,7 @@ PageElement.onLoad = async () => {
 				semifinalsUl.style.setProperty("--ul-after-bc", pColor);
 				semifinalsUl.style.setProperty("--ul-after-bw", "5px");
 				pDiv.style.background = pColor
+				finalsDiv.style.background = pColor;
 	
 				//Add name
 				pFinalName.textContent = playerList[i];
@@ -195,14 +204,14 @@ PageElement.onLoad = async () => {
 
 	function updateSemifinals(players) {
 		const playerValues = Object.values(players)
-		playerValues.forEach((username, i) => {
+		for (let i = 0; i < 4; i++) {
 			const playerDiv = document.getElementById("div-p" + (parseInt(i) + 1));
-			if (!playerDiv || !username) return ;
+			if (!playerDiv) return ;
 			const playerName = playerDiv.querySelector("span");
 			if (!playerName) return
 			// const profileImg = playerDiv.querySelector('img');
-			playerName.textContent = username || "Player " + (i + 1);
-		})
+			playerName.textContent = playerValues[i] || "Player " + (i + 1);
+		}
 	}
 
 	// async function updateBracketDB(tournament_id) {
