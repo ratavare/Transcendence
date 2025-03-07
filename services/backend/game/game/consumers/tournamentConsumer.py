@@ -32,6 +32,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				tournaments[self.tournament_id] = {
 					"players": {},
 					"spectators": {},
+					"real_names": {},
 					"fake_names": {},
 					"pong_players": {},
 					"ready_players": {},
@@ -60,7 +61,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		await self.setReadyBtn(tournament)
 
 		# Update bracket
-		await self.sendBracketUpdate(tournament)
+		await self.connectBracketUpdate(tournament)
 
 		# Reset is_returning status
 		self.is_returning = False
@@ -112,6 +113,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	async def setFakeNames(self, tournament):
 		if self.username not in tournament["fake_names"]:
 			tournament["fake_names"][self.username] = self.username
+		for name in tournament["fake_names"]:
+			tournament["real_names"][name] = tournament["fake_names"][name]
 
 	@database_sync_to_async
 	def setWinners(self, t_id):
@@ -154,7 +157,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		wUsername = winner.username if winner and hasattr(winner, 'username') else None
 		return wUsername if wUsername not in tournament["fake_names"] or wUsername is None else tournament["fake_names"][wUsername]
 
-	async def sendBracketUpdate(self, tournament):
+	async def connectBracketUpdate(self, tournament):
 		await self.groupSend("updateBracketWS", {
 			"state": "connect",
 			"players": tournament["fake_names"],
@@ -331,7 +334,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 		if len(tournament['ready_players']) == 4:
 			await self.countdown()
-			await self.startStage(t_id, "startSemifinals", False)
+			await self.startStage(t_id, tournament, "startSemifinals", False)
 			# await self.lockPlayersDB(tournament, t_id)
 	
 	async def finalsUpdateReady(self, t_id, tournament):
@@ -344,7 +347,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			})
 		if len(tournament['ready_players']) == 2:
 			await self.countdown()
-			await self.startStage(t_id, "startFinal", True)
+			await self.startStage(t_id, tournament,"startFinal", True)
 
 	@database_sync_to_async
 	def is_returningDB(self):
@@ -366,13 +369,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			return False
 		return tPlayer.is_ready
 
-	async def startStage(self, t_id, stage, readyState):
-		tournament = tournaments[t_id]
-		if not tournament:
-			return
-
+	async def startStage(self, t_id, tournament, stage, readyState):
 		await self.groupSend(stage, {
-			"players": tournament["ready_players"],
+			"players": tournament["real_names"],
 			"fake_names": tournament["fake_names"],
 			"tournament_id": t_id
 		})

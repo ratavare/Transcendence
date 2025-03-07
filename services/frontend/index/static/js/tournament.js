@@ -2,8 +2,12 @@
 
 PageElement.onLoad = async () => {
 	let tournament_id;
+
 	if (window.location.hash.includes("/tournament?id"))
+	{
+		console.log("WINDOW PROPS", window.props);
 		tournament_id = window.props.get("id");
+	}
 	else
 		return;
 
@@ -221,7 +225,7 @@ PageElement.onLoad = async () => {
 				"POST",
 				true
 			);
-			seturl(`/pong?id=${lobby_id}?username=${fakeUsername}`);
+			seturl(`/pong?id=${lobby_id}&username=${fakeUsername}`);
 		} catch (error) {
 			console.log("Tried to join: ", lobby_id);
 		}
@@ -230,6 +234,7 @@ PageElement.onLoad = async () => {
 	async function finalsRedirect(payload) {
 		const players = payload.players;
 		const fakeNames = payload.fake_names;
+		console.log("PLAYERS: ", players);
 		for (let i = 0; i < 2; i++) {
 			try {
 				let fakeUsername = Object.entries(fakeNames)[i][1]
@@ -243,9 +248,10 @@ PageElement.onLoad = async () => {
 	}
 
 	async function semifinalsRedirect(payload) {
-		const players = payload.players;
-		const fakeNames = payload.fake_names;
-		console.log("semifinalsRedirect: ", payload);
+		const players = Object.values(payload.players);
+		const fakeNames = Object.values(payload.fake_names);
+		console.log("PLAYERS: ", players);
+		console.log("fakeNames: ", fakeNames);
 		for (let i = 0; i < 4; i++) {
 			try {
 				let fakeUsername = Object.entries(fakeNames)[i][1];

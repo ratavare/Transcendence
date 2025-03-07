@@ -348,7 +348,6 @@ PageElement.onLoad = () => {
 	let rendering = true;
 	const lobby_id = window.props.get("id");
 	const playerName = window.props.get("username");
-	console.warn("PONG PLAYER NAME: ", playerName);
 
 	checkDatabase(`https://localhost:8443/lobby/lobbies/${lobby_id}/`);
 	checkDatabase(
@@ -447,7 +446,7 @@ PageElement.onLoad = () => {
 	socket.onopen = async () => {
 		sendPayload("message", {
 			sender: "connect",
-			content: `${window.user.username} joined the lobby!`,
+			content: `${playerName} joined the lobby!`,
 		});
 	};
 
@@ -468,7 +467,7 @@ PageElement.onLoad = () => {
 			if (payload.sender == "disconnect") color = "red";
 			messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
 		} else {
-			if (payload.sender == window.user.username) color = "orangered";
+			if (payload.sender == playerName) color = "orangered";
 			messageListItem.innerHTML = `
 			<b style="color: ${color}">${payload.sender}: </b>
 			<span>${payload.content}</span>
@@ -510,7 +509,7 @@ PageElement.onLoad = () => {
 
 			const chatInput = event.target.querySelector("#chat-input");
 			if (chatInput.value)
-				sendMessage(window.user.username, chatInput.value);
+				sendMessage(playerName, chatInput.value);
 			chatInput.value = "";
 		});
 	}
@@ -548,11 +547,11 @@ PageElement.onLoad = () => {
 	isTournamentLobby(lobby_id)
 
 	window.onbeforeunload = () => {
-		sendMessage("disconnect", `${window.user.username} left the lobby`);
+		sendMessage("disconnect", `${playerName} left the lobby`);
 	};
 
 	PageElement.onUnload = () => {
-		sendMessage("disconnect", `${window.user.username} left the lobby`);
+		sendMessage("disconnect", `${playerName} left the lobby`);
 
 		socket.close();
 
