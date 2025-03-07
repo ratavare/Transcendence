@@ -347,6 +347,9 @@ PageElement.onLoad = () => {
 
 	let rendering = true;
 	const lobby_id = window.props.get("id");
+	const playerName = window.props.get("username");
+	console.warn("PONG PLAYER NAME: ", playerName);
+
 	checkDatabase(`https://localhost:8443/lobby/lobbies/${lobby_id}/`);
 	checkDatabase(
 		`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`
@@ -358,7 +361,6 @@ PageElement.onLoad = () => {
 		)}/?token=${token}`
 	);
 
-	// ISSUES MIGHT OCCUR!! Maybe remove popstate
 	window.addEventListener("popstate", () => {
 		const hash = window.location.hash;
 		if (hash.includes("pong?id")) {
@@ -513,7 +515,6 @@ PageElement.onLoad = () => {
 		});
 	}
 
-	
 
 	messageForm();
 	getChat();

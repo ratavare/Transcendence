@@ -150,7 +150,7 @@
 	padding-right: 5px;
 }
 
-#TournamentReadyBtn, .spectateBtn {
+#tournament-ready-btn, .spectateBtn {
 	text-align: center;
 	font-size: 1.5rem;
 	border-radius: 25px;
@@ -160,4 +160,8 @@
 
 .spectateBtn {
 	position: absolute;
+}
+
+.fake-name-div {
+	display: flex;
 }

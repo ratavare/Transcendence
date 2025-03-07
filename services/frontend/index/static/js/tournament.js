@@ -37,7 +37,6 @@ PageElement.onLoad = async () => {
 	};
 
 	socket.onopen = async () => {
-
 	};
 
 	socket.onclose = (e) => {
@@ -62,7 +61,7 @@ PageElement.onLoad = async () => {
 	async function readyBtnInit(payload)
 	{
 		const username = window.user.username;
-		const readyBtn = document.getElementById("TournamentReadyBtn");
+		const readyBtn = document.getElementById("tournament-ready-btn");
 		if (payload.is_ready || payload.winner3) readyBtn.style.display = "none";
 		else if (payload.stage == "final")
 		{
@@ -90,20 +89,13 @@ PageElement.onLoad = async () => {
 	// ************** UPDATE BRACKET WEBSOCKET **************
 
 	async function updateBracketWS(payload) {
-		console.log("UPDATE BRACKET");
-
 		try {
-			let players;
-			if (payload.state == "connect")
-				players = Object.values(payload.players);
-			else if (payload.state == "disconnect")
-				players = Object.values(payload.player_names);
-
+			const players = Object.values(payload.players);
 			const winner1 = payload.winner1;
 			const winner2 = payload.winner2;
 			const winner3 = payload.winner3;
 			
-			console.log(winner1, winner2, winner3, players, players.length);
+			console.log(winner1, winner2, winner3, players);
 			if (payload.stage != "final" || payload.state != "disconnect")
 				updateSemifinals(players);
 			if (winner1 || winner2)
@@ -214,41 +206,9 @@ PageElement.onLoad = async () => {
 		}
 	}
 
-	// async function updateBracketDB(tournament_id) {
-	// 	if (!tournament_id)
-	// 		return;
-	// 	try {
-	// 		const data = await myFetch(
-	// 			`https://localhost:8443/tournament/getJoin/${tournament_id}/`,
-	// 			null,
-	// 			"GET",
-	// 			true
-	// 		);
-	// 		let players = data.tournament.player_names;
-	// 		if (!players)
-	// 			players = data.tournament.players;
-			
-			
-	// 		const winner1 = data.tournament.game1.winner;
-	// 		const winner2 = data.tournament.game2.winner;
-	// 		const winner3 = data.tournament.game3.winner;
-	// 		console.log(players, winner1, winner2, winner3);
-
-	// 		updateSemifinals(players, 1);
-	// 		if (winner1 != null || winner2 != null) {
-	// 			updateFinal(winner1.username, winner2.username, players);
-	// 		}
-	// 		if (winner3 != null) {
-	// 			updateWinner(winner1.usermame, winner2.username, winner3.username, players);
-	// 		}
-	// 	} catch (error) {
-	// 		console.log("Error: ", error);
-	// 	}
-	// }
-
 	// **************************************** LOBBY *************************************************
 
-	async function joinTournamentLobby(tournament_id, game) {
+	async function joinTournamentLobby(tournament_id, game, fakeUsername) {
 		const lobby_id = `tournament_${tournament_id}_${game}`;
 		const body = {
 			username: window.user.username,
@@ -261,7 +221,7 @@ PageElement.onLoad = async () => {
 				"POST",
 				true
 			);
-			seturl(`/pong?id=${lobby_id}`);
+			seturl(`/pong?id=${lobby_id}?username=${fakeUsername}`);
 		} catch (error) {
 			console.log("Tried to join: ", lobby_id);
 		}
@@ -269,11 +229,13 @@ PageElement.onLoad = async () => {
 
 	async function finalsRedirect(payload) {
 		const players = payload.players;
+		const fakeNames = payload.fake_names;
 		for (let i = 0; i < 2; i++) {
 			try {
+				let fakeUsername = Object.entries(fakeNames)[i][1]
 				let playerUsername = Object.entries(players)[i][1];
 				if (window.user.username == playerUsername)
-					joinTournamentLobby(payload.tournament_id, 3);
+					joinTournamentLobby(payload.tournament_id, 3, fakeUsername);
 			} catch {
 				console.log("Final redirection error");
 			}
@@ -282,13 +244,16 @@ PageElement.onLoad = async () => {
 
 	async function semifinalsRedirect(payload) {
 		const players = payload.players;
+		const fakeNames = payload.fake_names;
+		console.log("semifinalsRedirect: ", payload);
 		for (let i = 0; i < 4; i++) {
 			try {
+				let fakeUsername = Object.entries(fakeNames)[i][1];
 				let playerUsername = Object.entries(players)[i][1];
 				if (window.user.username == playerUsername && (i == 0 || i == 1))
-					joinTournamentLobby(payload.tournament_id, 1);
+					joinTournamentLobby(payload.tournament_id, 1, fakeUsername);
 				else if (window.user.username == playerUsername && (i == 2 || i == 3))
-					joinTournamentLobby(payload.tournament_id, 2);
+					joinTournamentLobby(payload.tournament_id, 2, fakeUsername);
 			} catch {
 				console.log("Semifinal redirection error");
 			}
@@ -354,7 +319,6 @@ PageElement.onLoad = async () => {
 		);
 		chatInputForm.addEventListener("submit", (event) => {
 			event.preventDefault();
-
 			const chatInput = event.target.querySelector(
 				"#chat-input-tournament"
 			);
@@ -364,7 +328,19 @@ PageElement.onLoad = async () => {
 		});
 	}
 
-	// updateBracketDB(tournament_id);
+	function fakeNameFormInit() {
+		const fakeNameForm = document.getElementById("fake-name-form");
+		fakeNameForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+			const fakeNameInput = event.target.querySelector("#fake-name-input");
+			const fakeName = fakeNameInput.value
+			if (fakeName)
+				sendPayload("fakeName", fakeName);
+			fakeNameInput.value = "";
+		})
+	}
+
+	fakeNameFormInit()
 	messageForm();
 
 	window.addEventListener("popstate", () => {

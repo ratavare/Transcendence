@@ -59,7 +59,7 @@ async function joinLobby(lobby_id) {
 			"POST",
 			true
 		);
-		seturl(`/pong?id=${lobby_id}`);
+		seturl(`/pong?id=${lobby_id}?username=${window.user.username}`);
 	} catch (error) {
 		alert(error);
 	}
