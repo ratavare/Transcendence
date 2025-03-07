@@ -1,4 +1,17 @@
 
+async function getMatchHistory(username) {
+	try {
+		return await myFetch(
+			`https://localhost:8443/match_history/${username}/`,
+			null,
+			"GET",
+			true
+		);
+	} catch (error) {
+		console.log(error);
+	}
+}
+
 async function updateProfile(formData) {
 	try {
 		console.log(formData);
@@ -61,7 +74,7 @@ function cancelEdit() {
 	document.getElementById('profile-edit').style.display = 'none';
 }
 
-async function run() {
+async function renderProfile() {
 	document.getElementById('change-photo-button').addEventListener('click', () => {
 		document.getElementById('file-input').click();
 	});
@@ -111,6 +124,9 @@ async function run() {
 		const formData = new FormData(event.target);
 		updateProfile(formData);
 	});
+
+	const matchHistory = await getMatchHistory(window.user.username);
+	console.log(matchHistory);
 }
 
-run();
+renderProfile();
