@@ -188,7 +188,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def win(self, lobby_game, winner_username, lobby_id):
 		await self.groupSend('gameOver', {"winner": winner_username})
 		await self.updateWinnerDB(winner_username)
-		await self.updateMatchHistory(lobby_game, self.lobby_id)
+		await self.updateMatchHistory(lobby_game, self.lobby_id, winner_username)
 
 	async def sendState(self):
 		lobby = lobbies.get(self.lobby_id)
@@ -300,8 +300,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			print(f"Set retuning error: {e}", flush=True)
 
 	@database_sync_to_async
-	def updateMatchHistory(self, game, lobby_id):
+	def updateMatchHistory(self, game, lobby_id, winner_username):
 		gameHistory = MatchHistory.objects.get(game_id=lobby_id)
+		gameHistory.winner = winner_username
 		gameHistory.player1Score = game.player1Score
 		gameHistory.player2Score = game.player2Score
 		gameHistory.save()

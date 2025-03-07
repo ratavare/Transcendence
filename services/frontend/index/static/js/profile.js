@@ -19,7 +19,7 @@ async function updateProfile(formData) {
 		window.location.reload();
 	} catch(error) {
 		console.log("Profile change failed. Reason:", error);
-        showErrorModal("Profile change failed. Please check that the username is unique and the email is valid.");
+		showErrorModal("Profile change failed. Please check that the username is unique and the email is valid.");
 	}
 }
 
@@ -34,18 +34,18 @@ async function uploadProfilePicture(file) {
 		window.location.reload(); // Refresh might not be the best way
 	} catch (error) {
 		console.error("Error uploading profile picture:", error);
-        showErrorModal("Profile picture change failed.");
+		showErrorModal("Profile picture change failed.");
 	}
 }
 
 async function fillProfile(user) {
 	try {
 		document.getElementById('profile-username').innerText = user.username;
-        document.getElementById('profile-fullname').innerText = user.full_name || "";
-        document.getElementById('profile-email').innerText = user.email;
-        document.getElementById('profile-bio').innerText = user.bio || "";
-        document.getElementById('profile-city').innerText = user.city || "";
-        document.getElementById('profile-birth-date').innerText = user.birth_date || "";
+		document.getElementById('profile-fullname').innerText = user.full_name || "";
+		document.getElementById('profile-email').innerText = user.email;
+		document.getElementById('profile-bio').innerText = user.bio || "";
+		document.getElementById('profile-city').innerText = user.city || "";
+		document.getElementById('profile-birth-date').innerText = user.birth_date || "";
 		document.getElementById('profile-wins').innerText = user.wins || 0;
 		document.getElementById('profile-losses').innerText = user.losses || 0;
 	} catch (error) {
@@ -54,10 +54,10 @@ async function fillProfile(user) {
 }
 
 function editProfile() {
-    document.getElementById('profile-view').style.display = 'none';
-    document.getElementById('profile-edit').style.display = 'block';
-    document.getElementById('username-edit').value = window.user.username;
-    document.getElementById('full_name-edit').value = window.user.full_name;
+	document.getElementById('profile-view').style.display = 'none';
+	document.getElementById('profile-edit').style.display = 'block';
+	document.getElementById('username-edit').value = window.user.username;
+	document.getElementById('full_name-edit').value = window.user.full_name;
 	document.getElementById('email-edit').value = window.user.email;
 	document.getElementById('bio-edit').value = window.user.bio || "";
 	document.getElementById('city-edit').value = window.user.city || "";
@@ -95,11 +95,11 @@ async function renderProfile() {
 			const file = event.target.files[0];
 			if (file) {
 				if (file.size > 2 * 1024 * 1024) {
-                    showErrorModal('File size must be less than 2MB.');
+					showErrorModal('File size must be less than 2MB.');
 					return;
 				}
 				if (!file.type.startsWith('image/')) {
-                    showErrorModal('Please upload a valid image file.');
+					showErrorModal('Please upload a valid image file.');
 					return;
 				}
 				uploadProfilePicture(file);
@@ -115,18 +115,35 @@ async function renderProfile() {
 	
 	if (formProfile && saveChangesButton) {
 		document.getElementById('saveChangesButton').disabled = true;
-        formProfile.addEventListener('input', function () {
+		formProfile.addEventListener('input', function () {
 			document.getElementById('saveChangesButton').disabled = false;
-        });
-    }
+		});
+	}
 	formProfile?.addEventListener('submit', async function(event) {
 		event.preventDefault();
 		const formData = new FormData(event.target);
 		updateProfile(formData);
 	});
-
-	const matchHistory = await getMatchHistory(window.user.username);
-	console.log(matchHistory);
 }
 
-renderProfile();
+async function renderMatchHistory() {
+	const matchHistoryDiv = document.getElementById('match-history');
+	const matchHistory = await getMatchHistory(window.user.username);
+	if (matchHistory.length == 0) {
+		const noMatchWrapper = document.createElement('div');
+		noMatchWrapper.classList.add('no-matches');
+		const paragraph = document.createElement('p');
+		paragraph.innerHTML = 'No matches played yet.';
+		noMatchWrapper.appendChild(paragraph);
+		matchHistoryDiv.appendChild(noMatchWrapper);
+		return ;
+	}
+	// implement match history
+}
+
+async function renderProfilePage() {
+	renderProfile();
+	renderMatchHistory();
+}
+
+renderProfilePage();

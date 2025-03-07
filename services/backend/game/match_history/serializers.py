@@ -8,4 +8,4 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MatchHistory
-        fields = ['game_id', 'users', 'player1Score', 'player2Score', 'date']
+        fields = ['game_id', 'users', 'winner', 'player1Score', 'player2Score', 'date']

@@ -165,6 +165,14 @@ label {
     gap: 1rem;
 }
 
+.no-matches {
+    text-align: center;
+    color: gray;
+    font-style: italic;
+    padding: 10px;
+}
+
+
 /* Match History Section */
 .match-history-card {
     display: flex;
@@ -220,11 +228,6 @@ label {
 .match-points {
     font-size: 16px;
     color: #28a745; /* Green color for points */
-}
-
-/* Adding hover effect for the match result */
-.match-result:hover {
-    background-color: #f9f9f9;
 }
 
 /* Scrollbar styling */
