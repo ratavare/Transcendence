@@ -61,27 +61,24 @@ PageElement.onLoad = async () => {
 
 	// **************************************** BRACKET **************************************************
 
-	function readyBtnDisplay(payload)
-	{
+	function readyBtnDisplay(payload, fakeNameDiv) {
 		const username = window.user.username;
+		const playerMap = payload.players;
 		const fakeNameInput = document.getElementById("fake-name-input");
-		if (payload.is_ready || payload.winner3)
-			fakeNameDiv.style.display = "none";
-		else if (payload.stage == "final") {
-			fakeNameInput.style.display = "none";
-			if (
-				(payload.winner1 || payload.winner2) &&
-				(username == payload.winner1 || username == payload.winner2)
-			)
+		if (payload.stage == "final") {
+			if (playerMap[username] == payload.winner1 || playerMap[username] == payload.winner2)
 				fakeNameDiv.style.display = "block";
-		} else fakeNameDiv.style.display = "block";
+			fakeNameInput.style.display = "none";
+		} else if (payload.is_ready || payload.winner3 || username != playerMap[username])
+			fakeNameDiv.style.display = "none";
+		else fakeNameDiv.style.display = "block";
 	}
 
 	function readyBtnInit(payload) {
 		const readyBtn = document.getElementById("tournament-ready-btn");
 		const fakeNameDiv = document.getElementById("fake-name-div");
 		
-		readyBtnDisplay(payload);
+		readyBtnDisplay(payload, fakeNameDiv);
 		readyBtn.addEventListener("click", () => {
 			fakeNameDiv.style.display = "none";
 			sendPayload("ready", { stage: payload.stage });
@@ -89,56 +86,54 @@ PageElement.onLoad = async () => {
 	}
 
 	function getPlayerColor(index) {
-		const pClass = document.querySelector(".tournament-p" + parseInt(index));
+		const pClass = document.querySelector(".tournament-p" + (parseInt(index) + 1));
 		if (!pClass) {
 			return "transparent";
 		}
 		const pStyle = getComputedStyle(pClass);
 		return (pStyle.getPropertyValue('--border-color').trim());
 	}
-
+	
 	async function updateBracket(payload) {
 		try {
-			let fake_names;
+			const fakers = Object.values(payload.fake_names);
 			const players = Object.values(payload.players);
-			if (payload.fake_names)
-				fake_names = Object.values(payload.fake_names);
-
-			console.log("PLAYERS: ", players)
-			console.log("FAKE_NAMES: ", fake_names);
 			const winner1 = payload.winner1;
 			const winner2 = payload.winner2;
 			const winner3 = payload.winner3;
 			
-			if (payload.stage != "final" || payload.state != "disconnect")
-				updateSemifinals(players);
+			updateColorMap(Object.values(payload.fake_names));
+			if (payload.stage != "final")
+				if (!payload.state || (winner1 && winner2))
+					if (payload.state == "connect") updateSemifinals(players);
+			if (payload.state == "disconnect") updateSemifinals(players);
+			else updateSemifinals(fakers);
 			if (winner1 || winner2)
-				updateFinal(winner1, winner2, players);
+				updateFinal(winner1, winner2, fakers);
 			if (winner3)
-				updateWinner(winner1, winner2, winner3, players);
+				updateWinner(winner1, winner2, winner3, fakers);
 		} catch (e) {
 			console.error("Update Bracket Error: ", e);
 		}
 	}
 
-	function getWinnerIndex(playerList, winner3) {
-		let idx;
-		for (let i = 0; i < 4; i++) {
-			if (playerList[i] == winner3)
-				idx = i;
+	function getWinnerIndex(nameList, winner3) {
+		let index = undefined;
+		for (index in nameList) {
+			if (winner3 == nameList[index])
+				return index;
 		}
-		if (idx === undefined) return undefined;
-		return idx;
+		return index;
 	}
 
-	function updateWinner(winner1, winner2, winner3, playerList) {
-		winnerIdx = getWinnerIndex(playerList, winner3)
+	function updateWinner(winner1, winner2, winner3, nameList) {
+		winnerIdx = getWinnerIndex(nameList, winner3)
 		if (winnerIdx === undefined) return;
 		let playerLiProperty;
 		if (parseInt(winnerIdx / 2) + 1 == 1) playerLiProperty = "--li-after";
 		else playerLiProperty = "--li-last";
 		
-		const pColor = getPlayerColor(parseInt(winnerIdx) + 1);
+		const pColor = getPlayerColor(parseInt(winnerIdx));
 		const finalLi = document.getElementById("li-final" + (parseInt(winnerIdx / 2) + 1));
 		const winnerUl = document.getElementById("ul-winner");
 		const winnerDiv = document.getElementById("tournament-winner");
@@ -147,9 +142,9 @@ PageElement.onLoad = async () => {
 
 		// Change background of finalist brackets
 		if (winner3 == winner1)
-			document.getElementById("div-final1").style.background = getPlayerColor(parseInt(winnerIdx) + 1);
-		if (winner3  == winner2)
-			document.getElementById("div-final2").style.background = getPlayerColor(parseInt(winnerIdx) + 1);
+			document.getElementById("div-final1").style.background = getPlayerColor(parseInt(winnerIdx));
+		if (winner3 == winner2)
+			document.getElementById("div-final2").style.background = getPlayerColor(parseInt(winnerIdx));
 	
 		// Change bracket borders
 		finalLi.style.setProperty(playerLiProperty + "-bc", pColor);
@@ -164,25 +159,23 @@ PageElement.onLoad = async () => {
 		
 	}
 
-	function putFinals(winner, index, playerList) {
-		
+	function putFinals(winner, index, nameList) {
 		for (let i = index - 2; i < index; i++) {
-			const finalsDiv = document.getElementById('div-final' + (index / 2));
-			const semifinalsUl = document.getElementById("ul-semi" + (index / 2));
-			const pLi = document.getElementById("li-p" + (parseInt(i) + 1))
+			const finalsDiv = document.getElementById("div-final" + index / 2);
+			const semifinalsUl = document.getElementById("ul-semi" + index / 2);
+			const pLi = document.getElementById("li-p" + (parseInt(i) + 1));
 			const pDiv = document.getElementById("div-p" + (parseInt(i) + 1));
 			if (!finalsDiv || !semifinalsUl || !pLi || !pDiv) return;
 			const pName = pDiv.querySelector("span");
-			if (!pName) return ;
-			const pColor = getPlayerColor(parseInt(i) + 1);
-		
+			if (!pName) return;
+			const pColor = getPlayerColor(parseInt(i));
+
 			let playerLiProperty;
 			if (i % 2 == 0) playerLiProperty = "--li-after";
 			else playerLiProperty = "--li-last";
-			
-			if (!winner) 
-				pName.textContent = playerList[i]
-			else if (winner == playerList[i]) {
+
+			if (!winner) pName.textContent = nameList[i];
+			else if (winner == nameList[i]) {
 				// Change bracket lines' color
 				finalsDiv.classList.add("tournament-p" + (parseInt(i) + 1));
 				const pFinalName = finalsDiv.querySelector("span");
@@ -190,31 +183,38 @@ PageElement.onLoad = async () => {
 				pLi.style.setProperty(playerLiProperty + "-bw", "5px");
 				semifinalsUl.style.setProperty("--ul-after-bc", pColor);
 				semifinalsUl.style.setProperty("--ul-after-bw", "5px");
-				pDiv.style.background = pColor
+				pDiv.style.background = pColor;
 				finalsDiv.style.background = pColor;
-	
+
 				//Add name
-				pFinalName.textContent = playerList[i];
-				pDiv.textContent = playerList[i];
+				pFinalName.textContent = nameList[i];
+				pDiv.textContent = nameList[i];
 			}
 		}
 	}
 
-	async function updateFinal(winner1, winner2,  playerList) {
-		putFinals(winner1, 2, playerList);
-		putFinals(winner2, 4, playerList);
+	async function updateFinal(winner1, winner2, nameList) {
+		putFinals(winner1, 2, nameList);
+		putFinals(winner2, 4, nameList);
 	}
 
-	function updateSemifinals(players) {
-		const playerValues = Object.values(players)
-		for (let i = 0; i < 4; i++) {
-			const playerDiv = document.getElementById("div-p" + (parseInt(i) + 1));
-			if (!playerDiv) return ;
+	function updateSemifinals(nameList) {
+		for (let index = 0; index < 4; index++) {
+			const playerDiv = document.getElementById("div-p" + (parseInt(index) + 1));
+			if (!playerDiv) return;
 			const playerName = playerDiv.querySelector("span");
 			if (!playerName) return
 			// const profileImg = playerDiv.querySelector('img');
-			playerName.textContent = playerValues[i] || "Player " + (i + 1);
+			playerName.textContent = nameList[index] || "Player " + (index + 1);
 		}
+		// for (let i = 0; i < 4; i++) {
+		// 	const playerDiv = document.getElementById("div-p" + (parseInt(i) + 1));
+		// 	if (!playerDiv) return ;
+		// 	const playerName = playerDiv.querySelector("span");
+		// 	if (!playerName) return
+		// 	// const profileImg = playerDiv.querySelector('img');
+		// 	playerName.textContent = names[i] || "Player " + (i + 1);
+		// }
 	}
 
 	// **************************************** LOBBY *************************************************
@@ -239,34 +239,48 @@ PageElement.onLoad = async () => {
 	}
 
 	async function finalsRedirect(payload) {
+		const playerMap = payload.players;
 		const username = window.user.username;
-		const fakeNames = Object.values(payload.fake_names);
-		for (let i = 0; i < 2; i++) {
-			try {
-				if (username == payload.winner1 || username == payload.winner2)
-					joinTournamentLobby(payload.tournament_id, 3, fakeNames[i]);
-			} catch {
-				console.log("Final redirection error");
-			}
-		}
+		if (playerMap[username] == payload.winner1 || playerMap[username] == payload.winner2)
+			joinTournamentLobby(payload.tournament_id, 3, playerMap[username]);
 	}
 
 	async function semifinalsRedirect(payload) {
-		const players = Object.values(payload.players);
-		const fakeNames = Object.values(payload.fake_names);
-		for (let i = 0; i < 4; i++) {
-			try {
-				if (window.user.username == players[i] && (i == 0 || i == 1))
-					joinTournamentLobby(payload.tournament_id, 1, fakeNames[i]);
-				else if (window.user.username == players[i] && (i == 2 || i == 3))
-					joinTournamentLobby(payload.tournament_id, 2, fakeNames[i]);
-			} catch {
-				console.log("Semifinal redirection error");
-			}
+		let index = 0;
+		const playerMap = payload.players;
+		const username = window.user.username;
+		for (const name in playerMap) {
+			if (username == name && (index == 0 || index == 1))
+				joinTournamentLobby(payload.tournament_id, 1, playerMap[name]);
+			else if (username == name && (index == 2 || index == 3))
+				joinTournamentLobby(payload.tournament_id, 2, playerMap[name]);
+			index++;
 		}
 	}
 
 	// **************************************** CHAT **************************************************
+
+	let colorMap = new Map([
+		["connect", "limegreen"],
+		["disconnect", "red"],
+		["spectator", "grey"],
+		["countdown", "purple"]
+	]);
+
+	function updateColorMap(playerList) {
+		for (const index in playerList) {
+			pColor = getPlayerColor(index);
+			colorMap.set(playerList[index], pColor);
+		}
+	}
+
+	function lightenRGB(rgb, percent) {
+		let [r, g, b] = rgb.match(/\d+/g).map(Number);
+		r = Math.min(255, r + (255 - r) * (percent / 100));
+		g = Math.min(255, g + (255 - g) * (percent / 100));
+		b = Math.min(255, b + (255 - b) * (percent / 100));
+		return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+	}
 
 	function receiveChatMessage(payload) {
 		const messageList = document.getElementById("chat-message-list-tournament");
@@ -276,19 +290,21 @@ PageElement.onLoad = async () => {
 		if (!messageList || !messageListItem || !chatContentElement)
 			return;
 
-		const colorMap = {
-			[window.user.username]: "orangered",
-			"connect": "limegreen",
-			"disconnect": "red",
-			"spectator": "grey"
-		};
-		
-		let color = colorMap[payload.sender] || "white";
+		let color = colorMap.get(payload.sender) || "white";
 
-		if (payload.sender === window.user.username || color == "white")
-			messageListItem.innerHTML = `<b style="color: ${color}">${payload.sender}: </b><span>${payload.content}</span>`
-		else
-			messageListItem.innerHTML =  `<i style="color: ${color}">${payload.content}</i>`;
+		if (payload.sender == "connect" || payload.sender == "disconnect" || payload.sender == "countdown")
+			messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
+		else if (payload.sender == "changeName")
+		{
+			color = colorMap.get(payload.content.oldName)
+			messageListItem.innerHTML = `
+				<i style="color: ${lightenRGB(color, 20)}">${payload.content.oldName}</i>
+				<i style="color: white"> changed their name to </i>
+				<i style="color: ${lightenRGB(color, 20)}">${payload.content.newName}</i>
+			`;
+		} else {
+			messageListItem.innerHTML = `<b style="color: ${lightenRGB(color, 20)}">${payload.sender}: </b><span>${payload.content}</span>`;
+		}
 
 		if (messageListItem) messageList.appendChild(messageListItem);
 		if (chatContentElement) {

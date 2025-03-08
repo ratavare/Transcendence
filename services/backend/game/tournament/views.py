@@ -1,4 +1,4 @@
-import json
+import json, re
 from django.http import JsonResponse
 from .models import Tournament, TournamentPlayer
 from lobby.models import Lobby
@@ -18,8 +18,9 @@ def createTournament(request):
 		validator = RegexValidator('[+/%!?,.$%#&*~-]', inverse_match=True)
 		try:
 			tournament_id = request.data.get('tournament_id')
+			tournament_id = re.sub(r"\s+", "", tournament_id)
 			validator(tournament_id)
-			tournament = Tournament.objects.create(tournament_id=tournament_id)
+			tournament = Tournament(tournament_id=tournament_id)
 			game1 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_1")
 			game2 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_2")
 			game3 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_3")

@@ -12,8 +12,9 @@ document
 
 function putList(jsonArray, htmlId, type) {
 	const listDiv = document.getElementById(htmlId);
-
 	const previousList = listDiv.querySelector("ul");
+	if (!jsonArray || !listDiv)
+		return;
 	previousList?.remove();
 	const list = document.createElement("ul");
 	list.classList.add("list-group");
@@ -149,6 +150,9 @@ async function getTournaments() {
 	const createTournamentForm = document.getElementById(
 		"create-tournament-form"
 	);
+	const creatTournamentInput = document.getElementById(
+		"create-tournament-input"
+	);
 	createTournamentForm?.addEventListener("submit", async function (event) {
 		event.preventDefault();
 		const formData = new FormData(event.target);
@@ -164,5 +168,6 @@ async function getTournaments() {
 			console.log(error);
 			// seturl("/home");
 		}
+		creatTournamentInput.value = "";
 	});
 }
