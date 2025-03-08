@@ -4,7 +4,6 @@ PageElement.onLoad = async () => {
 	let tournament_id;
 
 	if (window.location.hash.includes("/tournament?id")) {
-		console.log("WINDOW PROPS", window.props);
 		tournament_id = window.props.get("id");
 	}
 	else
@@ -29,7 +28,7 @@ PageElement.onLoad = async () => {
 				readyBtnInit(data.payload);
 				break;
 			case "updateBracketWS":
-				updateBracketWS(data.payload);
+				updateBracket(data.payload);
 				break;
 			case "log":
 				console.log(data.payload);
@@ -62,21 +61,27 @@ PageElement.onLoad = async () => {
 
 	// **************************************** BRACKET **************************************************
 
-	async function readyBtnInit(payload) {
+	function readyBtnDisplay(payload)
+	{
 		const username = window.user.username;
-		const readyBtn = document.getElementById("tournament-ready-btn");
-		const fakeNameDiv = document.getElementById("fake-name-div");
 		const fakeNameInput = document.getElementById("fake-name-input");
-
-		if (payload.is_ready || payload.winner3) fakeNameDiv.style.display = "none";
+		if (payload.is_ready || payload.winner3)
+			fakeNameDiv.style.display = "none";
 		else if (payload.stage == "final") {
 			fakeNameInput.style.display = "none";
-			console.log("Winners 1 and 2: ", payload.winner1, payload.winner2, " ! windown username: ", username)
-			if ((payload.winner1 || payload.winner2) && (username == payload.winner1 || username == payload.winner2))
+			if (
+				(payload.winner1 || payload.winner2) &&
+				(username == payload.winner1 || username == payload.winner2)
+			)
 				fakeNameDiv.style.display = "block";
-		}
-		else fakeNameDiv.style.display = "block";
+		} else fakeNameDiv.style.display = "block";
+	}
 
+	function readyBtnInit(payload) {
+		const readyBtn = document.getElementById("tournament-ready-btn");
+		const fakeNameDiv = document.getElementById("fake-name-div");
+		
+		readyBtnDisplay(payload);
 		readyBtn.addEventListener("click", () => {
 			fakeNameDiv.style.display = "none";
 			sendPayload("ready", { stage: payload.stage });
@@ -92,20 +97,19 @@ PageElement.onLoad = async () => {
 		return (pStyle.getPropertyValue('--border-color').trim());
 	}
 
-	// ************** UPDATE BRACKET WEBSOCKET **************
-
-	async function updateBracketWS(payload) {
+	async function updateBracket(payload) {
 		try {
-			console.log("payload", payload);
-			const players = Object.values(payload.players);
 			let fake_names;
+			const players = Object.values(payload.players);
 			if (payload.fake_names)
 				fake_names = Object.values(payload.fake_names);
+
+			console.log("PLAYERS: ", players)
+			console.log("FAKE_NAMES: ", fake_names);
 			const winner1 = payload.winner1;
 			const winner2 = payload.winner2;
 			const winner3 = payload.winner3;
 			
-			console.log(winner1, winner2, winner3, players);
 			if (payload.stage != "final" || payload.state != "disconnect")
 				updateSemifinals(players);
 			if (winner1 || winner2)
@@ -116,8 +120,6 @@ PageElement.onLoad = async () => {
 			console.error("Update Bracket Error: ", e);
 		}
 	}
-
-	// ************** UPDATE BRACKET DATABSE **************
 
 	function getWinnerIndex(playerList, winner3) {
 		let idx;

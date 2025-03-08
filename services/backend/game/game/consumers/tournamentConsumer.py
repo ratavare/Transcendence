@@ -49,7 +49,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		self.is_returning = await self.is_returningDB()
 		await self.playerSetup(tournament)
 		await self.setFakeNames(tournament)
-		print("PLAYERS CONNECT: ", tournament["players"], flush=True)
+		print("PLAYERS CONNECT: ", tournament["fake_names"], flush=True)
 	
 		# Set tournament winners
 		await self.setWinners(self.tournament_id)
@@ -175,7 +175,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if self.user_id in tournament["spectators"]:
 			del tournament["spectators"][self.user_id]
 
-		print("PLAYERS DISCONNECT: ", tournament["players"], flush=True)
+		print("PLAYERS DISCONNECT: ", tournament["fake_names"], flush=True)
 
 		if self.user_id not in deleteTimers:
 			deleteTimers[self.user_id] = asyncio.create_task(self.deleteTournamentTask(self.tournament_id, self.username, fake_name))
@@ -214,7 +214,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			del tournaments[t_id]
 			await self.deleteTournamentDB(t_id)
 
-		print("PLAYERS DISCONNECT TASK: ", tournament["players"], flush=True)
+		print("PLAYERS DISCONNECT TASK: ", tournament["fake_names"], flush=True)
 
 		deleteTimers.pop(self.user_id, None)
 
@@ -229,7 +229,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				"content": f"{fake_name} left the tournament!",
 		})
 
-		print("STAGE: ", stage, flush=True)
 		if stage is None or stage == "semifinals":
 			if self.username in tournament["fake_names"]:
 				del tournament["fake_names"][self.username]

@@ -91,7 +91,6 @@ PageElement.onLoad = () => {
 	// Functions
 	function createEnvironment(data) {
 		// Paddles and Table
-		// console.log("DATA: ", data)
 		const table1 = makeWall(
 			data.floorPositionX,
 			data.floorPositionY,
@@ -303,7 +302,6 @@ PageElement.onLoad = () => {
 	}
 
 	function win(payload) {
-		console.log("Payload:", payload);
 		const modalElement = document.getElementById("quit");
 		const modal = new bootstrap.Modal(modalElement, {
 			backdrop: "static",
@@ -379,7 +377,6 @@ PageElement.onLoad = () => {
 			ready: true,
 		});
 		overlayText.textContent = "Waiting for the other player";
-		console.log("Ready button clicked");
 	};
 
 	socket.onmessage = function (event) {
@@ -405,13 +402,9 @@ PageElement.onLoad = () => {
 				updatePaddlePositions(data.payload);
 				break;
 			case "graphicsInit":
-				console.log("Graphics initialized");
 				createEnvironment(data.payload);
 				break;
 			case "shake":
-				// shakeDuration = SHAKE_DURATION;
-				// applyCameraShake();
-				console.log("shake");
 				break;
 			case "point":
 				player1Score = data.payload.player1Score;
@@ -420,12 +413,6 @@ PageElement.onLoad = () => {
 				player2Score = data.payload.player2Score;
 				document.getElementById("player2score").innerHTML =
 					player2Score;
-				console.log(
-					"player1Score: ",
-					player1Score,
-					"player2Score: ",
-					player2Score
-				);
 				break;
 			case "gameOver":
 				win(data.payload);
