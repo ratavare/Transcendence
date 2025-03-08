@@ -122,7 +122,7 @@ label {
 .button-style {
     width: 100%;
     padding: 10px;
-    background-color: #7300a8;
+    background-color: #7300a8 !important;
     color: white;
     font-weight: bold;
     border: none;
@@ -246,7 +246,7 @@ label {
     background: #8f28d0; /* Darker purple on hover */
 }
 
-button.fa {
+button.factor {
     width: 100%;
     background-color: #7300a8;
     color: white;
@@ -257,15 +257,15 @@ button.fa {
     padding: 5px;
 }
 
-button.fa:active {
-    background-color: red;
+button.factor:active {
+    color: white !important;
+    background-color: #55007d !important;
     transform: translateY(2px); 
-    color: white;
 }
 
-button.fa:hover {
-    background-color: #55007d; 
+button.factor:hover {
     color: white;
+    background-color: #55007d; 
     cursor: pointer;
 }
 
@@ -355,4 +355,29 @@ p.text-white {
     font-size: 1rem;
     font-weight: bold;
     margin-bottom: 5px;
+}
+
+#current-password:disabled {
+    background-color: inherit; /* Keeps the original background */
+    color: inherit; /* Keeps the original text color */
+    opacity: 1; /* Prevents the default faded look */
+    cursor: not-allowed; /* Shows a "not-allowed" cursor */
+}
+
+#search-btn i {
+    font-size: 1.2rem; /* Adjust icon size */
+    color: whtie;
+}
+
+#search-btn {
+    background-color: #7300a8;
+    color: white;
+    border: 5px solid #7300a8;
+}
+
+.button-style:hover {
+    background-color: #8f28d0;
+    cursor: pointer;
+    transform: translateY(-2px);
+    color: white;
 }
