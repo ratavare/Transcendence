@@ -3,8 +3,7 @@
 PageElement.onLoad = async () => {
 	let tournament_id;
 
-	if (window.location.hash.includes("/tournament?id"))
-	{
+	if (window.location.hash.includes("/tournament?id")) {
 		console.log("WINDOW PROPS", window.props);
 		tournament_id = window.props.get("id");
 	}
@@ -48,7 +47,8 @@ PageElement.onLoad = async () => {
 	};
 
 	socket.onerror = (e) => {
-		console.error(e);
+		console.error(e.reason);
+		seturl("/home");
 	}
 
 	function sendPayload(type, payload) {
@@ -62,26 +62,28 @@ PageElement.onLoad = async () => {
 
 	// **************************************** BRACKET **************************************************
 
-	async function readyBtnInit(payload)
-	{
+	async function readyBtnInit(payload) {
 		const username = window.user.username;
 		const readyBtn = document.getElementById("tournament-ready-btn");
-		if (payload.is_ready || payload.winner3) readyBtn.style.display = "none";
-		else if (payload.stage == "final")
-		{
+		const fakeNameDiv = document.getElementById("fake-name-div");
+		const fakeNameInput = document.getElementById("fake-name-input");
+
+		if (payload.is_ready || payload.winner3) fakeNameDiv.style.display = "none";
+		else if (payload.stage == "final") {
+			fakeNameInput.style.display = "none";
+			console.log("Winners 1 and 2: ", payload.winner1, payload.winner2, " ! windown username: ", username)
 			if ((payload.winner1 || payload.winner2) && (username == payload.winner1 || username == payload.winner2))
-				readyBtn.style.display = "block"
+				fakeNameDiv.style.display = "block";
 		}
-		else readyBtn.style.display = "block";
+		else fakeNameDiv.style.display = "block";
 
 		readyBtn.addEventListener("click", () => {
-			readyBtn.style.display = "none";
+			fakeNameDiv.style.display = "none";
 			sendPayload("ready", { stage: payload.stage });
 		})
 	}
 
-	function getPlayerColor(index)
-	{
+	function getPlayerColor(index) {
 		const pClass = document.querySelector(".tournament-p" + parseInt(index));
 		if (!pClass) {
 			return "transparent";
@@ -94,7 +96,11 @@ PageElement.onLoad = async () => {
 
 	async function updateBracketWS(payload) {
 		try {
+			console.log("payload", payload);
 			const players = Object.values(payload.players);
+			let fake_names;
+			if (payload.fake_names)
+				fake_names = Object.values(payload.fake_names);
 			const winner1 = payload.winner1;
 			const winner2 = payload.winner2;
 			const winner3 = payload.winner3;
@@ -113,8 +119,7 @@ PageElement.onLoad = async () => {
 
 	// ************** UPDATE BRACKET DATABSE **************
 
-	function getWinnerIndex(playerList, winner3)
-	{
+	function getWinnerIndex(playerList, winner3) {
 		let idx;
 		for (let i = 0; i < 4; i++) {
 			if (playerList[i] == winner3)
@@ -124,8 +129,7 @@ PageElement.onLoad = async () => {
 		return idx;
 	}
 
-	function updateWinner(winner1, winner2, winner3, playerList)
-	{
+	function updateWinner(winner1, winner2, winner3, playerList) {
 		winnerIdx = getWinnerIndex(playerList, winner3)
 		if (winnerIdx === undefined) return;
 		let playerLiProperty;
@@ -136,6 +140,7 @@ PageElement.onLoad = async () => {
 		const finalLi = document.getElementById("li-final" + (parseInt(winnerIdx / 2) + 1));
 		const winnerUl = document.getElementById("ul-winner");
 		const winnerDiv = document.getElementById("tournament-winner");
+		if (!winnerDiv || !winnerUl || !finalLi) return;
 		const winnerName = winnerDiv.querySelector("span");
 
 		// Change background of finalist brackets
@@ -164,7 +169,7 @@ PageElement.onLoad = async () => {
 			const semifinalsUl = document.getElementById("ul-semi" + (index / 2));
 			const pLi = document.getElementById("li-p" + (parseInt(i) + 1))
 			const pDiv = document.getElementById("div-p" + (parseInt(i) + 1));
-			if (!pDiv) return ;
+			if (!finalsDiv || !semifinalsUl || !pLi || !pDiv) return;
 			const pName = pDiv.querySelector("span");
 			if (!pName) return ;
 			const pColor = getPlayerColor(parseInt(i) + 1);
@@ -232,15 +237,12 @@ PageElement.onLoad = async () => {
 	}
 
 	async function finalsRedirect(payload) {
-		const players = payload.players;
-		const fakeNames = payload.fake_names;
-		console.log("PLAYERS: ", players);
+		const username = window.user.username;
+		const fakeNames = Object.values(payload.fake_names);
 		for (let i = 0; i < 2; i++) {
 			try {
-				let fakeUsername = Object.entries(fakeNames)[i][1]
-				let playerUsername = Object.entries(players)[i][1];
-				if (window.user.username == playerUsername)
-					joinTournamentLobby(payload.tournament_id, 3, fakeUsername);
+				if (username == payload.winner1 || username == payload.winner2)
+					joinTournamentLobby(payload.tournament_id, 3, fakeNames[i]);
 			} catch {
 				console.log("Final redirection error");
 			}
@@ -250,16 +252,12 @@ PageElement.onLoad = async () => {
 	async function semifinalsRedirect(payload) {
 		const players = Object.values(payload.players);
 		const fakeNames = Object.values(payload.fake_names);
-		console.log("PLAYERS: ", players);
-		console.log("fakeNames: ", fakeNames);
 		for (let i = 0; i < 4; i++) {
 			try {
-				let fakeUsername = Object.entries(fakeNames)[i][1];
-				let playerUsername = Object.entries(players)[i][1];
-				if (window.user.username == playerUsername && (i == 0 || i == 1))
-					joinTournamentLobby(payload.tournament_id, 1, fakeUsername);
-				else if (window.user.username == playerUsername && (i == 2 || i == 3))
-					joinTournamentLobby(payload.tournament_id, 2, fakeUsername);
+				if (window.user.username == players[i] && (i == 0 || i == 1))
+					joinTournamentLobby(payload.tournament_id, 1, fakeNames[i]);
+				else if (window.user.username == players[i] && (i == 2 || i == 3))
+					joinTournamentLobby(payload.tournament_id, 2, fakeNames[i]);
 			} catch {
 				console.log("Semifinal redirection error");
 			}
@@ -359,6 +357,11 @@ PageElement.onLoad = async () => {
 	})
 
 	window.onbeforeunload = () => {
+		if (
+			window.location.hash.includes("/tournament?id") ||
+			window.location.hash.includes("/pong?id")
+		)
+			return;
 		if (socket) socket.close();
 	};
 
