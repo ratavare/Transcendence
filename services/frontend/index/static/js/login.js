@@ -85,7 +85,7 @@ document.getElementById("form-login").addEventListener("submit", async function 
 		console.log("login.js: ", error);
 		const messages = Object.values(error);
 		console.log("Login Failed. Reasons: ", messages);
-		messages.forEach(alert);
+		showErrorModal(messages);
 	}
 });
 
