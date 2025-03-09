@@ -41,12 +41,8 @@ h6 {
 
 .container.d-flex {
     display: flex;
-    gap: 20px;
-    flex-wrap: wrap; /* Allow wrapping of cards to a new row */
-}
-
-.profile-card {
-    max-width: 900px;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .match-history-card {
@@ -55,28 +51,7 @@ h6 {
 }
 
 .profile-card, .match-history-card {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    flex: 1;
-    min-width: 300px;
-}
-
-#profile-card {
-    max-width: 900px;
-    width: 100%;
-    background-color: #00000069;
-    border-radius: 1.1rem;
-    box-shadow: 0 4px 10px rgba(122, 122, 143, 0.65);
-    padding: 30px;
-}
-
-.profile-left-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    flex: 1 1 50%;
 }
 
 .profile-image {
