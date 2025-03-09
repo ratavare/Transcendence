@@ -126,6 +126,20 @@ async function renderProfile() {
 	});
 }
 
+function formatDate(isoString) {
+    const date = new Date(isoString);
+
+    const formattedDate = date.toLocaleString("en-EN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        day: "2-digit",
+        month: "long",  
+        year: "numeric"
+    });
+
+    return formattedDate; 
+}
+
 async function renderMatchHistory() {
 	const matchHistoryDiv = document.getElementById('match-history');
 	const matchHistory = await getMatchHistory(window.user.username);
@@ -138,7 +152,17 @@ async function renderMatchHistory() {
 		matchHistoryDiv.appendChild(noMatchWrapper);
 		return ;
 	}
-	// implement match history
+	matchHistory.forEach(match => {
+		console.log(match);
+		const matchEntry = document.createElement('div');
+		matchEntry.classList.add('match-result');
+		matchEntry.innerHTML = `<span class="match-date">${formatDate(match.date)}</span>
+								<div class="match-details">
+									<span class="match-winner">Teste</span> <span class="match-points">3 - 2</span>
+								</div>`
+
+		matchHistoryDiv.appendChild(matchEntry)
+	});
 }
 
 async function renderProfilePage() {
