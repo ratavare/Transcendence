@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from match_history.models import GameHistory
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -10,7 +11,7 @@ STATE_CHOICES = [
 	('paused', 'Paused'),
 ]
 
-class Message(models.Model):
+class LobbyChatMessage(models.Model):
 	sender = models.CharField(max_length=100, blank=True)
 	content = models.TextField(blank=True)
 
@@ -30,7 +31,7 @@ class Lobby(models.Model):
 	ballPosition = models.ForeignKey(Position, related_name="BallPosition", on_delete=models.CASCADE, null=True, blank=True)
 	paddle1Position = models.ForeignKey(Position, related_name="Paddle1Position", on_delete=models.CASCADE, null=True, blank=True)
 	paddle2Position = models.ForeignKey(Position, related_name="Paddle2Position", on_delete=models.CASCADE, null=True, blank=True)
-	chat = models.ManyToManyField(Message)
+	chat = models.ManyToManyField(LobbyChatMessage)
 	winner = models.ForeignKey(User, related_name="GameWinner", on_delete=models.CASCADE, null=True, blank=True)
 
 # signals to initialize positions when Lobby is created
@@ -45,4 +46,12 @@ def init_positions(sender, instance, created, **kwargs):
 			ballPosition=ball_position,
 			paddle1Position=paddle1_position,
 			paddle2Position=paddle2_position
+		)
+
+@receiver(post_save, sender=Lobby)
+def create_Game_History(sender, instance, created, **kwargs):
+	if created:
+		game_history = GameHistory.objects.create(
+			game_id=instance.lobby_id,
+			date=instance.created_at
 		)

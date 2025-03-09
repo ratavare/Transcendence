@@ -91,7 +91,6 @@ PageElement.onLoad = () => {
 	// Functions
 	function createEnvironment(data) {
 		// Paddles and Table
-		// console.log("DATA: ", data)
 		const table1 = makeWall(
 			data.floorPositionX,
 			data.floorPositionY,
@@ -303,7 +302,6 @@ PageElement.onLoad = () => {
 	}
 
 	function win(payload) {
-		console.log("Payload:", payload);
 		const modalElement = document.getElementById("quit");
 		const modal = new bootstrap.Modal(modalElement, {
 			backdrop: "static",
@@ -347,6 +345,8 @@ PageElement.onLoad = () => {
 
 	let rendering = true;
 	const lobby_id = window.props.get("id");
+	const playerName = window.props.get("username");
+
 	checkDatabase(`https://localhost:8443/lobby/lobbies/${lobby_id}/`);
 	checkDatabase(
 		`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`
@@ -358,7 +358,6 @@ PageElement.onLoad = () => {
 		)}/?token=${token}`
 	);
 
-	// ISSUES MIGHT OCCUR!! Maybe remove popstate
 	window.addEventListener("popstate", () => {
 		const hash = window.location.hash;
 		if (hash.includes("pong?id")) {
@@ -378,7 +377,6 @@ PageElement.onLoad = () => {
 			ready: true,
 		});
 		overlayText.textContent = "Waiting for the other player";
-		console.log("Ready button clicked");
 	};
 
 	socket.onmessage = function (event) {
@@ -404,13 +402,9 @@ PageElement.onLoad = () => {
 				updatePaddlePositions(data.payload);
 				break;
 			case "graphicsInit":
-				console.log("Graphics initialized");
 				createEnvironment(data.payload);
 				break;
 			case "shake":
-				// shakeDuration = SHAKE_DURATION;
-				// applyCameraShake();
-				console.log("shake");
 				break;
 			case "point":
 				player1Score = data.payload.player1Score;
@@ -419,12 +413,6 @@ PageElement.onLoad = () => {
 				player2Score = data.payload.player2Score;
 				document.getElementById("player2score").innerHTML =
 					player2Score;
-				console.log(
-					"player1Score: ",
-					player1Score,
-					"player2Score: ",
-					player2Score
-				);
 				break;
 			case "gameOver":
 				win(data.payload);
@@ -445,7 +433,7 @@ PageElement.onLoad = () => {
 	socket.onopen = async () => {
 		sendPayload("message", {
 			sender: "connect",
-			content: `${window.user.username} joined the lobby!`,
+			content: `${playerName} joined the lobby!`,
 		});
 	};
 
@@ -466,7 +454,7 @@ PageElement.onLoad = () => {
 			if (payload.sender == "disconnect") color = "red";
 			messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
 		} else {
-			if (payload.sender == window.user.username) color = "orangered";
+			if (payload.sender == playerName) color = "orangered";
 			messageListItem.innerHTML = `
 			<b style="color: ${color}">${payload.sender}: </b>
 			<span>${payload.content}</span>
@@ -508,12 +496,10 @@ PageElement.onLoad = () => {
 
 			const chatInput = event.target.querySelector("#chat-input");
 			if (chatInput.value)
-				sendMessage(window.user.username, chatInput.value);
+				sendMessage(playerName, chatInput.value);
 			chatInput.value = "";
 		});
 	}
-
-	
 
 	messageForm();
 	getChat();
@@ -521,8 +507,6 @@ PageElement.onLoad = () => {
 	// ************************************* TOURNAMENTS ************************************************
 
 	async function isTournamentLobby(lobby_id) {
-		console.log(lobby_id.split('_')[0])
-		console.log(lobby_id.split('_')[1])
 		const quitBtn = document.getElementById("quit-btn");
 		const tournament_id = lobby_id.split('_')[1]
 		if (lobby_id.split('_')[0] == 'tournament')
@@ -536,23 +520,24 @@ PageElement.onLoad = () => {
 						window.location.reload();
 					}, 100);
 				});
+				return ;
 			} catch (error) {
-				console.error("ERROR: ", error);
-				quitBtn.addEventListener("click", () => {
-					seturl("/home");
-				});
+				console.error("Error: ", error);
 			}
 		}
+		quitBtn.addEventListener("click", () => {
+			seturl("/home");
+		});
 	}
 
 	isTournamentLobby(lobby_id)
 
 	window.onbeforeunload = () => {
-		sendMessage("disconnect", `${window.user.username} left the lobby`);
+		sendMessage("disconnect", `${playerName} left the lobby`);
 	};
 
 	PageElement.onUnload = () => {
-		sendMessage("disconnect", `${window.user.username} left the lobby`);
+		sendMessage("disconnect", `${playerName} left the lobby`);
 
 		socket.close();
 

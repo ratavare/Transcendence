@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from .models import Lobby
-from tournament.models import Tournament
+from match_history.models import GameHistory
 from .serializers import LobbySerializer
 import json
 import logging
@@ -30,9 +30,9 @@ def lobby_detail(request, lobby_id):
 		return joinLobby(request, lobby_id)
 
 def getLobbies(request):
-	lobbies = Lobby.objects.filter(g1__isnull=False, g2__isnull=False, g3__isnull=False).values("lobby_id")
+	lobbies = Lobby.objects.filter(g1__isnull=True, g2__isnull=True, g3__isnull=True).values("lobby_id")
 	if not lobbies:
-		return JsonResponse({'error': "No lobbies found!"}, status=404)
+		return JsonResponse({'error': f"No lobbies found!"}, status=404)
 	return JsonResponse({'lobbies': list(lobbies)}, status=200)
 
 def getLobby(request, lobby_id):
@@ -65,12 +65,17 @@ def joinLobby(request, lobby_id):
 		username = data.get('username')
 		user = User.objects.get(username=username)
 		selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
+		lobbyHistory = GameHistory.objects.get(game_id=lobby_id)
+		lobbyHistory.users.add(user)
+		lobbyHistory.save()
 		selectedLobby.users.add(user)
 		selectedLobby.save()
 		serializer = LobbySerializer(selectedLobby)
 		return JsonResponse({'data': serializer.data}, status=200)
 	except Lobby.DoesNotExist:
 		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
+	except GameHistory.DoesNotExist:
+		return JsonResponse({'error': 'Game History does not exist'}, status=400)
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User does not exist'}, status=400)
 

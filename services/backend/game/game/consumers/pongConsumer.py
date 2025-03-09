@@ -1,6 +1,8 @@
 
 import json, asyncio
-from lobby.models import Lobby, Message
+from lobby.models import Lobby, LobbyChatMessage
+from tournament.models import Tournament, TournamentPlayer
+from match_history.models import GameHistory
 from django.contrib.auth.models import User
 from .pongObjects import Pong, vars
 from channels.db import database_sync_to_async
@@ -70,13 +72,22 @@ class PongConsumer(AsyncWebsocketConsumer):
 		await self.close()
 
 	async def deleteLobbyTask(self, lobby):
-		await asyncio.sleep(4)
+		await asyncio.sleep(3)
+		game = lobby["game"]
 
 		if not lobby["players"]:
 			await self.deleteLobbyWS(lobby)
-			await self.deleteLobbyDb()
+			await self.deleteLobbyDB()
 		else:
-			await self.groupSend('log', f'{self.user_id} left the lobby')
+			try:
+				winner_id = game.player1Token if game.player1Token is not self.user_id else game.player2Token
+				winner_username = lobby["players"][winner_id]
+				if game.running == False:
+					await self.setReturningDB(self.username, False)
+					await self.win(game, winner_username, self.lobby_id)
+			except Exception as e:
+				print(f"Error: {e}", flush=True)
+
 		await self.channel_layer.group_discard(self.lobby_id, self.channel_name)
 
 	async def deleteLobbyWS(self, lobby):
@@ -91,7 +102,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 		del lobbies[self.lobby_id]
 
-	async def deleteLobbyDb(self):
+	async def deleteLobbyDB(self):
 		try:
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
 			await database_sync_to_async(dbLobby.delete)()
@@ -124,7 +135,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					else:
 						game.gamePaused = False
 				case 'message':
-					await self.saveChatMessageDb(payload)
+					await self.saveChatMessageDB(payload)
 
 			await self.groupSend(send_type, payload)
 
@@ -167,13 +178,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 				await self.sendState()
 				await asyncio.sleep(0.016)
 				if winner:
-					await self.groupSend('gameOver', {"winner": lobby["players"][winner]})
-					await self.updateWinnerDb(lobby["players"][winner])
+					await self.win(game, lobby["players"][winner], self.lobby_id)
 					break
 		except Exception as e:
 			await self.sendMessage('log', f'Error is runLoop: {e}')
 		finally:
 			await self.sendMessage('log', 'Game End')
+
+	async def win(self, lobby_game, winner_username, lobby_id):
+		await self.groupSend('gameOver', {"winner": winner_username})
+		await self.updateWinnerDB(winner_username)
+		await self.updateGameHistory(lobby_game, self.lobby_id)
 
 	async def sendState(self):
 		lobby = lobbies.get(self.lobby_id)
@@ -222,7 +237,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		game = serverLobby["game"]
 		try:
 			dbLobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
-			await self.saveReadyStateDb(game, dbLobby, state)
+			await self.saveReadyStateDB(game, dbLobby, state)
 			
 			if dbLobby.player1Ready and dbLobby.player2Ready:
 				await self.groupSend('log', 'GAME START!')
@@ -233,7 +248,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		except Exception as e:
 			await self.groupSend('log', f'Ready State Error: {e}')
 
-	async def saveReadyStateDb(self, game, dbLobby, state):
+	async def saveReadyStateDB(self, game, dbLobby, state):
 		if game.player1Token == self.user_id:
 			dbLobby.player1Ready = state
 			await self.groupSend('log', f'Player 1 ready: {state}!')
@@ -245,26 +260,49 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 		await database_sync_to_async(dbLobby.save)()
 
-	async def saveChatMessageDb(self, payload):
+	async def saveChatMessageDB(self, payload):
 		lobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
-		if payload.get('sender'):
-			message = await database_sync_to_async(Message.objects.create)(sender=payload['sender'], content=payload['content'])
+		sender = payload.get('sender')
+		if sender and sender != "connect" and sender != "disconnect":
+			message = await database_sync_to_async(LobbyChatMessage.objects.create)(sender=payload['sender'], content=payload['content'])
 		else:
 			return
 		await database_sync_to_async(lobby.chat.add)(message)
 
 	@database_sync_to_async
-	def updateWinnerDb(self, username):
+	def updateWinnerDB(self, username):
 		try:
 			user = User.objects.get(username=username)
 			lobby = Lobby.objects.get(lobby_id=self.lobby_id)
 			lobby.winner = user
 			lobby.save()
 
-			if lobby.tournament_set.exists():
-				for tournament in lobby.tournament.set.all():
+			tournaments = Tournament.objects.filter(game1=lobby) | Tournament.objects.filter(game2=lobby) | Tournament.objects.filter(game3=lobby)
+			if tournaments.exists():
+				for tournament in tournaments:
 					tournament.save()
 		except User.DoesNotExist:
 			print("User does not exist!", flsuh=True)
 		except Lobby.DoesNotExist:
 			print("Lobby does not exist!", flsuh=True)
+
+	@database_sync_to_async
+	def setReturningDB(self, username, state):
+		try:
+			user = User.objects.get(username=username)
+			lobby = Lobby.objects.get(lobby_id=self.lobby_id)
+			tournaments = Tournament.objects.filter(game1=lobby) | Tournament.objects.filter(game2=lobby) | Tournament.objects.filter(game3=lobby)
+			if tournaments.exists():
+				for tournament in tournaments:
+					t_player = TournamentPlayer.objects.get(tournament=tournament, player=user)
+					t_player.is_returning = state
+					t_player.save()
+		except Exception as e:
+			print(f"Set retuning error: {e}", flush=True)
+
+	@database_sync_to_async
+	def updateGameHistory(self, game, lobby_id):
+		gameHistory = GameHistory.objects.get(game_id=lobby_id)
+		gameHistory.player1Score = game.player1Score
+		gameHistory.player2Score = game.player2Score
+		gameHistory.save()
