@@ -42,15 +42,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		await self.handlePreviousConnections()
 		await self.channel_layer.group_add(self.tournament_id, self.channel_name)
 		await self.accept()
+		print("\nCONNECTION ACCEPTED\n", flush=True)
 
 		# Set players
 		username = self.username if self.username not in tournament["fake_names"] else tournament["fake_names"][self.username]
 		self.is_returning = await self.is_returningDB()
-		try:
-			connectMessage = await self.playerSetup(tournament, username)
-			await self.setFakeNames(tournament)
-		except Exception as e:
-			print({e}, flush=True)
+		connectMessage = await self.playerSetup(tournament, username)
+		await self.setFakeNames(tournament)
 
 		# Set tournament winners
 		await self.setWinners(self.tournament_id)
@@ -60,7 +58,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 		# Update bracket
 		await self.sendBracket(tournament, "players", "connect", None)
-		await self.groupSendChat("connect", connectMessage)
+		if connectMessage:
+			await self.groupSendChat("connect", connectMessage)
 
 		# Reset is_returning status
 		self.is_returning = False
@@ -76,10 +75,16 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			connections[self.tournament_id] = {}
 
 		if self.user_id in connections[self.tournament_id]:
+			print("FORCE DISCONNECT: ", connections[self.tournament_id], flush=True)
 			connected_channel_name = connections[self.tournament_id].pop(self.user_id)
 			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
+			await asyncio.sleep(0.1)
 
+		await asyncio.sleep(0.1)
 		connections[self.tournament_id][self.user_id] = self.channel_name
+	
+	async def force_disconnect(self, event):
+		await self.close(code=4001)
 	
 	async def playerSetup(self, tournament, username):
 		content = None
@@ -133,6 +138,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		return returnName
 
 	async def disconnect(self, close_code):
+		if close_code == 4001:
+			return
+
 		try:
 			tournament = tournaments[self.tournament_id]
 		except Exception:
@@ -172,20 +180,22 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 					elif w2_username == self_fake_name:
 						await self.setFinalWinnerDB(tournament, t_id, w1_username)
 					await self.setReadyBtn(tournament)
+				else:
+					if self.username in tournament["fake_names"]:
+						del tournament["fake_names"][self.username]
 				await self.handlePlayersLeaving(tournament, fake_name)
 				await self.removePlayerDB(t_id, username)
 
 			except Exception as e:
 				print(f"Unexpected error: {e}", flush=True)
+	
 
+		print("DELETE TOURNAMENT: ", tournament["players"], flush=True)
 		if not tournament["players"] and not tournament["pong_players"] and not self.is_returning:
 			del tournaments[t_id]
 			await self.deleteTournamentDB(t_id)
 
 		deleteTimers.pop(self.user_id, None)
-
-	async def force_disconnect(self, event):
-		await self.close()
 
 	async def handlePlayersLeaving(self, tournament, fake_name):
 		stage = self.getStage(tournament["winner1"], tournament["winner2"], tournament["winner3"])

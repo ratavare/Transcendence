@@ -43,6 +43,7 @@ PageElement.onLoad = async () => {
 
 	socket.onclose = (e) => {
 		console.log(`Socket closed unexpectedly: ${e.reason}`);
+		seturl("/home");
 	};
 
 	socket.onerror = (e) => {
@@ -96,6 +97,7 @@ PageElement.onLoad = async () => {
 	
 	async function updateBracket(payload) {
 		try {
+			console.warn("FAKERS: ", payload.fake_names, "PLAYERS: ", payload.players)
 			const fakers = Object.values(payload.fake_names);
 			const players = Object.values(payload.players);
 			const winner1 = payload.winner1;
@@ -104,11 +106,9 @@ PageElement.onLoad = async () => {
 			
 			updateColorMap(Object.values(payload.fake_names));
 			messageForm(payload.fake_names);
+			fakeNameFormInit()
 			if (payload.stage != "final")
-				if (!payload.state || (winner1 && winner2))
-					if (payload.state == "connect") updateSemifinals(players);
-			if (payload.state == "disconnect") updateSemifinals(players);
-			else updateSemifinals(fakers);
+				updateSemifinals(fakers)
 			if (winner1 || winner2)
 				updateFinal(winner1, winner2, fakers);
 			if (winner3)
@@ -385,7 +385,6 @@ PageElement.onLoad = async () => {
 	}
 
 	getChat(tournament_id);
-	fakeNameFormInit()
 
 	window.addEventListener("popstate", () => {
 		if (
