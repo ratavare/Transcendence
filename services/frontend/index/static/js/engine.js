@@ -110,8 +110,19 @@ async function setPage(name) {
 				PageElement.onLoad(newPage);
 			}, 200);
 		}
-	} else pageActive = undefined;
-	
+	} else {
+		let errorPage = l.get('404') || Array.from(pages).find((page) => page.getAttribute("name") === '404');
+        if (errorPage) {
+            name = '404';
+			console.log("404 Page not found: ", name);
+            const newPage = document.createElement("page-element");
+            newPage.innerHTML = errorPage.innerHTML;
+            newPage.setAttribute("name", name);
+            document.body.appendChild(newPage);
+            newPage.style.display = errorPage.display;
+            pageActive = newPage;
+        }
+	}
 }
 
 async function getProfile() {

@@ -427,3 +427,42 @@ p.text-white {
     outline: none;
     border: none;
 }
+
+.error-body {
+    margin: 0;
+    padding: 60px;
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    justify-content: center; /* Vertically center content */
+    align-items: center; /* Horizontally center content */
+    background: linear-gradient(-80deg, black, rgb(23, 13, 113), rgb(73, 0, 128), black);
+    color: white;
+    font-family: 'Roboto Mono', monospace; /* Cool font */
+    height: 100vh;
+    text-align: center;
+}
+
+.error-container {
+    font-size: 20rem;
+    color: #7300a8;
+    margin: 0;
+    text-shadow: 0 0 10px #7300a8, 0 0 20px #8f28d0, 0 0 30px #8f28d0, 0 0 40px #8f28d0;
+}
+
+.description {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 20px;
+}
+
+#error-button {
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-top: 20px;
+    letter-spacing: 1px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(115, 0, 168, 0.5);
+    width: auto;
+    max-width: 300px;
+}
