@@ -62,7 +62,7 @@ async function joinLobby(lobby_id) {
 		);
 		seturl(`/pong?id=${lobby_id}&username=${window.user.username}`);
 	} catch (error) {
-		alert(error);
+		showErrorModal(error);
 	}
 }
 
@@ -128,7 +128,7 @@ async function joinTournament(tournament_id) {
 		);
 		seturl(`/tournament?id=${tournament_id}`);
 	} catch (error) {
-		alert(error);
+		showErrorModal(error);
 	}
 }
 
