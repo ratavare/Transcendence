@@ -103,6 +103,7 @@ PageElement.onLoad = async () => {
 			const winner3 = payload.winner3;
 			
 			updateColorMap(Object.values(payload.fake_names));
+			messageForm(payload.fake_names);
 			if (payload.stage != "final")
 				if (!payload.state || (winner1 && winner2))
 					if (payload.state == "connect") updateSemifinals(players);
@@ -124,6 +125,19 @@ PageElement.onLoad = async () => {
 				return index;
 		}
 		return index;
+	}
+
+	function getPlayerIndex(playerList)
+	{
+		let index = 0;
+		const username = window.user.username;
+		for (const player in playerList)
+		{
+			if (username == player)
+				return index
+			index++;
+		}
+		return undefined
 	}
 
 	function updateWinner(winner1, winner2, winner3, nameList) {
@@ -207,14 +221,6 @@ PageElement.onLoad = async () => {
 			// const profileImg = playerDiv.querySelector('img');
 			playerName.textContent = nameList[index] || "Player " + (index + 1);
 		}
-		// for (let i = 0; i < 4; i++) {
-		// 	const playerDiv = document.getElementById("div-p" + (parseInt(i) + 1));
-		// 	if (!playerDiv) return ;
-		// 	const playerName = playerDiv.querySelector("span");
-		// 	if (!playerName) return
-		// 	// const profileImg = playerDiv.querySelector('img');
-		// 	playerName.textContent = names[i] || "Player " + (i + 1);
-		// }
 	}
 
 	// **************************************** LOBBY *************************************************
@@ -270,6 +276,7 @@ PageElement.onLoad = async () => {
 	function updateColorMap(playerList) {
 		for (const index in playerList) {
 			pColor = getPlayerColor(index);
+			pColor = pColor.replace(/, *[\d.]+\)$/, ")");
 			colorMap.set(playerList[index], pColor);
 		}
 	}
@@ -290,10 +297,14 @@ PageElement.onLoad = async () => {
 		if (!messageList || !messageListItem || !chatContentElement)
 			return;
 
-		let color = colorMap.get(payload.sender) || "white";
+		color = payload.color
+		if (!color)
+			color = colorMap.get(payload.sender);
 
 		if (payload.sender == "connect" || payload.sender == "disconnect" || payload.sender == "countdown")
+		{
 			messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
+		}
 		else if (payload.sender == "changeName")
 		{
 			color = colorMap.get(payload.content.oldName)
@@ -302,9 +313,8 @@ PageElement.onLoad = async () => {
 				<i style="color: white"> changed their name to </i>
 				<i style="color: ${lightenRGB(color, 20)}">${payload.content.newName}</i>
 			`;
-		} else {
+		} else
 			messageListItem.innerHTML = `<b style="color: ${lightenRGB(color, 20)}">${payload.sender}: </b><span>${payload.content}</span>`;
-		}
 
 		if (messageListItem) messageList.appendChild(messageListItem);
 		if (chatContentElement) {
@@ -312,30 +322,42 @@ PageElement.onLoad = async () => {
 		}
 	}
 
-	function sendMessage(sender, content) {
+	function sendMessage(sender, content, color) {
 		sendPayload("message", {
 			sender: sender,
 			content: content,
+			color: color
 		});
 	}
 
-	/* async function getChat() {
-	try {
-		const data = await myFetch(
-			`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
-			null,
-			"GET",
-			true
-		);
-		for (const message of data.lobby.chat) {
-			receiveChatMessage(message);
+	async function getChat(tournament_id) {
+		try {
+			const data = await myFetch(
+				`https://localhost:8443/tournament/getJoin/${tournament_id}/`,
+				null,
+				"GET",
+				true
+			);
+			for (const message of data.tournament.chat) {
+				receiveChatMessage(message);
+			}
+		} catch (error) {
+			console.log(error);
 		}
-	} catch (error) {
-		console.log(error);
 	}
-	} */
 
-	function messageForm() {
+	// function putChat(state, players)
+	// {
+	// 	if (state != "")
+	// 	for (const player in players)
+	// 	{
+	// 		if (player == window.user.username)
+	// 			getChat(tournament_id);
+	// 	}
+	// }
+
+	function messageForm(playerList) {
+		const color = getPlayerColor(getPlayerIndex(playerList))
 		const chatInputForm = document.getElementById(
 			"chat-input-form-tournament"
 		);
@@ -345,7 +367,7 @@ PageElement.onLoad = async () => {
 				"#chat-input-tournament"
 			);
 			if (chatInput.value)
-				sendMessage(window.user.username, chatInput.value);
+				sendMessage(window.user.username, chatInput.value, color);
 			chatInput.value = "";
 		});
 	}
@@ -362,8 +384,8 @@ PageElement.onLoad = async () => {
 		})
 	}
 
+	getChat(tournament_id);
 	fakeNameFormInit()
-	messageForm();
 
 	window.addEventListener("popstate", () => {
 		if (

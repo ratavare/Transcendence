@@ -501,7 +501,6 @@ PageElement.onLoad = () => {
 		});
 	}
 
-
 	messageForm();
 	getChat();
 

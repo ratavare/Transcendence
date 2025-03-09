@@ -1,6 +1,6 @@
 
 import json, asyncio
-from lobby.models import Lobby, Message
+from lobby.models import Lobby, LobbyChatMessage
 from tournament.models import Tournament, TournamentPlayer
 from match_history.models import GameHistory
 from django.contrib.auth.models import User
@@ -262,8 +262,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def saveChatMessageDB(self, payload):
 		lobby = await database_sync_to_async(Lobby.objects.get)(lobby_id=self.lobby_id)
-		if payload.get('sender'):
-			message = await database_sync_to_async(Message.objects.create)(sender=payload['sender'], content=payload['content'])
+		sender = payload.get('sender')
+		if sender and sender != "connect" and sender != "disconnect":
+			message = await database_sync_to_async(LobbyChatMessage.objects.create)(sender=payload['sender'], content=payload['content'])
 		else:
 			return
 		await database_sync_to_async(lobby.chat.add)(message)

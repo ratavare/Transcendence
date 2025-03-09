@@ -1,5 +1,5 @@
 import json, asyncio
-from tournament.models import Tournament, TournamentPlayer
+from tournament.models import Tournament, TournamentPlayer, TMessage
 from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -28,7 +28,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if self.tournament_id not in tournaments:
 			tournaments[self.tournament_id] = {
 				"players": {},
-				"spectators": {},
 				"fake_names": {},
 				"pong_players": {},
 				"ready_players": {},
@@ -44,12 +43,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_add(self.tournament_id, self.channel_name)
 		await self.accept()
 
-		# Set players and spectators
+		# Set players
+		username = self.username if self.username not in tournament["fake_names"] else tournament["fake_names"][self.username]
 		self.is_returning = await self.is_returningDB()
-		await self.playerSetup(tournament)
-		await self.setFakeNames(tournament)
-		print("PLAYERS CONNECT: ", tournament["players"], flush=True)
-	
+		try:
+			connectMessage = await self.playerSetup(tournament, username)
+			await self.setFakeNames(tournament)
+		except Exception as e:
+			print({e}, flush=True)
+
 		# Set tournament winners
 		await self.setWinners(self.tournament_id)
 
@@ -58,6 +60,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 		# Update bracket
 		await self.sendBracket(tournament, "players", "connect", None)
+		await self.groupSendChat("connect", connectMessage)
 
 		# Reset is_returning status
 		self.is_returning = False
@@ -78,25 +81,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 		connections[self.tournament_id][self.user_id] = self.channel_name
 	
-	async def playerSetup(self, tournament):
-		username = self.username if self.username not in tournament["fake_names"] else tournament["fake_names"][self.username]
-
+	async def playerSetup(self, tournament, username):
+		content = None
 		if self.is_returning or self.user_id in tournament["pong_players"]:
 			tournament["players"][self.username] = username
 			if self.user_id in tournament["pong_players"]:
 				del tournament["pong_players"][self.user_id]
-			sender = "connect"
 			content = f"welcome back {username}"
 		elif len(tournament["players"]) < 4 and self.username not in tournament["players"]:
 			tournament["players"][self.username] = username
-			sender = "connect"
 			content = f"Welcome {username}!"
-		else:
-			tournament["spectators"][self.user_id] = username
-			sender = "spectator"
-			content = f"Welcome to the tournament as a spectator {username}!"
-		
-		await self.groupSendChat(sender, content)
+		return content
 
 	async def setFakeNames(self, tournament):
 		if self.username not in tournament["fake_names"]:
@@ -148,8 +143,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 		if self.username in tournament["players"]:
 			del tournament["players"][self.username]
-		if self.user_id in tournament["spectators"]:
-			del tournament["spectators"][self.user_id]
 
 		if self.user_id not in deleteTimers:
 			deleteTimers[self.user_id] = asyncio.create_task(self.deleteTournamentTask(self.tournament_id, self.username, fake_name))
@@ -185,9 +178,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			except Exception as e:
 				print(f"Unexpected error: {e}", flush=True)
 
-		print("DELETE TOURNAMENT CHECK", flush=True)
 		if not tournament["players"] and not tournament["pong_players"] and not self.is_returning:
-			print("DELETE TOURNAMENT", flush=True)
 			del tournaments[t_id]
 			await self.deleteTournamentDB(t_id)
 
@@ -246,6 +237,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				return
 			
 			if (send_type == "message"):
+				await self.saveChatMessageDB(payload, t_id, tournament)
 				sender = payload["sender"]
 				if sender in tournament["fake_names"]:
 					payload["sender"] = tournament["fake_names"][sender]
@@ -309,13 +301,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if len(tournament['ready_players']) == playerNumber:
 			for player in tournament['ready_players']:
 				await self.setReturningStateDB(tournament['ready_players'][player], t_id, True)
-
 			asyncio.create_task(self.countdownAndStart(t_id, tournament, send_type, readyState))
-
-	async def countdownAndStart(self, t_id, tournament, send_type, readyState):
-		await self.countdown()
-		await self.startStage(t_id, tournament, send_type, readyState)
-		
 
 	# async def semiFinalsUpdateReady(self, t_id, tournament):
 	# 	if self.username in tournament["players"] and self.username not in tournament["ready_players"]:
@@ -340,6 +326,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	# 			await self.setReturningStateDB(tournament['ready_players'][player], t_id, True)
 	# 		await self.countdown()
 	# 		await self.startStage(t_id, tournament,"startFinal", True)
+	
+	async def countdownAndStart(self, t_id, tournament, send_type, readyState):
+		await self.countdown()
+		await self.startStage(t_id, tournament, send_type, readyState)
 
 	@database_sync_to_async
 	def is_returningDB(self):
@@ -432,3 +422,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		for i in range(3, 0, -1):
 			await self.groupSendChat("countdown", f"{i}...")
 			await asyncio.sleep(1)
+
+	async def saveChatMessageDB(self, payload, t_id, tournament):
+		color = payload.get('color')
+		sender = payload.get('sender')
+		tournamentDB = await database_sync_to_async(Tournament.objects.get)(tournament_id=t_id)
+		username = sender if sender not in tournament["fake_names"] else tournament["fake_names"][sender]
+		if sender and sender != "connect" and sender != "disconnect" and sender != "countdown" and sender != "changeName":
+			message = await database_sync_to_async(TMessage.objects.create)(sender=username, content=payload['content'], color=color)
+		else:
+			return
+		await database_sync_to_async(tournamentDB.chat.add)(message)

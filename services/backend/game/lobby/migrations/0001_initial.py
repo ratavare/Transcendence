@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Message',
+            name='LobbyChatMessage',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('sender', models.CharField(blank=True, max_length=100)),
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ('player2Ready', models.BooleanField(default=False)),
                 ('users', models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
                 ('winner', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='GameWinner', to=settings.AUTH_USER_MODEL)),
-                ('chat', models.ManyToManyField(to='lobby.message')),
+                ('chat', models.ManyToManyField(to='LobbyChatMessage')),
                 ('ballPosition', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='BallPosition', to='lobby.position')),
                 ('paddle1Position', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='Paddle1Position', to='lobby.position')),
                 ('paddle2Position', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='Paddle2Position', to='lobby.position')),

@@ -19,9 +19,7 @@ function setPageUrl() {
 		const queryString = hash.split("?")[1];
 		const urlParams = new URLSearchParams(queryString);
 		window.props = urlParams;
-		console.log('WINDOW PROPS: ', urlParams)
 		url[x] = url[x].replaceAll(`?${queryString}`, "");
-		console.log('WINDOW PROPS: ', urlParams)
 	} else {
 		// console.log('Nenhum parâmetro encontrado no hash.');
 	}

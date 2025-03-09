@@ -4,13 +4,18 @@ from lobby.models import Lobby
 from django.utils.timezone import now
 from django.contrib.postgres.fields import ArrayField
 
+class TMessage(models.Model):
+	sender = models.CharField(max_length=100, blank=True)
+	content = models.TextField(blank=True)
+	color = models.TextField(max_length=20, blank=True)
+
 class Tournament(models.Model):
 	tournament_id = models.CharField(max_length=25, unique=True)
 	players = models.ManyToManyField(User, through="TournamentPlayer")
-	# player_names = ArrayField(models.CharField(max_length=25, blank=True), size=4, null=True, blank=True)
 	game1 = models.ForeignKey(Lobby, on_delete=models.DO_NOTHING, related_name="g1", null=True, blank=True)
 	game2 = models.ForeignKey(Lobby, on_delete=models.DO_NOTHING, related_name="g2", null=True, blank=True)
 	game3 = models.ForeignKey(Lobby, on_delete=models.DO_NOTHING, related_name="g3", null=True, blank=True)
+	chat = models.ManyToManyField(TMessage)
 
 	def delete(self, *args, **kwargs):
 		game1, game2, game3 = self.game1, self.game2, self.game3

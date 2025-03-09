@@ -63,37 +63,6 @@ def joinTournament(request, tournament_id):
 	except Exception as e:
 		return JsonResponse({'error': str(e)}, status=400)
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def checkTournamentPlayer(request, tournament_id, username):
-# 	try:
-# 		tournament = Tournament.objects.get(tournament_id=tournament_id)
-# 		player = User.objects.get(username=username)
-# 		if TournamentPlayer.objects.filter(tournament=tournament, player=player).exists():
-# 			return JsonResponse({"message": "User exists in Tournament"}, status=200)
-# 		return JsonResponse({'error': 'User not in Tournament'}, status=404)
-# 	except User.DoesNotExist:
-# 		return JsonResponse({"error": "User not found"}, status=404)
-# 	except Tournament.DoesNotExist:
-# 		return JsonResponse({"error": "Tournament not found"}, status=404)
-# 	except Exception as e:
-# 		return JsonResponse({'error': str(e)}, status=400)
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def getReadyState(request, tournament_id):
-# 	try:
-# 		user = request.user
-# 		tournament = Tournament.objects.get(tournament_id=tournament_id)
-# 		user = User.objects.get(username=user.username)
-# 		player = TournamentPlayer.objects.get(tournament=tournament, player=user)
-# 		return JsonResponse({'state': player.is_ready}, status=200)
-# 	except Tournament.DoesNotExist:
-# 		return JsonResponse({'error': 'Tournament does not exist'}, status=400)
-# 	except User.DoesNotExist:
-# 		return JsonResponse({'error': 'User does not exist'}, status=400)
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getTournaments(request):
