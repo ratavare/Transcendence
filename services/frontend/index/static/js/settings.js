@@ -178,7 +178,7 @@ document
 				true
 			);
 			if (data.status === "success") {
-				showErrorModal(data.message);
+				showErrorModal(data.message, false);
 				seturl("/home");
 			} else {
 				showErrorModal(data.message);
