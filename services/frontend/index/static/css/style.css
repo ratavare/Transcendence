@@ -40,18 +40,27 @@ h6 {
 }
 
 .container.d-flex {
+    display: flex;
     gap: 20px;
+    flex-wrap: wrap; /* Allow wrapping of cards to a new row */
 }
 
 .profile-card {
     max-width: 900px;
-    width: 100%;
 }
 
 .match-history-card {
     max-width: 400px;
-    width: 100%;
     min-height: 100%;
+}
+
+.profile-card, .match-history-card {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    flex: 1;
+    min-width: 300px;
 }
 
 #profile-card {
@@ -75,10 +84,9 @@ h6 {
     height: 180px;
     object-fit: cover;
     border-radius: 50%;
-    margin-bottom: 10px; /* Space between image and button */
+    margin-bottom: 10px;
 }
 
-/* Center the "Change Photo" button */
 #change-photo-button {
     display: block;
 }
@@ -119,10 +127,17 @@ label {
     color: white !important;
 }
 
+#username-edit:disabled {
+    background-color: inherit;
+    color: inherit;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
 .button-style {
     width: 100%;
     padding: 10px;
-    background-color: #7300a8;
+    background-color: #7300a8 !important;
     color: white;
     font-weight: bold;
     border: none;
@@ -180,59 +195,76 @@ label {
     height: 100%;
 }
 
-.match-history-title {
-    font-size: 20px;
-    color: white; /* Keeping the text color dark for readability */
-    margin-bottom: 15px;
-    text-align: left; /* Align title to the left */
+.container.d-flex {
+    align-items: stretch;
 }
 
-/* Scrollable container for match results */
+.match-history-title {
+    font-size: 20px;
+    color: white;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
 .match-history-scroll {
-    max-height: 350px;
+    max-height: 510px;
     overflow-y: auto;
     padding-right: 10px;
     flex-grow: 1;
 }
 
-/* Individual match result layout */
 .match-result {
-    padding: 20px 0;
-    border-bottom: 2px solid #ddd;
+    padding: 15px;
     display: flex;
     flex-direction: column;
+    border-radius: 12px;
+    transition: background-color 0.3s ease-in-out;
+    margin-bottom: 15px;
+    border-top: 2px dashed #444;
+    margin-top: 10px;
 }
 
-/* Styling for match date */
+.match-result:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 .match-date {
-    font-size: 16px;
-    color: #777; /* Neutral color for the date */
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-/* Match details container */
-.match-details {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Styling for winner and points */
-.match-winner {
-    font-size: 18px;
-    color: #007bff; /* Blue color for winner */
-    font-weight: 600;
+    font-size: 14px;
+    color: #bbb;
     margin-bottom: 5px;
 }
 
-.match-points {
-    font-size: 16px;
-    color: #28a745; /* Green color for points */
+.match-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 600;
 }
 
-/* Scrollbar styling */
+.match-outcome {
+    color: rgb(173, 17, 17);
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.match-outcome.win {
+    color: #4CAF50; /* Green for Win */
+}
+
+.match-player {
+    color: white; 
+}
+
+.match-points {
+    color: white;
+}
+
+/* Scrollbar */
 .match-history-scroll::-webkit-scrollbar {
-    width: 15px; /* Increased width for a more noticeable scrollbar */
+    width: 15px;
 }
 
 .match-history-scroll::-webkit-scrollbar-track {
@@ -241,15 +273,15 @@ label {
 }
 
 .match-history-scroll::-webkit-scrollbar-thumb {
-    background: #7300a8; /* Purple color for the scrollbar */
-    border-radius: 10px; /* More rounded scrollbar thumb */
+    background: #7300a8; 
+    border-radius: 10px;
 }
 
 .match-history-scroll::-webkit-scrollbar-thumb:hover {
-    background: #8f28d0; /* Darker purple on hover */
+    background: #8f28d0;
 }
 
-button.fa {
+button.factor {
     width: 100%;
     background-color: #7300a8;
     color: white;
@@ -260,15 +292,15 @@ button.fa {
     padding: 5px;
 }
 
-button.fa:active {
-    background-color: red;
+button.factor:active {
+    color: white !important;
+    background-color: #55007d !important;
     transform: translateY(2px); 
-    color: white;
 }
 
-button.fa:hover {
-    background-color: #55007d; 
+button.factor:hover {
     color: white;
+    background-color: #55007d; 
     cursor: pointer;
 }
 
@@ -358,4 +390,73 @@ p.text-white {
     font-size: 1rem;
     font-weight: bold;
     margin-bottom: 5px;
+}
+
+#current-password:disabled {
+    background-color: inherit;
+    color: inherit;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+/* Search Bar Container */
+.search-container {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 5px 15px;
+    width: 100%;
+    max-width: 100%;
+    transition: all 0.3s ease;
+}
+
+/* Search Input */
+.search-bar {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 10px;
+    font-size: 16px;
+    color: white;
+}
+
+.search-bar::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Search Button */
+#search-btn {
+    border: none;
+    background-color: #7300a8;
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Search Icon */
+#search-btn i {
+    font-size: 1.2rem;
+    color: white;
+}
+
+/* Hover Effects */
+.search-container:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#search-btn:hover {
+    background-color: #8f28d0;
+    transform: scale(1.1);
+}
+
+.search-bar:focus {
+    outline: none;
+    border: none;
 }

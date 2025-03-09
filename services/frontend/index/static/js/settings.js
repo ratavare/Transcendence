@@ -39,6 +39,11 @@ function updateUI() {
 		getStatusContainer().style.display = "none";
 	}
 
+	// Disable current password input if the user logged in via Intra
+	if (window.user.intra_login) {
+		document.getElementById("current-password").disabled = true;
+	}
+
 	const token = localStorage.getItem("access_token");
 	if (token) {
 		const userData = parseJwt(token);
@@ -173,7 +178,7 @@ document
 				true
 			);
 			if (data.status === "success") {
-				showErrorModal(data.message);
+				showErrorModal(data.message, false);
 				seturl("/home");
 			} else {
 				showErrorModal(data.message);

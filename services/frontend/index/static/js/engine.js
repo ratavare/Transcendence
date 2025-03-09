@@ -1,5 +1,6 @@
 let pageActive = undefined;
 let pageName = undefined;
+let propsException = false;
 const pages = document.querySelectorAll("page-element");
 const l = new Map();
 for (const page of pages) {
@@ -62,9 +63,12 @@ async function setPage(name) {
 		name = "home";
 		seturl("/home");
 	}
-	if (pageName == name) return;
+	if (pageName == name && !propsException)
+		return; 
 	pageName = name;
-	if (pageActive && pageActive.getAttribute("name") == name) return;
+	if (pageActive && pageActive.getAttribute("name") == name && !propsException)
+		return;
+	propsException = false;
 	if (pageActive) {
 		const scripts = pageActive.querySelectorAll("script");
 		for (const script of Array.from(scripts)) {

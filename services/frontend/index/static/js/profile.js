@@ -88,6 +88,7 @@ async function renderProfile() {
 		document.getElementById('profile-h1').innerHTML = `${username}'s Profile`
 		document.getElementById('change-photo-button').classList.add('hidden');
 		document.getElementById('edit-profile-btn').classList.add('hidden');
+		propsException = true;
 	}
 	else {
 		user = window.user;
@@ -142,7 +143,8 @@ function formatDate(isoString) {
 
 async function renderMatchHistory() {
 	const matchHistoryDiv = document.getElementById('match-history');
-	const matchHistory = await getMatchHistory(window.user.username);
+	const username = window.props.get('username') || window.user.username
+	const matchHistory = await getMatchHistory(username);
 	if (matchHistory.length == 0) {
 		const noMatchWrapper = document.createElement('div');
 		noMatchWrapper.classList.add('no-matches');
@@ -156,10 +158,47 @@ async function renderMatchHistory() {
 		console.log(match);
 		const matchEntry = document.createElement('div');
 		matchEntry.classList.add('match-result');
-		matchEntry.innerHTML = `<span class="match-date">${formatDate(match.date)}</span>
-								<div class="match-details">
-									<span class="match-winner">Teste</span> <span class="match-points">3 - 2</span>
-								</div>`
+
+		const dateSpan = document.createElement('span');
+		dateSpan.classList.add('match-date');
+		dateSpan.innerHTML = formatDate(match.date);
+
+		const matchDetailsDiv = document.createElement('div');
+		matchDetailsDiv.classList.add('match-details');
+
+		const playerASpan = document.createElement('span');
+		playerASpan.classList.add('match-player');
+		playerASpan.innerHTML = username;
+
+		const playerBSpan = document.createElement('span');
+		playerBSpan.classList.add('match-player');
+		playerBSpan.innerHTML = match.users.filter(user => user !== username)[0];
+
+		const scoreSpan = document.createElement('span');
+		scoreSpan.classList.add('match-points');
+		const playerAScore = Math.max(match.player1Score, match.player2Score);
+		const playerBScore = Math.min(match.player1Score, match.player2Score);
+
+		const matchOutcomeSpan = document.createElement('span');
+		if (match.winner === username) {
+			scoreSpan.innerHTML = `${playerAScore} - ${playerBScore}`;
+			matchOutcomeSpan.classList.add('match-outcome');
+			matchOutcomeSpan.classList.add('win');
+			matchOutcomeSpan.innerHTML = 'Win';
+		}
+		else {
+			scoreSpan.innerHTML = `${playerBScore} - ${playerAScore}`;
+			matchOutcomeSpan.classList.add('match-outcome');
+			matchOutcomeSpan.innerHTML = 'Loss';
+		}
+
+		matchDetailsDiv.appendChild(playerASpan);
+		matchDetailsDiv.appendChild(scoreSpan);
+		matchDetailsDiv.appendChild(playerBSpan);
+
+		matchEntry.appendChild(dateSpan);
+		matchEntry.appendChild(matchDetailsDiv);
+		matchEntry.appendChild(matchOutcomeSpan);
 
 		matchHistoryDiv.appendChild(matchEntry)
 	});
