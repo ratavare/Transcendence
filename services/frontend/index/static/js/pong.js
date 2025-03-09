@@ -351,11 +351,10 @@ PageElement.onLoad = () => {
 	checkDatabase(
 		`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`
 	);
-	const token = localStorage.getItem("playerToken") || "";
 	const socket = new WebSocket(
 		`wss://localhost:8443/pong/${encodeURIComponent(
 			lobby_id
-		)}/?token=${token}`
+		)}/`
 	);
 
 	window.addEventListener("popstate", () => {
@@ -382,9 +381,6 @@ PageElement.onLoad = () => {
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
 		switch (data.type) {
-			case "token":
-				localStorage.setItem("playerToken", data.payload);
-				break;
 			case "readyBtn":
 				if (readyBtn.classList.contains("hidden")) {
 					readyBtn.classList.remove("hidden");
@@ -439,6 +435,7 @@ PageElement.onLoad = () => {
 
 	socket.onclose = () => {
 		console.log("Socket closed unexpectedly");
+		seturl("/home");
 	};
 
 	// ************************************* CHAT ************************************************

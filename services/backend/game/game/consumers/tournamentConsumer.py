@@ -17,7 +17,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		self.is_returning = False
 		self.user_id =  str(self.user.id)
 
-
 		t_exists = await self.tournamentExistsDB(self.tournament_id)
 		if not self.user.is_authenticated or not t_exists:
 			print("Closing Connection", flush=True)

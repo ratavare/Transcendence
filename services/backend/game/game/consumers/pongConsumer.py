@@ -18,33 +18,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 		self.lobby_id = self.scope["url_route"]["kwargs"]["lobby_id"]
 		self.user = self.scope["user"]
 		self.username = self.user.username
-	
+		self.user_id =  str(self.user.id)
+
 		if self.lobby_id not in lobbies:
 			lobbies[self.lobby_id] = {"players": dict(), "gameLoop": None, "game": Pong()}
-		elif self.lobby_id in deleteTimers:
-			deleteTimers[self.lobby_id].cancel()
-			del deleteTimers[self.lobby_id]
 		
 		lobby = lobbies[self.lobby_id]
 
-		token = (self.scope["query_string"].decode()).split('=')[1]
-		self.user_id = token if token else self.channel_name
-
-		if self.lobby_id not in connections:
-			connections[self.lobby_id] = {}
-
-		if self.user_id in connections[self.lobby_id]:
-			connected_channel_name = connections[self.lobby_id][self.user_id]
-			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
-			del connections[self.lobby_id][self.user_id]
-
-		connections[self.lobby_id][self.user_id] = self.channel_name
-
+		await self.connectTimerDeletion()
+		await self.handleConnections()
 		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
 		await self.accept()
-		
-		if not token:
-			await self.sendMessage('token', self.user_id)
 
 		lobby["players"][self.user_id] = self.username
 		
@@ -58,18 +42,41 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.sendMessage('readyBtn', 'add')
 		else:
 			await self.sendMessage('readyBtn', 'remove')
+	
+	async def handleConnections(self):
+		if self.lobby_id not in connections:
+			connections[self.lobby_id] = {}
+
+		if self.user_id in connections[self.lobby_id]:
+			print("FORCE DISCONNECT\n", flush=True)
+			connected_channel_name = connections[self.lobby_id][self.user_id]
+			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
+			del connections[self.lobby_id][self.user_id]
+			await asyncio.sleep(0.1)
+
+		await asyncio.sleep(0.1)
+		connections[self.lobby_id][self.user_id] = self.channel_name
+	
+	async def connectTimerDeletion(self):
+		if self.user_id in deleteTimers:
+			deleteTimers[self.user_id ].cancel()
+			del deleteTimers[self.user_id]
+	
+	async def force_disconnect(self):
+		await self.close(4001)
 
 	async def disconnect(self, close_code):
+		if close_code == 4001:
+			print("CODE ",close_code, flush=True)
+			return
+
 		lobby = lobbies.get(self.lobby_id)
 
 		if lobby and self.user_id in lobby["players"]:
 			del lobby["players"][self.user_id]
 
-		if self.lobby_id not in deleteTimers:
-			deleteTimers[self.lobby_id] = asyncio.create_task(self.deleteLobbyTask(lobby))
-
-	async def force_disconnect(self):
-		await self.close()
+		if self.user_id not in deleteTimers:
+			deleteTimers[self.user_id ] = asyncio.create_task(self.deleteLobbyTask(lobby))
 
 	async def deleteLobbyTask(self, lobby):
 		await asyncio.sleep(3)
@@ -88,6 +95,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			except Exception as e:
 				print(f"Error: {e}", flush=True)
 
+		deleteTimers.pop(self.user_id, None)
 		await self.channel_layer.group_discard(self.lobby_id, self.channel_name)
 
 	async def deleteLobbyWS(self, lobby):
