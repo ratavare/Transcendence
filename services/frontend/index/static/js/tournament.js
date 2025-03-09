@@ -97,7 +97,6 @@ PageElement.onLoad = async () => {
 	
 	async function updateBracket(payload) {
 		try {
-			console.warn("FAKERS: ", payload.fake_names, "PLAYERS: ", payload.players)
 			const fakers = Object.values(payload.fake_names);
 			const players = Object.values(payload.players);
 			const winner1 = payload.winner1;
@@ -374,6 +373,7 @@ PageElement.onLoad = async () => {
 
 	function fakeNameFormInit() {
 		const fakeNameForm = document.getElementById("fake-name-form");
+		if (!fakeNameForm) return;
 		fakeNameForm.addEventListener("submit", (event) => {
 			event.preventDefault();
 			const fakeNameInput = event.target.querySelector("#fake-name-input");

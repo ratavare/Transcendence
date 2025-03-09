@@ -48,7 +48,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 			connections[self.lobby_id] = {}
 
 		if self.user_id in connections[self.lobby_id]:
-			print("FORCE DISCONNECT\n", flush=True)
 			connected_channel_name = connections[self.lobby_id][self.user_id]
 			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
 			del connections[self.lobby_id][self.user_id]
@@ -67,7 +66,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		if close_code == 4001:
-			print("CODE ",close_code, flush=True)
 			return
 
 		lobby = lobbies.get(self.lobby_id)

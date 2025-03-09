@@ -82,15 +82,20 @@ def joinLobby(request, lobby_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def checkPlayer(request, lobby_id, player):
-	lobby = Lobby.objects.get(lobby_id=lobby_id)
-	if lobby.users.filter(username=player).exists():
-		usersInLobby = list(lobby.users.all())
-		if usersInLobby[0].username == player:
-			return JsonResponse({'playerId': '1'}, status=200)
-		elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
-			return JsonResponse({'playerId': '2'}, status=200)
-		return JsonResponse({'playerId': '3'}, status=404)
-	return JsonResponse({'error': 'User not in Lobby'}, status=404)
+	try:
+		lobby = Lobby.objects.get(lobby_id=lobby_id)
+		if lobby.users.filter(username=player).exists():
+			usersInLobby = list(lobby.users.all())
+			if usersInLobby[0].username == player:
+				return JsonResponse({'playerId': '1'}, status=200)
+			elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
+				return JsonResponse({'playerId': '2'}, status=200)
+			return JsonResponse({'playerId': '3'}, status=404)
+		return JsonResponse({'error': 'User not in Lobby'}, status=404)
+	except Exception as e:
+		return JsonResponse({'error': e}, status=404)
+	except Lobby.DoesNotExist:
+		return JsonResponse({'error': "Lobby does not exist"}, status=404)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

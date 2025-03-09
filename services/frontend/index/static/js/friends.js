@@ -321,5 +321,4 @@ async function loadFriendsPage() {
 	}
 }
 
-
 loadFriendsPage();
