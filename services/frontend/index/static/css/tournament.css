@@ -57,6 +57,9 @@
 	font-family: sans-serif;
 	display: inline-block;
 	border-radius: 5px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .player-div:hover {

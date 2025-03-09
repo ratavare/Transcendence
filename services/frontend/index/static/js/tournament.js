@@ -102,6 +102,7 @@ PageElement.onLoad = async () => {
 			const winner2 = payload.winner2;
 			const winner3 = payload.winner3;
 			
+			fakeNameFormInit(payload.fake_names);
 			updateColorMap(Object.values(payload.fake_names));
 			messageForm(payload.fake_names);
 			if (payload.stage != "final")
@@ -372,20 +373,27 @@ PageElement.onLoad = async () => {
 		});
 	}
 
-	function fakeNameFormInit() {
+	function fakeNameFormInit(names) {
 		const fakeNameForm = document.getElementById("fake-name-form");
 		fakeNameForm.addEventListener("submit", (event) => {
 			event.preventDefault();
 			const fakeNameInput = event.target.querySelector("#fake-name-input");
 			const fakeName = fakeNameInput.value
-			if (fakeName)
-				sendPayload("fakeName", fakeName);
+			const keys =  Object.keys(names)
+			const values = Object.values(names)
+			console.log("keys: ", keys)
+			console.log("values: ", values)
+			if (fakeName && !keys.includes(fakeName) && !values.includes(fakeName) && fakeName.length < 25)
+				sendPayload("fakeName", fakeName)
+			else {
+				sendPayload("fakeName", window.user.username)
+				showErrorModal("Invalid name");
+			}
 			fakeNameInput.value = "";
 		})
 	}
 
 	getChat(tournament_id);
-	fakeNameFormInit()
 
 	window.addEventListener("popstate", () => {
 		if (
