@@ -51,6 +51,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		# Set tournament winners
 		await self.setWinners(self.tournament_id)
 
+		# // send message to group with the tournament winner names
+		if tournament["winner3"]:
+			await self.groupSendChat("winner-message", f"{self.getWinnerUsername(tournament, 3)} is the winner!")
+
 		# Set ready button
 		await self.setReadyBtn(tournament)
 

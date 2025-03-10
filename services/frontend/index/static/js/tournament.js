@@ -33,11 +33,32 @@ PageElement.onLoad = async () => {
 			case "log":
 				console.log(data.payload);
 				break;
+			case "winner-message":
+				sendWinnerMessage(data.payload);
+				break;
 			case "message":
 				receiveChatMessage(data.payload);
 		}
 	};
 
+	function sendWinnerMessage(payload) {
+		const modalElement = document.getElementById("quit");
+		const modal = new bootstrap.Modal(modalElement, {
+			backdrop: "static",
+			keyboard: false,
+		});
+		modal.show();
+		const winnerMsg = document.getElementById("winner-msg");
+		winnerMsg.innerHTML = `Winner: ${payload.winner}`;
+		readyBtn.style.display = "block";
+		rendering = false;
+
+		// Add event listener to the quit button
+		const quitButton = document.getElementById("quit-btn");
+		quitButton.addEventListener("click", function() {
+			window.location.href = "/home";
+		});
+	}
 	socket.onopen = async () => {
 	};
 
