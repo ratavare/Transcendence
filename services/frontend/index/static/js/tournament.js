@@ -409,7 +409,3 @@ PageElement.onLoad = async () => {
 		PageElement.onUnload = () => {};
 	};
 };
-
-function toggleChat() {
-    document.getElementById("chat-container").classList.toggle("hidden");
-}

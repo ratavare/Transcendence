@@ -5,9 +5,6 @@
 	margin-top: 5px;
 	flex-direction: row;
 	width: 95%;
-	height: 100vh;
-    flex-wrap: wrap;
-	gap: 20px; 
 }
 
 .tournament-secondary-container {
@@ -15,7 +12,6 @@
 	flex-direction: column;
 	align-items: center;
 	width: 80%;
-    flex-grow: 1;
 }
 
 .bracket {
@@ -164,82 +160,4 @@
 
 .spectateBtn {
 	position: absolute;
-}
-
- .chat-wrapper {
-    position: fixed;
-    bottom: 0px;
-    right: 20px;
-	width: 250px;
-    font-family: Arial, sans-serif;
-}
-
-.chat-header {
-    background: #7300a8;
-    color: white;
-    display: flex;
-    cursor: pointer;
-    border-radius: 10px 10px 0 0;
-	width: 250px;
-	padding: 7px 10px;
-	font-size: 15px;
-}
-
-.chat-close-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.hidden {
-    max-height: 0;
-    overflow: hidden;
-}
-
-.chat-content {
-    backdrop-filter: blur(10px);
-}
-
-.chat-content ul {
-    list-style-type: none;
-	width: 100%;
-	padding: 0;
-	font-size: 10px;
-	max-height: 700px;
-}
-
-.chat-content li {
-	color: white;
-    padding: 5px;
-    margin: 5px 0;
-	align-self: flex-start;
-}
-
-#chat-input-form-tournament {
-    display: flex;
-}
-
-#chat-input-tournament {
-    border: none;
-	width: 250px;
-}
-
-#chat-input-tournament:focus {
-    outline: none;
-}
-
-#chat-input-form-tournament button {
-    background: #7300a8;
-    border: none;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-input::placeholder {
-    font-size: 10px;
-    opacity: 0.5;
 }
