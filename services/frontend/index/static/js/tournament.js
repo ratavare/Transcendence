@@ -100,6 +100,8 @@ PageElement.onLoad = async () => {
 			const { winner1, winner2, winner3, state, stage, fake_names } = payload;
 			const fakers = Object.values(fake_names);
 
+			console.log(payload);
+
 			if (state == "disconnect" && stage == "winner") {
 				updateWinner(winner1, winner2, winner3, fakers);
 				return ;

@@ -313,6 +313,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 	def createMatchHistory(self, game, lobby_id, winner_username):
 		try:
 			lobby = Lobby.objects.get(lobby_id=lobby_id)
+			if lobby.g1.exists() or lobby.g2.exists() or lobby.g3.exists():
+				return
 			match = MatchHistory.objects.create(game_id=lobby_id, winner=winner_username, player1Score=game.player1Score, player2Score=game.player2Score, date=now())
 			for user in lobby.users.all():
 				match.users.add(user)

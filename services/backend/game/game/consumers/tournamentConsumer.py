@@ -180,8 +180,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 						await self.setFinalWinnerDB(tournament, t_id, w2_username)
 					elif w2_username == self_fake_name:
 						await self.setFinalWinnerDB(tournament, t_id, w1_username)
-					await self.setReadyBtn(tournament)
-				elif w1_username == None and w1_username == None:
+					# await self.setReadyBtn(tournament)
+				elif w1_username == None and w2_username == None:
 					if self.username in tournament["fake_names"]:
 						del tournament["fake_names"][self.username]
 				await self.handlePlayersLeaving(tournament, fake_name)
@@ -314,30 +314,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			for player in tournament['ready_players']:
 				await self.setReturningStateDB(tournament['ready_players'][player], t_id, True)
 			asyncio.create_task(self.countdownAndStart(t_id, tournament, send_type, readyState))
-
-	# async def semiFinalsUpdateReady(self, t_id, tournament):
-	# 	if self.username in tournament["players"] and self.username not in tournament["ready_players"]:
-	# 		tournament["ready_players"][self.username] = self.username
-	# 		username = self.username if self.username not in tournament["fake_names"] else tournament["fake_names"][self.username]
-	# 		await self.groupSendChat("connect", f"{username} is ready!")
-
-	# 	if len(tournament['ready_players']) == 4:
-	# 		for player in tournament['ready_players']:
-	# 			await self.setReturningStateDB(tournament['ready_players'][player], t_id, True)
-	# 		await self.countdown()
-	# 		await self.startStage(t_id, tournament, "startSemifinals", False)
-	
-	# async def finalsUpdateReady(self, t_id, tournament):
-	# 	if self.username in tournament["fake_names"] and self.username not in tournament["ready_players"]:
-	# 		tournament["ready_players"][self.username] = self.username
-	# 		username = self.username if self.username not in tournament["fake_names"] else tournament["fake_names"][self.username]
-	# 		await self.groupSendChat("connect", f"{username} is ready!")
-
-	# 	if len(tournament['ready_players']) == 2:
-	# 		for player in tournament['ready_players']:
-	# 			await self.setReturningStateDB(tournament['ready_players'][player], t_id, True)
-	# 		await self.countdown()
-	# 		await self.startStage(t_id, tournament,"startFinal", True)
 	
 	async def countdownAndStart(self, t_id, tournament, send_type, readyState):
 		await self.countdown()
