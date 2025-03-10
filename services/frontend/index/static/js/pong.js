@@ -326,7 +326,7 @@ PageElement.onLoad = () => {
 	// ************************************* WEBSOCKET ************************************************
 
 	function sendPayload(type, payload) {
-		if (!socket || socket.CLOSED || socket.CLOSING)
+		if (!socket)
 			return;
 		socket.send(
 			JSON.stringify({
@@ -428,6 +428,7 @@ PageElement.onLoad = () => {
 	};
 
 	socket.onopen = async () => {
+		console.warn("OPEN")
 		sendPayload("message", {
 			sender: "connect",
 			content: `${playerName} joined the lobby!`,
@@ -435,9 +436,13 @@ PageElement.onLoad = () => {
 	};
 
 	socket.onclose = () => {
-		console.log("Socket closed unexpectedly");
+		console.warn("Socket closed unexpectedly");
 		if (!fromTournament)
 			seturl('/home');
+	};
+
+	socket.onerror = () => {
+		console.error("Socket error");
 	};
 
 	// ************************************* CHAT ************************************************
