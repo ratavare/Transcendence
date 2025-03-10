@@ -55,7 +55,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		await self.setReadyBtn(tournament)
 
 		# Update bracket
-		await self.sendBracket(tournament, "players", "connect", None)
+		await self.sendBracket(tournament, "players", "connect")
 		if connectMessage:
 			await self.groupSendChat("connect", connectMessage)
 
@@ -111,6 +111,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			print(f"\n Set Winners error: {e}", flush=True)
 
 	async def setReadyBtn(self, tournament):
+		stage = self.getStage(tournament["winner1"], tournament["winner2"], tournament["winner3"])
 		self.is_ready = await self.is_readyDB()
 		await self.sendMessage("readyBtnInit", {
 			"players": tournament["players"],
@@ -118,7 +119,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			"winner1": self.getWinnerUsername(tournament, 1),
 			"winner2": self.getWinnerUsername(tournament, 2),
 			"winner3": self.getWinnerUsername(tournament, 3),
-			"stage": self.getStage(tournament["winner1"], tournament["winner2"], tournament["winner3"])
+			"stage": stage,
 		})
 
 	def getStage(self, winner1, winner2, winner3):
@@ -160,9 +161,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		tournament = tournaments[t_id]
 		if not tournament:
 			return
+		
+		print("\n\n", tournament["winner1"], tournament["winner2"], tournament["winner3"], "\n\n", flush=True)
+		await self.setWinners(self.tournament_id)
 
 		w1_username = self.getWinnerUsername(tournament, 1)
 		w2_username = self.getWinnerUsername(tournament, 2)
+		w3_username = self.getWinnerUsername(tournament, 3)
+		print("\n\n", w1_username, w2_username, w3_username, "\n\n", flush=True)
 
 		self.is_returning = await self.is_returningDB()
 		if self.is_returning:
@@ -171,15 +177,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		else:
 			try:
 				self_fake_name = tournament["fake_names"][self.username]
-				if w1_username and w2_username:
+				if w1_username != None and w2_username != None and w3_username == None:
 					if w1_username == self_fake_name:
 						await self.setFinalWinnerDB(tournament, t_id, w2_username)
 					elif w2_username == self_fake_name:
 						await self.setFinalWinnerDB(tournament, t_id, w1_username)
-					await self.setReadyBtn(tournament)
-				else:
+				elif w1_username == None and w1_username == None:
 					if self.username in tournament["fake_names"]:
 						del tournament["fake_names"][self.username]
+				await self.setReadyBtn(tournament)
 				await self.handlePlayersLeaving(tournament, fake_name)
 				await self.removePlayerDB(t_id, username)
 
@@ -194,8 +200,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		deleteTimers.pop(self.user_id, None)
 
 	async def handlePlayersLeaving(self, tournament, fake_name):
-		stage = self.getStage(tournament["winner1"], tournament["winner2"], tournament["winner3"])
-	
 		await self.groupSendChat("disconnect", f"{fake_name} left the tournament!")
 
 		if self.username in tournament["players"]:
@@ -203,7 +207,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if self.username in tournament["ready_players"]:
 			del tournament["ready_players"][self.username]
 	
-		await self.sendBracket(tournament, "players", "disconnect", stage)
+		await self.sendBracket(tournament, "players", "disconnect")
 
 		if self.user_id in tournament["pong_players"]:
 			del tournament["pong_players"][self.user_id]
@@ -255,9 +259,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 	async def sendFakeNames(self, payload, tournament):
 		tournament["fake_names"][self.username] = payload
-		stage = self.getStage(tournament["winner1"], tournament["winner2"], tournament["winner3"]),
 		
-		await self.sendBracket(tournament, "fake_names", None, stage)
+		await self.sendBracket(tournament, "fake_names", None)
 	
 		await self.groupSendChat("changeName", {
 			"oldName": self.username,
@@ -281,14 +284,18 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		)
 
 	# tournamentDictKey should be one of the dicts of tournament (players, fake_names, etc) 
-	async def sendBracket(self, tournament, tournamentDictKey, state, stage):
+	async def sendBracket(self, tournament, tournamentDictKey, state):
+		w1 = self.getWinnerUsername(tournament, 1)
+		w2 = self.getWinnerUsername(tournament, 2)
+		w3 = self.getWinnerUsername(tournament, 3)
+		stage = self.getStage(w1, w2, w3)
 		await self.groupSend("updateBracketWS", {
 			"state": state,
 			"players": tournament[tournamentDictKey],
 			"fake_names": tournament["fake_names"],
-			"winner1": self.getWinnerUsername(tournament, 1),
-			"winner2": self.getWinnerUsername(tournament, 2),
-			"winner3": self.getWinnerUsername(tournament, 3),
+			"winner1": w1,
+			"winner2": w2,
+			"winner3": w3,
 			"stage": stage,
 		})
 

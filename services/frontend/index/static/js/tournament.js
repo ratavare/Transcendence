@@ -64,13 +64,14 @@ PageElement.onLoad = async () => {
 
 	function readyBtnDisplay(payload, fakeNameDiv) {
 		const username = window.user.username;
-		const playerMap = payload.players;
+		const { winner1, winner2, winner3, is_ready, stage, players } = payload;
+
 		const fakeNameInput = document.getElementById("fake-name-input");
-		if (payload.stage == "final") {
-			if (playerMap[username] == payload.winner1 || playerMap[username] == payload.winner2)
+		if (stage == "final") {
+			if (players[username] == winner1 || players[username] == winner2)
 				fakeNameDiv.style.display = "block";
 			fakeNameInput.style.display = "none";
-		} else if (payload.is_ready || payload.winner3 || username != playerMap[username])
+		} else if (is_ready || winner3 || username != players[username])
 			fakeNameDiv.style.display = "none";
 		else fakeNameDiv.style.display = "block";
 	}
@@ -97,18 +98,21 @@ PageElement.onLoad = async () => {
 	
 	async function updateBracket(payload) {
 		try {
-			const fakers = Object.values(payload.fake_names);
-			const players = Object.values(payload.players);
-			const winner1 = payload.winner1;
-			const winner2 = payload.winner2;
-			const winner3 = payload.winner3;
-			
-			fakeNameFormInit(payload.fake_names);
-			updateColorMap(Object.values(payload.fake_names));
-			messageForm(payload.fake_names);
-			fakeNameFormInit()
-			if (payload.stage != "final")
-				updateSemifinals(fakers)
+			const { winner1, winner2, winner3, state, stage, fake_names } = payload;
+			const fakers = Object.values(fake_names);
+
+			if (state == "disconnect" && stage == "winner") {
+				updateWinner(winner1, winner2, winner3, fakers);
+				return ;
+			}
+			if (stage == "semifinals")
+				fakeNameFormInit(fake_names);
+	
+			updateColorMap(Object.values(fake_names));
+			messageForm(fake_names);
+
+			if ((stage == "final" && payload.state == "connect") || stage != "final")
+				updateSemifinals(fakers);
 			if (winner1 || winner2)
 				updateFinal(winner1, winner2, fakers);
 			if (winner3)
@@ -361,6 +365,8 @@ PageElement.onLoad = async () => {
 		const chatInputForm = document.getElementById(
 			"chat-input-form-tournament"
 		);
+		if (!chatInputForm)
+			return;
 		chatInputForm.addEventListener("submit", (event) => {
 			event.preventDefault();
 			const chatInput = event.target.querySelector(
@@ -373,19 +379,22 @@ PageElement.onLoad = async () => {
 	}
 
 	function fakeNameFormInit(names) {
+		console.log("FAKE NAME FORM INTT:", names);
 		const fakeNameForm = document.getElementById("fake-name-form");
-		if (!fakeNameForm) return;
+		if (!fakeNameForm || !names) return;
 		fakeNameForm.addEventListener("submit", (event) => {
 			event.preventDefault();
 			const fakeNameInput = event.target.querySelector("#fake-name-input");
 			const fakeName = fakeNameInput.value
-			const keys =  Object.keys(names)
-			const values = Object.values(names)
-			console.log("keys: ", keys)
-			console.log("values: ", values)
-			if (fakeName && !keys.includes(fakeName) && !values.includes(fakeName) && fakeName.length < 25)
+			if (!fakeName || fakeName == "")
+				return;
+			const keys =  Object.keys(names);
+			const values = Object.values(names);
+			if (fakeName && !keys.includes(fakeName) && !values.includes(fakeName) && fakeName.length < 25) {
+				console.warn("1");
 				sendPayload("fakeName", fakeName)
-			else {
+			} else {
+				console.warn("2");
 				sendPayload("fakeName", window.user.username)
 				showErrorModal("Invalid name");
 			}

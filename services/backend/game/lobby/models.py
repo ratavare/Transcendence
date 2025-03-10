@@ -51,7 +51,9 @@ def init_positions(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Lobby)
 def create_Game_History(sender, instance, created, **kwargs):
 	if created:
-		game_history = MatchHistory.objects.create(
+		if instance.g1.exists() or instance.g2.exists() or instance.g3.exists():
+			return
+		MatchHistory.objects.create(
 			game_id=instance.lobby_id,
 			date=instance.created_at
 		)
