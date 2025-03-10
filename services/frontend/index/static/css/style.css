@@ -155,6 +155,14 @@ label {
     gap: 1rem;
 }
 
+.no-matches {
+    text-align: center;
+    color: gray;
+    font-style: italic;
+    padding: 10px;
+}
+
+
 /* Match History Section */
 .match-history-card {
     display: flex;
