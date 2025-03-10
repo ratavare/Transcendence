@@ -103,7 +103,7 @@ async function getProfileImage(username) {
         } else {
             const errorText = await response.text();
             console.log(`${username}: `, JSON.parse(errorText).error);
-			return '/static/assets/melhor_icone.png';
+			return '/static/assets/default-user.png';
         }
     } catch (error) {
         console.error("Fetch error: ", error);

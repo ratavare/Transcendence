@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from rest_framework import status
 from user_profile.models import Profile
+from django.contrib.auth.password_validation import validate_password
 
 # JWT
 from rest_framework.decorators import api_view, permission_classes
@@ -319,15 +320,15 @@ def changePasswordView(request):
             return JsonResponse({'error': "New password can't be the same as the old one"}, status=400)
 
     try:
-        user.set_password(new_password)
-        user.save()
-        update_session_auth_hash(request, user)
-        return JsonResponse({'status': 'success', 'message': 'Password changed successfully'}, status=200)
+        validate_password(new_password, user=user)
     except ValidationError as e:
-        return JsonResponse({'error': str(e)}, status=400)
-    except Exception as e:
-        return JsonResponse({'error': 'An error occurred while changing the password'}, status=500)
-
+        return JsonResponse({'error': e.messages}, status=400)
+	
+    user.set_password(new_password)
+    user.save()
+    update_session_auth_hash(request, user)
+    return JsonResponse({'status': 'success', 'message': 'Password changed successfully'}, status=200)	
+		
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def deleteAccountView(request):

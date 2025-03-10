@@ -2,7 +2,7 @@
 import json, asyncio
 from lobby.models import Lobby, LobbyChatMessage
 from tournament.models import Tournament, TournamentPlayer
-from match_history.models import GameHistory
+from match_history.models import MatchHistory
 from django.contrib.auth.models import User
 from .pongObjects import Pong, vars
 from channels.db import database_sync_to_async
@@ -194,7 +194,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def win(self, lobby_game, winner_username, lobby_id):
 		await self.groupSend('gameOver', {"winner": winner_username})
 		await self.updateWinnerDB(winner_username)
-		await self.updateGameHistory(lobby_game, self.lobby_id)
+		await self.updateMatchHistory(lobby_game, self.lobby_id, winner_username)
 
 	async def sendState(self):
 		lobby = lobbies.get(self.lobby_id)
@@ -307,8 +307,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			print(f"Set retuning error: {e}", flush=True)
 
 	@database_sync_to_async
-	def updateGameHistory(self, game, lobby_id):
-		gameHistory = GameHistory.objects.get(game_id=lobby_id)
+	def updateMatchHistory(self, game, lobby_id, winner_username):
+		gameHistory = MatchHistory.objects.get(game_id=lobby_id)
+		gameHistory.winner = winner_username
 		gameHistory.player1Score = game.player1Score
 		gameHistory.player2Score = game.player2Score
 		gameHistory.save()

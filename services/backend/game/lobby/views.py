@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from .models import Lobby
-from match_history.models import GameHistory
+from match_history.models import MatchHistory
 from .serializers import LobbySerializer
 import json
 import logging
@@ -65,7 +65,7 @@ def joinLobby(request, lobby_id):
 		username = data.get('username')
 		user = User.objects.get(username=username)
 		selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
-		lobbyHistory = GameHistory.objects.get(game_id=lobby_id)
+		lobbyHistory = MatchHistory.objects.get(game_id=lobby_id)
 		lobbyHistory.users.add(user)
 		lobbyHistory.save()
 		selectedLobby.users.add(user)
@@ -74,7 +74,7 @@ def joinLobby(request, lobby_id):
 		return JsonResponse({'data': serializer.data}, status=200)
 	except Lobby.DoesNotExist:
 		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
-	except GameHistory.DoesNotExist:
+	except MatchHistory.DoesNotExist:
 		return JsonResponse({'error': 'Game History does not exist'}, status=400)
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User does not exist'}, status=400)

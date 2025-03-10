@@ -23,11 +23,7 @@ def profileView(request):
 		return JsonResponse({'error': 'Profile Not Found'})
 	if request.method == 'POST':
 		profileForm = UpdateProfileForm(request.POST, instance=profile)
-		username = request.POST.get('username')
-		email = request.POST.get('email')
-
-		user.username = username
-		user.email = email
+		user.email = request.POST.get('email')
 
 		try:
 			user.save()
