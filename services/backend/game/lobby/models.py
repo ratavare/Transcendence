@@ -1,6 +1,6 @@
 from django.db import models
+from django.apps import apps
 from django.contrib.auth.models import User
-from match_history.models import MatchHistory
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -46,14 +46,4 @@ def init_positions(sender, instance, created, **kwargs):
 			ballPosition=ball_position,
 			paddle1Position=paddle1_position,
 			paddle2Position=paddle2_position
-		)
-
-@receiver(post_save, sender=Lobby)
-def create_Game_History(sender, instance, created, **kwargs):
-	if created:
-		if instance.g1.exists() or instance.g2.exists() or instance.g3.exists():
-			return
-		MatchHistory.objects.create(
-			game_id=instance.lobby_id,
-			date=instance.created_at
 		)

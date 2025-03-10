@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from .models import Lobby
-from match_history.models import MatchHistory
 from .serializers import LobbySerializer
 import json
 import logging
@@ -48,7 +47,8 @@ def createLobby(request):
 	try:
 		id = request.data.get('lobby_id')
 		validator(id)
-		Lobby.objects.create(lobby_id=id)
+		lobby = Lobby(lobby_id=id)
+		lobby.save()
 		return JsonResponse({'lobby_id': id}, status=200)
 	except IntegrityError:
 		return JsonResponse({'error': 'Lobby already exists'}, status=400)
@@ -65,9 +65,6 @@ def joinLobby(request, lobby_id):
 		username = data.get('username')
 		user = User.objects.get(username=username)
 		selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
-		lobbyHistory = MatchHistory.objects.get(game_id=lobby_id)
-		lobbyHistory.users.add(user)
-		lobbyHistory.save()
 		selectedLobby.users.add(user)
 		selectedLobby.save()
 		serializer = LobbySerializer(selectedLobby)

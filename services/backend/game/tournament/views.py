@@ -21,12 +21,6 @@ def createTournament(request):
 			tournament_id = re.sub(r"\s+", "", tournament_id)
 			validator(tournament_id)
 			tournament = Tournament(tournament_id=tournament_id)
-			game1 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_1")
-			game2 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_2")
-			game3 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_3")
-			tournament.game1 = game1
-			tournament.game2 = game2
-			tournament.game3 = game3
 			tournament.save()
 			return JsonResponse({'tournament_id': tournament_id}, status=200)
 		except ValidationError:

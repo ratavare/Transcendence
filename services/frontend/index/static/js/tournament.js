@@ -65,13 +65,12 @@ PageElement.onLoad = async () => {
 	function readyBtnDisplay(payload, fakeNameDiv) {
 		const username = window.user.username;
 		const { winner1, winner2, winner3, is_ready, stage, players } = payload;
-
 		const fakeNameInput = document.getElementById("fake-name-input");
 		if (stage == "final") {
 			if (players[username] == winner1 || players[username] == winner2)
 				fakeNameDiv.style.display = "block";
 			fakeNameInput.style.display = "none";
-		} else if (is_ready || winner3 || username != players[username])
+		} else if (is_ready || winner3 || username != players[username] || stage == "winner")
 			fakeNameDiv.style.display = "none";
 		else fakeNameDiv.style.display = "block";
 	}

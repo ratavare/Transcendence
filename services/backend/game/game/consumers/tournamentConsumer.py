@@ -85,10 +85,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	
 	async def playerSetup(self, tournament, username):
 		content = None
-		if self.is_returning or self.user_id in tournament["pong_players"]:
+		if self.is_returning or self.username in tournament["pong_players"]:
 			tournament["players"][self.username] = username
-			if self.user_id in tournament["pong_players"]:
-				del tournament["pong_players"][self.user_id]
+			if self.username in tournament["pong_players"]:
+				del tournament["pong_players"][self.username]
 			content = f"welcome back {username}"
 		elif len(tournament["players"]) < 4 and self.username not in tournament["players"]:
 			tournament["players"][self.username] = username
@@ -161,14 +161,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		tournament = tournaments[t_id]
 		if not tournament:
 			return
-		
-		print("\n\n", tournament["winner1"], tournament["winner2"], tournament["winner3"], "\n\n", flush=True)
+
 		await self.setWinners(self.tournament_id)
 
 		w1_username = self.getWinnerUsername(tournament, 1)
 		w2_username = self.getWinnerUsername(tournament, 2)
 		w3_username = self.getWinnerUsername(tournament, 3)
-		print("\n\n", w1_username, w2_username, w3_username, "\n\n", flush=True)
 
 		self.is_returning = await self.is_returningDB()
 		if self.is_returning:
@@ -182,18 +180,19 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 						await self.setFinalWinnerDB(tournament, t_id, w2_username)
 					elif w2_username == self_fake_name:
 						await self.setFinalWinnerDB(tournament, t_id, w1_username)
+					await self.setReadyBtn(tournament)
 				elif w1_username == None and w1_username == None:
 					if self.username in tournament["fake_names"]:
 						del tournament["fake_names"][self.username]
-				await self.setReadyBtn(tournament)
 				await self.handlePlayersLeaving(tournament, fake_name)
 				await self.removePlayerDB(t_id, username)
 
 			except Exception as e:
 				print(f"Unexpected error: {e}", flush=True)
 	
-
+		print("\n", tournament["players"], tournament["pong_players"], "\n", flush=True)
 		if not tournament["players"] and not tournament["pong_players"] and not self.is_returning:
+			print("\nDELETED TOURNAMENT\n", flush=True)
 			del tournaments[t_id]
 			await self.deleteTournamentDB(t_id)
 
@@ -209,8 +208,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	
 		await self.sendBracket(tournament, "players", "disconnect")
 
-		if self.user_id in tournament["pong_players"]:
-			del tournament["pong_players"][self.user_id]
+		if self.username in tournament["pong_players"]:
+			del tournament["pong_players"][self.username]
 
 	@database_sync_to_async
 	def deleteTournamentDB(self, t_id):

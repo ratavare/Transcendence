@@ -5,6 +5,7 @@ from tournament.models import Tournament, TournamentPlayer
 from match_history.models import MatchHistory
 from django.contrib.auth.models import User
 from .pongObjects import Pong, vars
+from django.utils.timezone import now
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -80,9 +81,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 		await asyncio.sleep(3)
 		game = lobby["game"]
 
+		print("\nPLAYERS: ", lobby["players"], flush=True)
 		if not lobby["players"]:
 			await self.deleteLobbyWS(lobby)
 			await self.deleteLobbyDB()
+			print("\n DELETED LOBBY", flush=True)
 		else:
 			try:
 				winner_id = game.player1Token if game.player1Token is not self.user_id else game.player2Token
@@ -193,7 +196,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def win(self, lobby_game, winner_username, lobby_id):
 		await self.updateWinnerDB(winner_username)
-		await self.updateMatchHistory(lobby_game, self.lobby_id, winner_username)
+		await self.createMatchHistory(lobby_game, self.lobby_id, winner_username)
 		await self.groupSend('gameOver', {"winner": winner_username})
 
 	async def sendState(self):
@@ -307,12 +310,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 			print(f"Set retuning error: {e}", flush=True)
 
 	@database_sync_to_async
-	def updateMatchHistory(self, game, lobby_id, winner_username):
+	def createMatchHistory(self, game, lobby_id, winner_username):
 		try:
-			gameHistory = MatchHistory.objects.get(game_id=lobby_id)
-			gameHistory.winner = winner_username
-			gameHistory.player1Score = game.player1Score
-			gameHistory.player2Score = game.player2Score
-			gameHistory.save()
+			lobby = Lobby.objects.get(lobby_id=lobby_id)
+			match = MatchHistory.objects.create(game_id=lobby_id, winner=winner_username, player1Score=game.player1Score, player2Score=game.player2Score, date=now())
+			for user in lobby.users.all():
+				match.users.add(user)
 		except MatchHistory.DoesNotExist:
 			print(f"{lobby_id} MatchHistory does not exist", flush=True)
+		except Lobby.DoesNotExist:
+			print(f"{lobby_id} does not exist", flush=True)
+		except Exception as e:
+			print(f"Other Error: {e}", flush=True)
