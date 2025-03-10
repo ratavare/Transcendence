@@ -28,7 +28,6 @@ async function putLobbylist(lobbies) {
     const lobbyListDiv = document.getElementById("lobby-list");
     if (!lobbyListDiv) return;
 
-	console.warn("HELLO");
     lobbies.forEach((lobby) => {
         // Prevent duplicate entries
         // if (document.querySelector(`[data-lobby-id="${lobby.lobby_id}"]`)) return;

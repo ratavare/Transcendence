@@ -30,8 +30,15 @@ PageElement.onLoad = () => {
 	let gamePaused = false;
 	let beginGame = false;
 	let intervalId;
+	let animationFrameId;
 
 	// get Overlay
+
+	if (window.location.href != "https://localhost:8443/#/singleplayerpong") {
+		console.log("Running on the wrong page");
+		console.log({ pathname: window.location.href });
+		window.location.reload();
+	}
 
 	const overlay = document.getElementById("overlay");
 	const overlayContainer = document.getElementById("overlay-container");
@@ -362,18 +369,18 @@ PageElement.onLoad = () => {
 		} else {
 			sphereData[0] = { time: time, position: position, speed: speed };
 		}
-		console.log(
-			"Time: " +
-				time +
-				" Position: " +
-				position.x +
-				", " +
-				position.z +
-				" Speed: " +
-				speed.x +
-				", " +
-				speed.z
-			);
+		// console.log(
+		// 	"Time: " +
+		// 		time +
+		// 		" Position: " +
+		// 		position.x +
+		// 		", " +
+		// 		position.z +
+		// 		" Speed: " +
+		// 		speed.x +
+		// 		", " +
+		// 		speed.z
+		// 	);
 	}
 	
 	saveSphereData();
@@ -461,16 +468,6 @@ PageElement.onLoad = () => {
 		keydownHandler = (event) => {
 			switch (event.key) 
 			{
-				case "w":
-					beginGame = true;
-					paddle1Speed = -PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
-				case "s":
-					beginGame = true;
-					paddle1Speed = PADDLE_SPEED;
-					overlayContainer.style.display = "none";
-					break;
 				case "ArrowUp":
 					beginGame = true;
 					paddle2Speed = -PADDLE_SPEED;
@@ -489,10 +486,6 @@ PageElement.onLoad = () => {
 
 		keyupHandler = (event) => {
 			switch (event.key) {
-				case "w":
-				case "s":
-					paddle1Speed = 0;
-					break;
 				case "ArrowUp":
 				case "ArrowDown":
 					paddle2Speed = 0;
@@ -503,6 +496,129 @@ PageElement.onLoad = () => {
 		document.addEventListener("keydown", keydownHandler);
 		document.addEventListener("keyup", keyupHandler);
 	}
+	
+	// Stop the game when the user refreshes or leaves
+	// Save the event handler function reference
+	const hashChangeHandler = () => {
+		console.log("hashchange singleplayerpong");
+		cleanupSingleplayerGame();
+	};
+
+	// Add the event listener for hashchange
+	window.addEventListener("hashchange", hashChangeHandler);
+	
+	// Function to stop the game
+	function cleanupSingleplayerGame() {
+		if (renderer) {
+			console.warn("Cleaning up render: singleplayerpong");
+			cleanupThreeJsObjects();
+			renderer.setAnimationLoop(null); // Stop the animation loop
+			renderer.dispose(); // Clean up the renderer
+		}
+	
+		// Remove the event listeners
+		document.removeEventListener("keydown", keydownHandler);
+		document.removeEventListener("keyup", keyupHandler);
+		clearInterval(intervalId);
+	
+		// Remove the hashchange event listener when cleaning up
+		window.removeEventListener("hashchange", hashChangeHandler);
+	
+		let canvas = document.getElementById("canvas");
+		if (canvas) {
+			let ctx = canvas.getContext("2d");
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			canvas.remove();
+		}
+	
+		console.log("Singleplayer game cleaned up");
+	}
+
+	function cleanupThreeJsObjects() {
+		// Dispose of materials, geometries, textures, and meshes
+		if (cube) {
+			if (cube.material) {
+				cube.material.dispose(); // Dispose material
+			}
+			if (cube.geometry) {
+				cube.geometry.dispose(); // Dispose geometry
+			}
+			scene.remove(cube);
+		}
+	
+		if (paddle1) {
+			if (paddle1.material) {
+				paddle1.material.dispose();
+			}
+			if (paddle1.geometry) {
+				paddle1.geometry.dispose();
+			}
+			scene.remove(paddle1);
+		}
+	
+		if (paddle2) {
+			if (paddle2.material) {
+				paddle2.material.dispose();
+			}
+			if (paddle2.geometry) {
+				paddle2.geometry.dispose();
+			}
+			scene.remove(paddle2);
+		}
+	
+		// Dispose of textures as well
+		if (ballTexture) {
+			ballTexture.dispose();
+		}
+		if (skybox) {
+			skybox.dispose();
+		}
+		if (ambientLight) {
+			scene.remove(ambientLight);
+		}
+		if (pointLight) {
+			scene.remove(pointLight);
+		}
+		if (table1) {
+			if (table1.material) {
+				table1.material.dispose();
+			}
+			if (table1.geometry) {
+				table1.geometry.dispose();
+			}
+			scene.remove(table1);
+		}
+		if (table2) {
+			if (table2.material) {
+				table2.material.dispose();
+			}
+			if (table2.geometry) {
+				table2.geometry.dispose();
+			}
+			scene.remove(table2);
+		}
+		if (controls) {
+			controls.dispose();
+		}
+		if (renderer) {
+			renderer.dispose();
+		}
+		if (sphereMaterial) {
+			sphereMaterial.dispose();
+		}
+		if (sphereGeometry) {
+			sphereGeometry.dispose();
+		}
+	}
+	
+	PageElement.onUnload = () => {
+		console.warn("onUnload single pong");
+		cleanupSingleplayerGame()
+		PageElement.onUnload = () => {};
+	};
+	
+	handlePaddleControls();
+	renderer.setAnimationLoop(animate);
 
 	function animate() {
 		if (player1Score < 7 && player2Score < 7) {
@@ -523,30 +639,4 @@ PageElement.onLoad = () => {
 			document.getElementById("winner").innerHTML = "Player 2 wins!";
 		}
 	}
-
-    // Function to stop the game
-    function stopGame() {
-        gamePaused = true; // Pause the game
-        clearInterval(intervalId); // Stop saving sphere data
-        renderer.setAnimationLoop(null); // Stop the game loop
-        renderer.dispose(); // Free up GPU resources
-        renderer.domElement.remove(); // Remove renderer from the DOM
-
-        // Remove event listeners
-        if (keydownHandler && keyupHandler) {
-            document.removeEventListener("keydown", keydownHandler);
-            document.removeEventListener("keyup", keyupHandler);
-        }
-
-        console.log("Game stopped.");
-    }
-
-    // Stop the game when the user refreshes or leaves
-    window.addEventListener("hashchange", () => {
-        stopGame();
-    });
-
-	handlePaddleControls();
-	renderer.setAnimationLoop(animate);
-	
 };

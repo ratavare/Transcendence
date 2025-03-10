@@ -569,12 +569,16 @@ PageElement.onLoad = () => {
 
 		PageElement.onUnload = () => {};
 	};
+
+	const hashChangeHandler = () => {
+		console.log("hashchange pong");
+		cleanupGame();
+	};
 	
-	window.addEventListener("hashchange", () => {
-		stopGame();
-	});
+	window.addEventListener("hashchange", hashChangeHandler);
+
 	
-	function stopGame() {
+	function cleanupGame() {
 		renderer.setAnimationLoop(null); // Stop the game loop
 		renderer.dispose(); // Free up GPU resources
 		renderer.domElement.remove(); // Remove renderer from the DOM
@@ -584,7 +588,7 @@ PageElement.onLoad = () => {
 			document.removeEventListener("keydown", keydownHandler);
 			document.removeEventListener("keyup", keyupHandler);
 		}
-
+		window.removeEventListener("hashchange", stopGame);
 		console.log("Game stopped.");
 	}
 };
