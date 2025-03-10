@@ -29,6 +29,7 @@ def indexView(request):
 		return render(request, 'index.html', {
 			'registerForm': RegistrationForm,
 			'loginForm': AuthenticationForm,
+			"MAIN_HOST": os.getenv("MAIN_HOST"),
 		})
 
 	# return auth(request, auth_code)

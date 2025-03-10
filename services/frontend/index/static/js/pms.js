@@ -14,7 +14,7 @@ async function getFriends() {
 async function getConversations() {
 	try {
 		return await myFetch(
-			"https://localhost:8443/user_messages/conversations/",
+			`https://${MAIN_HOST}:8443/user_messages/conversations/`,
 			null,
 			"GET",
 			true
@@ -27,7 +27,7 @@ async function getConversations() {
 async function getMessages(conversationId) {
 	try {
 		return await myFetch(
-			`https://localhost:8443/user_messages/conversations/${conversationId}/`,
+			`https://${MAIN_HOST}:8443/user_messages/conversations/${conversationId}/`,
 			null,
 			"GET",
 			true
@@ -41,7 +41,7 @@ async function getMessages(conversationId) {
 async function startConversation(friend) {
 	try {
 		return await myFetch(
-			`https://localhost:8443/user_messages/conversations/create/${friend}/`,
+			`https://${MAIN_HOST}:8443/user_messages/conversations/create/${friend}/`,
 			null,
 			"POST",
 			true
@@ -54,7 +54,7 @@ async function startConversation(friend) {
 // *** WEB SOCKET ***
 
 function setUpWS(conversation) {
-	const chatSocket = new WebSocket(`wss://localhost:8443/chat/${conversation.id}/`);
+	const chatSocket = new WebSocket(`wss://${MAIN_HOST}:8443/chat/${conversation.id}/`);
 	chatSocket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
 		const messagesDiv = document.getElementById('messages');

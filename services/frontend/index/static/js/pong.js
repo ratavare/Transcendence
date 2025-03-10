@@ -348,12 +348,12 @@ PageElement.onLoad = () => {
 	const lobby_id = window.props.get("id");
 	const playerName = window.props.get("username");
 
-	checkDatabase(`https://localhost:8443/lobby/lobbies/${lobby_id}/`);
+	checkDatabase(`https://${MAIN_HOST}:8443/lobby/lobbies/${lobby_id}/`);
 	checkDatabase(
-		`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`
+		`https://${MAIN_HOST}:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`
 	);
 	const socket = new WebSocket(
-		`wss://localhost:8443/pong/${encodeURIComponent(
+		`wss://${MAIN_HOST}:8443/pong/${encodeURIComponent(
 			lobby_id
 		)}/`
 	);
@@ -362,9 +362,9 @@ PageElement.onLoad = () => {
 		const hash = window.location.hash;
 		if (hash.includes("pong?id")) {
 			const lobbyId = window.props.get("id");
-			checkDatabase(`https://localhost:8443/lobby/lobbies/${lobbyId}/`);
+			checkDatabase(`https://${MAIN_HOST}:8443/lobby/lobbies/${lobbyId}/`);
 			checkDatabase(
-				`https://localhost:8443/lobby/lobbies/${lobbyId}/${window.user.username}/`
+				`https://${MAIN_HOST}:8443/lobby/lobbies/${lobbyId}/${window.user.username}/`
 			);
 		}
 	});
@@ -480,7 +480,7 @@ PageElement.onLoad = () => {
 	async function getChat() {
 		try {
 			const data = await myFetch(
-				`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
+				`https://${MAIN_HOST}:8443/lobby/lobbies/${lobby_id}/`,
 				null,
 				"GET",
 				true
@@ -517,7 +517,7 @@ PageElement.onLoad = () => {
 		if (lobby_id.split('_')[0] == 'tournament')
 		{
 			try {
-				const data = await myFetch(`https://localhost:8443/tournament/getTournamentLobby/${tournament_id}/${lobby_id}`, null, "GET", true);
+				const data = await myFetch(`https://${MAIN_HOST}:8443/tournament/getTournamentLobby/${tournament_id}/${lobby_id}`, null, "GET", true);
 				fromTournament = true;
 				quitBtn.addEventListener("click", () => {
 					seturl(`/tournament?id=${tournament_id}`);

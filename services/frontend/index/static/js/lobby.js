@@ -2,7 +2,7 @@ async function joinLobby(lobby_id) {
 	const body = JSON.stringify(window.user);
 	try {
 		const data = await myFetch(
-			`https://localhost:8443/lobby/lobbies/${lobby_id}/`,
+			`https://${MAIN_HOST}:8443/lobby/lobbies/${lobby_id}/`,
 			body,
 			"POST",
 			true
@@ -65,7 +65,7 @@ function putLobbylist(lobbies) {
 async function getLobbies() {
 	try {
 		const data = await myFetch(
-			"https://localhost:8443/lobby/lobbies/",
+			`https://${MAIN_HOST}:8443/lobby/lobbies/`,
 			null,
 			"GET",
 			true
@@ -85,7 +85,7 @@ async function getLobbies() {
 		const formData = new FormData(event.target);
 		try {
 			const data = await myFetch(
-				"https://localhost:8443/lobby/lobbies/",
+				`https://${MAIN_HOST}:8443/lobby/lobbies/`,
 				formData,
 				"POST",
 				true

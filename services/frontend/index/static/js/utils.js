@@ -28,7 +28,7 @@ async function refreshAccessToken() {
 	}
 
 	const response = await fetch(
-		"https://localhost:8443/user_auth/api/token/refresh/",
+		`https://${MAIN_HOST}:8443/user_auth/api/token/refresh/`,
 		{
 			method: "POST",
 			headers: {
@@ -51,10 +51,10 @@ async function refreshAccessToken() {
 }
 
 async function myImageFetch(viewUrl, myData = null, method = 'POST', requireAuth = true) {
-    const headers = {
+	const headers = {
         "X-CSRFToken": getCookie('csrftoken'),
         "Accept": "application/json",
-    };
+	};
 	if (localStorage.key('access_token') != null) {
 	
 
@@ -70,44 +70,44 @@ async function myImageFetch(viewUrl, myData = null, method = 'POST', requireAuth
 			headers["Authorization"] = `Bearer ${accessToken}`;
 		}
 	}
-    let body = null;
-    if (myData) {
-        if (myData instanceof FormData) {
-            body = myData;
-            delete headers["Content-Type"];
-        } else {
-            headers["Content-Type"] = "application/json";
-            body = JSON.stringify(myData);
-        }
-    }
-    const response = await fetch(viewUrl, {
-        method: method,
-        headers: headers,
-        body: body,
-    });
-    return response;
+	let body = null;
+	if (myData) {
+		if (myData instanceof FormData) {
+			body = myData;
+			delete headers["Content-Type"];
+		} else {
+			headers["Content-Type"] = "application/json";
+			body = JSON.stringify(myData);
+		}
+	}
+	const response = await fetch(viewUrl, {
+		method: method,
+		headers: headers,
+		body: body,
+	});
+	return response;
 }
 
 async function getProfileImage(username) {
-    try {
-		const response = await myImageFetch(`https://localhost:8443/user_profile/profile/picture/${username}/`, null, 'GET', true);
-        if (response.status === 200) {
+	try {
+		const response = await myImageFetch(`https://${MAIN_HOST}:8443/user_profile/profile/picture/${username}/`, null, 'GET', true);
+		if (response.status === 200) {
             const contentType = response.headers.get('Content-Type');
             if (contentType && contentType.startsWith('image/')) {
-                const blob = await response.blob();
-                const imageUrl = URL.createObjectURL(blob);
-                return imageUrl;
-            } else {
-                console.error("Expected image but received:", contentType);
-            }
-        } else {
-            const errorText = await response.text();
-            console.log(`${username}: `, JSON.parse(errorText).error);
+				const blob = await response.blob();
+				const imageUrl = URL.createObjectURL(blob);
+				return imageUrl;
+			} else {
+				console.error("Expected image but received:", contentType);
+			}
+		} else {
+			const errorText = await response.text();
+			console.log(`${username}: `, JSON.parse(errorText).error);
 			return '/static/assets/default-user.png';
-        }
-    } catch (error) {
-        console.error("Fetch error: ", error);
-    }
+		}
+	} catch (error) {
+		console.error("Fetch error: ", error);
+	}
 }
 
 async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = true) {

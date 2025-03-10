@@ -54,7 +54,7 @@ function updateUI() {
 
 		// Fetch the usable password status from the API using myFetch
 		myFetch(
-			`https://localhost:8443/user_auth/has_usable_password/${userId}/`,
+			`https://${MAIN_HOST}:8443/user_auth/has_usable_password/${userId}/`,
 			null,
 			"GET",
 			true
@@ -83,7 +83,7 @@ document
 	.addEventListener("click", async function () {
 		try {
 			const data = await myFetch(
-				"https://localhost:8443/user_auth/enable_2fa/",
+				`https://${MAIN_HOST}:8443/user_auth/enable_2fa/`,
 				null,
 				"POST",
 				true
@@ -110,7 +110,7 @@ document
 		const otpSecret = localStorage.getItem("otp_secret");
 		try {
 			const data = await myFetch(
-				"https://localhost:8443/user_auth/verify_otp/",
+				`https://${MAIN_HOST}:8443/user_auth/verify_otp/`,
 				{ otp: otpCode, otp_secret: otpSecret },
 				"POST",
 				true
@@ -146,7 +146,7 @@ document
 	.addEventListener("click", async function () {
 		try {
 			const data = await myFetch(
-				"https://localhost:8443/user_auth/disable_2fa/",
+				`https://${MAIN_HOST}:8443/user_auth/disable_2fa/`,
 				null,
 				"POST",
 				true
@@ -172,7 +172,7 @@ document
 
 		try {
 			const data = await myFetch(
-				"https://localhost:8443/user_auth/change_password/",
+				`https://${MAIN_HOST}:8443/user_auth/change_password/`,
 				formData,
 				"POST",
 				true
@@ -194,7 +194,7 @@ document
 		showErrorModal("Your account will be deleted permanently.", false);
 		try {
 			const data = await myFetch(
-				"https://localhost:8443/user_auth/delete_account/",
+				`https://${MAIN_HOST}:8443/user_auth/delete_account/`,
 				null,
 				"POST",
 				true

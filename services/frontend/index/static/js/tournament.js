@@ -10,7 +10,7 @@ PageElement.onLoad = async () => {
 		return;
 
 	let socket = new WebSocket(
-		`wss://localhost:8443/pong/t/${encodeURIComponent(
+		`wss://${MAIN_HOST}:8443/pong/t/${encodeURIComponent(
 			tournament_id
 		)}/`
 	);
@@ -238,7 +238,7 @@ PageElement.onLoad = async () => {
 		};
 		try {
 			const data = await myFetch(
-				`https://localhost:8443/tournament/joinTournamentLobby/`,
+				`https://${MAIN_HOST}:8443/tournament/joinTournamentLobby/`,
 				body,
 				"POST",
 				true
@@ -338,7 +338,7 @@ PageElement.onLoad = async () => {
 	async function getChat(tournament_id) {
 		try {
 			const data = await myFetch(
-				`https://localhost:8443/tournament/getJoin/${tournament_id}/`,
+				`https://${MAIN_HOST}:8443/tournament/getJoin/${tournament_id}/`,
 				null,
 				"GET",
 				true
