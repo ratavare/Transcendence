@@ -10,13 +10,14 @@ load_dotenv(os.path.join(BASE_DIR, '../.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-3ez88!$-2nk6$u2y@=2_*@88vwaky2xsx3@$m5ej%-f#rfwn*a'
+MAIN_HOST = os.getenv("MAIN_HOST")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "10.12.8.4"]
+ALLOWED_HOSTS = ["localhost", MAIN_HOST]
 
-CSRF_TRUSTED_ORIGINS = ["https://localhost:8443", "https://10.12.8.4:8443"]
+CSRF_TRUSTED_ORIGINS = [f"https://localhost:8443", f"https://{MAIN_HOST}:8443"]
 
 INSTALLED_APPS = [
 	'index.apps.IndexConfig',

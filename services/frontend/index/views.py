@@ -14,11 +14,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 
-# from pathlib import Path
+from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv()
-# BASE_DIR = Path(__file__).resolve().parent.parent
-# load_dotenv(os.path.join(BASE_DIR, '../.env'))
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR, '../.env'))
 
 import logging
 logging.basicConfig(level=logging.DEBUG)

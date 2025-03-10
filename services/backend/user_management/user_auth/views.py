@@ -5,6 +5,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from rest_framework import status
+from django.conf import settings
+
 from user_profile.models import Profile
 from django.contrib.auth.password_validation import validate_password
 
@@ -20,12 +22,16 @@ from io import BytesIO
 import base64
 import requests
 
+from pathlib import Path
 from .forms import RegistrationForm
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ENV variables
 from dotenv import load_dotenv
 import os
-load_dotenv()
+load_dotenv(os.path.join(BASE_DIR, '../.env'))
+MAIN_HOST = os.getenv("MAIN_HOST")
 
 import logging
 logger = logging.getLogger(__name__)
@@ -143,7 +149,7 @@ def handle_intra_oauth_login(request, code):
 		'grant_type': 'authorization_code',
 		'client_id': os.getenv('CLIENT_ID'),
 		'client_secret': os.getenv('CLIENT_SECRET'),
-		'redirect_uri': "https://localhost:8443/user_auth/login/",
+		'redirect_uri': f"https://${MAIN_HOST}:8443/user_auth/login/",
 		'code': code
 	}
 	
@@ -162,7 +168,7 @@ def handle_intra_oauth_login(request, code):
 	try:
 		user = authenticate_or_create_user_from_intra(user_info)
 	except ValueError as e:
-		return HttpResponseRedirect(f'https://localhost:8443/#/login?error={e}')
+		return HttpResponseRedirect(f'https://${MAIN_HOST}:8443/#/login?error={e}')
 	login(request, user)
 	refresh = RefreshToken.for_user(user)
 
@@ -171,7 +177,7 @@ def handle_intra_oauth_login(request, code):
 
 	otp_secret = profile.otp_secret if profile else ''
 
-	redirect_url = f'https://localhost:8443/#/login?code={code}&access_token={refresh.access_token}&refresh_token={refresh}&2fa={is_2fa_enabled}&otp_secret={otp_secret}&username={user.username}'
+	redirect_url = f'https://${MAIN_HOST}:8443/#/login?code={code}&access_token={refresh.access_token}&refresh_token={refresh}&2fa={is_2fa_enabled}&otp_secret={otp_secret}&username={user.username}'
 	return HttpResponseRedirect(redirect_url)
 
 def handle_regular_login(request):

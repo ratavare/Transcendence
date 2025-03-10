@@ -120,7 +120,7 @@ async function getProfile() {
 	try {
 		if (localStorage.key("access_token") == null) return false;
 		const response = await myFetch(
-			"https://localhost:8443/user_profile/profile/",
+			`https://localhost:8443/user_profile/profile/`,
 			null,
 			"GET"
 		);

@@ -2,6 +2,10 @@
 services:
   frontend:
     container_name: frontend
+    environment:
+      - MAIN_HOST=${MAIN_HOST}
+    env_file:
+      - .env
     build: ./services/frontend
     restart: on-failure
     depends_on:
@@ -15,6 +19,10 @@ services:
   user_management:
     container_name: user_management
     build: ./services/backend/user_management
+    environment:
+      - MAIN_HOST=${MAIN_HOST}
+    env_file:
+      - .env
     restart: on-failure
     depends_on:
       database:
@@ -27,6 +35,10 @@ services:
   game:
     container_name: game
     build: ./services/backend/game
+    environment:
+      - MAIN_HOST=${MAIN_HOST}
+    env_file:
+      - .env
     depends_on:
       database:
         condition: service_healthy
@@ -39,6 +51,10 @@ services:
     container_name: nginx
     build: ./services/nginx
     restart: on-failure
+    environment:
+      - MAIN_HOST=${MAIN_HOST}
+    env_file:
+      - .env
     depends_on:
       database:
         condition: service_healthy
