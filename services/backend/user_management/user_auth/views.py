@@ -151,7 +151,7 @@ def handle_intra_oauth_login(request, code):
 		'grant_type': 'authorization_code',
 		'client_id': os.getenv('CLIENT_ID'),
 		'client_secret': os.getenv('CLIENT_SECRET'),
-		'redirect_uri': f"https://${MAIN_HOST}:8443/user_auth/login/",
+		'redirect_uri': f"https://{MAIN_HOST}:8443/user_auth/login/",
 		'code': code
 	}
 	
@@ -170,7 +170,7 @@ def handle_intra_oauth_login(request, code):
 	try:
 		user = authenticate_or_create_user_from_intra(user_info)
 	except ValueError as e:
-		return HttpResponseRedirect(f'https://${MAIN_HOST}:8443/#/login?error={e}')
+		return HttpResponseRedirect(f'https://{MAIN_HOST}:8443/#/login?error={e}')
 	login(request, user)
 	refresh = RefreshToken.for_user(user)
 
@@ -179,7 +179,7 @@ def handle_intra_oauth_login(request, code):
 
 	otp_secret = profile.otp_secret if profile else ''
 
-	redirect_url = f'https://${MAIN_HOST}:8443/#/login?code={code}&access_token={refresh.access_token}&refresh_token={refresh}&2fa={is_2fa_enabled}&otp_secret={otp_secret}&username={user.username}'
+	redirect_url = f'https://{MAIN_HOST}:8443/#/login?code={code}&access_token={refresh.access_token}&refresh_token={refresh}&2fa={is_2fa_enabled}&otp_secret={otp_secret}&username={user.username}'
 	return HttpResponseRedirect(redirect_url)
 
 def handle_regular_login(request):
