@@ -30,6 +30,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				"fake_names": {},
 				"pong_players": {},
 				"ready_players": {},
+				"spectators": {},
 				"winner1": None,
 				"winner2": None,
 				"winner3": None
@@ -57,7 +58,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		# Update bracket
 		await self.sendBracket(tournament, "players", "connect")
 		if connectMessage:
-			await self.groupSendChat("connect", connectMessage)
+			print("\n Username: ", username, " Spectator:", tournament["spectators"], " Players: ",  tournament["players"], flush=True)
+			if username in tournament["spectators"]:
+				await self.groupSendChat("spectator", connectMessage)
+			else:
+				await self.groupSendChat("connect", connectMessage)
 
 		# Reset is_returning status
 		self.is_returning = False
@@ -85,7 +90,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	
 	async def playerSetup(self, tournament, username):
 		content = None
-		print("\n", tournament["players"], tournament["pong_players"], "\n", flush=True)
 		if self.is_returning or self.username in tournament["pong_players"]:
 			tournament["players"][self.username] = username
 			if self.username in tournament["pong_players"]:
@@ -94,9 +98,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		elif len(tournament["players"]) < 4 and self.username not in tournament["players"]:
 			tournament["players"][self.username] = username
 			content = f"Welcome {username}!"
+		else:
+			tournament["spectators"][self.username] = username
+			content = f"Welcome spectator {username}!"
 		return content
 
 	async def setFakeNames(self, tournament):
+		if self.username in tournament["spectators"]:
+			return
 		if self.username not in tournament["fake_names"]:
 			tournament["fake_names"][self.username] = self.username
 
@@ -162,8 +171,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if not tournament:
 			return
 
-		# await self.setWinners(self.tournament_id)
-
 		w1_username = self.getWinnerUsername(tournament, 1)
 		w2_username = self.getWinnerUsername(tournament, 2)
 		w3_username = self.getWinnerUsername(tournament, 3)
@@ -175,7 +182,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		else:
 			try:
 				self_fake_name = tournament["fake_names"][self.username]
-				print("\n WINNERS:", w1_username, w2_username, w3_username, flush=True)
 				if w1_username != None and w2_username != None and w3_username == None:
 					if w1_username == self_fake_name:
 						await self.setFinalWinnerDB(tournament, t_id, w2_username)
@@ -251,6 +257,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				sender = payload["sender"]
 				if sender in tournament["fake_names"]:
 					payload["sender"] = tournament["fake_names"][sender]
+				else:
+					payload["sender"] = "spectator"
+				
+				print("\nPayload: ", payload, '\n', flush=True)
 
 			await self.groupSend(send_type, payload)
 

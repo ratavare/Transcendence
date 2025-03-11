@@ -428,7 +428,6 @@ PageElement.onLoad = () => {
 	};
 
 	socket.onopen = async () => {
-		console.warn("OPEN")
 		sendPayload("message", {
 			sender: "connect",
 			content: `${playerName} joined the lobby!`,
@@ -436,7 +435,7 @@ PageElement.onLoad = () => {
 	};
 
 	socket.onclose = () => {
-		console.warn("Socket closed unexpectedly");
+		console.log("Socket closed unexpectedly");
 		if (!fromTournament)
 			seturl('/home');
 	};
@@ -553,4 +552,9 @@ PageElement.onLoad = () => {
 
 		PageElement.onUnload = () => {};
 	};
+};
+
+window.onload = () => {
+	console.log("Pong Script loaded");
+	PageElement.onLoad();
 };

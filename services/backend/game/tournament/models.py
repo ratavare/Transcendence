@@ -8,7 +8,7 @@ from django.db.models.signals import post_save
 class TMessage(models.Model):
 	sender = models.CharField(max_length=100, blank=True)
 	content = models.TextField(blank=True)
-	color = models.TextField(max_length=20, blank=True)
+	color = models.TextField(max_length=20, null=True, blank=True)
 
 class Tournament(models.Model):
 	tournament_id = models.CharField(max_length=25, unique=True)

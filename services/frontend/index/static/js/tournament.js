@@ -89,7 +89,7 @@ PageElement.onLoad = async () => {
 	function getPlayerColor(index) {
 		const pClass = document.querySelector(".tournament-p" + (parseInt(index) + 1));
 		if (!pClass) {
-			return "transparent";
+			return undefined;
 		}
 		const pStyle = getComputedStyle(pClass);
 		return (pStyle.getPropertyValue('--border-color').trim());
@@ -281,7 +281,7 @@ PageElement.onLoad = async () => {
 	function updateColorMap(playerList) {
 		for (const index in playerList) {
 			pColor = getPlayerColor(index);
-			pColor = pColor.replace(/, *[\d.]+\)$/, ")");
+			pColor = pColor?.replace(/, *[\d.]+\)$/, ")");
 			colorMap.set(playerList[index], pColor);
 		}
 	}
@@ -302,11 +302,11 @@ PageElement.onLoad = async () => {
 		if (!messageList || !messageListItem || !chatContentElement)
 			return;
 
-		color = payload.color
-		if (!color)
-			color = colorMap.get(payload.sender);
+		color = payload.color || colorMap.get(payload.sender) || "white"
+		if (!color || color == "transparent")
+			return;
 
-		if (payload.sender == "connect" || payload.sender == "disconnect" || payload.sender == "countdown")
+		if (payload.sender == "connect" || payload.sender == "disconnect" || payload.sender == "countdown" || payload.sender == "spectator")
 		{
 			messageListItem.innerHTML = `<i style="color: ${color}">${payload.content}</i>`;
 		}
@@ -362,7 +362,9 @@ PageElement.onLoad = async () => {
 	// }
 
 	function messageForm(playerList) {
-		const color = getPlayerColor(getPlayerIndex(playerList))
+		let color = getPlayerColor(getPlayerIndex(playerList))
+		if (!color)
+			color = "grey";
 		const chatInputForm = document.getElementById(
 			"chat-input-form-tournament"
 		);
@@ -373,7 +375,9 @@ PageElement.onLoad = async () => {
 			const chatInput = event.target.querySelector(
 				"#chat-input-tournament"
 			);
-			if (chatInput.value)
+			if (color == 'grey')
+				sendMessage("spectator", `${window.user.username}: ${chatInput.value}`, color);
+			else if (chatInput.value)
 				sendMessage(window.user.username, chatInput.value, color);
 			chatInput.value = "";
 		});
@@ -392,10 +396,8 @@ PageElement.onLoad = async () => {
 			const keys =  Object.keys(names);
 			const values = Object.values(names);
 			if (fakeName && !keys.includes(fakeName) && !values.includes(fakeName) && fakeName.length < 25) {
-				console.warn("1");
 				sendPayload("fakeName", fakeName)
 			} else {
-				console.warn("2");
 				sendPayload("fakeName", window.user.username)
 				showErrorModal("Invalid name");
 			}

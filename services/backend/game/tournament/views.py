@@ -6,6 +6,7 @@ from .serializers import TournamentSerializer
 from lobby.serializers import LobbySerializer
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 from django.core.validators import RegexValidator
 from django.utils.timezone import now
 from rest_framework.decorators import api_view, permission_classes
@@ -24,7 +25,9 @@ def createTournament(request):
 			tournament.save()
 			return JsonResponse({'tournament_id': tournament_id}, status=200)
 		except ValidationError:
-				return JsonResponse({'error': 'Regex'}, status=400)
+			return JsonResponse({'error': 'Regex'}, status=400)
+		except IntegrityError:
+			return JsonResponse({'error': "Tournament already exists"}, status=400)
 		except Exception as e:
 			return JsonResponse({'error': f"Other error: {str(e)}"}, status=400)
 

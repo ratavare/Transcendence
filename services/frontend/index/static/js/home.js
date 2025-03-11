@@ -95,8 +95,7 @@ async function getLobbies() {
 			);
 			joinLobby(data.lobby_id);
 		} catch (error) {
-			console.log(error);
-			seturl("/home");
+			showErrorModal(error);
 		}
 	});
 }
@@ -164,8 +163,7 @@ async function getTournaments() {
 			);
 			joinTournament(data.tournament_id);
 		} catch (error) {
-			console.log(error);
-			// seturl("/home");
+			showErrorModal(error);
 		}
 		creatTournamentInput.value = "";
 	});
