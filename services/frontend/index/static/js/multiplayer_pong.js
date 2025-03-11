@@ -28,6 +28,11 @@ PageElement.onLoad = () => {
 	let gamePaused = false;
 	let beginGame = false;
 
+	if (window.location.href != "https://localhost:8443/#/multiplayer_pong") {
+		console.log("Running on the wrong page");
+		console.log({ pathname: window.location.href });
+		window.location.reload();
+	}
 
 	// get Overlay
 
@@ -388,31 +393,120 @@ PageElement.onLoad = () => {
 	}
 
 	handlePaddleControls();
-	window.addEventListener('beforeunload', stopGame);
 	renderer.setAnimationLoop(animate);
 
-	document.addEventListener("visibilitychange", () => {
-		if (document.hidden) {
-			stopGame();
-		}
-	});
+	const hashChangeHandler = () => {
+		console.log("hashchange multiplayer pong");
+		cleanupMultiplayerGame();
+	};
 	
-	window.addEventListener("hashchange", () => {
-		stopGame();
-	});
+	window.addEventListener("hashchange", hashChangeHandler);
 	
-	function stopGame() {
-		gamePaused = true; // Pause the game
-		renderer.setAnimationLoop(null); // Stop the game loop
-		renderer.dispose(); // Free up GPU resources
-		renderer.domElement.remove(); // Remove renderer from the DOM
-
-		// Remove event listeners
-		if (keydownHandler && keyupHandler) {
-			document.removeEventListener("keydown", keydownHandler);
-			document.removeEventListener("keyup", keyupHandler);
+	function cleanupMultiplayerGame() {
+		if (renderer) {
+			console.warn("Cleaning up render:multiplayer");
+			cleanupThreeJsObjects();
+			renderer.setAnimationLoop(null); // Stop the animation loop
+			renderer.dispose(); // Clean up the renderer
 		}
 
-		console.log("Game stopped.");
+		
+		// Remove the event listeners
+		document.removeEventListener("keydown", keydownHandler);
+		document.removeEventListener("keyup", keyupHandler);
+
+		window.removeEventListener("hashchange", hashChangeHandler);
+
+		let canvas = document.getElementById("canvas");
+		if (canvas) {
+			let ctx = canvas.getContext("2d");
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			canvas.remove();
+		}
+
+		console.log("Multiplayer game cleaned up");
 	}
+
+	function cleanupThreeJsObjects() {
+		// Dispose of materials, geometries, textures, and meshes
+		if (cube) {
+			if (cube.material) {
+				cube.material.dispose(); // Dispose material
+			}
+			if (cube.geometry) {
+				cube.geometry.dispose(); // Dispose geometry
+			}
+			scene.remove(cube);
+		}
+	
+		if (paddle1) {
+			if (paddle1.material) {
+				paddle1.material.dispose();
+			}
+			if (paddle1.geometry) {
+				paddle1.geometry.dispose();
+			}
+			scene.remove(paddle1);
+		}
+	
+		if (paddle2) {
+			if (paddle2.material) {
+				paddle2.material.dispose();
+			}
+			if (paddle2.geometry) {
+				paddle2.geometry.dispose();
+			}
+			scene.remove(paddle2);
+		}
+	
+		// Dispose of textures as well
+		if (ballTexture) {
+			ballTexture.dispose();
+		}
+		if (skybox) {
+			skybox.dispose();
+		}
+		if (ambientLight) {
+			scene.remove(ambientLight);
+		}
+		if (pointLight) {
+			scene.remove(pointLight);
+		}
+		if (table1) {
+			if (table1.material) {
+				table1.material.dispose();
+			}
+			if (table1.geometry) {
+				table1.geometry.dispose();
+			}
+			scene.remove(table1);
+		}
+		if (table2) {
+			if (table2.material) {
+				table2.material.dispose();
+			}
+			if (table2.geometry) {
+				table2.geometry.dispose();
+			}
+			scene.remove(table2);
+		}
+		if (controls) {
+			controls.dispose();
+		}
+		if (renderer) {
+			renderer.dispose();
+		}
+		if (sphereMaterial) {
+			sphereMaterial.dispose();
+		}
+		if (sphereGeometry) {
+			sphereGeometry.dispose();
+		}
+	}
+
+	PageElement.onUnload = () => {
+		console.warn("onUnload multiplayer pong");
+		cleanupMultiplayerGame()
+		PageElement.onUnload = () => {};
+	};
 };

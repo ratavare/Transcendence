@@ -70,6 +70,7 @@ async function setPage(name) {
 	if (pageActive) {
 		const scripts = pageActive.querySelectorAll("script");
 		for (const script of Array.from(scripts)) {
+			console.log(`removed script of page ${pageName}`, script);
 			script.remove();
 		}
 		pageActive.remove();

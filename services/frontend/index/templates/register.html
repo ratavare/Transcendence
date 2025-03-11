@@ -1,30 +1,23 @@
 {% load crispy_forms_tags %}
 <page-element name="register" authenticated="false">
-	{% include 'navbar.html'%}
-	<form method="POST" id="form-register">
-		{% csrf_token %}
-		<div class="form-group row" align="center">
-			<h1 class="row justify-content-center" style="padding-top: 30px">
-				Create an Account
-			</h1>
-			<div
-				class="text-center"
-				style="
-					width: 100%;
-					display: flex;
-					flex-direction: column;
-					align-items: center;
-				"
-			>
-				{{ registerForm | crispy }}
-			</div>
-		</div>
-		<p align="center" style="padding-top: 10px">
-			<button type="submit" class="btn btn-outline-light">
-				Register
-			</button>
-		</p>
-	</form>
+    {% include 'navbar.html'%}
+    <div class="container">
+        <form method="POST" id="form-register" class="mx-auto" style="max-width: 500px;">
+            {% csrf_token %}
+            <div class="form-group row text-center">
+                <h1 class="col-12" style="padding-top: 30px">
+                    Create an Account
+                </h1>
+                <div class="col-12" style="display: flex; flex-direction: column; align-items: center;">
+                    {{ registerForm | crispy }}
+                </div>
+            </div>
+            <div class="text-center" style="padding-top: 25px">
+                <button type="submit" class="btn btn-outline-light">
+                    Register
+                </button>
+            </div>
+        </form>
 
 	<p align="center" style="color: white">or</p>
 	<p align="center">
@@ -33,4 +26,5 @@
 			Register with 42 Intra
 		</a>
 	</p>
+    </div>
 </page-element>
