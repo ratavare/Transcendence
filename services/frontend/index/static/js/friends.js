@@ -31,7 +31,8 @@ async function addAcceptedFriendToFriendsList(dest) {
 	);
 	friendsList.appendChild(card);
 	increaseCounter(document.getElementById("friends-count"));
-	if (window.activeFriends.has(friend.username)) {
+	window.statusSocket?.send(1);
+	if (window.activeFriends.has(dest)) {
 		const indicator = card.querySelector('.status-text');
 		indicator.classList.add('status-online');
 		indicator.innerHTML = 'ONLINE';
