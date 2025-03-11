@@ -90,7 +90,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 		if not lobby["players"]:
 			await self.deleteLobbyWS(lobby)
 			await self.deleteLobbyDB()
-			print("\n DELETED LOBBY", flush=True)
 		elif isFromTournament:
 			try:
 				winner_id = game.player1Token if game.player1Token is not self.user_id else game.player2Token
@@ -351,7 +350,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 	def createMatchHistory(self, game, lobby_id, winner_username):
 		try:
 			lobby = Lobby.objects.get(lobby_id=lobby_id)
-			if lobby.g1.exists() or lobby.g2.exists() or lobby.g3.exists():
+			if lobby.g1.exists() or lobby.g2.exists() or lobby.g3.exists() or lobby.users.count() != 2:
 				return
 			match = MatchHistory.objects.create(game_id=lobby_id, winner=winner_username, player1Score=game.player1Score, player2Score=game.player2Score, date=now())
 			for user in lobby.users.all():

@@ -57,7 +57,7 @@ async function checkRedirection(page) {
 
 async function setPage(name) {
 	PageElement.onUnload();
-	if (name == "" || name == "#") {
+	if (name == "" || name == "#" || name == "?#") {
 		name = "home";
 		seturl("/home");
 	}

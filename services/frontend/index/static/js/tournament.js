@@ -223,7 +223,6 @@ PageElement.onLoad = async () => {
 			if (!playerDiv) return;
 			const playerName = playerDiv.querySelector("span");
 			if (!playerName) return
-			// const profileImg = playerDiv.querySelector('img');
 			playerName.textContent = nameList[index] || "Player " + (index + 1);
 		}
 	}
