@@ -39,7 +39,7 @@
 			<h3>Change Password</h3>
 			<form method="POST" id="form-password-change">
 				{% csrf_token %}
-				<div class="mb-3">
+				<div class="mb-3" id="current-password">
 					<label for="current-password">Current Password</label>
 					<input name="current_password" type="password" id="current-password" class="form-control border-dark" />
 				</div>
