@@ -1,5 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Count
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
@@ -29,10 +30,15 @@ def lobby_detail(request, lobby_id):
 		return joinLobby(request, lobby_id)
 
 def getLobbies(request):
-	lobbies = Lobby.objects.filter(g1__isnull=True, g2__isnull=True, g3__isnull=True).values("lobby_id")
+	lobbies = (
+		Lobby.objects.annotate(user_count=Count("users"))
+		.filter(user_count=1)
+		.filter(g1__isnull=True, g2__isnull=True, g3__isnull=True)
+	)
 	if not lobbies:
 		return JsonResponse({'error': f"No lobbies found!"}, status=404)
-	return JsonResponse({'lobbies': list(lobbies)}, status=200)
+	lobbies_list = list(lobbies.values("lobby_id"))
+	return JsonResponse({'lobbies': lobbies_list}, status=200)
 
 def getLobby(request, lobby_id):
 	try:
@@ -65,14 +71,14 @@ def joinLobby(request, lobby_id):
 		username = data.get('username')
 		user = User.objects.get(username=username)
 		selectedLobby = Lobby.objects.get(lobby_id=lobby_id)
+		if selectedLobby.users.count() == 2:
+			return JsonResponse({'error': 'Lobby is full'}, status=400)
 		selectedLobby.users.add(user)
 		selectedLobby.save()
 		serializer = LobbySerializer(selectedLobby)
 		return JsonResponse({'data': serializer.data}, status=200)
 	except Lobby.DoesNotExist:
 		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
-	except MatchHistory.DoesNotExist:
-		return JsonResponse({'error': 'Game History does not exist'}, status=400)
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User does not exist'}, status=400)
 

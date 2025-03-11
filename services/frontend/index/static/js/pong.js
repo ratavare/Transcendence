@@ -326,14 +326,15 @@ PageElement.onLoad = () => {
 	// ************************************* WEBSOCKET ************************************************
 
 	function sendPayload(type, payload) {
-		if (!socket)
-			return;
-		socket.send(
-			JSON.stringify({
-				type: type,
-				payload: payload,
-			})
-		);
+		if (socket.readyState === WebSocket.OPEN)
+		{
+			socket.send(
+				JSON.stringify({
+					type: type,
+					payload: payload,
+				})
+			);
+		}
 	}
 
 	async function checkDatabase(url) {

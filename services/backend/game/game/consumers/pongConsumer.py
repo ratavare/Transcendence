@@ -23,7 +23,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		self.user_id =  str(self.user.id)
 
 		if self.lobby_id not in lobbies:
-			lobbies[self.lobby_id] = {"players": dict(), "gameLoop": None, "game": Pong()}
+			lobbies[self.lobby_id] = {"players": dict(), "spectators": {}, "gameLoop": None, "game": Pong()}
 		
 		lobby = lobbies[self.lobby_id]
 
@@ -32,7 +32,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
 		await self.accept()
 
-		lobby["players"][self.user_id] = self.username
+		if (len(lobby["players"]) < 2):
+			lobby["players"][self.user_id] = self.username
+		else:
+			lobby["spectators"][self.user_id] = self.username
 		
 		game = lobby["game"]
 		
@@ -81,13 +84,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def deleteLobbyTask(self, lobby):
 		await asyncio.sleep(3)
 		game = lobby["game"]
+		isFromTournament = await self.isFromTournament()
 
-		print("\nPLAYERS: ", lobby["players"], flush=True)
+		await self.deleteUserDB(game)
 		if not lobby["players"]:
 			await self.deleteLobbyWS(lobby)
 			await self.deleteLobbyDB()
 			print("\n DELETED LOBBY", flush=True)
-		else:
+		elif isFromTournament or game.running:
 			try:
 				winner_id = game.player1Token if game.player1Token is not self.user_id else game.player2Token
 				winner_username = lobby["players"][winner_id]
@@ -135,6 +139,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				case 'p2':
 					game.paddle2.moving = payload['direction']
 				case 'ready':
+					print("\n\n", "READY", '\n\n', flush=True)
 					ready = await self.readyState(True)
 					if ready:
 						if not lobby["gameLoop"]:
@@ -253,6 +258,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				await self.groupSend('log', 'GAME START!')
 				dbLobby.gameState = "running"
 				game.running = True
+				game.gameStarted = True
 				return True
 			return False
 		except Exception as e:
@@ -305,6 +311,27 @@ class PongConsumer(AsyncWebsocketConsumer):
 			print("User does not exist!", flsuh=True)
 		except Lobby.DoesNotExist:
 			print("Lobby does not exist!", flsuh=True)
+
+	@database_sync_to_async
+	def deleteUserDB(self, game):
+		if game.player1Token is self.user_id:
+			game.player1Token = None
+		if game.player2Token is self.user_id:
+			game.player2Token = None
+		user = User.objects.get(username=self.username)
+		lobby = Lobby.objects.get(lobby_id=self.lobby_id)
+		lobby.users.remove(user)
+
+	@database_sync_to_async
+	def isFromTournament(self):
+		lobby = Lobby.objects.get(lobby_id=self.lobby_id)
+		tournaments = Tournament.objects.filter(
+				Q(game1=lobby) | Q(game2=lobby) | Q(game3=lobby)
+			)
+		for tournament in tournaments:
+			if tournament.game1 == lobby or tournament.game2 == lobby or tournament.game3 == lobby:
+				return True
+		return False
 
 	@database_sync_to_async
 	def setReturningDB(self, username, state):
