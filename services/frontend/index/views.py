@@ -23,8 +23,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 def indexView(request):
-
-	# if not auth_code:
 		return render(request, 'index.html', {
 			'registerForm': RegistrationForm,
 			'loginForm': AuthenticationForm,
