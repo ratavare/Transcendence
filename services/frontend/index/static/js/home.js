@@ -93,8 +93,7 @@ async function joinLobby(lobby_id) {
 			"POST",
 			true
 		);
-		console.log("BBBBBBBBBBBBBB: ", data);
-		seturl(`/pong?id=${lobby_id}`);
+		seturl(`/pong?id=${lobby_id}&username=${window.user.username}`);
 	} catch (error) {
 		alert(error);
 	}
@@ -183,6 +182,9 @@ async function getTournaments() {
 	const createTournamentForm = document.getElementById(
 		"create-tournament-form"
 	);
+	const creatTournamentInput = document.getElementById(
+		"create-tournament-input"
+	);
 	createTournamentForm?.addEventListener("submit", async function (event) {
 		event.preventDefault();
 		const formData = new FormData(event.target);
@@ -198,5 +200,6 @@ async function getTournaments() {
 			console.log(error);
 			// seturl("/home");
 		}
+		creatTournamentInput.value = "";
 	});
 }

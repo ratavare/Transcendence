@@ -1,84 +1,3 @@
-// *** FETCHES ***
-
-async function sendFriendRequest(dest, src) {
-	try {
-		await myFetch(
-			"https://localhost:8443/user_friends/friend-request-send/",
-			{ dest: dest, src: src },
-			"POST",
-			true
-		);
-		console.log("Friend request sent!");
-	} catch (error) {
-		console.error("Error:", error);
-	}
-}
-
-async function handleFriendRequestButton(src, dest, intention) {
-	console.log(src, dest, intention);
-	try {
-		return await myFetch(
-			"https://localhost:8443/user_friends/handle-friend-request/",
-			{ dest: dest, src: src, intention: intention },
-			"POST",
-			true
-		);
-	} catch (error) {
-		console.error("Error: ", error);
-	}
-}
-
-async function deleteFriend(src, dest) {
-	console.log("friend deleted");
-	try {
-		return await myFetch(
-			"https://localhost:8443/user_friends/delete-friend/",
-			{ dest: dest, src: src },
-			"POST",
-			true
-		);
-	} catch (error) {
-		console.error("Error: ", error);
-	}
-}
-
-async function deleteFriendRequest(src, dest) {
-	try {
-		return myFetch(
-			"https://localhost:8443/user_friends/delete-friend-request/",
-			{ dest: dest, src: src },
-			"POST",
-			true
-		);
-	} catch (error) {
-		console.error("Error: ", error);
-	}
-}
-
-async function friendsSearchUser(formData) {
-	return myFetch(
-		"https://localhost:8443/user_friends/user_search/",
-		formData,
-		"POST",
-		true
-	).catch((error) => {
-		console.error("Error: ", error);
-		return null;
-	});
-}
-
-async function getFriendsData() {
-	try {
-		return await myFetch(
-			"https://localhost:8443/user_friends/api/",
-			null,
-			"GET",
-			true
-		);
-	} catch (error) {
-		console.log(error);
-	}
-}
 
 // *** DOM UPDATES
 
@@ -92,7 +11,10 @@ async function addAcceptedFriendToFriendsList(dest) {
 		<div class="card hover-img">
 			<div class="card-body p-4 text-center border-bottom">
 				<img src="${imageURL}" class="profile-image" width="80" height="80">
-				<h5 class="fw-semibold mb-0" style="color: white">@${dest}</h5>
+				<h5 class="fw-semibold mb-0" style="color: white">
+				@${dest}
+				<span class="status-text" data-username="${dest}">Offline</span>
+				</h5>
 			</div>
 			<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
 				<button class="btn btn-outline-danger me-2 remove-friend" type="submit" data-dest="${dest}">Remove Friend</button>
@@ -109,6 +31,11 @@ async function addAcceptedFriendToFriendsList(dest) {
 	);
 	friendsList.appendChild(card);
 	increaseCounter(document.getElementById("friends-count"));
+	if (window.activeFriends.has(friend.username)) {
+		const indicator = card.querySelector('.status-text');
+		indicator.classList.add('status-online');
+		indicator.innerHTML = 'ONLINE';
+	}
 }
 
 async function addPossibleFriendToSentFriendRequests(dest) {
@@ -185,7 +112,7 @@ function displaySearchResults(users) {
 
 	const membersContainer = document.createElement("div");
 	membersContainer.classList.add("row");
-	membersContainer.id = "friends-search-list";
+	membersContainer.id = "search-list";
 
 	users.forEach( async (user) => {
 		if (document.querySelector(`[data-username="${user.username}"]`))
@@ -219,7 +146,7 @@ function displaySearchResults(users) {
 }
 
 function clearPreviousResults() {
-	document.getElementById("friends-search-list")?.remove();
+	document.getElementById("search-list")?.remove();
 }
 
 async function handleSearchForm(event) {
@@ -228,17 +155,21 @@ async function handleSearchForm(event) {
 
 	const formData = new FormData(event.target);
 	const data = await friendsSearchUser(formData);
-	if (data) displaySearchResults(data.users);
-	else document.getElementById("members-count").textContent = "0";
+	if (data)
+		displaySearchResults(data.users);
+	else {
+		const membersCount = document.getElementById("members-count");
+		if (membersCount) {
+			membersCount.textContent = "0";
+	}
+	}
 }
 
 // *** RENDER FUNCTIONS ***
 
 function renderUserSearch() {
 	const formUsers = document.getElementById("form-users");
-	if (formUsers) {
-		formUsers.addEventListener("submit", handleSearchForm);
-	}
+	formUsers?.addEventListener("submit", handleSearchForm);
 }
 
 function renderFriends(friends) {
@@ -257,7 +188,10 @@ function renderFriends(friends) {
 			<div class="card hover-img">
 				<div class="card-body p-4 text-center border-bottom">
 					<img src="${imageURL}" class="profile-image" width="80" height="80">
-					<h5 class="fw-semibold mb-0" style="color: white">@${friend.username}</h5>
+					<h5 class="fw-semibold mb-0" style="color: white">
+						@${friend.username}
+						<span class="status-text" data-username="${friend.username}">Offline</span>
+					</h5>
 				</div>
 				<div class="px-2 py-2 text-center" style="background-color: #222222b1; border-bottom-left-radius: 1.1rem; border-bottom-right-radius: 1.1rem;">
 					<button class="btn btn-outline-danger me-2 remove-friend" type="submit" data-dest="${friend.username}">Remove Friend</button>
@@ -273,6 +207,11 @@ function renderFriends(friends) {
 			deleteFriend,
 			friendsCount
 		);
+		if (window.activeFriends.has(friend.username)) {
+			const indicator = card.querySelector('.status-text');
+			indicator.classList.add('status-online');
+			indicator.innerHTML = 'ONLINE';
+		}
 	});
 	results.appendChild(membersContainer);
 }
@@ -363,7 +302,7 @@ async function loadFriendsPage() {
 	try {
 		const { friends, friendRequests, sentFriendRequests } =
 			await getFriendsData();
-
+				
 		renderUserSearch();
 		renderFriends(friends);
 		renderFriendRequests(friendRequests);

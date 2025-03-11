@@ -1,4 +1,4 @@
-import json
+import json, re
 from django.http import JsonResponse
 from .models import Tournament, TournamentPlayer
 from lobby.models import Lobby
@@ -18,14 +18,9 @@ def createTournament(request):
 		validator = RegexValidator('[+/%!?,.$%#&*~-]', inverse_match=True)
 		try:
 			tournament_id = request.data.get('tournament_id')
+			tournament_id = re.sub(r"\s+", "", tournament_id)
 			validator(tournament_id)
-			tournament = Tournament.objects.create(tournament_id=tournament_id)
-			game1 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_1")
-			game2 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_2")
-			game3 = Lobby.objects.create(lobby_id=f"tournament_{tournament_id}_3")
-			tournament.game1 = game1
-			tournament.game2 = game2
-			tournament.game3 = game3
+			tournament = Tournament(tournament_id=tournament_id)
 			tournament.save()
 			return JsonResponse({'tournament_id': tournament_id}, status=200)
 		except ValidationError:
@@ -61,37 +56,6 @@ def joinTournament(request, tournament_id):
 		return JsonResponse({'status': 'success'}, status=200)
 	except Exception as e:
 		return JsonResponse({'error': str(e)}, status=400)
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def checkTournamentPlayer(request, tournament_id, username):
-# 	try:
-# 		tournament = Tournament.objects.get(tournament_id=tournament_id)
-# 		player = User.objects.get(username=username)
-# 		if TournamentPlayer.objects.filter(tournament=tournament, player=player).exists():
-# 			return JsonResponse({"message": "User exists in Tournament"}, status=200)
-# 		return JsonResponse({'error': 'User not in Tournament'}, status=404)
-# 	except User.DoesNotExist:
-# 		return JsonResponse({"error": "User not found"}, status=404)
-# 	except Tournament.DoesNotExist:
-# 		return JsonResponse({"error": "Tournament not found"}, status=404)
-# 	except Exception as e:
-# 		return JsonResponse({'error': str(e)}, status=400)
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def getReadyState(request, tournament_id):
-# 	try:
-# 		user = request.user
-# 		tournament = Tournament.objects.get(tournament_id=tournament_id)
-# 		user = User.objects.get(username=user.username)
-# 		player = TournamentPlayer.objects.get(tournament=tournament, player=user)
-# 		return JsonResponse({'state': player.is_ready}, status=200)
-# 	except Tournament.DoesNotExist:
-# 		return JsonResponse({'error': 'Tournament does not exist'}, status=400)
-# 	except User.DoesNotExist:
-# 		return JsonResponse({'error': 'User does not exist'}, status=400)
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

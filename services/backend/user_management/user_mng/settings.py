@@ -18,11 +18,21 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "10.12.8.4"]
 
+ASGI_APPLICATION = "user_mng.asgi.application"
+
+CHANNEL_LAYERS = {
+	'default': {
+		'BACKEND': 'channels.layers.InMemoryChannelLayer',
+	},
+}
+
 CSRF_TRUSTED_ORIGINS = ["https://localhost:8443", "https://10.12.8.4:8443"]
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
 	'proxy_models',
+    'user_messages.apps.UserMessagesConfig',
 	'user_friends.apps.UserFriendsConfig',
 	'user_auth.apps.UserAuthConfig',
 	'user_profile.apps.UserProfileConfig',

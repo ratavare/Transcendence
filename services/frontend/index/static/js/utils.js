@@ -91,9 +91,8 @@ async function myImageFetch(viewUrl, myData = null, method = 'POST', requireAuth
 async function getProfileImage(username) {
     try {
 		const response = await myImageFetch(`https://localhost:8443/user_profile/profile/picture/${username}/`, null, 'GET', true);
-        if (response.ok) {
+        if (response.status === 200) {
             const contentType = response.headers.get('Content-Type');
-            
             if (contentType && contentType.startsWith('image/')) {
                 const blob = await response.blob();
                 const imageUrl = URL.createObjectURL(blob);
@@ -103,8 +102,8 @@ async function getProfileImage(username) {
             }
         } else {
             const errorText = await response.text();
-            console.error("Error fetching profile image:", errorText);
-			return '/static/assets/melhor_icone.png';
+            console.log(`${username}: `, JSON.parse(errorText).error);
+			return '/static/assets/default-user.png';
         }
     } catch (error) {
         console.error("Fetch error: ", error);
@@ -112,7 +111,6 @@ async function getProfileImage(username) {
 }
 
 async function myFetch(viewUrl, myData = null, method = 'POST', requireAuth = true) {
-	// console.log("myFetch: ", viewUrl);
 	const headers = {
 		"X-CSRFToken": getCookie("csrftoken"),
 		Accept: "application/json",

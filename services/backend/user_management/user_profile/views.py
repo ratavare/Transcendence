@@ -23,11 +23,7 @@ def profileView(request):
 		return JsonResponse({'error': 'Profile Not Found'})
 	if request.method == 'POST':
 		profileForm = UpdateProfileForm(request.POST, instance=profile)
-		username = request.POST.get('username')
-		email = request.POST.get('email')
-
-		user.username = username
-		user.email = email
+		user.email = request.POST.get('email')
 
 		try:
 			user.save()
@@ -79,7 +75,7 @@ def profilePicture(request, username):
 				return response
 			else:
 				logging.info("No profile picture found.")
-				return JsonResponse({'error': 'No profile picture found'}, status=404)
+				return JsonResponse({'error': 'No profile picture found'}, status=202)
 
 def foreignProfile(request, username):
 	try:

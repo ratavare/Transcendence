@@ -1,10 +1,10 @@
 let pageActive = undefined;
 let pageName = undefined;
+let propsException = false;
 const pages = document.querySelectorAll("page-element");
 const l = new Map();
 for (const page of pages) {
 	document.body.removeChild(page);
-	// console.log("removeChild: ", page);
 	l.set(page.getAttribute("name"), page);
 }
 
@@ -39,7 +39,6 @@ window.addEventListener("popstate", () => {
 async function checkRedirection(page) {
 	const authenticated = page.getAttribute("authenticated") || "true";
 	const result = await getProfile();
-	// console.log("checkRedirection: authenticated: ", authenticated, " result: ", result);
 	if (authenticated == "true") {
 		if (!result) {
 			pageActive = undefined;
@@ -62,9 +61,12 @@ async function setPage(name) {
 		name = "home";
 		seturl("/home");
 	}
-	if (pageName == name) return;
+	if (pageName == name && !propsException)
+		return; 
 	pageName = name;
-	if (pageActive && pageActive.getAttribute("name") == name) return;
+	if (pageActive && pageActive.getAttribute("name") == name && !propsException)
+		return;
+	propsException = false;
 	if (pageActive) {
 		const scripts = pageActive.querySelectorAll("script");
 		for (const script of Array.from(scripts)) {
@@ -118,7 +120,6 @@ async function setPage(name) {
 async function getProfile() {
 	try {
 		if (localStorage.key("access_token") == null) return false;
-		// console.log("access_token: oh");
 		const response = await myFetch(
 			"https://localhost:8443/user_profile/profile/",
 			null,
@@ -128,6 +129,8 @@ async function getProfile() {
 			throw new Error("Failed to fetch profile");
 		}
 		window.user = response;
+		if (!window.statusSocket)
+			onlineStatus();
 		return true;
 	} catch {
 		window.user = null;

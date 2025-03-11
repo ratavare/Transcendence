@@ -351,6 +351,7 @@
 						<form method="POST" id="create-tournament-form" style="display: flex; flex-direction: column; align-items: center;">
 							{% csrf_token %}
 							<input
+								id="create-tournament-input"
 								placeholder="Create a tournament.."
 								name="tournament_id"
 								style="

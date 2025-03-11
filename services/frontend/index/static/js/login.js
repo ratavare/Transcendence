@@ -44,10 +44,8 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret, usernam
 						localStorage.setItem("refresh_token", refreshToken);
 						localStorage.setItem("is_2fa_enabled", "true");
 						otpModal.hide();
-						if (window.location.href.includes("code")) {
-							// console.log("code");
+						if (window.location.href.includes("code"))
 							window.location.href = "https://localhost:8443/#/home";
-						}
 						else
 							seturl("/home");
 					}
@@ -61,7 +59,9 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret, usernam
 			if (window.location.href.includes("code")) {
 				// console.log("codeeeee");
 				window.location.href = "https://localhost:8443/#/home";
-			} else seturl("/home");
+			} else {
+				seturl("/home");
+			}
 		}
 	} else {
 		alert("Login failed. OAuth parameters missing.");
@@ -85,7 +85,7 @@ document.getElementById("form-login").addEventListener("submit", async function 
 		console.log("login.js: ", error);
 		const messages = Object.values(error);
 		console.log("Login Failed. Reasons: ", messages);
-		messages.forEach(alert);
+		showErrorModal(messages);
 	}
 });
 

@@ -11,6 +11,7 @@
 				<ul id="ul-winner">
 					<li>
 						<div id="tournament-winner" class="player-div">
+							<img src="/static/assets/favicon.svg" />
 							<span>???</span>
 						</div>
 						<ul id="ul-final">
@@ -62,23 +63,30 @@
 				</ul>
 			</div>
 			<div>
-				<button id="TournamentReadyBtn" style="display: none;">Ready!</button>
-				<!-- <button id="tournament-start-btn" class="btn btn-primary mb-2" style="display: none;">Start</button> -->
+				<div id="fake-name-div" style="display: none;">
+					<form id="fake-name-form">
+						<input id="fake-name-input" class="form-control" type="text" placeholder="Change your username">
+						<button type="submit" id="tournament-ready-btn">Ready!</button>
+					</form>
+				</div>
 			</div>
 		</div>
-		<div class="chat-container">
-			<div id="chat-content-tournament" class="chat-content">
-				<ul id="chat-message-list-tournament" style="list-style-type: none"></ul>
+
+		<div class="chat-wrapper">
+			<div class="chat-header" onclick="toggleChat()">
+				<span>Chat</span>
+				<button class="chat-close-btn">✖</button>
 			</div>
-			<form id="chat-input-form-tournament" class="chat-input">
-				<input
-				id="chat-input-tournament"
-				class="chat-input"
-				type="text"
-				placeholder="Send a message..."
-				autocomplete="off"
-				/>
-			</form>
+			<div id="chat-container" class="hidden">
+				<div id="chat-content-tournament" class="chat-content">
+					<ul id="chat-message-list-tournament"></ul>
+				</div>
+				<form id="chat-input-form-tournament">
+					<input id="chat-input-tournament" type="text" placeholder="Send a message..." autocomplete="off" />
+					<button type="submit">➤</button>
+				</form>
+			</div>
 		</div>
+		
 	</div>
 </page-element>

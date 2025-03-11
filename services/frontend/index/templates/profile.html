@@ -4,180 +4,192 @@
 	<title>Profile</title>
 	<div class="container mt-5">
 		<h1 id="profile-h1" class="text-center">My Profile</h1>
-		<div class="container" id="userprofile">
-			<div class="main-body">
-				<div class="row gutters-sm">
-					<div class="col-md-4 mb-3">
-						<div class="card">
-							<div class="card-body">
-								<div class="d-flex flex-column align-items-center text-center">
-									<img id="profile-pic" class="profile-image" style="pointer-events: none;"
-										alt="Admin">
-									<div>
-										<h4 id="username">{{ request.user.username }}</h4>
-										<p class="text-muted font-size-sm" id="city"></p>
-										<hr>
+		<div class="container d-flex justify-content-center gap-4">
+
+			<!-- Profile Card -->
+			<div class="card profile-card">
+
+				<div class="card-body">
+					<div class="row">
+
+								<!-- Profile Left Column -->
+								<div class="col-md-4">
+									<div class="d-flex flex-column align-items-center">
+										<img id="profile-pic" class="profile-image" alt="Profile Picture">
 										<!-- File input hidden -->
 										<input id="file-input" type="file" accept="image/*" style="display: none;">
-										<!-- Change photo button -->
-										<button id="change-photo-button" class="btn btn-primary button-style">Change
-											Photo</button>
+										<button id="change-photo-button" class="btn btn-primary mt-3 button-style">Change Photo</button>
 									</div>
 								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-8">
-						<div class="card mb-3">
-							<div class="card-body" id="profile-view">
-								<div class="row mb-3">
-									<div class="col-sm-3">
-										<h6 class="mb-0">Username</h6>
+
+								<!-- Profile Information Column -->
+								<div class="col-md-8">
+									<div class="card mb-3">
+										<div class="card-body" id="profile-view">
+											<div class="row mb-3">
+												<div class="col-sm-3">
+													<h6 class="mb-0">Username</h6>
+												</div>
+												<div class="col-sm-9 text-secondary" id="profile-username"></div>
+											</div>
+											<hr>
+											<div class="row mb-3">
+												<div class="col-sm-3">
+													<h6 class="mb-0">Full Name</h6>
+												</div>
+												<div class="col-sm-9 text-secondary" id="profile-fullname"></div>
+											</div>
+											<hr>
+											<div class="row mb-3">
+												<div class="col-sm-3">
+													<h6 class="mb-0">Email</h6>
+												</div>
+												<div class="col-sm-9 text-secondary" id="profile-email">
+												</div>
+											</div>
+											<hr>
+											<div class="row mb-3">
+												<div class="col-sm-3">
+													<h6 class="mb-0">Bio</h6>
+												</div>
+												<div class="col-sm-9 text-secondary" id="profile-bio">
+												</div>
+											</div>
+											<hr>
+											<div class="row mb-3">
+												<div class="col-sm-3">
+													<h6 class="mb-0">City</h6>
+												</div>
+												<div class="col-sm-9 text-secondary" id="profile-city">
+												</div>
+											</div>
+											<hr>
+											<div class="row mb-3">
+												<div class="col-sm-3">
+													<h6 class="mb-0">Birth Date</h6>
+												</div>
+												<div class="col-sm-9 text-secondary" id="profile-birth-date">
+												</div>
+											</div>
+											<hr>
+											<div class="row mb-3">
+												<div class="col-sm-3">
+													<h6 class="mb-0">Wins</h6>
+												</div>
+												<div class="col-sm-9 text-secondary" id="profile-wins">
+												</div>
+											</div>
+											<hr>
+											<div class="row mb-3">
+												<div class="col-sm-3">
+													<h6 class="mb-0">Losses</h6>
+												</div>
+												<div class="col-sm-9 text-secondary" id="profile-losses">
+												</div>
+											</div>
+											<hr>
+											<div class="row mb-3" id="edit-button-container">
+												<div class="col-sm-12">
+													<button id="edit-profile-btn" class="btn btn-info w-100 button-style"
+														onclick="editProfile()">Edit</button>
+												</div>
+											</div>
+										</div>
+										<!-- Profile Edit Section (hidden initially) -->
+										<form method="POST" id="form-profile" class="d-inline">
+											{% csrf_token %}
+											<div class="card-body" id="profile-edit" style="display: none;">
+												<div class="row mb-3">
+													<div class="col-sm-3">
+														<h6 class="mb-0">Username</h6>
+													</div>
+													<div class="col-sm-9 text-secondary">
+														<input name="username" id="username-edit" class="form-control"
+															placeholder="{{ request.user.username }}">
+													</div>
+												</div>
+												<hr>
+												<div class="row mb-3">
+													<div class="col-sm-3">
+														<h6 class="mb-0">Full Name</h6>
+													</div>
+													<div class="col-sm-9 text-secondary">
+														<input name="full_name" id='full_name-edit' class="form-control"
+															placeholder="{{ request.user.full_name }}">
+													</div>
+												</div>
+												<hr>
+												<div class="row mb-3">
+													<div class="col-sm-3">
+														<h6 class="mb-0">Email</h6>
+													</div>
+													<div class="col-sm-9 text-secondary">
+														<input type="email" id="email-edit" name="email" class="form-control"
+															placeholder="{{ request.user.email }}">
+													</div>
+												</div>
+												<hr>
+												<div class="row mb-3">
+													<div class="col-sm-3">
+														<h6 class="mb-0">Bio</h6>
+													</div>
+													<div class="col-sm-9 text-secondary">
+														<input name="bio" id="bio-edit" class="form-control"
+															placeholder="{{ request.user.bio }}">
+													</div>
+												</div>
+												<hr>
+												<div class="row mb-3">
+													<div class="col-sm-3">
+														<h6 class="mb-0">City</h6>
+													</div>
+													<div class="col-sm-9 text-secondary">
+														<input name="city" id="city-edit" class="form-control"
+															placeholder="{{ request.user.city }}">
+													</div>
+												</div>
+												<hr>
+												<div class="row mb-3">
+													<div class="col-sm-3">
+														<h6 class="mb-0">Birth Date</h6>
+													</div>
+													<div class="col-sm-9 text-secondary" id="birth-date-view">
+														<input name="birth_date" type="date" id="id-date" class="form-control"
+															placeholder="{{ request.user.birth_date }}">
+													</div>
+												</div>
+												<hr>
+												<div class="row mb-3">
+													<div class="col-sm-6">
+														<button type="button" class="btn btn-danger w-100" id="cancelChangesButton"
+															onclick="cancelEdit()">Cancel</button>
+													</div>
+													<div class="col-sm-6">
+														<button type="submit" class="btn btn-success w-100" id="saveChangesButton"
+															disabled>Save Changes</button>
+													</div>
+												</div>
+											</div>
+										</form>
 									</div>
-									<div class="col-sm-9 text-secondary" id="profile-username"></div>
 								</div>
-								<hr>
-								<div class="row mb-3">
-									<div class="col-sm-3">
-										<h6 class="mb-0">Full Name</h6>
-									</div>
-									<div class="col-sm-9 text-secondary" id="profile-fullname"></div>
-								</div>
-								<hr>
-								<div class="row mb-3">
-									<div class="col-sm-3">
-										<h6 class="mb-0">Email</h6>
-									</div>
-									<div class="col-sm-9 text-secondary" id="profile-email">
-									</div>
-								</div>
-								<hr>
-								<div class="row mb-3">
-									<div class="col-sm-3">
-										<h6 class="mb-0">Bio</h6>
-									</div>
-									<div class="col-sm-9 text-secondary" id="profile-bio">
-									</div>
-								</div>
-								<hr>
-								<div class="row mb-3">
-									<div class="col-sm-3">
-										<h6 class="mb-0">City</h6>
-									</div>
-									<div class="col-sm-9 text-secondary" id="profile-city">
-									</div>
-								</div>
-								<hr>
-								<div class="row mb-3">
-									<div class="col-sm-3">
-										<h6 class="mb-0">Birth Date</h6>
-									</div>
-									<div class="col-sm-9 text-secondary" id="profile-birth-date">
-									</div>
-								</div>
-								<hr>
-								<div class="row mb-3">
-									<div class="col-sm-3">
-										<h6 class="mb-0">Wins</h6>
-									</div>
-									<div class="col-sm-9 text-secondary" id="profile-wins">
-									</div>
-								</div>
-								<hr>
-								<div class="row mb-3">
-									<div class="col-sm-3">
-										<h6 class="mb-0">Losses</h6>
-									</div>
-									<div class="col-sm-9 text-secondary" id="profile-losses">
-									</div>
-								</div>
-								<hr>
-								<div class="row mb-3" id="edit-button-container">
-									<div class="col-sm-12">
-										<button id="edit-profile-btn" class="btn btn-info w-100 button-style"
-											onclick="editProfile()">Edit</button>
-									</div>
-								</div>
-							</div>
-							<!-- Profile Edit Section (hidden initially) -->
-							<form method="POST" id="form-profile" class="d-inline">
-								{% csrf_token %}
-								<div class="card-body" id="profile-edit" style="display: none;">
-									<div class="row mb-3">
-										<div class="col-sm-3">
-											<h6 class="mb-0">Username</h6>
-										</div>
-										<div class="col-sm-9 text-secondary">
-											<input name="username" id="username-edit" class="form-control"
-												placeholder="{{ request.user.username }}">
-										</div>
-									</div>
-									<hr>
-									<div class="row mb-3">
-										<div class="col-sm-3">
-											<h6 class="mb-0">Full Name</h6>
-										</div>
-										<div class="col-sm-9 text-secondary">
-											<input name="full_name" id='full_name-edit' class="form-control"
-												placeholder="{{ request.user.full_name }}">
-										</div>
-									</div>
-									<hr>
-									<div class="row mb-3">
-										<div class="col-sm-3">
-											<h6 class="mb-0">Email</h6>
-										</div>
-										<div class="col-sm-9 text-secondary">
-											<input type="email" id="email-edit" name="email" class="form-control"
-												placeholder="{{ request.user.email }}">
-										</div>
-									</div>
-									<hr>
-									<div class="row mb-3">
-										<div class="col-sm-3">
-											<h6 class="mb-0">Bio</h6>
-										</div>
-										<div class="col-sm-9 text-secondary">
-											<input name="bio" id="bio-edit" class="form-control"
-												placeholder="{{ request.user.bio }}">
-										</div>
-									</div>
-									<hr>
-									<div class="row mb-3">
-										<div class="col-sm-3">
-											<h6 class="mb-0">City</h6>
-										</div>
-										<div class="col-sm-9 text-secondary">
-											<input name="city" id="city-edit" class="form-control"
-												placeholder="{{ request.user.city }}">
-										</div>
-									</div>
-									<hr>
-									<div class="row mb-3">
-										<div class="col-sm-3">
-											<h6 class="mb-0">Birth Date</h6>
-										</div>
-										<div class="col-sm-9 text-secondary" id="birth-date-view">
-											<input name="birth_date" type="date" id="id-date" class="form-control"
-												placeholder="{{ request.user.birth_date }}">
-										</div>
-									</div>
-									<hr>
-									<div class="row mb-3">
-										<div class="col-sm-6">
-											<button type="button" class="btn btn-danger w-100" id="cancelChangesButton"
-												onclick="cancelEdit()">Cancel</button>
-										</div>
-										<div class="col-sm-6">
-											<button type="submit" class="btn btn-success w-100" id="saveChangesButton"
-												disabled>Save Changes</button>
-										</div>
-									</div>
-								</div>
-						</div>
+
+					</div> <!-- End of Row -->
+				</div> <!-- End of Card Body -->
+
+			</div> <!-- End of Profile Card -->
+
+			<!-- Match History Card (Right Side) -->
+			<div class="card match-history-card">
+				<div class="card-body" id="match-history">
+					<h5 class="match-history-title">Match History</h5>
+					<div class="match-history-scroll">
+						<!-- Match Results (Dynamic content) -->
 					</div>
 				</div>
-			</div>
+			</div> <!-- End of Match History Card -->
+
+		
 		</div>
 	</div>
 </page-element>

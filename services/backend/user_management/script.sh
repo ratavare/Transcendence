@@ -8,6 +8,8 @@ NC="\e[0m"
 #Exits if any command exits with an error (!= 0)
 set -e
 
+python -m pip install -U 'channels[daphne]'
+
 echo "${BOLD_BLUE}Creating migrations...${NC}"
 python manage.py makemigrations
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Lobby, Position, Message
+from .models import Lobby, Position, LobbyChatMessage
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -12,9 +12,9 @@ class PositionSerializer(serializers.ModelSerializer):
 		model = Position
 		fields = ['x', 'z']
 
-class MessageSerializer(serializers.ModelSerializer):
+class LobbyChatMessageSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = Message
+		model = LobbyChatMessage
 		fields = ['sender', 'content']
 
 class LobbySerializer(serializers.ModelSerializer):
@@ -22,7 +22,7 @@ class LobbySerializer(serializers.ModelSerializer):
 	ballPosition = PositionSerializer(read_only=True)
 	paddle1Position = PositionSerializer(read_only=True)
 	paddle2Position = PositionSerializer(read_only=True)
-	chat = MessageSerializer(many=True, read_only=True)
+	chat = LobbyChatMessageSerializer(many=True, read_only=True)
 	winner = UserSerializer(read_only=True)
 
 	class Meta:

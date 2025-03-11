@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from .models import Lobby
-from tournament.models import Tournament
 from .serializers import LobbySerializer
 import json
 import logging
@@ -32,7 +31,7 @@ def lobby_detail(request, lobby_id):
 def getLobbies(request):
 	lobbies = Lobby.objects.filter(g1__isnull=True, g2__isnull=True, g3__isnull=True).values("lobby_id")
 	if not lobbies:
-		return JsonResponse({'error': "No lobbies found!"}, status=404)
+		return JsonResponse({'error': f"No lobbies found!"}, status=404)
 	return JsonResponse({'lobbies': list(lobbies)}, status=200)
 
 def getLobby(request, lobby_id):
@@ -48,7 +47,8 @@ def createLobby(request):
 	try:
 		id = request.data.get('lobby_id')
 		validator(id)
-		Lobby.objects.create(lobby_id=id)
+		lobby = Lobby(lobby_id=id)
+		lobby.save()
 		return JsonResponse({'lobby_id': id}, status=200)
 	except IntegrityError:
 		return JsonResponse({'error': 'Lobby already exists'}, status=400)
@@ -71,21 +71,28 @@ def joinLobby(request, lobby_id):
 		return JsonResponse({'data': serializer.data}, status=200)
 	except Lobby.DoesNotExist:
 		return JsonResponse({'error': 'Lobby does not exist'}, status=400)
+	except MatchHistory.DoesNotExist:
+		return JsonResponse({'error': 'Game History does not exist'}, status=400)
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User does not exist'}, status=400)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def checkPlayer(request, lobby_id, player):
-	lobby = Lobby.objects.get(lobby_id=lobby_id)
-	if lobby.users.filter(username=player).exists():
-		usersInLobby = list(lobby.users.all())
-		if usersInLobby[0].username == player:
-			return JsonResponse({'playerId': '1'}, status=200)
-		elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
-			return JsonResponse({'playerId': '2'}, status=200)
-		return JsonResponse({'playerId': '3'}, status=404)
-	return JsonResponse({'error': 'User not in Lobby'}, status=404)
+	try:
+		lobby = Lobby.objects.get(lobby_id=lobby_id)
+		if lobby.users.filter(username=player).exists():
+			usersInLobby = list(lobby.users.all())
+			if usersInLobby[0].username == player:
+				return JsonResponse({'playerId': '1'}, status=200)
+			elif len(usersInLobby) > 1 and usersInLobby[1].username == player:
+				return JsonResponse({'playerId': '2'}, status=200)
+			return JsonResponse({'playerId': '3'}, status=404)
+		return JsonResponse({'error': 'User not in Lobby'}, status=404)
+	except Exception as e:
+		return JsonResponse({'error': e}, status=404)
+	except Lobby.DoesNotExist:
+		return JsonResponse({'error': "Lobby does not exist"}, status=404)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
