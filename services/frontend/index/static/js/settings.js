@@ -63,10 +63,7 @@ function updateUI() {
 				// Check if the user has a usable password
 				if (data.has_password === false) {
 					document.getElementById(
-						"current-password-container"
-					).style.display = "none";
-					document.getElementById(
-						"current-password-divider"
+						"current-password"
 					).style.display = "none";
 				}
 			})

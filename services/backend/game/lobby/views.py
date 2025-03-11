@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Count
 from django.http import JsonResponse
 from django.db import IntegrityError
@@ -114,3 +114,19 @@ def setReadyState(request, lobby_id):
 	if lobby.player1Ready and lobby.player2Ready:
 		return JsonResponse({'playersReady': 'true'}, status=200)
 	return JsonResponse({'playersReady': 'false'}, status=200)
+
+@api_view(['POST'])
+@permission_classes([AllowAny]) 
+def cli_createLobby(request):
+    validator = RegexValidator('[+/%!?,.$%#&*]', inverse_match=True)
+    try:
+        id = request.data.get('lobby_id')
+        validator(id)
+        Lobby.objects.create(lobby_id=id)
+        return JsonResponse({'lobby_id': id, 'message': 'Lobby created successfully!'}, status=200)
+    except IntegrityError:
+        return JsonResponse({'error': 'Lobby already exists'}, status=400)
+    except ValidationError:
+        return JsonResponse({'error': 'Invalid characters in lobby ID'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
