@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 	'daphne',
 	'channels',
 	'rest_framework',
+    'cli.apps.CliConfig',
 	'lobby.apps.LobbyConfig',
 	'tournament.apps.TournamentConfig',
 	'match_history.apps.MatchHistoryConfig',

@@ -50,7 +50,7 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret, usernam
 							seturl("/home");
 					}
 				} catch (otpError) {
-					alert("Invalid OTP. Please try again.");
+					showErrorModal("Invalid OTP. Please try again.");
 				}
 			};
 		} else {
@@ -64,7 +64,7 @@ async function processLogin(accessToken, refreshToken, auth, otp_secret, usernam
 			}
 		}
 	} else {
-		alert("Login failed. OAuth parameters missing.");
+		showErrorModal("Login failed. OAuth parameters missing.");
 	}
 }
 

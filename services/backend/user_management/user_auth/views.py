@@ -13,6 +13,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django.core.files.base import ContentFile
+
 # 2FA
 import pyotp
 import qrcode
@@ -224,13 +226,23 @@ def authenticate_or_create_user_from_intra(user_info):
     
 	logger.debug(f"User: {user}, created: {created}")
 
-	if not created and user.has_usable_password():
+	if not created and user.has_usable_password() and not user.profile.intra_login:
 		raise ValueError("User already exists with a password")
 	
 	if created:
 		user.set_unusable_password()
+		user.email = user_info.get('email')
 		user.save()
 		Profile.objects.get_or_create(user=user)
+		user.profile.full_name = user_info.get('usual_full_name')
+
+		image_url = user_info.get("image", {}).get("link")
+		if image_url:
+			response = requests.get(image_url)
+			if response.status_code == 200:
+				user.profile.profile_picture = response.content
+				user.profile.save()
+				
 		user.profile.intra_login = True
 		user.profile.save()
     
