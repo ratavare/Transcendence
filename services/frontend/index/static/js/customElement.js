@@ -11,11 +11,11 @@ class PageElement extends HTMLElement {
 	}
 
 	static onLoad = (page) => {
-		console.log("PageElement.onLoad");
+		// console.log("PageElement.onLoad");
 	};
 
 	static onUnload = (page) => {
-		console.log("PageElement.onLoad");
+		// console.log("PageElement.onLoad");
 	};
 }
 

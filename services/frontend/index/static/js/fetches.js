@@ -8,14 +8,14 @@ async function sendFriendRequest(dest, src) {
 			"POST",
 			true
 		);
-		console.log("Friend request sent!");
+		// console.log("Friend request sent!");
 	} catch (error) {
 		console.error("Error:", error);
 	}
 }
 
 async function handleFriendRequestButton(src, dest, intention) {
-	console.log(src, dest, intention);
+	// console.log(src, dest, intention);
 	try {
 		return await myFetch(
 			"https://localhost:8443/user_friends/handle-friend-request/",
@@ -29,7 +29,7 @@ async function handleFriendRequestButton(src, dest, intention) {
 }
 
 async function deleteFriend(src, dest) {
-	console.log("friend deleted");
+	// console.log("friend deleted");
 	try {
 		return await myFetch(
 			"https://localhost:8443/user_friends/delete-friend/",

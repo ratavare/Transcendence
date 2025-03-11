@@ -13,16 +13,15 @@
 				false
 			);
 			if (data.access && data.refresh) {
-				console.log("Registration successful", data);
+				// console.log("Registration successful", data);
 
 				localStorage.setItem("access_token", data.access);
 				localStorage.setItem("refresh_token", data.refresh);
 			}
 			seturl("/home");
 		} catch (error) {
-			console.log("register.js: ", error);
 			const messages = Object.values(error);
-			console.log("Registration Failed. Reasons: ", messages);
+			// console.log("Registration Failed. Reasons: ", messages);
 			messages.forEach(showErrorModal);
 		}
 	});

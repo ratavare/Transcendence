@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 PageElement.onLoad = () => {
-	console.log("singleplayerpong.js loaded");
+	// console.log("singleplayerpong.js loaded");
 
 	// Constants
 	const PADDLE_SPEED = 10;
@@ -35,8 +35,8 @@ PageElement.onLoad = () => {
 	// get Overlay
 
 	if (window.location.href != "https://localhost:8443/#/singleplayerpong") {
-		console.log("Running on the wrong page");
-		console.log({ pathname: window.location.href });
+		// console.log("Running on the wrong page");
+		// console.log({ pathname: window.location.href });
 		window.location.reload();
 	}
 
@@ -330,12 +330,12 @@ PageElement.onLoad = () => {
 
 	function cubeOutofBounds() {
 		if (cube.position.x > 1000) {
-			console.log("z is " + cube.position.z + " x is " + cube.position.x);
+			// console.log("z is " + cube.position.z + " x is " + cube.position.x);
 			respawnCube(1);
 			player1Score++;
 			document.getElementById("player1score").innerHTML = player1Score;
 		} else if (cube.position.x < -1000) {
-			console.log("z is " + cube.position.z + " x is " + cube.position.x);
+			// console.log("z is " + cube.position.z + " x is " + cube.position.x);
 			respawnCube(2);
 			player2Score++;
 			document.getElementById("player2score").innerHTML = player2Score;
@@ -500,7 +500,7 @@ PageElement.onLoad = () => {
 	// Stop the game when the user refreshes or leaves
 	// Save the event handler function reference
 	const hashChangeHandler = () => {
-		console.log("hashchange singleplayerpong");
+		// console.log("hashchange singleplayerpong");
 		cleanupSingleplayerGame();
 	};
 
@@ -531,7 +531,7 @@ PageElement.onLoad = () => {
 			canvas.remove();
 		}
 	
-		console.log("Singleplayer game cleaned up");
+		// console.log("Singleplayer game cleaned up");
 	}
 
 	function cleanupThreeJsObjects() {
@@ -630,9 +630,9 @@ PageElement.onLoad = () => {
 				moveCube();
 				// applyCameraShake();
 			}
-			console.log(
-				"Player 1: " + player1Score + " Player 2: " + player2Score
-			);
+			// console.log(
+			// 	"Player 1: " + player1Score + " Player 2: " + player2Score
+			// );
 		} else if (player1Score == 7) {
 			document.getElementById("winner").innerHTML = "Player 1 wins!";
 		} else if (player2Score == 7) {

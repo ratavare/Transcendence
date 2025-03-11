@@ -65,10 +65,10 @@ function setUpWS(conversation) {
 		messagesDiv.scrollTop = messagesDiv.scrollHeight;
 	}
 	chatSocket.onclose = function (e) {
-		console.log(`Closed connection: ${conversation.id}`);
+		// console.log(`Closed connection: ${conversation.id}`);
 	}
 	chatSocket.onopen = function (e) {
-		console.log(`Opened connection: ${conversation.id}`);
+		// console.log(`Opened connection: ${conversation.id}`);
 	}
 	document.getElementById('message-form').addEventListener('submit', (event) => {
 		event.preventDefault();

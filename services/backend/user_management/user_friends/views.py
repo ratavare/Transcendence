@@ -70,7 +70,7 @@ def sendFriendRequest(request):
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User(s) not found'}, status=404)
 	except Exception as e:
-		return JsonResponse({'error': str(e)}, status=500)
+		return JsonResponse({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -121,7 +121,7 @@ def deleteFriend(request):
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User not found.'}, status=404)
 	except Exception as e:
-		return JsonResponse({'error': str(e)}, status=500)
+		return JsonResponse({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -138,7 +138,7 @@ def deleteFriendRequest(request):
 	except User.DoesNotExist:
 		return JsonResponse({'error': 'User not found.'}, status=404)
 	except Exception as e:
-		return JsonResponse({'error': str(e)}, status=500)
+		return JsonResponse({'error': str(e)}, status=400)
 
 
 class UnifiedFriendshipAPI(APIView):

@@ -70,7 +70,7 @@ async function setPage(name) {
 	if (pageActive) {
 		const scripts = pageActive.querySelectorAll("script");
 		for (const script of Array.from(scripts)) {
-			console.log(`removed script of page ${pageName}`, script);
+			// console.log(`removed script of page ${pageName}`, script);
 			script.remove();
 		}
 		pageActive.remove();
@@ -97,7 +97,7 @@ async function setPage(name) {
 		)
 			newScript.type = "module";
 		newScript.onload = function () {
-			console.log(`${name}.js loaded successfully`);
+			// console.log(`${name}.js loaded successfully`);
 		};
 		newPage.appendChild(newScript);
 		document.body.appendChild(newPage);
@@ -117,7 +117,7 @@ async function setPage(name) {
 		let errorPage = l.get('404') || Array.from(pages).find((page) => page.getAttribute("name") === '404');
         if (errorPage) {
             name = '404';
-			console.log("404 Page not found: ", name);
+			// console.log("404 Page not found: ", name);
             const newPage = document.createElement("page-element");
             newPage.innerHTML = errorPage.innerHTML;
             newPage.setAttribute("name", name);

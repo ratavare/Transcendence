@@ -238,13 +238,11 @@ PageElement.onLoad = () => {
 				case "W":
 				case "w":
 				case "ArrowUp":
-					console.log("W pressed");
 					payload = { direction: -1 };
 					break;
 				case "s":
 				case "S":
 				case "ArrowDown":
-					console.log("S pressed");
 					payload = { direction: 1 };
 					break;
 				case "p":
@@ -402,7 +400,7 @@ PageElement.onLoad = () => {
 				receiveChatMessage(data.payload);
 				break;
 			case "log":
-				console.log(data.payload);
+				// console.log(data.payload);
 				break;
 			case "state":
 				overlayContainer.style.display = "none";
@@ -446,7 +444,7 @@ PageElement.onLoad = () => {
 	};
 
 	socket.onclose = () => {
-		console.log("Socket closed unexpectedly");
+		// console.log("Socket closed unexpectedly");
 		if (!fromTournament)
 			seturl('/home');
 	};
@@ -565,7 +563,7 @@ PageElement.onLoad = () => {
 	};
 
 	const hashChangeHandler = () => {
-		console.log("hashchange pong");
+		// console.log("hashchange pong");
 		cleanupGame();
 	};
 	
@@ -583,11 +581,11 @@ PageElement.onLoad = () => {
 			document.removeEventListener("keyup", keyupHandler);
 		}
 		window.removeEventListener("hashchange", cleanupGame);
-		console.log("Game stopped.");
+		// console.log("Game stopped.");
 	}
 };
 
 window.onload = () => {
-	console.log("Pong Script loaded");
+	// console.log("Pong Script loaded");
 	PageElement.onLoad();
 };

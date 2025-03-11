@@ -37,8 +37,7 @@ logger = logging.getLogger(__name__)
 def has_usable_password(request, user_id):
     try:
         user = User.objects.get(id=user_id)
-        
-        # Check if the user has a usable password
+
         has_password = user.has_usable_password()
         
         return JsonResponse({'has_password': has_password})
@@ -322,7 +321,6 @@ def changePasswordView(request):
     if new_password != confirm_new_password:
         return JsonResponse({'error': 'New passwords do not match'}, status=400)
 
-    # Only require current_password if the user has a usable password.
     if user.has_usable_password():
         if not current_password:
             return JsonResponse({'error': 'Current password is required'}, status=400)
@@ -350,4 +348,4 @@ def deleteAccountView(request):
 		logout(request)
 		return JsonResponse({'status': 'success', 'message': 'Account deleted successfully'}, status=200)
 	except Exception as e:
-		return JsonResponse({'status': 'error', 'message': 'An error occurred while deleting the account'}, status=500)
+		return JsonResponse({'status': 'error', 'message': 'An error occurred while deleting the account'}, status=400)

@@ -14,7 +14,6 @@ async function getMatchHistory(username) {
 
 async function updateProfile(formData) {
 	try {
-		console.log(formData);
 		await myFetch('https://localhost:8443/user_profile/profile/', formData, 'POST', true)
 		window.location.reload();
 	} catch(error) {
@@ -155,7 +154,6 @@ async function renderMatchHistory() {
 		return ;
 	}
 	matchHistory.forEach(match => {
-		console.log(match);
 		const matchEntry = document.createElement('div');
 		matchEntry.classList.add('match-result');
 

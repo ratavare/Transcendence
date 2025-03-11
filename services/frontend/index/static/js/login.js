@@ -79,12 +79,12 @@ document.getElementById("form-login").addEventListener("submit", async function 
 			"POST",
 			false
 		);
-		console.log("Login successful ", data);
+		// console.log("Login successful ", data);
 		processLogin(data.access, data.refresh, data.is_2fa_enabled, data.otp_secret, data.username);
 	} catch (error) {
-		console.log("login.js: ", error);
+		// console.log("login.js: ", error);
 		const messages = Object.values(error);
-		console.log("Login Failed. Reasons: ", messages);
+		// console.log("Login Failed. Reasons: ", messages);
 		showErrorModal(messages);
 	}
 });

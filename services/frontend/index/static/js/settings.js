@@ -47,7 +47,7 @@ function updateUI() {
 	const token = localStorage.getItem("access_token");
 	if (token) {
 		const userData = parseJwt(token);
-		console.log(userData);
+		// console.log(userData);
 
 		// Get the user ID from the JWT
 		const userId = userData.user_id;

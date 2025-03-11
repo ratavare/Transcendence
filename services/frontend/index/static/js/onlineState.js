@@ -20,10 +20,10 @@ function onlineStatus() {
     window.statusSocket = socket;
 
     socket.onopen = () => {
-        console.log("WebSocket connection established.");
+        // console.log("WebSocket connection established.");
     };
     socket.onclose = () => {
-        console.log("WebSocket connection closed.");
+        // console.log("WebSocket connection closed.");
     };
     socket.onerror = () => {
         console.error("Fatal websocket error.");
@@ -32,14 +32,12 @@ function onlineStatus() {
     window.activeFriends = new Set();
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        console.log('RECEIVED OBJ:', data);
         if (data.status === 'online' && !window.activeFriends.has(data.user)) {
             window.activeFriends.add(data.user)
             socket.send(1);
         }
         if (data.status === 'offline')
             window.activeFriends.delete(data.user)
-        console.log([window.activeFriends])
         updateOnlineStatus(data);
     };
 }

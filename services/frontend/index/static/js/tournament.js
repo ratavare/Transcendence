@@ -31,7 +31,7 @@ PageElement.onLoad = async () => {
 				updateBracket(data.payload);
 				break;
 			case "log":
-				console.log(data.payload);
+				// console.log(data.payload);
 				break;
 			case "message":
 				receiveChatMessage(data.payload);
@@ -42,7 +42,7 @@ PageElement.onLoad = async () => {
 	};
 
 	socket.onclose = (e) => {
-		console.log(`Socket closed unexpectedly: ${e.reason}`);
+		// console.log(`Socket closed unexpectedly: ${e.reason}`);
 		seturl("/home");
 	};
 
@@ -99,8 +99,6 @@ PageElement.onLoad = async () => {
 		try {
 			const { winner1, winner2, winner3, state, stage, fake_names } = payload;
 			const fakers = Object.values(fake_names);
-
-			console.log(payload);
 
 			if (state == "disconnect" && stage == "winner") {
 				updateWinner(winner1, winner2, winner3, fakers);
@@ -383,7 +381,6 @@ PageElement.onLoad = async () => {
 	}
 
 	function fakeNameFormInit(names) {
-		console.log("FAKE NAME FORM INTT:", names);
 		const fakeNameForm = document.getElementById("fake-name-form");
 		if (!fakeNameForm || !names) return;
 		fakeNameForm.addEventListener("submit", (event) => {
