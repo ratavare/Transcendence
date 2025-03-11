@@ -91,7 +91,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.deleteLobbyWS(lobby)
 			await self.deleteLobbyDB()
 			print("\n DELETED LOBBY", flush=True)
-		elif isFromTournament or game.running:
+		elif isFromTournament:
 			try:
 				winner_id = game.player1Token if game.player1Token is not self.user_id else game.player2Token
 				winner_username = lobby["players"][winner_id]

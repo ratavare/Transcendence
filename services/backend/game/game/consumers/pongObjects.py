@@ -23,7 +23,7 @@ class vars():
 	PADDLE_WIDTH = 10
 	PADDLE_LENGTH = 100
 	PADDLE_DEPTH = 30
-	POINTS_TO_WIN = 1
+	POINTS_TO_WIN = 7
 
 class Paddle():
 	def __init__(self, positionX=0, positionZ=0):
