@@ -34,6 +34,7 @@ from dotenv import load_dotenv
 import os
 load_dotenv(os.path.join(BASE_DIR, '../.env'))
 MAIN_HOST = os.getenv("MAIN_HOST")
+CLIENT_ID = os.getenv("CLIENT_ID")
 
 import logging
 logger = logging.getLogger(__name__)
@@ -148,7 +149,7 @@ def handle_intra_oauth_login(request, code):
 	token_url = 'https://api.intra.42.fr/oauth/token'
 	data = {
 		'grant_type': 'authorization_code',
-		'client_id': os.getenv('CLIENT_ID'),
+		'client_id': CLIENT_ID,
 		'client_secret': os.getenv('CLIENT_SECRET'),
 		'redirect_uri': f"https://{MAIN_HOST}:8443/user_auth/login/",
 		'code': code

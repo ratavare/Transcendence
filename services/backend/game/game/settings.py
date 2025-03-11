@@ -94,6 +94,7 @@ POSTGRES_PASSWORD=os.getenv("POSTGRES_PASSWORD")
 POSTGRES_USER=os.getenv("POSTGRES_USER")
 POSTGRES_NAME=os.getenv("POSTGRES_NAME")
 
+
 # Database
 DATABASES = {
 	'default': {
@@ -101,7 +102,7 @@ DATABASES = {
 		'NAME': POSTGRES_NAME,
 		'USER': POSTGRES_USER,
 		'PASSWORD': POSTGRES_PASSWORD,
-		'HOST': 'database',
+		'HOST': 'postgres',
 		'PORT': '5432',
 	}
 }

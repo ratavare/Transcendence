@@ -4,10 +4,13 @@ services:
     container_name: frontend
     environment:
       - MAIN_HOST=${MAIN_HOST}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_NAME=${POSTGRES_NAME}
     env_file:
       - .env
     build: ./services/frontend
-    restart: on-failure
+    # restart: on-failure
     depends_on:
       database:
         condition: service_healthy
@@ -21,9 +24,12 @@ services:
     build: ./services/backend/user_management
     environment:
       - MAIN_HOST=${MAIN_HOST}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_NAME=${POSTGRES_NAME}
     env_file:
       - .env
-    restart: on-failure
+    # restart: on-failure
     depends_on:
       database:
         condition: service_healthy
@@ -37,6 +43,9 @@ services:
     build: ./services/backend/game
     environment:
       - MAIN_HOST=${MAIN_HOST}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_NAME=${POSTGRES_NAME}
     env_file:
       - .env
     depends_on:
@@ -53,6 +62,9 @@ services:
     restart: on-failure
     environment:
       - MAIN_HOST=${MAIN_HOST}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_NAME=${POSTGRES_NAME}
     env_file:
       - .env
     depends_on:
@@ -67,20 +79,19 @@ services:
       - "8443:443"
     networks:
       - transcendence_nw
-  
 
   database:
     image: postgres
     container_name: postgres
     restart: on-failure
-    env_file:
-      - .env
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_NAME: ${POSTGRES_NAME}
+    env_file:
+      - .env
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/${POSTGRES_NAME}/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres_user"]
       interval: 5s

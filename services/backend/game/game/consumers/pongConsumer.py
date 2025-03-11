@@ -138,7 +138,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 				case 'p2':
 					game.paddle2.moving = payload['direction']
 				case 'ready':
-					print("\n\n", "READY", '\n\n', flush=True)
 					ready = await self.readyState(True)
 					if ready:
 						if not lobby["gameLoop"]:
@@ -291,8 +290,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 			lobby = Lobby.objects.get(lobby_id=self.lobby_id)
 			lobby.winner = user
 			lobby.save()
-			print("\nLOBBY: ", lobby.lobby_id, "\n", flush=True)
-			print("\nWINNER USERNAME: ", lobby.winner.username, "\n", flush=True)
 
 			tournaments = Tournament.objects.filter(
 				Q(game1=lobby) | Q(game2=lobby) | Q(game3=lobby)

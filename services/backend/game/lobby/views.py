@@ -109,7 +109,6 @@ def setReadyState(request, lobby_id):
 		lobby.player1Ready = True
 	if player == "2":
 		lobby.player2Ready = True
-	print(f"Player1Ready: {lobby.player1Ready}, Player2Ready: {lobby.player2Ready}", flush=True)
 	lobby.save()
 	if lobby.player1Ready and lobby.player2Ready:
 		return JsonResponse({'playersReady': 'true'}, status=200)

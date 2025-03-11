@@ -15,6 +15,7 @@ load_dotenv(os.path.join(BASE_DIR, '../.env'))
 SECRET_KEY = os.getenv("SECRET_KEY")
 MAIN_HOST = os.getenv("MAIN_HOST")
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -85,6 +86,8 @@ POSTGRES_PASSWORD=os.getenv("POSTGRES_PASSWORD")
 POSTGRES_USER=os.getenv("POSTGRES_USER")
 POSTGRES_NAME=os.getenv("POSTGRES_NAME")
 
+
+
 # Database
 DATABASES = {
 	'default': {
@@ -92,10 +95,11 @@ DATABASES = {
 		'NAME': POSTGRES_NAME,
 		'USER': POSTGRES_USER,
 		'PASSWORD': POSTGRES_PASSWORD,
-		'HOST': 'database',
+		'HOST': 'postgres',
 		'PORT': '5432',
 	}
 }
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

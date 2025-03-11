@@ -3,7 +3,6 @@
 # Debug output to check environment variables and configurations
 echo "MAIN_HOST is set to: $MAIN_HOST"
 echo "Checking if the Nginx config file has the correct substitution"
-cat /etc/nginx/conf.d/default.conf
 
 # Check if MAIN_HOST is set
 if [ -z "$MAIN_HOST" ]; then
@@ -24,6 +23,5 @@ fi
 
 # Show updated config (for debugging)
 echo "Updated Nginx configuration:"
-cat /etc/nginx/conf.d/default.conf
 
 exec "$@"

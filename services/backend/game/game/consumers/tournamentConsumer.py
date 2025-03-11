@@ -58,7 +58,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		# Update bracket
 		await self.sendBracket(tournament, "players", "connect")
 		if connectMessage:
-			print("\n Username: ", username, " Spectator:", tournament["spectators"], " Players: ",  tournament["players"], flush=True)
 			if username in tournament["spectators"]:
 				await self.groupSendChat("spectator", connectMessage)
 			else:
@@ -197,9 +196,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			except Exception as e:
 				print(f"Unexpected error: {e}", flush=True)
 	
-		print("\n", tournament["players"], tournament["pong_players"], "\n", flush=True)
 		if not tournament["players"] and not tournament["pong_players"] and not self.is_returning:
-			print("\nDELETED TOURNAMENT\n", flush=True)
 			del tournaments[t_id]
 			await self.deleteTournamentDB(t_id)
 

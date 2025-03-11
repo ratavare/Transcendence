@@ -9,8 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(os.path.join(BASE_DIR, '../.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3ez88!$-2nk6$u2y@=2_*@88vwaky2xsx3@$m5ej%-f#rfwn*a'
 MAIN_HOST = os.getenv("MAIN_HOST")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -78,10 +78,12 @@ DATABASES = {
 		'NAME': POSTGRES_NAME,
 		'USER': POSTGRES_USER,
 		'PASSWORD': POSTGRES_PASSWORD,
-		'HOST': 'database',
+		'HOST': 'postgres',
 		'PORT': '5432',
 	}
 }
+
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
