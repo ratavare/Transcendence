@@ -65,7 +65,7 @@ function editProfile() {
 
 	// Disable username input if the user logged in via Intra
 	if (window.user.intra_login) {
-		document.getElementById("username-edit").disabled = true;
+		document.getElementById("username-edit").readOnly  = true;
 	}
 }
 
