@@ -2,21 +2,23 @@
 from pathlib import Path
 from datetime import timedelta
 
-# ENV
-import os
-from dotenv import load_dotenv
-load_dotenv()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ENV
+import os
+from dotenv import load_dotenv
+load_dotenv(os.path.join(BASE_DIR, '../.env'))
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
+MAIN_HOST = os.getenv("MAIN_HOST")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "10.12.8.4"]
+ALLOWED_HOSTS = ["localhost", MAIN_HOST]
 
 ASGI_APPLICATION = "user_mng.asgi.application"
 
@@ -26,7 +28,7 @@ CHANNEL_LAYERS = {
 	},
 }
 
-CSRF_TRUSTED_ORIGINS = ["https://localhost:8443", "https://10.12.8.4:8443"]
+CSRF_TRUSTED_ORIGINS = ["https://localhost:8443", f"https://{MAIN_HOST}:8443"]
 
 # Application definition
 INSTALLED_APPS = [

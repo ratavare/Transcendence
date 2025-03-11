@@ -3,7 +3,7 @@
 async function sendFriendRequest(dest, src) {
 	try {
 		await myFetch(
-			"https://localhost:8443/user_friends/friend-request-send/",
+			`https://${MAIN_HOST}:8443/user_friends/friend-request-send/`,
 			{ dest: dest, src: src },
 			"POST",
 			true
@@ -18,7 +18,7 @@ async function handleFriendRequestButton(src, dest, intention) {
 	// console.log(src, dest, intention);
 	try {
 		return await myFetch(
-			"https://localhost:8443/user_friends/handle-friend-request/",
+			`https://${MAIN_HOST}:8443/user_friends/handle-friend-request/`,
 			{ dest: dest, src: src, intention: intention },
 			"POST",
 			true
@@ -32,7 +32,7 @@ async function deleteFriend(src, dest) {
 	// console.log("friend deleted");
 	try {
 		return await myFetch(
-			"https://localhost:8443/user_friends/delete-friend/",
+			`https://${MAIN_HOST}:8443/user_friends/delete-friend/`,
 			{ dest: dest, src: src },
 			"POST",
 			true
@@ -45,7 +45,7 @@ async function deleteFriend(src, dest) {
 async function deleteFriendRequest(src, dest) {
 	try {
 		return myFetch(
-			"https://localhost:8443/user_friends/delete-friend-request/",
+			`https://${MAIN_HOST}:8443/user_friends/delete-friend-request/`,
 			{ dest: dest, src: src },
 			"POST",
 			true
@@ -57,7 +57,7 @@ async function deleteFriendRequest(src, dest) {
 
 async function friendsSearchUser(formData) {
 	return myFetch(
-		"https://localhost:8443/user_friends/user_search/",
+		`https://${MAIN_HOST}:8443/user_friends/user_search/`,
 		formData,
 		"POST",
 		true
@@ -70,7 +70,7 @@ async function friendsSearchUser(formData) {
 async function getFriendsData() { // Also in pms.js
 	try {
 		return await myFetch(
-			"https://localhost:8443/user_friends/api/",
+			`https://${MAIN_HOST}:8443/user_friends/api/`,
 			null,
 			"GET",
 			true
@@ -85,7 +85,7 @@ async function getFriendsData() { // Also in pms.js
 async function getForeignProfile(username) {
 	try {
 		return await myFetch(
-			`https://localhost:8443/user_profile/profile/${username}/`,
+			`https://${MAIN_HOST}:8443/user_profile/profile/${username}/`,
 			null,
 			"GET",
 			true
