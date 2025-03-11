@@ -226,7 +226,7 @@ def authenticate_or_create_user_from_intra(user_info):
     
 	logger.debug(f"User: {user}, created: {created}")
 
-	if not created and user.has_usable_password():
+	if not created and user.has_usable_password() and not user.profile.intra_login:
 		raise ValueError("User already exists with a password")
 	
 	if created:
