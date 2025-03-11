@@ -5,6 +5,7 @@ from tournament.models import Tournament, TournamentPlayer
 from match_history.models import MatchHistory
 from django.contrib.auth.models import User
 from .pongObjects import Pong, vars
+from django.utils.timezone import now
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -18,33 +19,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 		self.lobby_id = self.scope["url_route"]["kwargs"]["lobby_id"]
 		self.user = self.scope["user"]
 		self.username = self.user.username
-	
+		self.user_id =  str(self.user.id)
+
 		if self.lobby_id not in lobbies:
 			lobbies[self.lobby_id] = {"players": dict(), "gameLoop": None, "game": Pong()}
-		elif self.lobby_id in deleteTimers:
-			deleteTimers[self.lobby_id].cancel()
-			del deleteTimers[self.lobby_id]
 		
 		lobby = lobbies[self.lobby_id]
 
-		token = (self.scope["query_string"].decode()).split('=')[1]
-		self.user_id = token if token else self.channel_name
-
-		if self.lobby_id not in connections:
-			connections[self.lobby_id] = {}
-
-		if self.user_id in connections[self.lobby_id]:
-			connected_channel_name = connections[self.lobby_id][self.user_id]
-			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
-			del connections[self.lobby_id][self.user_id]
-
-		connections[self.lobby_id][self.user_id] = self.channel_name
-
+		await self.connectTimerDeletion()
+		await self.handleConnections()
 		await self.channel_layer.group_add(self.lobby_id, self.channel_name)
 		await self.accept()
-		
-		if not token:
-			await self.sendMessage('token', self.user_id)
 
 		lobby["players"][self.user_id] = self.username
 		
@@ -58,26 +43,49 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.sendMessage('readyBtn', 'add')
 		else:
 			await self.sendMessage('readyBtn', 'remove')
+	
+	async def handleConnections(self):
+		if self.lobby_id not in connections:
+			connections[self.lobby_id] = {}
+
+		if self.user_id in connections[self.lobby_id]:
+			connected_channel_name = connections[self.lobby_id][self.user_id]
+			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
+			del connections[self.lobby_id][self.user_id]
+			await asyncio.sleep(0.1)
+
+		await asyncio.sleep(0.1)
+		connections[self.lobby_id][self.user_id] = self.channel_name
+	
+	async def connectTimerDeletion(self):
+		if self.user_id in deleteTimers:
+			deleteTimers[self.user_id ].cancel()
+			del deleteTimers[self.user_id]
+	
+	async def force_disconnect(self):
+		await self.close(4001)
 
 	async def disconnect(self, close_code):
+		if close_code == 4001:
+			return
+
 		lobby = lobbies.get(self.lobby_id)
 
 		if lobby and self.user_id in lobby["players"]:
 			del lobby["players"][self.user_id]
 
-		if self.lobby_id not in deleteTimers:
-			deleteTimers[self.lobby_id] = asyncio.create_task(self.deleteLobbyTask(lobby))
-
-	async def force_disconnect(self):
-		await self.close()
+		if self.user_id not in deleteTimers:
+			deleteTimers[self.user_id ] = asyncio.create_task(self.deleteLobbyTask(lobby))
 
 	async def deleteLobbyTask(self, lobby):
 		await asyncio.sleep(3)
 		game = lobby["game"]
 
+		print("\nPLAYERS: ", lobby["players"], flush=True)
 		if not lobby["players"]:
 			await self.deleteLobbyWS(lobby)
 			await self.deleteLobbyDB()
+			print("\n DELETED LOBBY", flush=True)
 		else:
 			try:
 				winner_id = game.player1Token if game.player1Token is not self.user_id else game.player2Token
@@ -88,6 +96,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			except Exception as e:
 				print(f"Error: {e}", flush=True)
 
+		deleteTimers.pop(self.user_id, None)
 		await self.channel_layer.group_discard(self.lobby_id, self.channel_name)
 
 	async def deleteLobbyWS(self, lobby):
@@ -186,9 +195,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.sendMessage('log', 'Game End')
 
 	async def win(self, lobby_game, winner_username, lobby_id):
-		await self.groupSend('gameOver', {"winner": winner_username})
 		await self.updateWinnerDB(winner_username)
-		await self.updateMatchHistory(lobby_game, self.lobby_id, winner_username)
+		await self.createMatchHistory(lobby_game, self.lobby_id, winner_username)
+		await self.groupSend('gameOver', {"winner": winner_username})
 
 	async def sendState(self):
 		lobby = lobbies.get(self.lobby_id)
@@ -301,9 +310,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 			print(f"Set retuning error: {e}", flush=True)
 
 	@database_sync_to_async
-	def updateMatchHistory(self, game, lobby_id, winner_username):
-		gameHistory = MatchHistory.objects.get(game_id=lobby_id)
-		gameHistory.winner = winner_username
-		gameHistory.player1Score = game.player1Score
-		gameHistory.player2Score = game.player2Score
-		gameHistory.save()
+	def createMatchHistory(self, game, lobby_id, winner_username):
+		try:
+			lobby = Lobby.objects.get(lobby_id=lobby_id)
+			if lobby.g1.exists() or lobby.g2.exists() or lobby.g3.exists():
+				return
+			match = MatchHistory.objects.create(game_id=lobby_id, winner=winner_username, player1Score=game.player1Score, player2Score=game.player2Score, date=now())
+			for user in lobby.users.all():
+				match.users.add(user)
+		except MatchHistory.DoesNotExist:
+			print(f"{lobby_id} MatchHistory does not exist", flush=True)
+		except Lobby.DoesNotExist:
+			print(f"{lobby_id} does not exist", flush=True)
+		except Exception as e:
+			print(f"Other Error: {e}", flush=True)

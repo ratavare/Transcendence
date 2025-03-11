@@ -312,5 +312,4 @@ async function loadFriendsPage() {
 	}
 }
 
-
 loadFriendsPage();

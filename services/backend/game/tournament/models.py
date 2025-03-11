@@ -1,8 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import User
 from lobby.models import Lobby
+from django.dispatch import receiver
 from django.utils.timezone import now
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 class TMessage(models.Model):
 	sender = models.CharField(max_length=100, blank=True)
@@ -12,9 +13,9 @@ class TMessage(models.Model):
 class Tournament(models.Model):
 	tournament_id = models.CharField(max_length=25, unique=True)
 	players = models.ManyToManyField(User, through="TournamentPlayer")
-	game1 = models.ForeignKey(Lobby, on_delete=models.DO_NOTHING, related_name="g1", null=True, blank=True)
-	game2 = models.ForeignKey(Lobby, on_delete=models.DO_NOTHING, related_name="g2", null=True, blank=True)
-	game3 = models.ForeignKey(Lobby, on_delete=models.DO_NOTHING, related_name="g3", null=True, blank=True)
+	game1 = models.ForeignKey(Lobby, on_delete=models.SET_NULL, related_name="g1", null=True, blank=True)
+	game2 = models.ForeignKey(Lobby, on_delete=models.SET_NULL, related_name="g2", null=True, blank=True)
+	game3 = models.ForeignKey(Lobby, on_delete=models.SET_NULL, related_name="g3", null=True, blank=True)
 	chat = models.ManyToManyField(TMessage)
 
 	def delete(self, *args, **kwargs):
@@ -40,3 +41,14 @@ class TournamentPlayer(models.Model):
 
 	class Meta:
 		ordering = ["joined_at"]
+
+@receiver(post_save, sender=Tournament)
+def create_Lobbies(sender, instance, created, **kwargs):
+	if created:
+		game1 = Lobby.objects.create(lobby_id=f"tournament_{instance.tournament_id}_1")
+		game2 = Lobby.objects.create(lobby_id=f"tournament_{instance.tournament_id}_2")
+		game3 = Lobby.objects.create(lobby_id=f"tournament_{instance.tournament_id}_3")
+		instance.game1 = game1
+		instance.game2 = game2
+		instance.game3 = game3
+		instance.save()

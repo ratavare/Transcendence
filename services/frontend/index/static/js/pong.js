@@ -326,6 +326,8 @@ PageElement.onLoad = () => {
 	// ************************************* WEBSOCKET ************************************************
 
 	function sendPayload(type, payload) {
+		if (!socket)
+			return;
 		socket.send(
 			JSON.stringify({
 				type: type,
@@ -337,8 +339,7 @@ PageElement.onLoad = () => {
 	async function checkDatabase(url) {
 		try {
 			const data = await myFetch(url, null, "GET", true);
-		} catch (error) {
-			console.log(error);
+		} catch {
 			seturl("/home");
 		}
 	}
@@ -351,11 +352,10 @@ PageElement.onLoad = () => {
 	checkDatabase(
 		`https://localhost:8443/lobby/lobbies/${lobby_id}/${window.user.username}/`
 	);
-	const token = localStorage.getItem("playerToken") || "";
 	const socket = new WebSocket(
 		`wss://localhost:8443/pong/${encodeURIComponent(
 			lobby_id
-		)}/?token=${token}`
+		)}/`
 	);
 
 	window.addEventListener("popstate", () => {
@@ -382,9 +382,6 @@ PageElement.onLoad = () => {
 	socket.onmessage = function (event) {
 		const data = JSON.parse(event.data);
 		switch (data.type) {
-			case "token":
-				localStorage.setItem("playerToken", data.payload);
-				break;
 			case "readyBtn":
 				if (readyBtn.classList.contains("hidden")) {
 					readyBtn.classList.remove("hidden");
@@ -431,6 +428,7 @@ PageElement.onLoad = () => {
 	};
 
 	socket.onopen = async () => {
+		console.warn("OPEN")
 		sendPayload("message", {
 			sender: "connect",
 			content: `${playerName} joined the lobby!`,
@@ -438,7 +436,13 @@ PageElement.onLoad = () => {
 	};
 
 	socket.onclose = () => {
-		console.log("Socket closed unexpectedly");
+		console.warn("Socket closed unexpectedly");
+		if (!fromTournament)
+			seturl('/home');
+	};
+
+	socket.onerror = () => {
+		console.error("Socket error");
 	};
 
 	// ************************************* CHAT ************************************************
@@ -506,6 +510,7 @@ PageElement.onLoad = () => {
 
 	// ************************************* TOURNAMENTS ************************************************
 
+	let fromTournament = false;
 	async function isTournamentLobby(lobby_id) {
 		const quitBtn = document.getElementById("quit-btn");
 		const tournament_id = lobby_id.split('_')[1]
@@ -513,7 +518,7 @@ PageElement.onLoad = () => {
 		{
 			try {
 				const data = await myFetch(`https://localhost:8443/tournament/getTournamentLobby/${tournament_id}/${lobby_id}`, null, "GET", true);
-				console.warn("DATA: ", data);
+				fromTournament = true;
 				quitBtn.addEventListener("click", () => {
 					seturl(`/tournament?id=${tournament_id}`);
 					setTimeout(() => {

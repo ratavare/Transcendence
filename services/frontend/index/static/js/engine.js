@@ -5,7 +5,6 @@ const pages = document.querySelectorAll("page-element");
 const l = new Map();
 for (const page of pages) {
 	document.body.removeChild(page);
-	// console.log("removeChild: ", page);
 	l.set(page.getAttribute("name"), page);
 }
 
@@ -40,7 +39,6 @@ window.addEventListener("popstate", () => {
 async function checkRedirection(page) {
 	const authenticated = page.getAttribute("authenticated") || "true";
 	const result = await getProfile();
-	// console.log("checkRedirection: authenticated: ", authenticated, " result: ", result);
 	if (authenticated == "true") {
 		if (!result) {
 			pageActive = undefined;

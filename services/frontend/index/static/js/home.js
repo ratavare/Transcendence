@@ -75,7 +75,6 @@ async function getLobbies() {
 			true
 		);
 		putList(data.lobbies, "lobby-list", "Lobby");
-		console.log("LOBBY LIST: ", data.lobbies);
 	} catch (error) {
 		console.log(error);
 	}

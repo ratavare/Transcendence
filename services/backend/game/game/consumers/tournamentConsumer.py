@@ -17,7 +17,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		self.is_returning = False
 		self.user_id =  str(self.user.id)
 
-
 		t_exists = await self.tournamentExistsDB(self.tournament_id)
 		if not self.user.is_authenticated or not t_exists:
 			print("Closing Connection", flush=True)
@@ -46,11 +45,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		# Set players
 		username = self.username if self.username not in tournament["fake_names"] else tournament["fake_names"][self.username]
 		self.is_returning = await self.is_returningDB()
-		try:
-			connectMessage = await self.playerSetup(tournament, username)
-			await self.setFakeNames(tournament)
-		except Exception as e:
-			print({e}, flush=True)
+		connectMessage = await self.playerSetup(tournament, username)
+		await self.setFakeNames(tournament)
 
 		# Set tournament winners
 		await self.setWinners(self.tournament_id)
@@ -59,8 +55,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		await self.setReadyBtn(tournament)
 
 		# Update bracket
-		await self.sendBracket(tournament, "players", "connect", None)
-		await self.groupSendChat("connect", connectMessage)
+		await self.sendBracket(tournament, "players", "connect")
+		if connectMessage:
+			await self.groupSendChat("connect", connectMessage)
 
 		# Reset is_returning status
 		self.is_returning = False
@@ -78,15 +75,20 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if self.user_id in connections[self.tournament_id]:
 			connected_channel_name = connections[self.tournament_id].pop(self.user_id)
 			await self.channel_layer.send(connected_channel_name, {"type": "force_disconnect"})
+			await asyncio.sleep(0.1)
 
+		await asyncio.sleep(0.1)
 		connections[self.tournament_id][self.user_id] = self.channel_name
+	
+	async def force_disconnect(self, event):
+		await self.close(code=4001)
 	
 	async def playerSetup(self, tournament, username):
 		content = None
-		if self.is_returning or self.user_id in tournament["pong_players"]:
+		if self.is_returning or self.username in tournament["pong_players"]:
 			tournament["players"][self.username] = username
-			if self.user_id in tournament["pong_players"]:
-				del tournament["pong_players"][self.user_id]
+			if self.username in tournament["pong_players"]:
+				del tournament["pong_players"][self.username]
 			content = f"welcome back {username}"
 		elif len(tournament["players"]) < 4 and self.username not in tournament["players"]:
 			tournament["players"][self.username] = username
@@ -109,6 +111,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			print(f"\n Set Winners error: {e}", flush=True)
 
 	async def setReadyBtn(self, tournament):
+		stage = self.getStage(tournament["winner1"], tournament["winner2"], tournament["winner3"])
 		self.is_ready = await self.is_readyDB()
 		await self.sendMessage("readyBtnInit", {
 			"players": tournament["players"],
@@ -116,7 +119,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			"winner1": self.getWinnerUsername(tournament, 1),
 			"winner2": self.getWinnerUsername(tournament, 2),
 			"winner3": self.getWinnerUsername(tournament, 3),
-			"stage": self.getStage(tournament["winner1"], tournament["winner2"], tournament["winner3"])
+			"stage": stage,
 		})
 
 	def getStage(self, winner1, winner2, winner3):
@@ -133,6 +136,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		return returnName
 
 	async def disconnect(self, close_code):
+		if close_code == 4001:
+			return
+
 		try:
 			tournament = tournaments[self.tournament_id]
 		except Exception:
@@ -156,8 +162,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if not tournament:
 			return
 
+		await self.setWinners(self.tournament_id)
+
 		w1_username = self.getWinnerUsername(tournament, 1)
 		w2_username = self.getWinnerUsername(tournament, 2)
+		w3_username = self.getWinnerUsername(tournament, 3)
 
 		self.is_returning = await self.is_returningDB()
 		if self.is_returning:
@@ -166,30 +175,30 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		else:
 			try:
 				self_fake_name = tournament["fake_names"][self.username]
-				if w1_username and w2_username:
+				if w1_username != None and w2_username != None and w3_username == None:
 					if w1_username == self_fake_name:
 						await self.setFinalWinnerDB(tournament, t_id, w2_username)
 					elif w2_username == self_fake_name:
 						await self.setFinalWinnerDB(tournament, t_id, w1_username)
-					await self.setReadyBtn(tournament)
+					# await self.setReadyBtn(tournament)
+				elif w1_username == None and w2_username == None:
+					if self.username in tournament["fake_names"]:
+						del tournament["fake_names"][self.username]
 				await self.handlePlayersLeaving(tournament, fake_name)
 				await self.removePlayerDB(t_id, username)
 
 			except Exception as e:
 				print(f"Unexpected error: {e}", flush=True)
-
+	
+		print("\n", tournament["players"], tournament["pong_players"], "\n", flush=True)
 		if not tournament["players"] and not tournament["pong_players"] and not self.is_returning:
+			print("\nDELETED TOURNAMENT\n", flush=True)
 			del tournaments[t_id]
 			await self.deleteTournamentDB(t_id)
 
 		deleteTimers.pop(self.user_id, None)
 
-	async def force_disconnect(self, event):
-		await self.close()
-
 	async def handlePlayersLeaving(self, tournament, fake_name):
-		stage = self.getStage(tournament["winner1"], tournament["winner2"], tournament["winner3"])
-	
 		await self.groupSendChat("disconnect", f"{fake_name} left the tournament!")
 
 		if self.username in tournament["players"]:
@@ -197,10 +206,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if self.username in tournament["ready_players"]:
 			del tournament["ready_players"][self.username]
 	
-		await self.sendBracket(tournament, "players", "disconnect", stage)
+		await self.sendBracket(tournament, "players", "disconnect")
 
-		if self.user_id in tournament["pong_players"]:
-			del tournament["pong_players"][self.user_id]
+		if self.username in tournament["pong_players"]:
+			del tournament["pong_players"][self.username]
 
 	@database_sync_to_async
 	def deleteTournamentDB(self, t_id):
@@ -249,9 +258,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 	async def sendFakeNames(self, payload, tournament):
 		tournament["fake_names"][self.username] = payload
-		stage = self.getStage(tournament["winner1"], tournament["winner2"], tournament["winner3"]),
 		
-		await self.sendBracket(tournament, "fake_names", None, stage)
+		await self.sendBracket(tournament, "fake_names", None)
 	
 		await self.groupSendChat("changeName", {
 			"oldName": self.username,
@@ -275,14 +283,18 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		)
 
 	# tournamentDictKey should be one of the dicts of tournament (players, fake_names, etc) 
-	async def sendBracket(self, tournament, tournamentDictKey, state, stage):
+	async def sendBracket(self, tournament, tournamentDictKey, state):
+		w1 = self.getWinnerUsername(tournament, 1)
+		w2 = self.getWinnerUsername(tournament, 2)
+		w3 = self.getWinnerUsername(tournament, 3)
+		stage = self.getStage(w1, w2, w3)
 		await self.groupSend("updateBracketWS", {
 			"state": state,
 			"players": tournament[tournamentDictKey],
 			"fake_names": tournament["fake_names"],
-			"winner1": self.getWinnerUsername(tournament, 1),
-			"winner2": self.getWinnerUsername(tournament, 2),
-			"winner3": self.getWinnerUsername(tournament, 3),
+			"winner1": w1,
+			"winner2": w2,
+			"winner3": w3,
 			"stage": stage,
 		})
 
@@ -302,30 +314,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			for player in tournament['ready_players']:
 				await self.setReturningStateDB(tournament['ready_players'][player], t_id, True)
 			asyncio.create_task(self.countdownAndStart(t_id, tournament, send_type, readyState))
-
-	# async def semiFinalsUpdateReady(self, t_id, tournament):
-	# 	if self.username in tournament["players"] and self.username not in tournament["ready_players"]:
-	# 		tournament["ready_players"][self.username] = self.username
-	# 		username = self.username if self.username not in tournament["fake_names"] else tournament["fake_names"][self.username]
-	# 		await self.groupSendChat("connect", f"{username} is ready!")
-
-	# 	if len(tournament['ready_players']) == 4:
-	# 		for player in tournament['ready_players']:
-	# 			await self.setReturningStateDB(tournament['ready_players'][player], t_id, True)
-	# 		await self.countdown()
-	# 		await self.startStage(t_id, tournament, "startSemifinals", False)
-	
-	# async def finalsUpdateReady(self, t_id, tournament):
-	# 	if self.username in tournament["fake_names"] and self.username not in tournament["ready_players"]:
-	# 		tournament["ready_players"][self.username] = self.username
-	# 		username = self.username if self.username not in tournament["fake_names"] else tournament["fake_names"][self.username]
-	# 		await self.groupSendChat("connect", f"{username} is ready!")
-
-	# 	if len(tournament['ready_players']) == 2:
-	# 		for player in tournament['ready_players']:
-	# 			await self.setReturningStateDB(tournament['ready_players'][player], t_id, True)
-	# 		await self.countdown()
-	# 		await self.startStage(t_id, tournament,"startFinal", True)
 	
 	async def countdownAndStart(self, t_id, tournament, send_type, readyState):
 		await self.countdown()
