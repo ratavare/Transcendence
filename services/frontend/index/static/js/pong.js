@@ -45,17 +45,17 @@ PageElement.onLoad = () => {
 	camera.position.set(0, 500, 0);
 	controls.update();
 
-	// // Skybox
-	// const loader = new THREE.CubeTextureLoader();
-	// const skybox = loader.load([
-	// 	"media/skybox/right.png", // Right
-	// 	"media/skybox/left.png", // Left
-	// 	"media/skybox/top.png", // Top
-	// 	"media/skybox/bottom.png", // Bottom
-	// 	"media/skybox/front.png", // Front
-	// 	"media/skybox/back.png", // Back
-	// ]);
-	// scene.background = skybox;
+	// Skybox
+	const loader = new THREE.CubeTextureLoader();
+	const skybox = loader.load([
+		"media/skybox/right.png", // Right
+		"media/skybox/left.png", // Left
+		"media/skybox/top.png", // Top
+		"media/skybox/bottom.png", // Bottom
+		"media/skybox/front.png", // Front
+		"media/skybox/back.png", // Back
+	]);
+	scene.background = skybox;
 
 	// Sphere
 	const ballLoader = new THREE.TextureLoader();
@@ -229,7 +229,7 @@ PageElement.onLoad = () => {
 	}
 
 	let keydownHandler, keyupHandler;
-
+	
 	function handlePaddleControls(player) {
 		keydownHandler = (event) => {
 			let payload = null;
@@ -258,7 +258,7 @@ PageElement.onLoad = () => {
 				sendPayload("pause", payload2);
 			}
 		};
-
+	
 		keyupHandler = (event) => {
 			let payload = null;
 			switch (event.key) {
@@ -275,6 +275,10 @@ PageElement.onLoad = () => {
 				sendPayload(player, payload);
 			}
 		};
+	
+		// Add event listeners
+		document.addEventListener("keydown", keydownHandler);
+		document.addEventListener("keyup", keyupHandler);
 	}
 
 	function updatePaddlePositions(payloadData) {
@@ -578,7 +582,7 @@ PageElement.onLoad = () => {
 			document.removeEventListener("keydown", keydownHandler);
 			document.removeEventListener("keyup", keyupHandler);
 		}
-		window.removeEventListener("hashchange", stopGame);
+		window.removeEventListener("hashchange", cleanupGame);
 		console.log("Game stopped.");
 	}
 };
