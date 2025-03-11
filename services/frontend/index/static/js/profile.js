@@ -46,8 +46,7 @@ async function fillProfile(user) {
 		document.getElementById('profile-bio').innerText = user.bio || "";
 		document.getElementById('profile-city').innerText = user.city || "";
 		document.getElementById('profile-birth-date').innerText = user.birth_date || "";
-		document.getElementById('profile-wins').innerText = user.wins || 0;
-		document.getElementById('profile-losses').innerText = user.losses || 0;
+	
 	} catch (error) {
 		console.error("Fetch error: ", error);
 	}
