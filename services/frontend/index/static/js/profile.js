@@ -2,7 +2,7 @@
 async function getMatchHistory(username) {
 	try {
 		return await myFetch(
-			`https://localhost:8443/match_history/${username}/`,
+			`https://${MAIN_HOST}:8443/match_history/${username}/`,
 			null,
 			"GET",
 			true
@@ -15,7 +15,7 @@ async function getMatchHistory(username) {
 async function updateProfile(formData) {
 	try {
 		console.log(formData);
-		await myFetch('https://localhost:8443/user_profile/profile/', formData, 'POST', true)
+		await myFetch(`https://${MAIN_HOST}:8443/user_profile/profile/`, formData, 'POST', true)
 		window.location.reload();
 	} catch(error) {
 		console.log("Profile change failed. Reason:", error);
@@ -28,7 +28,7 @@ async function uploadProfilePicture(file) {
 		const formData = new FormData();
 		formData.append('profile_picture', file);
 
-		await myFetch(`https://localhost:8443/user_profile/profile/picture/${window.user.username}/`, formData, 'POST', true);
+		await myFetch(`https://${MAIN_HOST}:8443/user_profile/profile/picture/${window.user.username}/`, formData, 'POST', true);
 
 		//showErrorModal('Profile picture updated successfully!');
 		window.location.reload(); // Refresh might not be the best way

@@ -6,9 +6,11 @@ RUN apt-get update && apt-get install -y openssl
 
 # Copy Nginx configuration file
 COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./entrypoint.sh .
 
 # Create directories for SSL certificates
 RUN mkdir -p /etc/nginx/ssl
+RUN chmod +x /entrypoint.sh
 
 # Generate self-signed SSL certificates
 RUN openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \
@@ -19,3 +21,6 @@ RUN openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \
 # Expose ports
 EXPOSE 443
 EXPOSE 80
+
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]

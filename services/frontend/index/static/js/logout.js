@@ -2,7 +2,7 @@ async function logoutFunc() {
 	if (location.hash === "#/logout") {
 		try {
 			await myFetch(
-				"https://localhost:8443/user_auth/logout/",
+				`https://${MAIN_HOST}:8443/user_auth/logout/`,
 				null,
 				"POST",
 				true

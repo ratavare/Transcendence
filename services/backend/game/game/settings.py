@@ -19,18 +19,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ENV
 import os
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(os.path.join(BASE_DIR, '../.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
+MAIN_HOST = os.getenv("MAIN_HOST")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "game", "10.12.8.4"]
+ALLOWED_HOSTS = ["localhost", MAIN_HOST, "game"]
 
 ASGI_APPLICATION = "game.asgi.application"
 
