@@ -19,7 +19,7 @@ async function updateProfile(formData) {
 		window.location.reload();
 	} catch(error) {
 		console.log("Profile change failed. Reason:", error);
-		showErrorModal("Profile change failed. Please check that the username is unique and the email is valid.");
+		showErrorModal("Profile change failed. Make sure that the username is unique and that both email and birth date are valid.");
 	}
 }
 
