@@ -33,8 +33,10 @@ PageElement.onLoad = () => {
 	let animationFrameId;
 
 	// get Overlay
-
-	if (window.location.href != "https://localhost:8443/#/singleplayerpong") {
+	if (window.location.href != "https://localhost:8443/#/singleplayerpong" &&
+		window.location.href != "https://localhost:8443/#?/singleplayerpong" &&
+		window.location.href != "https://localhost:8443/?#/singleplayerpong"
+	) {
 		// console.log("Running on the wrong page");
 		// console.log({ pathname: window.location.href });
 		window.location.reload();

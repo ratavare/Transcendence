@@ -28,9 +28,10 @@ PageElement.onLoad = () => {
 	let gamePaused = false;
 	let beginGame = false;
 
-	if (window.location.href != "https://localhost:8443/#/multiplayer_pong") {
-		// console.log("Running on the wrong page");
-		// console.log({ pathname: window.location.href });
+	if (window.location.href != "https://localhost:8443/#/multiplayer_pong" &&
+		window.location.href != "https://localhost:8443/#?/multiplayer_pong" &&
+		window.location.href != "https://localhost:8443/?#/multiplayer_pong"
+	) {
 		window.location.reload();
 	}
 
