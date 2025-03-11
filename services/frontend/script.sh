@@ -13,4 +13,5 @@ echo "${BOLD_CYAN}Migrating...${NC}"
 python manage.py migrate
 
 echo "${BOLD_CYAN}Starting the server...${NC}"
+
 python manage.py runserver 0.0.0.0:8000

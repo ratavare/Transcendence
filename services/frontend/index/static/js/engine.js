@@ -114,9 +114,9 @@ async function setPage(name) {
 			}, 200);
 		}
 	} else {
-		let errorPage = l.get('404') || Array.from(pages).find((page) => page.getAttribute("name") === '404');
+		let errorPage = l.get('404error') || Array.from(pages).find((page) => page.getAttribute("name") === '404');
         if (errorPage) {
-            name = '404';
+            name = '404error';
 			console.log("404 Page not found: ", name);
             const newPage = document.createElement("page-element");
             newPage.innerHTML = errorPage.innerHTML;
@@ -148,5 +148,4 @@ async function getProfile() {
 		return false;
 	}
 }
-
 window.getProfile = getProfile;
