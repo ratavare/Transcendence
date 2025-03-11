@@ -16,6 +16,9 @@ class Tournament(models.Model):
 	game1 = models.ForeignKey(Lobby, on_delete=models.SET_NULL, related_name="g1", null=True, blank=True)
 	game2 = models.ForeignKey(Lobby, on_delete=models.SET_NULL, related_name="g2", null=True, blank=True)
 	game3 = models.ForeignKey(Lobby, on_delete=models.SET_NULL, related_name="g3", null=True, blank=True)
+	winner1 = models.CharField(max_length=25, null=True, blank=True)
+	winner2 = models.CharField(max_length=25, null=True, blank=True)
+	winner3 = models.CharField(max_length=25, null=True, blank=True)
 	chat = models.ManyToManyField(TMessage)
 
 	def delete(self, *args, **kwargs):
@@ -23,12 +26,13 @@ class Tournament(models.Model):
 		self.game1 = None
 		self.game2 = None
 		self.game3 = None
-		self.save(update_fields=["game1", "game2", "game3"])  # Ensure changes are persisted
-		if game1:
+		self.save(update_fields=["game1", "game2", "game3"])
+
+		if game1 and not Tournament.objects.filter(models.Q(game1=game1) | models.Q(game2=game1) | models.Q(game3=game1)).exists():
 			game1.delete()
-		if game2:
+		if game2 and not Tournament.objects.filter(models.Q(game1=game2) | models.Q(game2=game2) | models.Q(game3=game2)).exists():
 			game2.delete()
-		if game3:
+		if game3 and not Tournament.objects.filter(models.Q(game1=game3) | models.Q(game2=game3) | models.Q(game3=game3)).exists():
 			game3.delete()
 		super().delete(*args, **kwargs)
 

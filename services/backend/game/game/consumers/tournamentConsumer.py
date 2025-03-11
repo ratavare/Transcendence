@@ -85,6 +85,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	
 	async def playerSetup(self, tournament, username):
 		content = None
+		print("\n", tournament["players"], tournament["pong_players"], "\n", flush=True)
 		if self.is_returning or self.username in tournament["pong_players"]:
 			tournament["players"][self.username] = username
 			if self.username in tournament["pong_players"]:
@@ -104,9 +105,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		try:
 			tournament = tournaments[t_id]
 			tournamentObject = Tournament.objects.get(tournament_id=t_id)
-			tournament["winner1"] = tournamentObject.game1.winner
-			tournament["winner2"] = tournamentObject.game2.winner
-			tournament["winner3"] = tournamentObject.game3.winner
+			tournament["winner1"] = tournamentObject.winner1
+			tournament["winner2"] = tournamentObject.winner2
+			tournament["winner3"] = tournamentObject.winner3
 		except Exception as e:
 			print(f"\n Set Winners error: {e}", flush=True)
 
@@ -131,8 +132,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 	def getWinnerUsername(self, tournament, i):
 		winner = tournament.get(f"winner{i}")
-		wUsername = winner.username if winner and hasattr(winner, 'username') else None
-		returnName = wUsername if wUsername not in tournament["fake_names"] or wUsername is None else tournament["fake_names"][wUsername]
+		returnName = winner if winner not in tournament["fake_names"] or winner is None else tournament["fake_names"][winner]
 		return returnName
 
 	async def disconnect(self, close_code):
@@ -162,7 +162,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		if not tournament:
 			return
 
-		await self.setWinners(self.tournament_id)
+		# await self.setWinners(self.tournament_id)
 
 		w1_username = self.getWinnerUsername(tournament, 1)
 		w2_username = self.getWinnerUsername(tournament, 2)
@@ -175,6 +175,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		else:
 			try:
 				self_fake_name = tournament["fake_names"][self.username]
+				print("\n WINNERS:", w1_username, w2_username, w3_username, flush=True)
 				if w1_username != None and w2_username != None and w3_username == None:
 					if w1_username == self_fake_name:
 						await self.setFinalWinnerDB(tournament, t_id, w2_username)
@@ -205,11 +206,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			del tournament["players"][self.username]
 		if self.username in tournament["ready_players"]:
 			del tournament["ready_players"][self.username]
+		if self.username in tournament["pong_players"]:
+			del tournament["pong_players"][self.username]
 	
 		await self.sendBracket(tournament, "players", "disconnect")
 
-		if self.username in tournament["pong_players"]:
-			del tournament["pong_players"][self.username]
 
 	@database_sync_to_async
 	def deleteTournamentDB(self, t_id):
@@ -340,20 +341,29 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 		return tPlayer.is_ready
 
 	async def startStage(self, t_id, tournament, stage, readyState):
+		winner1 = self.getWinnerUsername(tournament, 1)
+		winner2 = self.getWinnerUsername(tournament, 2)
+
+		if stage == "startSemifinals":
+			for player in tournament["players"]:
+				await self.handleStartStage(t_id, tournament, player, readyState)
+		if stage == "startFinal":
+			await self.handleStartStage(t_id, tournament, winner1, readyState)
+			await self.handleStartStage(t_id, tournament, winner2, readyState)
+
 		await self.groupSend(stage, {
-			"winner1": self.getWinnerUsername(tournament, 1),
-			"winner2": self.getWinnerUsername(tournament, 2),
+			"winner1": winner1,
+			"winner2": winner2,
 			"players": tournament["fake_names"],
 			"tournament_id": t_id
 		})
 
-		for player in tournament["players"]:
-			if player in tournament["ready_players"]:
-				del tournament["ready_players"][player]
-			username = tournament["players"][player]
-			tournament["pong_players"][player] = username
-			await self.setReturningStateDB(username, t_id, True)
-			await self.setReadyStateDB(username, t_id, readyState)
+	async def handleStartStage(self, t_id, tournament, player, readyState):
+		if player in tournament["ready_players"]:
+			del tournament["ready_players"][player]
+		tournament["pong_players"][self.username] = player
+		await self.setReturningStateDB(player, t_id, True)
+		await self.setReadyStateDB(player, t_id, readyState) 	
 
 	@database_sync_to_async
 	def getPlayerNamesDB(self, t_id):
@@ -362,19 +372,25 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 	@database_sync_to_async
 	def setReturningStateDB(self, username, t_id, status):
-		t = Tournament.objects.get(tournament_id=t_id)
-		p = User.objects.get(username=username)
-		tPlayer = TournamentPlayer.objects.filter(tournament=t, player=p)
-		tPlayer.update(is_returning=status)
-		t.save()
+		try:
+			t = Tournament.objects.get(tournament_id=t_id)
+			p = User.objects.get(username=username)
+			tPlayer = TournamentPlayer.objects.filter(tournament=t, player=p)
+			tPlayer.update(is_returning=status)
+			t.save()
+		except Exception as e:
+			print(f"Set returning state DB error: {e}", flush=True)
 
 	@database_sync_to_async
 	def setReadyStateDB(self, username, t_id, status):
-		t = Tournament.objects.get(tournament_id=t_id)
-		p = User.objects.get(username=username)
-		tPlayer = TournamentPlayer.objects.filter(tournament=t, player=p)
-		tPlayer.update(is_ready=status)
-		t.save()
+		try:
+			t = Tournament.objects.get(tournament_id=t_id)
+			p = User.objects.get(username=username)
+			tPlayer = TournamentPlayer.objects.filter(tournament=t, player=p)
+			tPlayer.update(is_ready=status)
+			t.save()
+		except Exception as e:
+			print(f"Set returning state DB error: {e}", flush=True)
 
 	@database_sync_to_async
 	def tournamentExistsDB(self, t_id):

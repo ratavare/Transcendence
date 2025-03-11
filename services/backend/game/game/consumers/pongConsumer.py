@@ -5,6 +5,7 @@ from tournament.models import Tournament, TournamentPlayer
 from match_history.models import MatchHistory
 from django.contrib.auth.models import User
 from .pongObjects import Pong, vars
+from django.db.models import Q
 from django.utils.timezone import now
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -285,11 +286,21 @@ class PongConsumer(AsyncWebsocketConsumer):
 			lobby = Lobby.objects.get(lobby_id=self.lobby_id)
 			lobby.winner = user
 			lobby.save()
+			print("\nLOBBY: ", lobby.lobby_id, "\n", flush=True)
+			print("\nWINNER USERNAME: ", lobby.winner.username, "\n", flush=True)
 
-			tournaments = Tournament.objects.filter(game1=lobby) | Tournament.objects.filter(game2=lobby) | Tournament.objects.filter(game3=lobby)
-			if tournaments.exists():
-				for tournament in tournaments:
-					tournament.save()
+			tournaments = Tournament.objects.filter(
+				Q(game1=lobby) | Q(game2=lobby) | Q(game3=lobby)
+			)
+			for tournament in tournaments:
+				if tournament.game1 == lobby:
+					tournament.winner1 = username
+				elif tournament.game2 == lobby:
+					tournament.winner2 = username
+				elif tournament.game3 == lobby:
+					tournament.winner3 = username
+				tournament.save()
+			
 		except User.DoesNotExist:
 			print("User does not exist!", flsuh=True)
 		except Lobby.DoesNotExist:
