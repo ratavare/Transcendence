@@ -28,13 +28,6 @@ PageElement.onLoad = () => {
 	let gamePaused = false;
 	let beginGame = false;
 
-	if (window.location.href != "https://localhost:8443/#/multiplayer_pong" &&
-		window.location.href != "https://localhost:8443/#?/multiplayer_pong" &&
-		window.location.href != "https://localhost:8443/?#/multiplayer_pong"
-	) {
-		window.location.reload();
-	}
-
 	// get Overlay
 
 	const overlay = document.getElementById("overlay");
